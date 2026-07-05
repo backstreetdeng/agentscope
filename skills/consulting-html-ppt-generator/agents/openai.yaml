@@ -1,0 +1,4 @@
+interface:
+  display_name: "Consulting HTML PPT Generator"
+  short_description: "Generate consulting-style HTML PPT from business reports."
+  default_prompt: "Generate a consulting-style HTML PPT from this business report."

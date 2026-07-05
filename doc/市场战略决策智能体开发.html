@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>汽车市场战略智能体</title>
+  <!-- Phosphor Icons CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.0.3/src/regular/style.css" />
+  <style>
+    /* =========================================
+       字体规范
+       ========================================= */
+    :root {
+      /* 主色系 */
+      --primary:        #003370;   /* 深蓝主色 */
+      --primary-light:  #335599;  /* 辅助浅蓝 */
+      /* 背景色 */
+      --bg-page:        #F5F7FA;  /* 页面背景灰白 */
+      --bg-card:        #FFFFFF;  /* 功能卡片/面板 */
+      /* 字体三色 */
+      --text-title:     #1A202C;   /* 大标题/功能标题 */
+      --text-body:      #4A5568;   /* 说明文案/正文 */
+      --text-muted:     #94A3B8;   /* 占位符/辅助小字 */
+      /* 边框 */
+      --border-divider: #E2E8F0;   /* 模块分割线 */
+      --border-component:#CBD5E1;  /* 组件边框 */
+      /* 状态色 */
+      --green:          #059669;
+      --amber:          #D97706;
+      --red:            #DC2626;
+      /* 文字色 */
+      --text-on-primary:#FFFFFF;
+    }
+
+    /* =========================================
+       基础重置
+       ========================================= */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', 'PingFang SC', -apple-system, BlinkMacSystemFont, 'Microsoft YaHei', Arial, sans-serif;
+      color: var(--text-body);
+      background: var(--bg-page);
+      line-height: 1.55;
+      overflow-x: hidden;
+    }
+
+    /* =========================================
+       整体布局
+       ========================================= */
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+    }
+
+    /* =========================================
+       侧边栏
+       ========================================= */
+    .sidebar {
+      background: var(--bg-card);
+      border-right: 1px solid var(--border-divider);
+      color: var(--text-body);
+      padding: 22px 18px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.04);
+    }
+
+    /* 品牌区 */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border-divider);
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--primary);
+      color: var(--text-on-primary);
+      font-weight: 700;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-title);
+    }
+
+    .brand-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* 导航标题 */
+    .nav-title {
+      margin: 8px 0 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* 导航项 */
+    .nav-item {
+      padding: 11px 12px;
+      border-radius: 6px;
+      color: var(--text-body);
+      font-size: 14px;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .nav-item:hover {
+      background: #F1F5F9;
+      color: var(--text-title);
+    }
+
+    .nav-item.active {
+      background: rgba(0, 51, 112, 0.08);
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    /* 数据库状态卡 */
+    .db-card {
+      margin-top: auto;
+      padding: 14px;
+      border: 1px solid var(--border-divider);
+      border-radius: 8px;
+      background: var(--bg-page);
+      font-size: 13px;
+    }
+
+    .db-card strong {
+      color: var(--text-title);
+      font-size: 13px;
+    }
+
+    .db-line {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 8px;
+      color: var(--text-body);
+    }
+
+    /* =========================================
+       主内容区
+       ========================================= */
+    .main {
+      padding: 24px;
+      max-width: 1460px;
+      width: 100%;
+    }
+
+    /* 顶部栏 */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .title h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text-title);
+      letter-spacing: 0;
+    }
+
+    .title p {
+      margin: 5px 0 0;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    /* 状态药丸 */
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 34px;
+      padding: 0 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border-component);
+      background: var(--bg-card);
+      color: var(--text-muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border-component);
+      flex-shrink: 0;
+    }
+
+    .dot.ok   { background: var(--green); }
+    .dot.bad  { background: var(--red); }
+    .dot.run  { background: var(--amber); animation: pulse 1.4s infinite; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.5; transform: scale(1.3); }
+    }
+
+    /* =========================================
+       双栏网格
+       ========================================= */
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(420px, 0.9fr) minmax(0, 1.25fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    /* =========================================
+       面板卡片
+       ========================================= */
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-divider);
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      min-height: 58px;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border-divider);
+      background: var(--bg-page);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .panel-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-title);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-body { padding: 18px; }
+
+    /* =========================================
+       快捷入口按钮组
+       ========================================= */
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .quick {
+      border: 1px solid var(--border-divider);
+      background: var(--bg-card);
+      color: var(--text-body);
+      border-radius: 6px;
+      padding: 10px 12px;
+      text-align: left;
+      cursor: pointer;
+      font-size: 13px;
+      min-height: 44px;
+      transition: border-color 0.15s, color 0.15s, box-shadow 0.15s;
+    }
+
+    .quick:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* =========================================
+       文本域（textarea）
+       ========================================= */
+    textarea {
+      width: 100%;
+      min-height: 118px;
+      resize: vertical;
+      border: 1px solid var(--border-component);
+      border-radius: 4px;
+      padding: 14px 16px;
+      font-size: 15px;
+      font-family: inherit;
+      color: var(--text-title);
+      background: var(--bg-card);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    textarea::placeholder { color: var(--text-muted); }
+
+    textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0, 51, 112, 0.08);
+    }
+
+    /* =========================================
+       控件栏（select / input / button）
+       ========================================= */
+    .controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    select, input[type="text"] {
+      height: 38px;
+      border: 1px solid var(--border-component);
+      border-radius: 4px;
+      padding: 0 10px;
+      background: var(--bg-card);
+      color: var(--text-body);
+      font-family: inherit;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    select:focus, input[type="text"]:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0, 51, 112, 0.08);
+    }
+
+    select { cursor: pointer; }
+
+    /* =========================================
+       按钮
+       ========================================= */
+    .btn {
+      height: 40px;
+      padding: 0 16px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      white-space: nowrap;
+      transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s, transform 0.1s;
+    }
+
+    /* 主按钮 */
+    .btn:not(.secondary) {
+      background: var(--primary);
+      border: 1px solid var(--primary);
+      color: var(--text-on-primary);
+    }
+
+    .btn:not(.secondary):hover {
+      background: #002a5c;
+      border-color: #002a5c;
+      box-shadow: 0 2px 8px rgba(0, 51, 112, 0.25);
+      transform: translateY(-1px);
+    }
+
+    .btn:not(.secondary):disabled {
+      background: var(--border-component);
+      border-color: var(--border-component);
+      color: var(--text-muted);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* 次级按钮（蓝边） */
+    .btn.secondary {
+      background: var(--bg-card);
+      border: 1px solid var(--primary-light);
+      color: var(--primary-light);
+    }
+
+    .btn.secondary:hover {
+      background: rgba(0, 51, 112, 0.04);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* =========================================
+       智能体执行过程（思考过程区）
+       ========================================= */
+    .section-label {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-title);
+      margin: 18px 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .steps {
+      display: grid;
+      gap: 10px;
+    }
+
+    .step {
+      border: 1px solid var(--border-divider);
+      border-left: 3px solid var(--border-component);
+      border-radius: 8px;
+      padding: 12px;
+      background: var(--bg-page);
+      transition: border-left-color 0.2s, background 0.2s;
+    }
+
+    .step.active {
+      border-left-color: var(--primary);
+      background: rgba(0, 51, 112, 0.04);
+    }
+
+    .step.done {
+      border-left-color: var(--green);
+      background: rgba(5, 150, 105, 0.04);
+    }
+
+    .step-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .step-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text-title);
+    }
+
+    .step-status {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .step-summary {
+      font-size: 13px;
+      color: var(--text-body);
+      min-height: 18px;
+    }
+
+    /* =========================================
+       日志区
+       ========================================= */
+    .log {
+      margin-top: 14px;
+      border: 1px solid var(--border-divider);
+      border-radius: 4px;
+      background: var(--bg-page);
+      color: var(--text-body);
+      padding: 12px;
+      max-height: 180px;
+      overflow: auto;
+      font-family: Consolas, 'Courier New', monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+    }
+
+    /* =========================================
+       指标卡
+       ========================================= */
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .metric {
+      border: 1px solid var(--border-divider);
+      border-radius: 8px;
+      padding: 12px;
+      background: var(--bg-page);
+    }
+
+    .metric-label {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .metric-value {
+      margin-top: 4px;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    /* =========================================
+       标签_chip
+       ========================================= */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 0;
+    }
+
+    .chip {
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 12px;
+      background: rgba(0, 51, 112, 0.06);
+      color: var(--primary-light);
+      border: 1px solid rgba(0, 51, 112, 0.12);
+    }
+
+    .chip.warn {
+      background: rgba(217, 119, 6, 0.08);
+      color: var(--amber);
+      border-color: rgba(217, 119, 6, 0.18);
+    }
+
+    /* =========================================
+       报告区
+       ========================================= */
+    .report {
+      max-height: calc(100vh - 300px);
+      overflow: auto;
+      padding-right: 4px;
+      font-size: 14px;
+      color: var(--text-body);
+    }
+
+    .report::-webkit-scrollbar { width: 4px; }
+    .report::-webkit-scrollbar-thumb { background: var(--border-component); border-radius: 2px; }
+
+    .report h1, .report h2, .report h3 {
+      margin: 16px 0 8px;
+      line-height: 1.35;
+      color: var(--text-title);
+    }
+
+    .report h1 { font-size: 21px; }
+    .report h2 {
+      font-size: 16px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border-divider);
+    }
+
+    .report p  { margin: 8px 0; }
+    .report ul { margin: 8px 0 12px 20px; padding: 0; }
+    .report li { margin: 6px 0; }
+    .report strong { color: var(--primary); }
+
+    /* =========================================
+       空状态
+       ========================================= */
+    .empty {
+      min-height: 280px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: var(--text-muted);
+      border: 1px dashed var(--border-component);
+      border-radius: 8px;
+      background: var(--bg-page);
+      padding: 28px;
+    }
+
+    .empty strong {
+      display: block;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-title);
+      margin-bottom: 6px;
+    }
+
+    .empty p { font-size: 13px; margin-top: 4px; }
+
+    /* =========================================
+       响应式
+       ========================================= */
+    @media (max-width: 1080px) {
+      .app          { grid-template-columns: 1fr; }
+      .sidebar      { position: static; height: auto; }
+      .grid         { grid-template-columns: 1fr; }
+      .metrics      { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">AI</div>
+        <div>
+          <div class="brand-title">汽车市场战略智能体</div>
+          <div class="brand-sub">Strategy Orchestrator Live</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="nav-title">功能</div>
+        <div class="nav-item active"><span>市场分析窗口</span><span>在线</span></div>
+        <div class="nav-item"><span>RAG 知识库</span><span id="navDb">检测中</span></div>
+        <div class="nav-item"><span>质量门禁</span><span>8项</span></div>
+      </div>
+
+      <div class="db-card">
+        <strong>当前数据库范围</strong>
+        <div class="db-line"><span>连接</span><span id="dbConnected">检测中</span></div>
+        <div class="db-line"><span>Documents</span><span id="dbDocs">-</span></div>
+        <div class="db-line"><span>Chunks</span><span id="dbChunks">-</span></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div class="title">
+          <h1>可视化联调控制台</h1>
+          <p>前端页面通过 SSE 连接本地后端，后端调用 strategy-orchestrator 和当前 PG/RAG 数据。</p>
+        </div>
+        <div class="status-pill">
+          <span class="dot" id="statusDot"></span>
+          <span id="statusText">检查服务中</span>
+        </div>
+      </div>
+
+      <div class="grid">
+        <!-- 左侧：输入与执行 -->
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title">输入与执行</div>
+            <button class="btn secondary" id="healthBtn" type="button">刷新状态</button>
+          </div>
+          <div class="panel-body">
+            <div class="quick-grid">
+              <button class="quick" data-q="分析比亚迪最近12个月市场策略">比亚迪市场策略</button>
+              <button class="quick" data-q="评估泰国电动车政策对中国车企出口的影响">泰国政策影响</button>
+              <button class="quick" data-q="评估15-20万新能源SUV市场机会">15-20万新能源SUV机会</button>
+              <button class="quick" data-q="分析2026年乘用车市场宏观趋势和政策机会">宏观趋势与政策机会</button>
+            </div>
+
+            <textarea id="questionInput" placeholder="输入你的市场分析问题，例如：分析比亚迪最近12个月市场策略">分析比亚迪最近12个月市场策略</textarea>
+
+            <div class="controls">
+              <select id="analysisType">
+                <option value="">自动识别类型</option>
+                <option value="competitor">竞品分析</option>
+                <option value="policy">政策影响</option>
+                <option value="opportunity">机会评估</option>
+                <option value="market">市场趋势</option>
+                <option value="comprehensive">综合研究</option>
+              </select>
+              <input id="timeRange" type="text" value="" placeholder="不填则从问题中识别，如 2026年/近半年" aria-label="时间范围" />
+              <button class="btn" id="runBtn" type="button">开始分析</button>
+            </div>
+
+            <div class="section-label">智能体执行过程</div>
+            <div class="steps" id="steps"></div>
+            <div class="log" id="eventLog">等待执行...</div>
+          </div>
+        </section>
+
+        <!-- 右侧：分析结果 -->
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title">分析结果</div>
+            <button class="btn secondary" id="copyBtn" type="button">复制报告</button>
+            <button class="btn secondary" id="generatePptBtn" type="button">生成PPT</button>
+          </div>
+          <div class="panel-body">
+            <div class="metrics">
+              <div class="metric"><div class="metric-label">置信度</div><div class="metric-value" id="mConfidence">-</div></div>
+              <div class="metric"><div class="metric-label">质量门禁</div><div class="metric-value" id="mQuality">-</div></div>
+              <div class="metric"><div class="metric-label">证据数</div><div class="metric-value" id="mEvidence">-</div></div>
+              <div class="metric"><div class="metric-label">耗时</div><div class="metric-value" id="mTime">-</div></div>
+            </div>
+            <div class="chips" id="sourceChips"></div>
+            <div class="chips" id="warningChips"></div>
+            <div class="report" id="reportArea">
+              <div class="empty">
+                <div>
+                  <strong>还没有分析结果</strong>
+                  <p>点击"开始分析"后，这里会展示智能体生成的完整报告。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const API_BASE = location.port === "8003" ? location.origin : "http://localhost:8003";
+    const stepsModel = [
+      ["stage1", "意图识别"],
+      ["stage2", "数据检索"],
+      ["stage3", "自主编排"],
+      ["stage4", "质量检查"],
+      ["stage5", "报告生成"]
+    ];
+
+    const el = (id) => document.getElementById(id);
+    let lastReport = "";
+    let running = false;
+
+    function initSteps() {
+      el("steps").innerHTML = stepsModel.map(([id, name]) => `
+        <div class="step" id="box-${id}">
+          <div class="step-top">
+            <div class="step-name">${name}</div>
+            <div class="step-status" id="status-${id}">待执行</div>
+          </div>
+          <div class="step-summary" id="summary-${id}">-</div>
+        </div>
+      `).join("");
+    }
+
+    function setStatus(kind, text) {
+      const dot = el("statusDot");
+      dot.className = "dot " + (kind || "");
+      el("statusText").textContent = text;
+    }
+
+    function updateStep(stage, status, summary) {
+      const box = el(`box-${stage}`);
+      if (!box) return;
+      box.classList.remove("active", "done");
+      if (status === "running") box.classList.add("active");
+      if (status === "done")    box.classList.add("done");
+      el(`status-${stage}`).textContent =
+        status === "done"    ? "完成" :
+        status === "running" ? "执行中" :
+        status || "更新";
+      if (summary) el(`summary-${stage}`).textContent = summary;
+    }
+
+    function appendLog(message) {
+      const log = el("eventLog");
+      const now = new Date().toLocaleTimeString();
+      log.textContent += `\n[${now}] ${message}`;
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function resetResult() {
+      lastReport = "";
+      el("mConfidence").textContent = "-";
+      el("mQuality").textContent   = "-";
+      el("mEvidence").textContent   = "-";
+      el("mTime").textContent       = "-";
+      el("sourceChips").innerHTML   = "";
+      el("warningChips").innerHTML  = "";
+      el("reportArea").innerHTML     = `<div class="empty"><div><strong>智能体正在分析</strong><p>请观察左侧阶段进度。</p></div></div>`;
+      el("eventLog").textContent    = "开始接收 SSE 事件...";
+      initSteps();
+    }
+
+    function markdownToHtml(markdown) {
+      const safe = (markdown || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+      const lines = safe.split(/\r?\n/);
+      let html    = "";
+      let inList  = false;
+
+      for (const raw of lines) {
+        const line = raw.trimEnd();
+        if (!line) {
+          if (inList) { html += "</ul>"; inList = false; }
+          continue;
+        }
+        if (line.startsWith("# ")) {
+          if (inList) { html += "</ul>"; inList = false; }
+          html += `<h1>${line.slice(2)}</h1>`;
+        } else if (line.startsWith("## ")) {
+          if (inList) { html += "</ul>"; inList = false; }
+          html += `<h2>${line.slice(3)}</h2>`;
+        } else if (line.startsWith("### ")) {
+          if (inList) { html += "</ul>"; inList = false; }
+          html += `<h3>${line.slice(4)}</h3>`;
+        } else if (line.startsWith("- ")) {
+          if (!inList) { html += "<ul>"; inList = true; }
+          html += `<li>${line.slice(2).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")}</li>`;
+        } else {
+          if (inList) { html += "</ul>"; inList = false; }
+          html += `<p>${line.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")}</p>`;
+        }
+      }
+      if (inList) html += "</ul>";
+      return html || "<p>暂无报告内容。</p>";
+    }
+
+    function showComplete(data) {
+      window.lastAnalysisData = data;
+      const confidence        = Number(data.confidence || 0);
+      lastReport              = data.report || "";
+      el("mConfidence").textContent = `${Math.round(confidence * 100)}%`;
+      el("mQuality").textContent     = data.quality_passed ? "通过" : "未过";
+      el("mEvidence").textContent     = data.evidence_count ?? "-";
+      el("mTime").textContent         = data.execution_time ? `${data.execution_time}s` : "-";
+
+      el("sourceChips").innerHTML  = (data.sources || []).map(s => `<span class="chip">${s}</span>`).join("");
+      el("warningChips").innerHTML = (data.missing_or_uncertain || []).map(s => `<span class="chip warn">${s}</span>`).join("");
+      el("reportArea").innerHTML   = markdownToHtml(lastReport);
+      setStatus(data.success ? "ok" : "bad", data.success ? "分析完成" : "分析失败");
+    }
+
+    async function refreshHealth() {
+      try {
+        const res  = await fetch(`${API_BASE}/health`);
+        const data = await res.json();
+        const db   = data.db || {};
+        setStatus("ok", "后端已连接");
+        el("dbConnected").textContent = db.connected ? "正常" : "异常";
+        el("dbDocs").textContent      = db.documents ?? "-";
+        el("dbChunks").textContent    = db.chunks ?? "-";
+        el("navDb").textContent       = db.connected ? "可用" : "异常";
+      } catch (err) {
+        setStatus("bad", "后端未连接");
+        el("dbConnected").textContent = "异常";
+        el("navDb").textContent       = "离线";
+      }
+    }
+
+    async function runAnalysis() {
+      if (running) return;
+      const question = el("questionInput").value.trim();
+      if (!question) { alert("请输入分析问题"); return; }
+
+      running = true;
+      el("runBtn").disabled    = true;
+      el("runBtn").textContent = "分析中";
+      setStatus("run", "智能体运行中");
+      resetResult();
+
+      try {
+        const res = await fetch(`${API_BASE}/analyze_sse`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            question,
+            analysis_type: el("analysisType").value || null,
+            time_range: el("timeRange").value || null,
+            max_cycles: 3
+          })
+        });
+
+        if (!res.ok || !res.body) throw new Error(`请求失败：HTTP ${res.status}`);
+
+        const reader  = res.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let buffer    = "";
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          buffer  = buffer.replace(/\r\n/g, "\n");
+          const parts = buffer.split("\n\n");
+          buffer       = parts.pop() || "";
+
+          for (const part of parts) {
+            const eventLine = part.split("\n").find(line => line.startsWith("event:"));
+            const dataLine  = part.split("\n").find(line => line.startsWith("data:"));
+            if (!eventLine || !dataLine) continue;
+            const event = eventLine.slice(6).trim();
+            const data  = JSON.parse(dataLine.slice(5).trim());
+
+            if (event === "progress") {
+              updateStep(data.stage, data.status, data.summary);
+              appendLog(`${data.stage_name || data.stage}: ${data.summary || data.status}`);
+            } else if (event === "react") {
+              updateStep(data.stage || "stage3", data.status || "done", data.summary || data.phase);
+              appendLog(`ReAct/${data.phase || "event"}: ${data.summary || ""}`);
+            } else if (event === "complete") {
+              updateStep("stage5", "done", "完整报告已返回。");
+              appendLog(`complete: confidence=${data.confidence}, quality=${data.quality_passed}`);
+              showComplete(data);
+            } else if (event === "error") {
+              throw new Error(data.error || "后端返回错误");
+            }
+          }
+        }
+      } catch (err) {
+        setStatus("bad", "分析失败");
+        appendLog(`ERROR: ${err.message}`);
+        el("reportArea").innerHTML = `<div class="empty"><div><strong>分析失败</strong><p>${err.message}</p></div></div>`;
+      } finally {
+        running = false;
+        el("runBtn").disabled    = false;
+        el("runBtn").textContent = "开始分析";
+      }
+    }
+
+    document.querySelectorAll(".quick").forEach(btn => {
+      btn.addEventListener("click", () => { el("questionInput").value = btn.dataset.q; });
+    });
+
+    el("runBtn").addEventListener("click", runAnalysis);
+    el("healthBtn").addEventListener("click", refreshHealth);
+    el("copyBtn").addEventListener("click", async () => {
+      if (!lastReport) return;
+      await navigator.clipboard.writeText(lastReport);
+      appendLog("报告已复制到剪贴板。");
+    });
+    el("generatePptBtn").addEventListener("click", async () => {
+      if (!lastReport) { alert("请先生成分析报告"); return; }
+      const btn = el("generatePptBtn");
+      btn.disabled    = true;
+      btn.textContent = "生成中...";
+      try {
+        const res  = await fetch(API_BASE + "/generate_ppt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            question: el("questionInput").value,
+            report_content: lastReport,
+            analysis_data: window.lastAnalysisData || {}
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          window.open(data.ppt_url, "_blank");
+          appendLog("PPT已生成: " + data.ppt_path);
+        } else {
+          alert("PPT生成失败: " + data.error);
+        }
+      } catch(err) {
+        alert("PPT生成失败: " + err.message);
+      } finally {
+        btn.disabled    = false;
+        btn.textContent = "生成PPT";
+      }
+    });
+
+    el("questionInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) runAnalysis();
+    });
+
+    initSteps();
+    refreshHealth();
+  </script>
+</body>
+</html>

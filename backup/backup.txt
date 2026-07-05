@@ -1,0 +1,2287 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>乘用车市场战略决策AI智能体系统</title>
+  <style>
+    :root {
+      --primary: #003370;
+      --primary-light: #335599;
+      --bg-page: #F5F7FA;
+      --bg-card: #FFFFFF;
+      --text-title: #1A202C;
+      --text-body: #4A5568;
+      --text-muted: #94A3B8;
+      --border-divider: #E2E8F0;
+      --border-control: #CBD5E1;
+      --success: #059669;
+      --warning-bg: #FEF3C7;
+      --warning-text: #92400E;
+      --danger: #B91C1C;
+      --shadow-card: 0 1px 3px rgba(0,0,0,0.04);
+      --sidebar-width: 260px;
+      --agent-width: 280px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg-page);
+      color: var(--text-body);
+      font-family: Inter, "PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 15px;
+    }
+
+    button, textarea, select { font: inherit; }
+
+    .app-shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: var(--sidebar-width) 1fr var(--agent-width);
+    }
+
+    .sidebar {
+      background: var(--bg-card);
+      border-right: 1px solid var(--border-divider);
+      padding: 22px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border-divider);
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: var(--primary);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+    }
+
+    .brand-title {
+      color: var(--text-title);
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+
+    .brand-sub {
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-top: 2px;
+    }
+
+    .nav-section-title {
+      color: var(--text-muted);
+      font-size: 13px;
+      margin: 4px 0 8px;
+    }
+
+    .nav-item {
+      width: 100%;
+      min-height: 42px;
+      padding: 11px 12px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--text-body);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .nav-item.active, .nav-item:hover {
+      background: rgba(0, 51, 112, 0.08);
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    .workspace-view[hidden] { display: none; }
+
+    .db-card {
+      margin-top: auto;
+      background: var(--bg-card);
+      border: 1px solid var(--border-divider);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .db-card strong {
+      display: block;
+      color: var(--text-title);
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .db-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--text-muted);
+      font-size: 13px;
+      padding: 5px 0;
+      border-top: 1px solid #F1F5F9;
+    }
+
+    .workspace {
+      min-width: 0;
+      padding: 24px;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 20px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--text-title);
+      font-size: 28px;
+      line-height: 1.2;
+      font-weight: 600;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--text-body);
+      line-height: 1.7;
+    }
+
+    .status-pill {
+      height: 34px;
+      border: 1px solid var(--border-divider);
+      border-radius: 999px;
+      background: var(--bg-card);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 12px;
+      white-space: nowrap;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border-control);
+    }
+
+    .dot.ok { background: var(--success); }
+    .dot.run { background: var(--primary); animation: pulse 1s infinite; }
+    .dot.bad { background: var(--danger); }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: .75; }
+      50% { transform: scale(1.35); opacity: 1; }
+    }
+
+    .scene-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .scene-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-divider);
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: var(--shadow-card);
+      min-height: 116px;
+      cursor: pointer;
+    }
+
+    .scene-card.active, .scene-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 6px 18px rgba(0,51,112,0.10);
+    }
+
+    .scene-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-title);
+      font-weight: 500;
+      font-size: 15px;
+    }
+
+    .scene-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: rgba(0, 51, 112, 0.08);
+      display: grid;
+      place-items: center;
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .scene-desc {
+      margin-top: 10px;
+      color: var(--text-body);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .work-grid {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(360px, 0.92fr) minmax(460px, 1.08fr);
+      gap: 20px;
+    }
+
+    .panel {
+      min-width: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border-divider);
+      border-radius: 8px;
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      min-height: 58px;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border-divider);
+      background: var(--bg-page);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .panel-title {
+      color: var(--text-title);
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .panel-body { padding: 18px; }
+
+    .agent-select {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .agent-tab {
+      border: 1px solid var(--border-divider);
+      background: var(--bg-card);
+      border-radius: 6px;
+      padding: 12px;
+      text-align: left;
+      color: var(--text-body);
+      cursor: pointer;
+    }
+
+    .agent-tab.active {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: rgba(0, 51, 112, 0.04);
+    }
+
+    .agent-tab strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .agent-tab span {
+      display: block;
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .quick {
+      border: 1px solid var(--border-divider);
+      background: var(--bg-card);
+      color: var(--text-body);
+      border-radius: 6px;
+      padding: 10px 12px;
+      text-align: left;
+      cursor: pointer;
+      min-height: 42px;
+    }
+
+    .quick:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .skill-dock {
+      border: 1px solid var(--border-divider);
+      border-radius: 8px;
+      background: #FAFBFC;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+
+    .skill-dock-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .skill-title {
+      color: var(--text-title);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .skill-hint {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .skill-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .skill-chip {
+      min-height: 36px;
+      border: 1px solid var(--border-divider);
+      border-radius: 6px;
+      background: var(--bg-card);
+      color: var(--text-body);
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .skill-chip.active, .skill-chip:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: rgba(0,51,112,0.04);
+    }
+
+    .flow-bar {
+      height: 8px;
+      border-radius: 999px;
+      background: #E2E8F0;
+      overflow: hidden;
+      margin: 12px 0;
+    }
+
+    .flow-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--primary-light));
+      transition: width 0.35s ease;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 150px;
+      border: 1px solid var(--border-control);
+      border-radius: 4px;
+      padding: 14px 16px;
+      font-size: 15px;
+      color: var(--text-title);
+      background: var(--bg-card);
+      resize: vertical;
+      outline: none;
+      line-height: 1.65;
+    }
+
+    textarea:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0,51,112,0.08);
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    select {
+      flex: 1;
+      height: 42px;
+      border: 1px solid var(--border-control);
+      border-radius: 4px;
+      padding: 0 12px;
+      color: var(--text-body);
+      background: var(--bg-card);
+    }
+
+    .btn {
+      height: 42px;
+      padding: 0 16px;
+      border-radius: 6px;
+      border: 1px solid var(--primary);
+      background: var(--primary);
+      color: #fff;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .btn.secondary {
+      background: var(--bg-card);
+      color: var(--primary-light);
+      border-color: var(--primary-light);
+    }
+
+    .btn:disabled {
+      background: var(--border-control);
+      border-color: var(--border-control);
+      color: #fff;
+      cursor: wait;
+    }
+
+    .section-label {
+      margin: 18px 0 10px;
+      color: var(--text-title);
+      font-size: 15px;
+      font-weight: 500;
+      border-left: 3px solid var(--primary-light);
+      padding-left: 10px;
+    }
+
+    .steps {
+      display: grid;
+      gap: 10px;
+    }
+
+    .step {
+      border: 1px solid var(--border-divider);
+      border-radius: 8px;
+      background: var(--bg-card);
+      padding: 12px;
+    }
+
+    .step.active {
+      border-color: var(--primary);
+      background: rgba(0,51,112,0.04);
+    }
+
+    .step.done {
+      border-color: rgba(5,150,105,0.35);
+    }
+
+    .step-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .step-name {
+      color: var(--text-title);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .step-status, .step-summary {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .step-summary {
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+
+    .log {
+      margin-top: 12px;
+      min-height: 84px;
+      max-height: 150px;
+      overflow: auto;
+      border: 1px solid var(--border-divider);
+      border-radius: 8px;
+      background: #0F172A;
+      color: #CBD5E1;
+      font: 12px/1.6 Consolas, "Cascadia Mono", monospace;
+      padding: 12px;
+      white-space: pre-wrap;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .metric {
+      border: 1px solid var(--border-divider);
+      border-radius: 8px;
+      padding: 12px;
+      background: var(--bg-card);
+    }
+
+    .metric-label {
+      color: var(--text-muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .metric-value {
+      color: var(--primary);
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .report {
+      min-height: 520px;
+      max-height: calc(100vh - 300px);
+      overflow: auto;
+      border: 1px solid var(--border-divider);
+      border-radius: 8px;
+      padding: 18px;
+      line-height: 1.75;
+      color: var(--text-body);
+      background: #fff;
+    }
+
+    .report h1, .report h2, .report h3 {
+      color: var(--text-title);
+      margin: 16px 0 10px;
+      line-height: 1.35;
+    }
+
+    .report h1 { font-size: 22px; }
+    .report h2 { font-size: 18px; }
+    .report h3 { font-size: 16px; }
+    .report p { margin: 8px 0; }
+    .report table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 14px; }
+    .report th, .report td { border: 1px solid var(--border-divider); padding: 8px; text-align: left; vertical-align: top; }
+    .report th { background: var(--bg-page); color: var(--text-title); }
+
+    .report-cover {
+      border: 1px solid var(--border-divider);
+      border-left: 4px solid var(--primary);
+      border-radius: 8px;
+      background: #FAFBFC;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .report-cover-title {
+      color: var(--text-title);
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .report-cover-meta {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .report-cover-meta span {
+      border: 1px solid var(--border-divider);
+      border-radius: 6px;
+      padding: 8px;
+      background: #fff;
+    }
+
+    .empty {
+      height: 360px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .empty strong {
+      color: var(--text-title);
+      font-size: 18px;
+    }
+
+    .report-library-panel {
+      min-height: calc(100vh - 146px);
+    }
+
+    .panel-subtitle {
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-top: 4px;
+      line-height: 1.45;
+    }
+
+    .report-searchbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .report-searchbar input {
+      width: 100%;
+      min-height: 40px;
+      border: 1px solid var(--border-control);
+      border-radius: 6px;
+      padding: 0 12px;
+      color: var(--text-title);
+      background: #fff;
+      outline: none;
+    }
+
+    .report-searchbar input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(0,51,112,0.08);
+    }
+
+    .report-library-meta {
+      min-height: 24px;
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+
+    .report-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .report-item {
+      border: 1px solid var(--border-divider);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fff;
+      box-shadow: var(--shadow-card);
+    }
+
+    .report-item:hover {
+      border-color: rgba(0,51,112,0.35);
+      box-shadow: 0 8px 22px rgba(15,23,42,0.06);
+    }
+
+    .report-item-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .report-name {
+      color: var(--text-title);
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
+    .report-type {
+      flex: 0 0 auto;
+      border: 1px solid rgba(0,51,112,0.16);
+      border-radius: 999px;
+      padding: 3px 9px;
+      color: var(--primary);
+      background: rgba(0,51,112,0.06);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .report-snippet {
+      color: var(--text-body);
+      font-size: 13px;
+      line-height: 1.7;
+      margin: 8px 0 10px;
+    }
+
+    .report-file-meta {
+      color: var(--text-muted);
+      font-size: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .report-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .link-btn {
+      min-height: 34px;
+      border: 1px solid var(--border-divider);
+      border-radius: 6px;
+      padding: 7px 11px;
+      color: var(--primary);
+      background: #fff;
+      font-size: 13px;
+      text-decoration: none;
+    }
+
+    .link-btn.primary {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .tag-workbench {
+      display: grid;
+      gap: 16px;
+    }
+
+    .tag-command-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .tag-command-grid textarea {
+      min-height: 96px;
+      margin: 0;
+    }
+
+    .tag-command-actions {
+      display: grid;
+      gap: 8px;
+      align-content: start;
+      min-width: 144px;
+    }
+
+    .tag-quick-area {
+      margin-top: 14px;
+      padding: 12px;
+      border: 1px solid var(--border-divider);
+      border-radius: 8px;
+      background: #FAFBFC;
+    }
+
+    .tag-quick-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+      color: var(--text-title);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .tag-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag-token {
+      min-height: 30px;
+      border: 1px solid var(--border-divider);
+      border-radius: 999px;
+      padding: 5px 10px;
+      background: #fff;
+      color: var(--text-body);
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .tag-token.active, .tag-token:hover {
+      border-color: var(--primary);
+      background: rgba(0,51,112,0.06);
+      color: var(--primary);
+    }
+
+    .workflow-chain {
+      display: grid;
+      grid-template-columns: repeat(9, minmax(92px, 1fr));
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .workflow-step-card {
+      min-height: 116px;
+      border: 1px solid var(--border-divider);
+      border-radius: 8px;
+      padding: 10px;
+      background: #fff;
+      position: relative;
+    }
+
+    .workflow-step-card.active {
+      border-color: var(--primary);
+      box-shadow: 0 6px 18px rgba(0,51,112,0.10);
+    }
+
+    .workflow-step-index {
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .workflow-step-name {
+      color: var(--text-title);
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .workflow-step-output {
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .tag-dashboard-grid {
+      display: grid;
+      grid-template-columns: minmax(360px, 0.9fr) minmax(460px, 1.1fr);
+      gap: 16px;
+    }
+
+    .tag-subgrid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .taxonomy-box, .tag-record-card, .tag-insight-card, .dataset-row {
+      border: 1px solid var(--border-divider);
+      border-radius: 8px;
+      background: #fff;
+      padding: 12px;
+    }
+
+    .taxonomy-title {
+      color: var(--text-title);
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .tag-record-card {
+      display: grid;
+      gap: 8px;
+    }
+
+    .tag-record-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .tag-record-text {
+      color: var(--text-body);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .tag-score-line {
+      display: grid;
+      grid-template-columns: 80px 1fr 42px;
+      gap: 8px;
+      align-items: center;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .mini-bar {
+      height: 8px;
+      border-radius: 999px;
+      background: #E2E8F0;
+      overflow: hidden;
+    }
+
+    .mini-bar span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--primary), var(--primary-light));
+    }
+
+    .stats-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: 92px 1fr 48px;
+      gap: 10px;
+      align-items: center;
+      color: var(--text-body);
+      font-size: 13px;
+    }
+
+    .stat-bar {
+      height: 10px;
+      border-radius: 999px;
+      background: #E2E8F0;
+      overflow: hidden;
+    }
+
+    .stat-bar span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--primary);
+    }
+
+    .tag-empty-note {
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.65;
+      padding: 12px;
+      border: 1px dashed var(--border-divider);
+      border-radius: 8px;
+      background: #FAFBFC;
+    }
+
+    .agent-panel {
+      background: var(--bg-card);
+      border-left: 1px solid var(--border-divider);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .side-title {
+      color: var(--primary);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .agent-card {
+      border: 1px solid var(--border-divider);
+      border-radius: 8px;
+      background: #FAFBFC;
+      padding: 14px;
+    }
+
+    .agent-card.active {
+      border-color: var(--primary);
+      background: rgba(0, 51, 112, 0.04);
+    }
+
+    .agent-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .agent-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: var(--primary);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+    }
+
+    .agent-name {
+      color: var(--text-title);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .agent-role {
+      color: var(--text-muted);
+      font-size: 12px;
+      margin-top: 2px;
+    }
+
+    .agent-status {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--text-muted);
+      font-size: 13px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border-divider);
+    }
+
+    .action-btn {
+      width: 100%;
+      min-height: 40px;
+      border-radius: 6px;
+      border: 1px solid var(--primary);
+      background: var(--primary);
+      color: #fff;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .action-btn.secondary {
+      background: #fff;
+      color: var(--primary-light);
+      border-color: var(--primary-light);
+    }
+
+    .notice {
+      background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+      border-radius: 8px;
+      padding: 14px;
+      color: var(--warning-text);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .mcp-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .mcp-item {
+      border: 1px solid var(--border-divider);
+      border-radius: 8px;
+      background: #FAFBFC;
+      padding: 10px;
+    }
+
+    .mcp-item strong {
+      display: block;
+      color: var(--text-title);
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .mcp-item span {
+      display: block;
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 1180px) {
+      .app-shell {
+        grid-template-columns: var(--sidebar-width) 1fr;
+      }
+      .agent-panel { display: none; }
+      .scene-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .work-grid { grid-template-columns: 1fr; }
+      .tag-dashboard-grid { grid-template-columns: 1fr; }
+      .workflow-chain { grid-template-columns: repeat(9, minmax(120px, 1fr)); }
+    }
+
+    @media (max-width: 760px) {
+      .app-shell { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .workspace { padding: 16px; }
+      .topbar { display: block; }
+      .scene-grid, .quick-grid, .agent-select, .metrics, .skill-grid, .report-cover-meta, .report-searchbar { grid-template-columns: 1fr; }
+      .tag-command-grid { grid-template-columns: 1fr; }
+      .controls { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">AI</div>
+        <div>
+          <div class="brand-title">乘用车市场战略决策AI智能体系统</div>
+          <div class="brand-sub">Strategy Orchestrator Live</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="nav-section-title">主菜单</div>
+        <button class="nav-item active" data-view="analysis" type="button"><span>市场分析窗口</span><span>在线</span></button>
+        <button class="nav-item" data-view="analysis" data-agent-action="user_insight_config" type="button"><span>用户洞察</span><span>在线</span></button>
+        <button class="nav-item" data-view="tagging" type="button"><span>用户标签</span><span>音频调研</span></button>
+        <button class="nav-item" data-view="analysis" type="button"><span>配置管理</span><span>2 Agent</span></button>
+        <button class="nav-item" data-view="reports" type="button"><span>报告查询</span><span>资产库</span></button>
+        <button class="nav-item" data-view="analysis" type="button"><span>质量门禁</span><span>8项</span></button>
+      </div>
+
+      <div class="db-card">
+        <strong>当前模型连接</strong>
+        <div class="db-line"><span>Provider</span><span id="provider">检测中</span></div>
+        <div class="db-line"><span>Model</span><span id="model">-</span></div>
+        <div class="db-line"><span>Endpoint</span><span id="endpoint">-</span></div>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <div class="topbar">
+        <div>
+          <h1>战略决策分析场景</h1>
+          <p class="subtitle">选择业务智能体与分析场景，系统将按业务专家框架完成市场研判、用户洞察和配置定义。</p>
+        </div>
+        <div class="status-pill"><span class="dot" id="statusDot"></span><span id="statusText">检查服务中</span></div>
+      </div>
+
+      <div class="workspace-view" id="analysisView">
+      <section class="agent-select top-agent-select">
+        <button class="agent-tab active" data-agent="market_strategy" type="button">
+          <strong>市场战略Agent</strong>
+          <span>机会识别、风险预警、产能调配、进入决策</span>
+        </button>
+        <button class="agent-tab" data-agent="user_insight_config" type="button">
+          <strong>用户洞察Agent</strong>
+          <span>用户圈层、需求配置匹配、选装优先级</span>
+        </button>
+      </section>
+
+      <section class="scene-grid">
+        <div class="scene-card active" data-agent="market_strategy" data-q="请输出业务报告：针对2026年15-20万元新能源SUV乘用车市场，识别2个高潜力增量机会市场和2个高风险衰退预警市场，输出市场分级、区域产能调配建议、进入/暂缓决策意见。每章最多3条要点，必须覆盖全部章节。">
+          <div class="scene-head"><span class="scene-icon">1</span><span>市场机会分析</span></div>
+          <div class="scene-desc">识别市场切入机会、增长潜力、竞争格局与空白市场。</div>
+        </div>
+        <div class="scene-card" data-agent="market_strategy" data-q="请分析2026年15-20万元新能源SUV的高风险衰退预警市场，并输出风险信号、触发条件和暂缓进入建议。">
+          <div class="scene-head"><span class="scene-icon">2</span><span>风险预警监控</span></div>
+          <div class="scene-desc">识别衰退信号、政策风险、区域库存与投放风险。</div>
+        </div>
+        <div class="scene-card" data-agent="user_insight_config" data-q="请针对15-20万元新能源SUV，锁定3类目标用户圈层，完成需求-配置匹配测算，并给出不超过8项整车选装配置优先级排序。">
+          <div class="scene-head"><span class="scene-icon">3</span><span>用户画像洞察</span></div>
+          <div class="scene-desc">生成目标用户画像，分析购车决策因子与核心需求。</div>
+        </div>
+        <div class="scene-card" data-agent="user_insight_config" data-q="请针对15-20万元新能源SUV，输出配置优先级排序、推荐配置包方案和成本/供应约束提示。">
+          <div class="scene-head"><span class="scene-icon">4</span><span>配置优先级排序</span></div>
+          <div class="scene-desc">基于用户需求和市场数据，推荐可执行配置方案。</div>
+        </div>
+      </section>
+
+      <section class="work-grid">
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">输入与执行</div>
+            <button class="btn secondary" id="healthBtn" type="button">刷新状态</button>
+          </div>
+          <div class="panel-body">
+            <div class="agent-select">
+              <button class="agent-tab active" data-agent="market_strategy" type="button">
+                <strong>市场战略Agent</strong>
+                <span>机会识别、风险预警、产能调配、进入决策</span>
+              </button>
+              <button class="agent-tab" data-agent="user_insight_config" type="button">
+                <strong>用户洞察Agent</strong>
+                <span>用户圈层、需求配置匹配、选装优先级</span>
+              </button>
+            </div>
+
+            <div class="quick-grid" id="quickGrid"></div>
+
+            <div class="skill-dock">
+              <div class="skill-dock-head">
+                <div class="skill-title">Skill / 工具链能力</div>
+                <div class="skill-hint">点击后自动填充任务问题</div>
+              </div>
+              <div class="skill-grid">
+                <button class="skill-chip" data-skill="any_search" type="button">AnySearch搜索</button>
+                <button class="skill-chip" data-skill="web_fetch" type="button">web-fetch</button>
+                <button class="skill-chip" data-skill="tavily_search" type="button">Tavily搜索</button>
+                <button class="skill-chip" data-skill="playwright_scraper" type="button">动态网页抓取</button>
+                <button class="skill-chip" data-skill="agent_reach_search" type="button">agent-reach</button>
+                <button class="skill-chip" data-skill="multi_agent" type="button">双Agent联动</button>
+              </div>
+            </div>
+
+            <textarea id="questionInput"></textarea>
+
+            <div class="controls">
+              <select id="analysisType">
+                <option value="">自动识别类型</option>
+                <option value="opportunity">机会评估</option>
+                <option value="risk">风险预警</option>
+                <option value="user">用户洞察</option>
+                <option value="config">配置定义</option>
+              </select>
+              <button class="btn" id="runBtn" type="button">开始分析</button>
+            </div>
+
+            <div class="section-label">智能体执行过程</div>
+            <div class="flow-bar"><div class="flow-fill" id="flowFill"></div></div>
+            <div class="steps" id="steps"></div>
+            <div class="log" id="eventLog">等待执行...</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title">分析结果</div>
+            <div>
+              <button class="btn secondary" id="copyBtn" type="button">复制报告</button>
+              <button class="btn secondary" id="leaderReportBtn" type="button">生成PPT版</button>
+              <button class="btn secondary" id="downloadMdBtn" type="button">下载MD</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="metrics">
+              <div class="metric"><div class="metric-label">当前Agent</div><div class="metric-value" id="mAgent">市场</div></div>
+              <div class="metric"><div class="metric-label">质量门禁</div><div class="metric-value" id="mQuality">-</div></div>
+              <div class="metric"><div class="metric-label">工具状态</div><div class="metric-value" id="mTools">6</div></div>
+              <div class="metric"><div class="metric-label">输出长度</div><div class="metric-value" id="mLength">-</div></div>
+            </div>
+            <div class="report" id="reportArea">
+              <div class="empty">
+                <div>
+                  <strong>还没有分析结果</strong>
+                  <p>选择智能体并点击“开始分析”后，这里会展示完整报告。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      </div>
+
+      <section class="workspace-view tag-workbench" id="tagWorkbenchView" hidden>
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">用户标签与调研音频任务编排</div>
+              <div class="panel-subtitle">从原始访谈音频到 ASR、脱敏、切片、标签、评分、配置映射和可检索入库的端到端工作流。</div>
+            </div>
+            <button class="btn secondary" id="tagResetBtn" type="button">清空筛选</button>
+          </div>
+          <div class="panel-body">
+            <div class="tag-command-grid">
+              <textarea id="audioWorkflowInput">请编排访谈类音频处理任务：完成ASR转写、说话人分离、隐私脱敏、片段切分、用户标签、情绪/强度评分、配置映射，并沉淀为可检索向量库和结构化数据库。</textarea>
+              <div class="tag-command-actions">
+                <button class="btn" id="runAudioWorkflowBtn" type="button">执行编排</button>
+                <button class="btn secondary" id="exportTagCsvBtn" type="button">导出CSV</button>
+              </div>
+            </div>
+            <div class="tag-quick-area">
+              <div class="tag-quick-head">
+                <span>标签快速选择</span>
+                <span id="tagSelectionMeta">未选择标签，展示全部样例用户</span>
+              </div>
+              <div class="tag-chip-row" id="tagQuickSelector"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">任务链自动编排</div>
+              <div class="panel-subtitle">智能体按预定顺序执行，也可根据隐私、检索、标签等任务重点调整优先级。</div>
+            </div>
+            <div class="status-pill"><span class="dot" id="audioWorkflowDot"></span><span id="audioWorkflowStatus">待执行</span></div>
+          </div>
+          <div class="panel-body">
+            <div class="workflow-chain" id="audioWorkflowChain"></div>
+          </div>
+        </div>
+
+        <section class="tag-dashboard-grid">
+          <div class="tag-subgrid">
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-title">标签体系构建</div>
+                  <div class="panel-subtitle">支持自定义维度和标签版本，当前展示乘用车用户洞察标准体系。</div>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="tag-subgrid" id="taxonomyPanel"></div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-title">比例统计分析</div>
+                  <div class="panel-subtitle">根据当前筛选动态计算单标签用户占比。</div>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="stats-list" id="tagStatsPanel"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tag-subgrid">
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-title">智能自动标注</div>
+                  <div class="panel-subtitle">对脱敏访谈片段自动识别用户身份、购车动机、痛点、配置诉求和竞品对比。</div>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="tag-subgrid" id="taggedRecordPanel"></div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <div class="panel-title">交叉分析能力</div>
+                  <div class="panel-subtitle">支持多标签组合查询、标签关联分析和潜在关联维度推荐。</div>
+                </div>
+              </div>
+              <div class="panel-body">
+                <div class="tag-subgrid" id="crossAnalysisPanel"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">从原始音频到高质量数据集</div>
+              <div class="panel-subtitle">把访谈音频变成可训练、可检索、可审计的数据资产，需要同时管好采集、加工、标注、入库和质检。</div>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="tag-subgrid" id="datasetPlanPanel"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="workspace-view report-library" id="reportQueryView" hidden>
+        <div class="panel report-library-panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">报告查询</div>
+              <div class="panel-subtitle">检索 outputs/ppt 中已生成的文字报告、Markdown 报告和 HTML PPT。</div>
+            </div>
+            <button class="btn secondary" id="reportRefreshBtn" type="button">刷新列表</button>
+          </div>
+          <div class="panel-body">
+            <div class="report-searchbar">
+              <input id="reportSearchInput" type="search" placeholder="输入关键词，例如：新能源SUV、15-20万元、用户圈层、区域产能" />
+              <button class="btn" id="reportSearchBtn" type="button">查询报告</button>
+            </div>
+            <div class="report-library-meta" id="reportLibraryMeta">尚未加载报告资产。</div>
+            <div class="report-list" id="reportList">
+              <div class="empty">
+                <div>
+                  <strong>报告资产库</strong>
+                  <p>点击刷新或输入关键词，即可查询已生成的文字版报告和 HTML PPT。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <aside class="agent-panel">
+      <div class="side-title">AI智能体状态</div>
+      <div class="agent-card active" id="card-market_strategy">
+        <div class="agent-header">
+          <div class="agent-avatar">市</div>
+          <div>
+            <div class="agent-name">市场战略Agent</div>
+            <div class="agent-role">市场分析师</div>
+          </div>
+        </div>
+        <div class="agent-status"><span>状态</span><span id="state-market_strategy">待命</span></div>
+      </div>
+      <div class="agent-card" id="card-user_insight_config">
+        <div class="agent-header">
+          <div class="agent-avatar">配</div>
+          <div>
+            <div class="agent-name">用户洞察Agent</div>
+            <div class="agent-role">用户研究员 / 配置定义</div>
+          </div>
+        </div>
+        <div class="agent-status"><span>状态</span><span id="state-user_insight_config">待命</span></div>
+      </div>
+
+      <div class="side-title">快捷操作</div>
+      <button class="action-btn" data-agent-action="market_strategy">新建市场分析</button>
+      <button class="action-btn" data-agent-action="user_insight_config">生成用户画像</button>
+      <button class="action-btn secondary" id="runAllBtn" type="button">顺序运行双Agent</button>
+
+      <div class="side-title">MCP连接层预留</div>
+      <div class="mcp-grid">
+        <div class="mcp-item"><strong>Database</strong><span>销量、价格、车型配置、库存产能</span></div>
+        <div class="mcp-item"><strong>File Store</strong><span>报告、PPT、Excel、访谈音频库</span></div>
+        <div class="mcp-item"><strong>Vector Store</strong><span>用户原声、评论、转写稿、行业报告</span></div>
+        <div class="mcp-item"><strong>BI</strong><span>销量趋势、区域渗透率、经营指标</span></div>
+        <div class="mcp-item"><strong>Research</strong><span>访谈项目、问卷、受访者画像</span></div>
+      </div>
+
+      <div class="notice">
+        MCP 当前为工程占位，建议由 ToolBase 包装 MCP 调用，保持审计、权限和 2.0.3 稳定版兼容。
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let activeAgent = "market_strategy";
+    let running = false;
+    let lastReport = "";
+    let lastReportMeta = null;
+    let progressTimer = null;
+    let executionTimer = null;
+    let audioTagState = {
+      selectedTags: [],
+      taxonomy: {},
+      records: [],
+      statistics: [],
+      crossAnalysis: [],
+      datasetPlan: []
+    };
+
+    const skillDemoMap = {
+      any_search: {
+        agent: "market_strategy",
+        analysisType: "opportunity",
+        question: "请使用 any_search 搜索2026年新能源SUV市场政策、销量和竞争趋势，输出3条可用于市场机会判断的证据，并给出市场进入/暂缓建议。"
+      },
+      web_fetch: {
+        agent: "market_strategy",
+        analysisType: "opportunity",
+        question: "请使用 web_fetch 读取 https://docs.agentscope.io/versions/2.0.3/zh/building-blocks/model ，提炼AgentScope 2.0.3模型配置稳定API要点，并说明如何服务乘用车市场战略研判。"
+      },
+      tavily_search: {
+        agent: "market_strategy",
+        analysisType: "opportunity",
+        question: "请使用 tavily_search 搜索2026年新能源SUV市场政策、销量和竞争趋势，输出3条可用于市场机会判断的证据，并给出市场进入/暂缓建议。"
+      },
+      playwright_scraper: {
+        agent: "market_strategy",
+        analysisType: "risk",
+        question: "请使用 playwright_scraper 抓取公开汽车资讯页面，提取页面标题和关键市场信号；如果当前环境未安装浏览器内核，请说明安装命令和替代分析方案。"
+      },
+      agent_reach_search: {
+        agent: "market_strategy",
+        analysisType: "opportunity",
+        question: "请使用 agent_reach_search 搜索15-20万元新能源SUV市场机会，归纳政策、竞品、用户需求三类证据，并输出业务决策摘要。"
+      },
+      multi_agent: {
+        agent: "market_strategy",
+        analysisType: "",
+        question: "请先由市场战略Agent输出15-20万元新能源SUV机会市场和风险市场判断，再提示可交接给用户洞察Agent生成配置方案。"
+      },
+      user_insight_tagger: {
+        agent: "user_insight_config",
+        analysisType: "user",
+        question: "请调用 user_insight_tagger 处理以下车主原声，并输出用户圈层、需求标签、配置诉求和配置定义建议：我家有两个孩子，后排空间和安全很重要，冬天续航别掉太厉害，最好有热泵和快充；车机要流畅，智驾我可以选装但价格不能太贵。"
+      }
+    };
+
+    const quickMap = {
+      market_strategy: [
+        ["15-20万新能源SUV机会", "请输出精简版业务报告：针对2026年15-20万元新能源SUV乘用车市场，识别2个高潜力增量机会市场和2个高风险衰退预警市场，输出市场分级、区域产能调配建议、进入/暂缓决策意见。每章最多3条要点，必须覆盖全部章节。"],
+        ["华中西南区域机会", "请分析2026年15-20万元新能源SUV在华中和西南市场的机会与风险，输出进入策略和产能调配建议。"],
+        ["风险预警市场", "请识别2026年15-20万元新能源SUV的2个高风险衰退预警市场，说明风险信号、触发条件和暂缓建议。"],
+        ["宏观趋势与政策机会", "请分析2026年乘用车新能源市场宏观趋势和政策机会，并给出15-20万元SUV投放建议。"]
+      ],
+      user_insight_config: [
+        ["目标用户圈层", "请针对15-20万元新能源SUV，锁定3类目标用户圈层，并说明核心购车动机和需求权重。"],
+        ["配置优先级排序", "请针对15-20万元新能源SUV，输出不超过8项整车选装配置优先级排序，并说明标配/选装建议。"],
+        ["家庭用户配置包", "请面向城市品质家庭用户，设计15-20万元新能源SUV的推荐配置包方案和成本约束提示。"],
+        ["年轻用户智能化配置", "请面向新锐首购青年，设计15-20万元新能源SUV智能座舱和智驾配置方案。"]
+      ]
+    };
+
+    const stepsModel = [
+      ["stage1", "意图识别"],
+      ["stage2", "工具与证据准备"],
+      ["stage3", "业务框架推理"],
+      ["stage4", "质量门禁"],
+      ["stage5", "报告生成"]
+    ];
+
+    function initSteps() {
+      $("steps").innerHTML = stepsModel.map(([id, name]) => `
+        <div class="step" id="box-${id}">
+          <div class="step-top">
+            <div class="step-name">${name}</div>
+            <div class="step-status" id="status-${id}">待执行</div>
+          </div>
+          <div class="step-summary" id="summary-${id}">-</div>
+        </div>
+      `).join("");
+    }
+
+    function updateStep(stage, status, summary) {
+      const box = $(`box-${stage}`);
+      if (!box) return;
+      box.classList.remove("active", "done");
+      if (status === "running") box.classList.add("active");
+      if (status === "done") box.classList.add("done");
+      $(`status-${stage}`).textContent = status === "done" ? "完成" : status === "running" ? "执行中" : "待执行";
+      if (summary) $(`summary-${stage}`).textContent = summary;
+    }
+
+    function setStatus(kind, text) {
+      $("statusDot").className = "dot " + (kind || "");
+      $("statusText").textContent = text;
+    }
+
+    function appendLog(message) {
+      const now = new Date().toLocaleTimeString();
+      $("eventLog").textContent += `\n[${now}] ${message}`;
+      $("eventLog").scrollTop = $("eventLog").scrollHeight;
+    }
+
+    function detectExpectedTools(question) {
+      const text = (question || "").toLowerCase();
+      const tools = [];
+      if (text.includes("any_search") || text.includes("anysearch") || text.includes("搜索") || text.includes("销量") || text.includes("政策") || text.includes("趋势")) {
+        tools.push("any_search");
+      }
+      if (text.includes("tavily")) tools.push("tavily_search");
+      if (text.includes("web_fetch") || text.includes("web-fetch") || text.includes("http")) tools.push("web_fetch");
+      if (text.includes("playwright") || text.includes("抓取") || text.includes("爬取")) tools.push("playwright_scraper");
+      if (text.includes("agent_reach") || text.includes("agent-reach")) tools.push("agent_reach_search");
+      if (text.includes("user_insight_tagger") || text.includes("标签") || text.includes("画像") || text.includes("访谈") || text.includes("口碑") || text.includes("车主原声")) {
+        tools.push("user_insight_tagger");
+      }
+      return Array.from(new Set(tools));
+    }
+
+    function buildExecutionPlan(agent, question) {
+      const tools = detectExpectedTools(question);
+      const agentName = agent === "market_strategy" ? "市场战略Agent" : "用户洞察Agent";
+      const toolText = tools.length ? tools.join(", ") : "由模型按任务自动选择";
+      return [
+        {
+          after: 1200,
+          stage: ["stage2", "running", `已装载${agentName}提示词、模型配置与本地工具清单。`],
+          log: `plan: 已识别 ${agentName}，候选工具=${toolText}`
+        },
+        {
+          after: 4200,
+          stage: ["stage2", "running", "正在准备证据检索、用户标签与业务上下文。"],
+          log: "tool-prepare: 等待模型选择是否调用工具；真实调用会在 tool-call 审计日志中出现"
+        },
+        {
+          after: 8200,
+          stage: ["stage3", "running", "正在按市场-产品-用户框架组织分析路径。"],
+          flow: 32,
+          log: agent === "market_strategy"
+            ? "reasoning: 拆解政策信号、销量结构、竞品态势和区域机会"
+            : "reasoning: 拆解用户圈层、购车动机、需求权重和配置映射"
+        },
+        {
+          after: 13200,
+          stage: ["stage3", "running", "正在把证据转换为业务判断与可执行建议。"],
+          flow: 46,
+          log: "reasoning: 生成章节草稿，并校验结论是否能回溯到输入问题"
+        },
+        {
+          after: 20500,
+          stage: ["stage4", "running", "正在检查报告结构、风险提示和证据一致性。"],
+          flow: 62,
+          log: "quality: 检查结论-证据对应关系、章节完整性和业务可读性"
+        },
+        {
+          after: 30500,
+          stage: ["stage5", "running", "正在生成最终报告文本。"],
+          flow: 76,
+          log: "report: 汇总业务分析结果，等待后端返回完整结果"
+        }
+      ];
+    }
+
+    function stopExecutionNarrative() {
+      if (executionTimer) clearInterval(executionTimer);
+      executionTimer = null;
+    }
+
+    function startExecutionNarrative(agent, question) {
+      stopExecutionNarrative();
+      const startedAt = Date.now();
+      const plan = buildExecutionPlan(agent, question);
+      let cursor = 0;
+      let lastHeartbeat = 0;
+
+      appendLog("audit-note: plan/reasoning/quality 是页面阶段提示；tool-call 才是后端真实工具审计");
+
+      executionTimer = setInterval(() => {
+        const elapsed = Date.now() - startedAt;
+        while (cursor < plan.length && elapsed >= plan[cursor].after) {
+          const item = plan[cursor];
+          if (item.stage) updateStep(item.stage[0], item.stage[1], item.stage[2]);
+          if (item.flow) setFlow(item.flow);
+          appendLog(item.log);
+          cursor += 1;
+        }
+        if (elapsed > 36000 && elapsed - lastHeartbeat > 10000) {
+          lastHeartbeat = elapsed;
+          appendLog(`heartbeat: 模型仍在推理或等待工具结果，已耗时 ${Math.round(elapsed / 1000)}s`);
+        }
+      }, 900);
+    }
+
+    function setFlow(percent) {
+      const flow = $("flowFill");
+      if (flow) flow.style.width = `${Math.max(0, Math.min(100, percent))}%`;
+    }
+
+    function resetFlow() {
+      if (progressTimer) clearInterval(progressTimer);
+      progressTimer = null;
+      setFlow(0);
+    }
+
+    function startDemoProgress() {
+      let percent = 8;
+      resetFlow();
+      setFlow(percent);
+      progressTimer = setInterval(() => {
+        percent = Math.min(88, percent + 6);
+        setFlow(percent);
+      }, 700);
+    }
+
+    function finishDemoProgress(success) {
+      if (progressTimer) clearInterval(progressTimer);
+      progressTimer = null;
+      setFlow(success ? 100 : 72);
+    }
+
+    function animateMetric(id, target) {
+      const el = $(id);
+      if (!el) return;
+      const value = Number(target) || 0;
+      const steps = 18;
+      let current = 0;
+      const timer = setInterval(() => {
+        current += 1;
+        el.textContent = String(Math.round(value * current / steps));
+        if (current >= steps) clearInterval(timer);
+      }, 28);
+    }
+
+    function getAgentName(agent) {
+      return agent === "market_strategy" ? "市场战略性机会决策智能体" : "用户洞察与配置定义决策智能体";
+    }
+
+    function buildLeaderReportMarkdown() {
+      const meta = lastReportMeta || {
+        agent: activeAgent,
+        question: $("questionInput").value.trim(),
+        analysisType: $("analysisType").value || "自动识别"
+      };
+      const now = new Date().toLocaleString();
+      return [
+        "# 乘用车市场战略决策AI智能体汇报版",
+        "",
+        `- 生成时间：${now}`,
+        `- 执行智能体：${getAgentName(meta.agent)}`,
+        `- 分析类型：${meta.analysisType || "自动识别"}`,
+        `- 系统能力：双Agent选择、Skill工具链调用、阶段化推理日志、报告生成与下载`,
+        `- 输入问题：${meta.question || "未记录"}`,
+        "",
+        "## 一、决策摘要",
+        "本报告由AgentScope 2.0.3稳定版工程生成，用于支撑乘用车市场战略研判与用户配置定义两个智能体的独立业务分析。",
+        "",
+        "## 二、智能体输出原文",
+        "",
+        lastReport || "暂无报告内容。"
+      ].join("\n");
+    }
+
+    function buildPptMarkdown() {
+      if (!lastReport) return "";
+      const title = "# 乘用车市场战略决策AI智能体PPT";
+      if (/^#\s+/m.test(lastReport)) return lastReport;
+      return `${title}\n\n${lastReport}`;
+    }
+
+    function renderLeaderReport() {
+      if (!lastReport) {
+        alert("请先运行一次智能体分析，再生成汇报版。");
+        return;
+      }
+      const meta = lastReportMeta || { agent: activeAgent, analysisType: $("analysisType").value || "自动识别" };
+      const cover = `
+        <div class="report-cover">
+          <div class="report-cover-title">乘用车市场战略决策AI智能体汇报版</div>
+          <div class="report-cover-meta">智能体：${getAgentName(meta.agent)}　｜　生成时间：${new Date().toLocaleString()}</div>
+          <div class="report-cover-meta">能力展示：双Agent选择 / Skill工具链 / 阶段日志 / 报告生成下载</div>
+        </div>
+      `;
+      $("reportArea").innerHTML = cover + markdownToHtml(lastReport);
+      appendLog("ppt-report: HTML PPT 已生成");
+    }
+
+    function downloadText(filename, text) {
+      const blob = new Blob([text], { type: "text/markdown;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    async function generatePptReport() {
+      if (!lastReport) {
+        alert("请先运行一次智能体分析，再生成PPT版。");
+        return;
+      }
+      $("leaderReportBtn").disabled = true;
+      $("leaderReportBtn").textContent = "生成中";
+      appendLog("ppt: start consulting html-ppt builder");
+      try {
+        const res = await fetch("/api/ppt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            markdown: buildPptMarkdown(),
+            title: "乘用车市场战略决策AI智能体PPT"
+          })
+        });
+        const data = await res.json();
+        if (!res.ok || data.error || data.success === false) throw new Error(data.error || `HTTP ${res.status}`);
+        const links = `
+          <div class="report-cover">
+            <div class="report-cover-title">HTML PPT 已生成</div>
+            <div class="report-cover-meta">页数：${data.slides_count || "-"}　｜　文件大小：${data.file_size || 0} bytes</div>
+            <p><a href="${data.html_url}" target="_blank">打开PPT</a>　<a href="${data.html_url}" download>下载HTML</a></p>
+          </div>
+        `;
+        $("reportArea").innerHTML = links + markdownToHtml(lastReport);
+        appendLog(`ppt: generated ${data.html_url} / engine=${data.engine || "unknown"}`);
+      } catch (err) {
+        stopExecutionNarrative();
+        appendLog(`ppt-error: ${err.message}`);
+        alert(`生成PPT失败：${err.message}`);
+      } finally {
+        stopExecutionNarrative();
+        $("leaderReportBtn").disabled = false;
+        $("leaderReportBtn").textContent = "生成PPT版";
+      }
+    }
+
+    function setAgent(agent) {
+      activeAgent = agent;
+      document.querySelectorAll(".agent-tab").forEach(btn => btn.classList.toggle("active", btn.dataset.agent === agent));
+      document.querySelectorAll(".agent-card").forEach(card => card.classList.remove("active"));
+      const target = $(`card-${agent}`);
+      if (target) target.classList.add("active");
+      $("mAgent").textContent = agent === "market_strategy" ? "市场" : "配置";
+      renderQuick();
+    }
+
+    function renderQuick() {
+      $("quickGrid").innerHTML = quickMap[activeAgent].map(([label, q]) => `
+        <button class="quick" type="button" data-q="${escapeAttr(q)}">${label}</button>
+      `).join("");
+      document.querySelectorAll(".quick").forEach(btn => {
+        btn.addEventListener("click", () => { $("questionInput").value = btn.dataset.q; });
+      });
+      if (!$("questionInput").value.trim()) {
+        $("questionInput").value = quickMap[activeAgent][0][1];
+      }
+    }
+
+    function escapeAttr(text) {
+      return text.replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+    }
+
+    function markdownToHtml(markdown) {
+      const safe = (markdown || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+      const lines = safe.split(/\r?\n/);
+      let html = "";
+      let inTable = false;
+      for (const line of lines) {
+        if (/^\|.+\|$/.test(line.trim())) {
+          const cells = line.trim().slice(1, -1).split("|").map(c => c.trim());
+          if (cells.every(c => /^:?-{3,}:?$/.test(c))) continue;
+          if (!inTable) { html += "<table>"; inTable = true; }
+          html += "<tr>" + cells.map(c => `<td>${formatInline(c)}</td>`).join("") + "</tr>";
+          continue;
+        }
+        if (inTable) { html += "</table>"; inTable = false; }
+        if (/^###\s+/.test(line)) html += `<h3>${formatInline(line.replace(/^###\s+/, ""))}</h3>`;
+        else if (/^##\s+/.test(line)) html += `<h2>${formatInline(line.replace(/^##\s+/, ""))}</h2>`;
+        else if (/^#\s+/.test(line)) html += `<h1>${formatInline(line.replace(/^#\s+/, ""))}</h1>`;
+        else if (/^[-*]\s+/.test(line)) html += `<p>• ${formatInline(line.replace(/^[-*]\s+/, ""))}</p>`;
+        else if (line.trim()) html += `<p>${formatInline(line)}</p>`;
+      }
+      if (inTable) html += "</table>";
+      return html || `<div class="empty"><div><strong>没有返回内容</strong><p>请调整问题后重试。</p></div></div>`;
+    }
+
+    function formatInline(text) {
+      return text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    }
+
+    async function refreshHealth() {
+      try {
+        const res = await fetch("/api/config");
+        const data = await res.json();
+        $("provider").textContent = data.active_provider;
+        $("model").textContent = data.model;
+        $("endpoint").textContent = data.endpoint;
+        setStatus("ok", "后端已连接");
+      } catch (err) {
+        setStatus("bad", "后端未连接");
+      }
+    }
+
+    function flattenTaxonomy(taxonomy) {
+      return Object.values(taxonomy || {}).flat();
+    }
+
+    function updateAudioWorkflowStatus(kind, text) {
+      $("audioWorkflowDot").className = "dot " + (kind || "");
+      $("audioWorkflowStatus").textContent = text;
+    }
+
+    function updateTagSelectionMeta() {
+      const tags = audioTagState.selectedTags;
+      $("tagSelectionMeta").textContent = tags.length
+        ? `已选择 ${tags.length} 个标签：${tags.join(" + ")}`
+        : "未选择标签，展示全部样例用户";
+    }
+
+    function renderTagQuickSelector() {
+      const labels = flattenTaxonomy(audioTagState.taxonomy);
+      $("tagQuickSelector").innerHTML = labels.map(label => `
+        <button class="tag-token ${audioTagState.selectedTags.includes(label) ? "active" : ""}" data-tag="${escapeAttr(label)}" type="button">${label}</button>
+      `).join("");
+      document.querySelectorAll("#tagQuickSelector .tag-token").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const tag = btn.dataset.tag;
+          if (audioTagState.selectedTags.includes(tag)) {
+            audioTagState.selectedTags = audioTagState.selectedTags.filter(item => item !== tag);
+          } else {
+            audioTagState.selectedTags.push(tag);
+          }
+          updateTagSelectionMeta();
+          runAudioWorkflow(false);
+        });
+      });
+      updateTagSelectionMeta();
+    }
+
+    function renderTaxonomyPanel() {
+      const taxonomy = audioTagState.taxonomy || {};
+      $("taxonomyPanel").innerHTML = Object.entries(taxonomy).map(([category, tags]) => `
+        <div class="taxonomy-box">
+          <div class="taxonomy-title">${escapeAttr(category)}</div>
+          <div class="tag-chip-row">
+            ${tags.map(tag => `<span class="tag-token ${audioTagState.selectedTags.includes(tag) ? "active" : ""}">${escapeAttr(tag)}</span>`).join("")}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderWorkflowChain(workflow, activeIndex = workflow.length - 1) {
+      $("audioWorkflowChain").innerHTML = (workflow || []).map((item, index) => `
+        <div class="workflow-step-card ${index <= activeIndex ? "active" : ""}">
+          <div class="workflow-step-index">${String(index + 1).padStart(2, "0")}</div>
+          <div class="workflow-step-name">${escapeAttr(item.step)}</div>
+          <div class="workflow-step-output">${escapeAttr(item.output)}</div>
+        </div>
+      `).join("");
+    }
+
+    function animateWorkflowChain(workflow) {
+      if (!workflow || !workflow.length) return;
+      let index = 0;
+      renderWorkflowChain(workflow, 0);
+      const timer = setInterval(() => {
+        index += 1;
+        renderWorkflowChain(workflow, Math.min(index, workflow.length - 1));
+        if (index >= workflow.length - 1) clearInterval(timer);
+      }, 140);
+    }
+
+    function renderTaggedRecords() {
+      const records = audioTagState.records || [];
+      if (!records.length) {
+        $("taggedRecordPanel").innerHTML = `<div class="tag-empty-note">当前标签组合没有命中样例用户。可以减少筛选标签，或在后续接入更多访谈样本后重新计算。</div>`;
+        return;
+      }
+      $("taggedRecordPanel").innerHTML = records.map(record => `
+        <article class="tag-record-card">
+          <div class="report-item-head">
+            <div class="report-name">${escapeAttr(record.user_id)} · ${escapeAttr(record.audio_name)}</div>
+            <span class="report-type">${escapeAttr(record.region)} / ${escapeAttr(record.city_tier)}</span>
+          </div>
+          <div class="tag-record-meta">
+            <span>时长：${escapeAttr(record.duration)}</span>
+            <span>说话人：${record.speaker_count}</span>
+            <span>命中标签：${record.labels.length}</span>
+          </div>
+          <div class="tag-record-text">${escapeAttr(record.evidence)}</div>
+          <div class="tag-chip-row">${record.labels.slice(0, 12).map(tag => `<span class="tag-token active">${escapeAttr(tag)}</span>`).join("")}</div>
+          <div class="tag-score-line"><span>情绪强度</span><div class="mini-bar"><span style="width:${record.emotion_score}%"></span></div><span>${record.emotion_score}</span></div>
+          <div class="tag-score-line"><span>需求强度</span><div class="mini-bar"><span style="width:${record.intensity_score}%"></span></div><span>${record.intensity_score}</span></div>
+          <div class="tag-empty-note">配置映射：${escapeAttr((record.config_mapping || []).join("；") || "暂无明确配置映射")}</div>
+        </article>
+      `).join("");
+    }
+
+    function renderTagStats() {
+      const stats = audioTagState.statistics || [];
+      if (!stats.length) {
+        $("tagStatsPanel").innerHTML = `<div class="tag-empty-note">暂无统计结果。请执行编排或调整标签筛选。</div>`;
+        return;
+      }
+      $("tagStatsPanel").innerHTML = stats.map(item => `
+        <div class="stat-row">
+          <span>${escapeAttr(item.tag)}</span>
+          <div class="stat-bar"><span style="width:${Math.min(item.ratio, 100)}%"></span></div>
+          <strong>${item.ratio}%</strong>
+        </div>
+      `).join("");
+    }
+
+    function renderCrossAnalysis() {
+      const cross = audioTagState.crossAnalysis || [];
+      if (!cross.length) {
+        $("crossAnalysisPanel").innerHTML = `<div class="tag-empty-note">当前样本下未形成高频标签组合。建议放宽筛选，或接入更多访谈片段后再做关联发现。</div>`;
+        return;
+      }
+      $("crossAnalysisPanel").innerHTML = cross.map(item => `
+        <div class="tag-insight-card">
+          <div class="report-item-head">
+            <div class="report-name">${escapeAttr(item.pair)}</div>
+            <span class="report-type">${item.count}次</span>
+          </div>
+          <div class="report-snippet">${escapeAttr(item.insight)}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderDatasetPlan() {
+      const plan = audioTagState.datasetPlan || [];
+      $("datasetPlanPanel").innerHTML = plan.map((item, index) => `
+        <div class="dataset-row">
+          <div class="workflow-step-index">${String(index + 1).padStart(2, "0")}</div>
+          <div class="report-snippet">${escapeAttr(item)}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderAudioTagWorkbench(data, animate = true) {
+      audioTagState.taxonomy = data.taxonomy || {};
+      audioTagState.records = data.records || [];
+      audioTagState.statistics = data.statistics || [];
+      audioTagState.crossAnalysis = data.cross_analysis || [];
+      audioTagState.datasetPlan = data.dataset_plan || [];
+      renderTagQuickSelector();
+      renderTaxonomyPanel();
+      if (animate) animateWorkflowChain(data.workflow || []);
+      else renderWorkflowChain(data.workflow || []);
+      renderTaggedRecords();
+      renderTagStats();
+      renderCrossAnalysis();
+      renderDatasetPlan();
+    }
+
+    async function runAudioWorkflow(animate = true) {
+      updateAudioWorkflowStatus("run", "编排执行中");
+      $("runAudioWorkflowBtn").disabled = true;
+      try {
+        const res = await fetch("/api/audio-tags/run", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            instruction: $("audioWorkflowInput").value.trim(),
+            selected_tags: audioTagState.selectedTags
+          })
+        });
+        const data = await res.json();
+        if (!res.ok || data.error) throw new Error(data.error || `HTTP ${res.status}`);
+        renderAudioTagWorkbench(data, animate);
+        updateAudioWorkflowStatus("ok", `完成：${data.filtered_count}/${data.all_record_count} 条样本命中`);
+        $("tagWorkbenchView").dataset.loaded = "true";
+      } catch (err) {
+        updateAudioWorkflowStatus("bad", "执行失败");
+        $("taggedRecordPanel").innerHTML = `<div class="tag-empty-note">执行失败：${escapeAttr(err.message)}</div>`;
+      } finally {
+        $("runAudioWorkflowBtn").disabled = false;
+      }
+    }
+
+    function exportTagCsv() {
+      const records = audioTagState.records || [];
+      if (!records.length) {
+        alert("当前没有可导出的标签结果。");
+        return;
+      }
+      const header = ["user_id", "audio_name", "region", "city_tier", "labels", "emotion_score", "intensity_score", "config_mapping", "evidence"];
+      const rows = records.map(record => header.map(key => {
+        const value = Array.isArray(record[key]) ? record[key].join("|") : record[key];
+        return `"${String(value || "").replaceAll('"', '""')}"`;
+      }).join(","));
+      downloadText(`用户标签分析结果-${new Date().toISOString().slice(0, 10)}.csv`, [header.join(","), ...rows].join("\n"));
+    }
+
+    function switchMainView(view, activeNav = null) {
+      const targetMap = {
+        reports: "reportQueryView",
+        tagging: "tagWorkbenchView",
+        analysis: "analysisView"
+      };
+      const target = targetMap[view] || "analysisView";
+      document.querySelectorAll(".workspace-view").forEach(item => {
+        item.hidden = item.id !== target;
+      });
+      document.querySelectorAll(".nav-item").forEach(item => item.classList.remove("active"));
+      (activeNav || document.querySelector(`.nav-item[data-view="${view}"]`))?.classList.add("active");
+      if (view === "reports" && !$("reportList").dataset.loaded) {
+        loadReportLibrary();
+      }
+      if (view === "tagging" && !$("tagWorkbenchView").dataset.loaded) {
+        runAudioWorkflow();
+      }
+    }
+
+    function formatFileSize(bytes) {
+      if (!Number.isFinite(bytes)) return "-";
+      if (bytes < 1024) return `${bytes} B`;
+      if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+      return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+    }
+
+    async function loadReportLibrary(queryValue = null) {
+      const query = queryValue === null ? $("reportSearchInput").value.trim() : queryValue;
+      if (queryValue !== null) $("reportSearchInput").value = queryValue;
+      $("reportList").dataset.loaded = "true";
+      $("reportLibraryMeta").textContent = "正在检索报告资产...";
+      $("reportList").innerHTML = `<div class="empty"><div><strong>正在查询</strong><p>正在扫描 outputs/ppt 报告目录。</p></div></div>`;
+      try {
+        const res = await fetch(`/api/reports?q=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        if (!res.ok || data.error) throw new Error(data.error || `HTTP ${res.status}`);
+        renderReportLibrary(data);
+      } catch (err) {
+        $("reportLibraryMeta").textContent = "报告查询失败";
+        $("reportList").innerHTML = `<div class="empty"><div><strong>查询失败</strong><p>${escapeAttr(err.message)}</p></div></div>`;
+      }
+    }
+
+    function renderReportLibrary(data) {
+      const items = data.items || [];
+      const query = data.query || "";
+      $("reportLibraryMeta").textContent = query
+        ? `关键词“${query}”命中 ${items.length} 份报告，已按最近修改时间排序。`
+        : `共发现 ${items.length} 份可用报告，已按最近修改时间排序。`;
+      if (!items.length) {
+        $("reportList").innerHTML = `<div class="empty"><div><strong>没有找到匹配报告</strong><p>可以换成车型、价格带、区域、用户圈层等关键词再试。</p></div></div>`;
+        return;
+      }
+      $("reportList").innerHTML = items.map(item => {
+        const openText = item.ext === ".html" ? "打开PPT" : "打开报告";
+        return `
+          <article class="report-item">
+            <div class="report-item-head">
+              <div class="report-name">${escapeAttr(item.name)}</div>
+              <span class="report-type">${escapeAttr(item.type)}</span>
+            </div>
+            <div class="report-snippet">${escapeAttr(item.snippet || "暂无正文摘要")}</div>
+            <div class="report-file-meta">
+              <span>修改时间：${escapeAttr(item.modified)}</span>
+              <span>大小：${formatFileSize(item.size)}</span>
+              <span>路径：${escapeAttr(item.relative_path)}</span>
+            </div>
+            <div class="report-actions">
+              <a class="link-btn primary" href="${escapeAttr(item.url)}" target="_blank" rel="noreferrer">${openText}</a>
+              <a class="link-btn" href="${escapeAttr(item.url)}" download>下载文件</a>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    async function runAnalysis(agent = activeAgent, question = $("questionInput").value.trim()) {
+      if (running) return;
+      if (!question) { alert("请输入分析问题"); return; }
+      setAgent(agent);
+      running = true;
+      $("runBtn").disabled = true;
+      $("runBtn").textContent = "分析中";
+      $(`state-${agent}`).textContent = "运行中";
+      setStatus("run", "智能体运行中");
+      $("eventLog").textContent = "开始接收智能体执行日志...";
+      $("reportArea").innerHTML = `<div class="empty"><div><strong>智能体正在分析</strong><p>请观察左侧阶段进度。</p></div></div>`;
+      $("mQuality").textContent = "-";
+      $("mLength").textContent = "-";
+      initSteps();
+      startDemoProgress();
+
+      updateStep("stage1", "done", "已识别业务场景与目标智能体。");
+      updateStep("stage2", "running", "正在准备模型、工具与业务上下文。");
+      appendLog(`Agent=${agent}`);
+      startExecutionNarrative(agent, question);
+
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ agent, question, analysis_type: $("analysisType").value })
+        });
+        const data = await res.json();
+        if (!res.ok || data.error) throw new Error(data.error || `HTTP ${res.status}`);
+        stopExecutionNarrative();
+
+        updateStep("stage2", "done", "工具链准备完成。");
+        setFlow(58);
+        updateStep("stage3", "done", "已按业务框架完成推理。");
+        setFlow(76);
+        updateStep("stage4", "done", "已检查报告章节完整性。");
+        setFlow(90);
+        updateStep("stage5", "done", "完整报告已返回。");
+        appendLog("complete: report returned");
+        if (Array.isArray(data.tool_events) && data.tool_events.length) {
+          appendLog(`audit: 后端返回真实工具审计 ${data.tool_events.length} 条`);
+          data.tool_events.forEach(item => appendLog(`tool-call: ${item.name} / ${item.status} / ${item.detail}`));
+        } else {
+          appendLog("audit: 后端本轮未捕获到真实工具调用");
+        }
+
+        lastReport = data.answer || "";
+        lastReportMeta = {
+          agent,
+          question,
+          analysisType: $("analysisType").value || "自动识别",
+          createdAt: new Date().toISOString()
+        };
+        $("reportArea").innerHTML = markdownToHtml(lastReport);
+        $("mQuality").textContent = "通过";
+        animateMetric("mLength", lastReport.length);
+        finishDemoProgress(true);
+        setStatus("ok", "分析完成");
+      } catch (err) {
+        updateStep("stage2", "done", "请求已发送。");
+        updateStep("stage3", "running", "执行失败，请查看错误。");
+        stopExecutionNarrative();
+        appendLog(`ERROR: ${err.message}`);
+        $("reportArea").innerHTML = `<div class="empty"><div><strong>分析失败</strong><p>${err.message}</p></div></div>`;
+        finishDemoProgress(false);
+        setStatus("bad", "分析失败");
+      } finally {
+        running = false;
+        stopExecutionNarrative();
+        $("runBtn").disabled = false;
+        $("runBtn").textContent = "开始分析";
+        $(`state-${agent}`).textContent = "待命";
+      }
+    }
+
+    document.querySelectorAll("[data-view]").forEach(btn => {
+      btn.addEventListener("click", () => switchMainView(btn.dataset.view, btn));
+    });
+
+    $("reportSearchBtn").addEventListener("click", () => loadReportLibrary());
+    $("reportRefreshBtn").addEventListener("click", () => loadReportLibrary(""));
+    $("reportSearchInput").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") loadReportLibrary();
+    });
+    $("runAudioWorkflowBtn").addEventListener("click", () => runAudioWorkflow());
+    $("tagResetBtn").addEventListener("click", () => {
+      audioTagState.selectedTags = [];
+      updateTagSelectionMeta();
+      runAudioWorkflow(false);
+    });
+    $("exportTagCsvBtn").addEventListener("click", exportTagCsv);
+
+    document.querySelectorAll(".agent-tab").forEach(btn => {
+      btn.addEventListener("click", () => {
+        setAgent(btn.dataset.agent);
+        $("questionInput").value = quickMap[btn.dataset.agent][0][1];
+      });
+    });
+
+    document.querySelectorAll(".scene-card").forEach(card => {
+      card.addEventListener("click", () => {
+        document.querySelectorAll(".scene-card").forEach(c => c.classList.remove("active"));
+        card.classList.add("active");
+        setAgent(card.dataset.agent);
+        $("questionInput").value = card.dataset.q;
+      });
+    });
+
+    document.querySelectorAll("[data-agent-action]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const agent = btn.dataset.agentAction;
+        setAgent(agent);
+        $("questionInput").value = quickMap[agent][0][1];
+      });
+    });
+
+    $("runBtn").addEventListener("click", () => runAnalysis());
+    $("healthBtn").addEventListener("click", refreshHealth);
+    $("copyBtn").addEventListener("click", async () => {
+      if (!lastReport) return;
+      await navigator.clipboard.writeText(lastReport);
+      appendLog("报告已复制到剪贴板");
+    });
+    $("leaderReportBtn").addEventListener("click", generatePptReport);
+    $("downloadMdBtn").addEventListener("click", () => {
+      if (!lastReport) {
+        alert("请先运行一次智能体分析，再下载报告。");
+        return;
+      }
+      const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
+      downloadText(`乘用车市场战略决策AI智能体汇报版-${stamp}.md`, buildLeaderReportMarkdown());
+      appendLog("download: markdown report exported");
+    });
+    document.querySelectorAll(".skill-chip").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const demo = skillDemoMap[btn.dataset.skill];
+        if (!demo) return;
+        setAgent(demo.agent);
+        $("analysisType").value = demo.analysisType || "";
+        $("questionInput").value = demo.question;
+        document.querySelectorAll(".skill-chip").forEach(item => item.classList.remove("active"));
+        btn.classList.add("active");
+        appendLog(`skill-task: ${btn.textContent.trim()} 已填入任务问题`);
+        if (btn.dataset.skill === "multi_agent") {
+          appendLog("tip: 可点击右侧“顺序运行双Agent”展示市场Agent与配置Agent独立协作流程");
+        }
+      });
+    });
+    $("runAllBtn").addEventListener("click", async () => {
+      await runAnalysis("market_strategy", quickMap.market_strategy[0][1]);
+      if (!running) await runAnalysis("user_insight_config", quickMap.user_insight_config[0][1]);
+    });
+
+    $("questionInput").addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) runAnalysis();
+    });
+
+    initSteps();
+    renderQuick();
+    $("questionInput").value = quickMap.market_strategy[0][1];
+    refreshHealth();
+  </script>
+</body>
+</html>

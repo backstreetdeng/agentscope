@@ -1,0 +1,32 @@
+# 密钥与本地环境
+.env
+.env.*
+!.env.example
+
+# Python 缓存与构建产物
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+*.egg-info/
+
+# 日志与临时文件
+*.log
+*.tmp
+*.bak
+*.swp
+~$*
+
+# 本地运行缓存
+.cache/
+.playwright/
+node_modules/
+temp/
+
+# 备份中的二进制缓存文件，不影响源码恢复
+backup/*.pyc
+backup/__pycache__/

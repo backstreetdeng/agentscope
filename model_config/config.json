@@ -1,0 +1,73 @@
+{
+  "active_provider": "minimax",
+  "providers": {
+    "minimax": {
+      "type": "openai_compatible",
+      "base_url": "https://api.minimaxi.com/v1",
+      "model": "${MINIMAX_MODEL_ID}",
+      "api_key_env": "MINIMAX_API_KEY",
+      "stream": true,
+      "temperature": 0.3,
+      "top_p": 0.9,
+      "max_tokens": 4096,
+      "context_size": 128000,
+      "extra_body": {
+        "reasoning_split": false
+      }
+    },
+    "local_ollama": {
+      "type": "ollama",
+      "host": "http://localhost:11434",
+      "model": "qwen2.5:7b",
+      "stream": true,
+      "temperature": 0.3,
+      "top_p": 0.9,
+      "max_tokens": 4096,
+      "context_size": 32768
+    },
+    "openai_compatible_cloud": {
+      "type": "openai_compatible",
+      "base_url": "https://api.openai.com/v1",
+      "model": "gpt-4.1-mini",
+      "api_key_env": "OPENAI_API_KEY",
+      "stream": true,
+      "temperature": 0.3,
+      "top_p": 0.9,
+      "max_tokens": 4096,
+      "context_size": 128000
+    },
+    "custom_adapter_example": {
+      "type": "custom_openai_compatible",
+      "base_url": "https://api.minimaxi.com/v1",
+      "model": "${MINIMAX_MODEL_ID}",
+      "api_key_env": "MINIMAX_API_KEY",
+      "stream": true,
+      "temperature": 0.3,
+      "top_p": 0.9,
+      "max_tokens": 4096,
+      "context_size": 128000,
+      "extra_body": {
+        "reasoning_split": false
+      }
+    }
+  },
+  "agents": {
+    "market_strategy": {
+      "name": "市场战略性机会决策智能体",
+      "max_iters": 6
+    },
+    "user_insight_config": {
+      "name": "用户洞察与配置定义决策智能体",
+      "max_iters": 6
+    }
+  },
+  "demo_tasks": {
+    "market_strategy": "请输出精简版业务报告：针对2026年15-20万元新能源SUV乘用车市场，识别2个高潜力增量机会市场和2个高风险衰退预警市场，输出市场分级、区域产能调配建议、进入/暂缓决策意见。每章最多3条要点，必须覆盖全部章节。",
+    "user_insight_config": "请输出精简版业务报告：针对15-20万元新能源SUV，锁定3类目标用户圈层，完成需求-配置匹配测算，并给出不超过8项整车选装配置优先级排序和可执行产品配置方案。每章最多3条要点，必须覆盖全部章节。"
+  },
+  "tooling": {
+    "web_fetch_max_chars": 6000,
+    "tavily_max_results": 5,
+    "playwright_timeout_ms": 15000
+  }
+}
