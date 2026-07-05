@@ -86,7 +86,10 @@ def extract_title(text: str) -> str:
 
 
 def split_sections(text: str) -> list[Section]:
-    pattern = re.compile(r"(?m)^([一二三四五六七八九十]+、[^\n]+)\s*$")
+    # 2.0.3 Demo 的前端会把智能体报告保存成 Markdown，
+    # 主章节既可能是“一、分析时点”，也可能是“## 一、分析时点”。
+    # 这里统一识别两种写法，避免整篇报告被误判为一个章节，导致 PPT 退化成少量页面。
+    pattern = re.compile(r"(?m)^(?:#{1,6}\s*)?([一二三四五六七八九十]+、[^\n]+?|[^\n]{0,8}Agent交接提示)\s*$")
     matches = list(pattern.finditer(text))
     sections: list[Section] = []
     for i, match in enumerate(matches):
@@ -158,6 +161,16 @@ def plan_slides(report: dict[str, Any]) -> list[Slide]:
                 )
         elif "证据" in section.title or "假设" in section.title or "待补充" in section.title:
             slides.extend(evidence_slides(section))
+        elif "交接" in section.title:
+            slides.append(
+                Slide(
+                    "cards",
+                    "交接给用户洞察Agent的深化任务",
+                    "AGENT HANDOFF",
+                    cards=cards_from_items(extract_points(section.body, 5)),
+                    note="交接页把市场Agent的下一步协作任务单独呈现，便于现场演示双Agent闭环。",
+                ),
+            )
         else:
             slides.append(generic_section_slide(section, name))
 
@@ -219,7 +232,10 @@ def evidence_slides(section: Section) -> list[Slide]:
     table = first_table(section.body)
     if table:
         slides.append(Slide("table", "证据来源与引用内容", "EVIDENCE", table=table, note="证据页保留报告中的来源表格。"))
-    assumptions = extract_after_label(section.body, "关键假设")
+    evidence = extract_after_label(section.body, "关键证据来源") or extract_after_label(section.body, "证据来源")
+    if evidence:
+        slides.append(Slide("cards", "关键证据来源", "EVIDENCE", cards=cards_from_items(evidence[:5]), note="证据页保留报告原文中的关键事实和来源口径。"))
+    assumptions = extract_after_label(section.body, "关键假设") or extract_after_label(section.body, "核心假设")
     if assumptions:
         slides.append(Slide("cards", "关键假设", "ASSUMPTIONS", cards=cards_from_items(assumptions[:3]), note="假设页用于标明结论成立的前提。"))
     data_need = extract_after_label(section.body, "待补充数据")
@@ -540,7 +556,15 @@ def parse_table_line(line: str) -> list[str]:
 
 
 def split_named_blocks(text: str) -> list[tuple[str, str]]:
-    pattern = re.compile(r"(?m)^((?:市场|风险市场)[一二三四五六\d]+[:：][^\n]+)\s*$")
+    # 机会/风险小节常见两类写法：
+    # 1. 市场一：限购城市新能源SUV
+    # 2. ### 1. 限购城市新能源SUV细分市场（机会等级：S级）
+    # 两类都要拆成独立详情页，才能让 PPT 页数跟随报告内容增长。
+    pattern = re.compile(
+        r"(?m)^(?:#{1,6}\s*)?"
+        r"((?:(?:市场|风险市场)[一二三四五六\d]+[:：][^\n]+)"
+        r"|(?:(?:[一二三四五六七八九十\d]+[.、]\s*)?[^\n]+[（(](?:机会|风险)等级[:：][^）)]+[）)]))\s*$",
+    )
     matches = list(pattern.finditer(text))
     blocks = []
     for i, match in enumerate(matches):
@@ -560,6 +584,9 @@ def extract_after_label(text: str, label: str) -> list[str]:
     if idx < 0:
         return []
     block = text[idx + len(label) : idx + len(label) + 1400]
+    # Markdown 报告中同一章节常包含多个三级标题。
+    # 提取某个标签后的要点时，只取到下一个标题或分隔线，避免把后续“Agent交接”等内容串进同一页。
+    block = re.split(r"(?m)^\s*(?:#{1,6}\s+|---+\s*$)", block, maxsplit=1)[0]
     return extract_points(block, 5)
 
 
