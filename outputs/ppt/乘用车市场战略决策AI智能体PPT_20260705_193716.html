@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2026年15-20万元新能源SUV华中华西市场机会与风险分析报告</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+  :root {
+    --bg-deep:#f1f5f9; --bg-paper:#f8fafc; --bg-surface:#ffffff; --bg-elevated:#e2e8f0;
+    --text-primary:#0f172a; --text-secondary:#334155; --text-tertiary:#64748b; --hairline:#e2e8f0;
+    --accent:#1d4ed8; --accent-soft:rgba(29,78,216,.08); --accent-glow:rgba(29,78,216,.04);
+    --red:#c0392b; --amber:#d97706; --green:#15803d;
+    --slide-transition:.6s cubic-bezier(.22,1,.36,1);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html,body { width:100%; height:100%; overflow:hidden; background:var(--bg-paper); color:var(--text-primary);
+    font-family:"Outfit","Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif; -webkit-font-smoothing:antialiased; cursor:none; }
+  body::before { content:''; position:fixed; inset:0; pointer-events:none; z-index:1;
+    background:radial-gradient(ellipse at 20% 0%,rgba(29,78,216,.03),transparent 50%),
+               radial-gradient(ellipse at 80% 100%,rgba(217,119,6,.03),transparent 50%); }
+  body::after { content:''; position:fixed; inset:0; pointer-events:none; z-index:1;
+    background-image:repeating-linear-gradient(0deg,transparent 0,transparent 4px,rgba(15,23,42,.008) 4px,rgba(15,23,42,.008) 5px); }
+  .cursor { position:fixed; width:32px; height:32px; border:2px solid var(--accent); border-radius:50%; pointer-events:none;
+    z-index:9999; transform:translate(-50%,-50%); transition:width .2s,height .2s,opacity .2s,background-color .2s; opacity:.7; }
+  .cursor.hovering { width:52px; height:52px; opacity:.9; background:var(--accent-glow); }
+  .deck { position:relative; width:100vw; height:100vh; z-index:2; }
+  .badge { position:fixed; top:28px; left:clamp(28px,5vw,90px); display:flex; align-items:center; gap:12px; z-index:100; }
+  .badge-mark { width:24px; height:24px; border-radius:6px; background:var(--accent); color:#fff; font-weight:900; display:flex; align-items:center; justify-content:center; }
+  .badge-label { font-size:13px; letter-spacing:.15em; color:var(--text-secondary); font-weight:800; }
+  .episode-tag { position:fixed; top:28px; right:clamp(28px,5vw,90px); display:flex; align-items:center; gap:8px; z-index:100;
+    font-size:13px; letter-spacing:.15em; text-transform:uppercase; color:var(--text-tertiary); font-weight:700; font-family:"JetBrains Mono",monospace; }
+  .episode-tag::before { content:''; width:8px; height:8px; border-radius:50%; background:var(--accent); }
+  .nav-arrows { position:fixed; bottom:22px; left:clamp(28px,5vw,90px); display:flex; gap:10px; z-index:100; }
+  .nav-arrows button { width:40px; height:40px; background:var(--bg-surface); border:1.5px solid var(--hairline); border-radius:8px;
+    color:var(--text-secondary); font-size:16px; cursor:pointer; transition:.2s; }
+  .nav-arrows button:hover { border-color:var(--accent); color:var(--accent); background:var(--accent-soft); transform:translateY(-2px); }
+  .nav-counter { position:fixed; bottom:28px; right:clamp(28px,5vw,90px); z-index:100; font:700 15px "JetBrains Mono",monospace;
+    letter-spacing:.1em; color:var(--text-tertiary); }
+  .nav-counter .current { color:var(--accent); font-weight:900; }
+  .progress-track { position:fixed; left:0; bottom:0; width:100%; height:4px; background:var(--bg-elevated); z-index:100; }
+  .progress-bar { height:100%; background:var(--accent); transition:width .6s cubic-bezier(.22,1,.36,1); }
+  .slide { position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center; padding:clamp(40px,6vw,112px);
+    opacity:0; transform:translateY(20px); pointer-events:none; transition:opacity var(--slide-transition),transform var(--slide-transition); overflow:hidden; }
+  .slide.active { opacity:1; transform:translateY(0); pointer-events:auto; }
+  .slide.exit-up { opacity:0; transform:translateY(-30px); }
+  .slide-tag { font-size:clamp(13px,1.25vw,16px); letter-spacing:.25em; text-transform:uppercase; color:var(--accent);
+    font-weight:800; margin-bottom:16px; display:flex; align-items:center; gap:10px; }
+  .slide-tag::before { content:''; width:16px; height:3px; background:var(--accent); }
+  .slide-title { font-size:clamp(30px,4.2vw,58px); font-weight:900; line-height:1.25; letter-spacing:-.01em; margin-bottom:22px; max-width:1180px; }
+  .slide-title .accent { color:var(--accent); } .slide-title .red { color:var(--red); } .slide-title .green { color:var(--green); }
+  .slide-subtitle { font-size:clamp(16px,1.5vw,22px); color:var(--text-secondary); line-height:1.6; max-width:980px; font-weight:500; margin-bottom:16px; }
+  .cover-slide { justify-content:flex-end; padding-bottom:clamp(80px,10vh,150px); }
+  .cover-num { position:absolute; top:clamp(90px,12vh,150px); right:clamp(60px,8vw,140px); font-family:"JetBrains Mono",monospace;
+    font-size:clamp(130px,22vw,340px); font-weight:900; color:rgba(29,78,216,.05); line-height:.8; letter-spacing:-.05em; user-select:none; }
+  .cover-num .small { display:block; margin-bottom:10px; font-size:.25em; color:rgba(29,78,216,.12); letter-spacing:.3em; font-weight:500; }
+  .cover-divider { width:80px; height:4px; background:var(--accent); margin:32px 0 8px; }
+  .cover-meta { display:flex; gap:clamp(24px,4vw,64px); margin-top:48px; border-top:2px solid var(--hairline); padding-top:32px; flex-wrap:wrap; }
+  .cover-meta-item { display:flex; flex-direction:column; gap:6px; }
+  .cover-meta-label { font:500 12px "JetBrains Mono",monospace; letter-spacing:.15em; text-transform:uppercase; color:var(--text-tertiary); }
+  .cover-meta-value { font-size:16px; color:var(--text-primary); font-weight:800; }
+  .cards-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; margin-top:24px; max-width:1400px; }
+  .scene-card { background:var(--bg-surface); border:1.5px solid var(--hairline); border-radius:16px; padding:clamp(22px,2vw,34px);
+    box-shadow:0 6px 18px rgba(15,23,42,.02); transition:.3s; }
+  .scene-card:hover { border-color:var(--accent); transform:translateY(-4px); box-shadow:0 16px 36px rgba(15,23,42,.06); }
+  .scene-header { display:flex; justify-content:space-between; gap:12px; align-items:center; border-bottom:2px dashed var(--hairline); padding-bottom:14px; margin-bottom:14px; }
+  .scene-title-text { font-size:19px; font-weight:900; color:var(--text-primary); }
+  .scene-tag { font:700 12px "JetBrains Mono",monospace; color:var(--accent); background:var(--accent-soft); padding:4px 10px; border-radius:6px; white-space:nowrap; }
+  .scene-core { font-size:15px; color:var(--text-secondary); line-height:1.5; margin-bottom:16px; background:var(--bg-deep); padding:8px 14px; border-radius:8px; font-weight:700; }
+  .table-container { margin-top:24px; background:var(--bg-surface); border:1.5px solid var(--hairline); border-radius:14px; overflow:hidden; box-shadow:0 6px 24px rgba(15,23,42,.03); max-width:1400px; }
+  .sop-table { width:100%; border-collapse:collapse; text-align:left; font-size:clamp(13px,1.12vw,16px); }
+  .sop-table th,.sop-table td { padding:13px 16px; border-bottom:1px solid var(--hairline); line-height:1.55; vertical-align:top; }
+  .sop-table th { background:var(--bg-deep); color:var(--text-primary); font-weight:900; letter-spacing:.04em; }
+  .sop-table tr:last-child td { border-bottom:0; }
+  .gold-rule-box { margin-top:22px; padding:17px 24px; background:var(--accent-soft); border-left:5px solid var(--accent); border-radius:6px;
+    font-size:clamp(15px,1.35vw,19px); line-height:1.65; max-width:1400px; }
+  .gold-rule-box strong { color:var(--accent); }
+  .quote-balloon { background:rgba(192,57,43,.03); border:1.5px solid rgba(192,57,43,.15); border-left:6px solid var(--red);
+    border-radius:12px; padding:24px; position:relative; box-shadow:0 4px 12px rgba(192,57,43,.02); }
+  .quote-balloon::after { content:'"'; position:absolute; right:24px; bottom:8px; font-size:72px; line-height:1; color:rgba(192,57,43,.08); font-family:Georgia,serif; font-weight:900; }
+  .compare-layout { display:grid; grid-template-columns:1fr 1fr; gap:32px; margin-top:22px; max-width:1400px; }
+  .compare-column { background:var(--bg-surface); border:1.5px solid var(--hairline); border-radius:16px; padding:28px; box-shadow:0 6px 18px rgba(0,0,0,.01); }
+  .compare-column.bad { border-top:5px solid var(--red); } .compare-column.good { border-top:5px solid var(--green); }
+  .compare-header { font-size:19px; font-weight:900; margin-bottom:18px; padding-bottom:10px; border-bottom:1.5px solid var(--hairline); }
+  .compare-column.bad .compare-header { color:var(--red); } .compare-column.good .compare-header { color:var(--green); }
+  .compare-list { list-style:none; display:flex; flex-direction:column; gap:15px; }
+  .compare-list li { font-size:15px; line-height:1.6; color:var(--text-secondary); }
+  .timeline-layout { display:flex; gap:20px; margin-top:26px; max-width:1400px; }
+  .timeline-step { flex:1; background:var(--bg-surface); border:1.5px solid var(--hairline); border-radius:16px; padding:24px; box-shadow:0 6px 18px rgba(15,23,42,.02); }
+  .step-num { width:40px; height:40px; background:var(--accent); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font:700 16px "JetBrains Mono",monospace; margin-bottom:12px; }
+  .step-name { font-size:18px; font-weight:900; color:var(--text-primary); margin-bottom:8px; }
+  .step-desc { font-size:15px; color:var(--text-secondary); line-height:1.6; }
+  .big-num { font:900 64px/1 "JetBrains Mono",monospace; color:var(--accent); opacity:.95; }
+  .accent-red .slide-tag,.accent-red .big-num { color:var(--red); } .accent-red .slide-tag::before { background:var(--red); }
+  .accent-green .slide-tag,.accent-green .big-num { color:var(--green); } .accent-green .slide-tag::before { background:var(--green); }
+  .notes { display:none; }
+  .slide p,.slide li { line-height:1.62; }
+  .slide.active .stagger { animation:fadeUp .6s cubic-bezier(.22,1,.36,1) both; }
+  .slide.active .stagger:nth-child(1) { animation-delay:.08s; } .slide.active .stagger:nth-child(2) { animation-delay:.16s; }
+  .slide.active .stagger:nth-child(3) { animation-delay:.24s; } .slide.active .stagger:nth-child(4) { animation-delay:.32s; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+  @media (max-width:900px) { .cards-grid,.compare-layout { grid-template-columns:1fr!important; } .timeline-layout { flex-direction:column; } }
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="deck" id="deck">
+  <div class="badge"><div class="badge-mark">S</div><div class="badge-label">汽车市场智能决策 HTML PPT</div></div>
+  <div class="episode-tag">Consulting / Case Study Edition</div>
+  <div class="nav-arrows"><button onclick="prev()" aria-label="上一页">←</button><button onclick="next()" aria-label="下一页">→</button></div>
+  <div class="nav-counter"><span class="current" id="navCurrent">01</span> / <span id="navTotal">11</span></div>
+  <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+
+  <div class="slide cover-slide  active" data-index="0" data-title="2026年15-20万元新能源SUV华中华西市场机会与风险分析报告">
+
+    <div class="cover-num"><span class="small">REPORT</span>01</div>
+    <div class="slide-tag stagger">AUTO STRATEGY REPORT</div>
+    <h1 class="slide-title stagger">2026年15-20万元新能源SUV华中华西市场机会与风险分析报告</h1>
+    <p class="slide-subtitle stagger">乘用车市场与产品配置智能决策</p>
+    <div class="cover-divider stagger"></div>
+    <div class="cover-meta stagger"><div class="cover-meta-item"><span class="cover-meta-label">Report Type</span><span class="cover-meta-value">乘用车市场与产品配置智能决策</span></div><div class="cover-meta-item"><span class="cover-meta-label">Generated</span><span class="cover-meta-value">2026.07.05</span></div><div class="cover-meta-item"><span class="cover-meta-label">Focus</span><span class="cover-meta-value">机会 / 风险 / 产能 / 决策</span></div><div class="cover-meta-item"><span class="cover-meta-label">Format</span><span class="cover-meta-value">HTML Consulting Deck</span></div></div>
+    <div class="notes">封面页用于明确本次报告主题和业务输出边界。</div>
+  </div>
+
+  <div class="slide   " data-index="1" data-title="本次报告覆盖 6 个业务章节">
+
+    <div class="slide-tag stagger">AGENDA</div>
+    <h2 class="slide-title stagger">本次报告覆盖 6 个业务章节</h2>
+    <p class="slide-subtitle stagger">先看结构，再进入市场机会、风险预警、产能调配与进入决策。</p>
+    <div class="cards-grid stagger" style="grid-template-columns:repeat(3,1fr);"><div class="scene-card"><div class="scene-header"><span class="scene-title-text">分析时点与任务边界</span><span class="scene-tag">01</span></div><div class="scene-core">界定分析范围与业务判断依据</div></div><div class="scene-card"><div class="scene-header"><span class="scene-title-text">市场机会分级表</span><span class="scene-tag">02</span></div><div class="scene-core">识别增量区域和产品投放窗口</div></div><div class="scene-card"><div class="scene-header"><span class="scene-title-text">高潜力增量机会市场</span><span class="scene-tag">03</span></div><div class="scene-core">识别增量区域和产品投放窗口</div></div><div class="scene-card"><div class="scene-header"><span class="scene-title-text">高风险衰退预警市场</span><span class="scene-tag">04</span></div><div class="scene-core">识别政策、饱和与竞争衰退信号</div></div><div class="scene-card"><div class="scene-header"><span class="scene-title-text">区域产能调配建议</span><span class="scene-tag">05</span></div><div class="scene-core">把市场判断转译为区域供给策略</div></div><div class="scene-card"><div class="scene-header"><span class="scene-title-text">市场进入/暂缓决策意见</span><span class="scene-tag">06</span></div><div class="scene-core">形成进入、深耕、暂缓或收缩动作</div></div></div>
+    <div class="notes">目录页根据本次报告真实章节自动生成。</div>
+  </div>
+
+  <div class="slide   " data-index="2" data-title="先定义战场，再判断机会">
+
+    <div class="slide-tag stagger">SCOPE</div>
+    <h2 class="slide-title stagger">先定义战场，再判断机会</h2>
+    <p class="slide-subtitle stagger">将报告要点压缩为可讨论、可决策、可行动的业务卡片。</p>
+    <div class="cards-grid stagger"><div class="scene-card"><div class="scene-header"><span class="scene-title-text">分析时点</span><span class="scene-tag">01</span></div><div class="scene-core">2026年6月，基于2025年全年及2026年最新市场数据。</div></div><div class="scene-card"><div class="scene-header"><span class="scene-title-text">任务边界</span><span class="scene-tag">02</span></div><div class="scene-core">聚焦15-20万元价格带新能源SUV（含插混、增程、纯电），覆盖华中（河南、湖北、湖南）与西南（四川、云南、贵州、重庆）四省一直辖市。</div></div><div class="scene-card"><div class="scene-header"><span class="scene-title-text">核心假设</span><span class="scene-tag">03</span></div><div class="scene-core">2026年新能源汽车购置税政策由“全额免征”转向“减半征收”，单车减税不超过1.5万元；汽车以旧换新补贴政策延续但力度存在调整压力；全国SUV市场2026年增速预期收窄3%-5%。</div></div></div>
+    <div class="notes">边界页来自报告原文的分析时点、任务范围和数据说明。</div>
+  </div>
+
+  <div class="slide   " data-index="3" data-title="市场机会分级">
+
+    <div class="slide-tag stagger">MARKET GRADING</div>
+    <h2 class="slide-title stagger">市场应按“重点投放、稳健布局、暂缓扩张”三档管理</h2>
+    <p class="slide-subtitle stagger">保留原始业务表格，但用咨询风表格容器强化层级与可读性。</p>
+    <div class="table-container stagger"><table class="sop-table"><thead><tr><th>区域</th><th>市场</th><th>机会等级</th><th>核心依据</th><th>风险等级</th></tr></thead><tbody><tr><td>华中</td><td>湖北</td><td>★★★★☆</td><td>新能源渗透率55.4%，同比+35%，政策拉动效应显著</td><td>★★☆☆☆</td></tr><tr><td>华中</td><td>湖南</td><td>★★★☆☆</td><td>长沙单城占全省54%，核心市场集中度高，整体增速放缓</td><td>★★★☆☆</td></tr><tr><td>华中</td><td>河南</td><td>★★★☆☆</td><td>市场体量大但数据缺口，待补充区域渗透率数据</td><td>★★☆☆☆</td></tr><tr><td>西南</td><td>重庆</td><td>★★★★☆</td><td>广义乘用车销量48.2万辆，同比+7.35%；新能源渗透率58.8%；SUV同比+6.4%</td><td>★★☆☆☆</td></tr><tr><td>西南</td><td>四川</td><td>★★★☆☆</td><td>SUV逆势增长+12.04%，但新能源整体下滑，纯电-35.26%</td><td>★★★★☆</td></tr><tr><td>西南</td><td>云南贵州</td><td>★★★☆☆</td><td>数据缺口较大，地形因素利好SUV需求，政策覆盖下沉</td><td>★★★☆☆</td></tr></tbody></table></div>
+    <div class="notes">市场机会分级来自报告原始表格。</div>
+  </div>
+
+  <div class="slide  accent-green " data-index="4" data-title="高潜力增量机会市场">
+
+    <div class="slide-tag stagger">SECTION</div>
+    <h2 class="slide-title stagger">高潜力增量机会市场</h2>
+    <p class="slide-subtitle stagger">将报告要点压缩为可讨论、可决策、可行动的业务卡片。</p>
+    <div class="cards-grid stagger"><div class="scene-card"><div class="scene-header"><span class="scene-title-text">重庆</span><span class="scene-tag">01</span></div><div class="scene-core">西南市场绝对主力，政策透支风险需关注</div></div><div class="scene-card"><div class="scene-header"><span class="scene-title-text">2026年风险提示</span><span class="scene-tag">02</span></div><div class="scene-core">购置税减免退坡与以旧换新政策效应递减叠加，预期重庆市场销量可能同比收窄3%-5%，需动态监控政策落地节奏。</div></div><div class="scene-card"><div class="scene-header"><span class="scene-title-text">湖北</span><span class="scene-tag">03</span></div><div class="scene-core">华中新能源桥头堡，核心城市虹吸效应突出</div></div><div class="scene-card"><div class="scene-header"><span class="scene-title-text">机会驱动因素</span><span class="scene-tag">04</span></div><div class="scene-core">第一，高渗透率基础扎实。湖北新能源渗透率领先华中其他省份，消费者教育成本低。第二，地理区位优势。九省通衢的交通枢纽地位使其具备向周边省份辐射的潜力。第三，产业结构基础。武汉作为新一线城市，具备较强的消费升级动能。</div></div></div>
+    <div class="notes">本页由章节要点自动提炼生成。</div>
+  </div>
+
+  <div class="slide  accent-red " data-index="5" data-title="高风险衰退预警市场">
+
+    <div class="slide-tag stagger">SECTION</div>
+    <h2 class="slide-title stagger">高风险衰退预警市场</h2>
+    <p class="slide-subtitle stagger">将报告要点压缩为可讨论、可决策、可行动的业务卡片。</p>
+    <div class="cards-grid stagger"><div class="scene-card"><div class="scene-header"><span class="scene-title-text">湖南</span><span class="scene-tag">01</span></div><div class="scene-core">核心城市需求疲软，整体市场动能不足</div></div><div class="scene-card"><div class="scene-header"><span class="scene-title-text">衰退预警信号</span><span class="scene-tag">02</span></div><div class="scene-core">第一，核心城市同比跌幅超14%，缺乏止跌迹象。第二，地市全面下滑，湘西、岳阳跌幅超23%。第三，新能源动能减弱，渗透率数据待补充但增速放缓概率较高。</div></div><div class="scene-card"><div class="scene-header"><span class="scene-title-text">触发条件</span><span class="scene-tag">03</span></div><div class="scene-core">若长沙3月销量同比跌幅扩大至20%以上，需触发市场暂缓预警。</div></div><div class="scene-card"><div class="scene-header"><span class="scene-title-text">四川（新能源细分）</span><span class="scene-tag">04</span></div><div class="scene-core">补能焦虑抑制纯电需求，插混强势压制市场结构</div></div></div>
+    <div class="notes">本页由章节要点自动提炼生成。</div>
+  </div>
+
+  <div class="slide   " data-index="6" data-title="区域产能调配">
+
+    <div class="slide-tag stagger">CAPACITY ALLOCATION</div>
+    <h2 class="slide-title stagger">产能应向川渝与华南倾斜，高风险市场转为订单式供给</h2>
+    <p class="slide-subtitle stagger">保留原始业务表格，但用咨询风表格容器强化层级与可读性。</p>
+    <div class="table-container stagger"><table class="sop-table"><thead><tr><th>市场</th><th>插混/增程比例</th><th>纯电比例</th><th>依据</th></tr></thead><tbody><tr><td>重庆</td><td>40%</td><td>60%</td><td>新能源渗透率58.8%，充电设施完善，纯电接受度高</td></tr><tr><td>湖北</td><td>45%</td><td>55%</td><td>补能基础设施较好，但长途出行场景多，插混有刚需</td></tr><tr><td>四川</td><td>70%</td><td>30%</td><td>纯电同比-35.26%，补能焦虑抑制需求，插混更适配</td></tr><tr><td>湖南</td><td>50%</td><td>50%</td><td>数据待补充，暂以均衡布局为主</td></tr></tbody></table></div>
+    <div class="notes">区域产能调配来自报告原始表格。</div>
+  </div>
+
+  <div class="slide   " data-index="7" data-title="进入与暂缓决策">
+
+    <div class="slide-tag stagger">SECTION</div>
+    <h2 class="slide-title stagger">进入与暂缓决策</h2>
+    <p class="slide-subtitle stagger">将报告要点压缩为可讨论、可决策、可行动的业务卡片。</p>
+    <div class="cards-grid stagger"><div class="scene-card"><div class="scene-header"><span class="scene-title-text">重庆</span><span class="scene-tag">01</span></div><div class="scene-core">建议积极进入</div></div><div class="scene-card"><div class="scene-header"><span class="scene-title-text">进入理由</span><span class="scene-tag">02</span></div><div class="scene-core">市场规模大（48.2万辆）、增速领先（+7.35%）、新能源渗透率高（58.8%）、SUV需求刚性（+6.4%）、本土品牌渠道成熟。</div></div><div class="scene-card"><div class="scene-header"><span class="scene-title-text">进入策略</span><span class="scene-tag">03</span></div><div class="scene-core">优先布局15-20万元插混+纯电双动力产品组合，借力以旧换新政策强化终端促销。建议2026年下半年根据购置税减免政策调整节奏，动态优化终端优惠力度。</div></div><div class="scene-card"><div class="scene-header"><span class="scene-title-text">湖北</span><span class="scene-tag">04</span></div><div class="scene-core">建议积极进入</div></div></div>
+    <div class="notes">本页由章节要点自动提炼生成。</div>
+  </div>
+
+  <div class="slide   " data-index="8" data-title="关键证据来源">
+
+    <div class="slide-tag stagger">EVIDENCE</div>
+    <h2 class="slide-title stagger">关键证据来源</h2>
+    <p class="slide-subtitle stagger">将报告要点压缩为可讨论、可决策、可行动的业务卡片。</p>
+    <div class="cards-grid stagger"><div class="scene-card"><div class="scene-header"><span class="scene-title-text">市场数据</span><span class="scene-tag">01</span></div><div class="scene-core">2025年SUV市场1069.6万辆（乘联会）、重庆广义乘用车48.2万辆同比+7.35%（重庆市汽车商业协会）、湖北前三季度新能源同比+35.01%（湖北省经信厅）、四川SUV逆势+12.04%（吉图咨询报告）。</div></div><div class="scene-card"><div class="scene-header"><span class="scene-title-text">政策信息</span><span class="scene-tag">02</span></div><div class="scene-core">2025年新能源汽车下乡124款车型入选、2026年扩大至155款（五部委联合通知）；以旧换新补贴最高2万元；县域充换电设施补短板试点。</div></div><div class="scene-card"><div class="scene-header"><span class="scene-title-text">竞争格局</span><span class="scene-tag">03</span></div><div class="scene-core">15-20万元区间比亚迪海狮06（月销18856辆）、吉利银河E5、零跑C10等竞品数据（汽车之家、报告大厅）。</div></div></div>
+    <div class="notes">证据页保留报告原文中的关键事实和来源口径。</div>
+  </div>
+
+  <div class="slide   " data-index="9" data-title="关键假设">
+
+    <div class="slide-tag stagger">ASSUMPTIONS</div>
+    <h2 class="slide-title stagger">关键假设</h2>
+    <p class="slide-subtitle stagger">将报告要点压缩为可讨论、可决策、可行动的业务卡片。</p>
+    <div class="cards-grid stagger"><div class="scene-card"><div class="scene-header"><span class="scene-title-text">2026年全国SUV市场增速收窄3%-5%（基于</span><span class="scene-tag">01</span></div><div class="scene-core">2026年全国SUV市场增速收窄3%-5%（基于重庆汽车商业协会预测及行业专家观点）。</div></div><div class="scene-card"><div class="scene-header"><span class="scene-title-text">新能源汽车购置税减免政策2026年减半延续</span><span class="scene-tag">02</span></div><div class="scene-core">单车上限1.5万元。</div></div><div class="scene-card"><div class="scene-header"><span class="scene-title-text">15-20万元价格带竞争持续加剧</span><span class="scene-tag">03</span></div><div class="scene-core">头部车型（月销过万）与尾部车型差距进一步拉大。</div></div></div>
+    <div class="notes">假设页用于标明结论成立的前提。</div>
+  </div>
+
+  <div class="slide   " data-index="10" data-title="待补充数据">
+
+    <div class="slide-tag stagger">DATA GAP</div>
+    <h2 class="slide-title stagger">待补充数据</h2>
+    <p class="slide-subtitle stagger">将报告要点压缩为可讨论、可决策、可行动的业务卡片。</p>
+    <div class="cards-grid stagger"><div class="scene-card"><div class="scene-header"><span class="scene-title-text">华中区域</span><span class="scene-tag">01</span></div><div class="scene-core">河南新能源渗透率及增速数据空白，需补充以完善华中市场全貌；湖南分动力类型（纯电/插混）销量结构数据缺失。</div></div><div class="scene-card"><div class="scene-header"><span class="scene-title-text">西南区域</span><span class="scene-tag">02</span></div><div class="scene-core">云南、贵州新能源汽车市场容量及增速数据缺乏系统性统计；四川充电设施密度数据待补充。</div></div><div class="scene-card"><div class="scene-header"><span class="scene-title-text">产品维度</span><span class="scene-tag">03</span></div><div class="scene-core">15-20万元价格带各细分市场（紧凑型/中型/中大型）增速对比数据；各竞品在目标区域的市占率分布。</div></div></div>
+    <div class="notes">数据缺口页用于指导后续数据建设。</div>
+  </div>
+</div>
+<script>
+  const cursor = document.getElementById('cursor');
+  document.addEventListener('mousemove', e => { cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px'; });
+  document.addEventListener('mouseleave', () => { cursor.style.opacity = '0'; });
+  document.addEventListener('mouseenter', () => { cursor.style.opacity = '0.7'; });
+  document.querySelectorAll('button, table, .scene-card, .timeline-step, .quote-balloon, .compare-column').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
+  });
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  let current = 0;
+  function goTo(idx) {
+    if (idx < 0 || idx >= slides.length || idx === current) return;
+    slides[current].classList.remove('active');
+    slides[current].classList.add('exit-up');
+    current = idx;
+    slides[current].classList.remove('exit-up');
+    slides[current].classList.add('active');
+    updateUI();
+  }
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+  function updateUI() {
+    document.getElementById('navCurrent').textContent = String(current + 1).padStart(2, '0');
+    document.getElementById('navTotal').textContent = String(slides.length).padStart(2, '0');
+    document.getElementById('progressBar').style.width = ((current + 1) / slides.length * 100) + '%';
+    location.hash = '#/' + (current + 1);
+  }
+  document.addEventListener('keydown', e => {
+    if (['ArrowRight', 'PageDown', ' '].includes(e.key)) next();
+    if (['ArrowLeft', 'PageUp'].includes(e.key)) prev();
+    if (e.key === 'Home') goTo(0);
+    if (e.key === 'End') goTo(slides.length - 1);
+  });
+  const m = location.hash.match(/#\/(\d+)/);
+  if (m) {
+    const idx = Math.max(0, Math.min(slides.length - 1, Number(m[1]) - 1));
+    slides.forEach(s => s.classList.remove('active'));
+    current = idx;
+    slides[current].classList.add('active');
+  }
+  updateUI();
+</script>
+</body>
+</html>
