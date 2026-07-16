@@ -23,6 +23,7 @@ from agentscope.message import UserMsg
 
 from agents.market_strategy_agent import build_market_strategy_agent
 from agents.user_insight_agent import build_user_insight_agent
+from skills.market_analysis_skill import MarketAnalysisSkill
 from utils.config import ENV_PATH, PROJECT_DIR, expand_env, load_json_config
 from utils.text import strip_thinking
 
@@ -48,6 +49,11 @@ async def run_agent(agent: Agent, task: str) -> str:
 
     reply = await agent.reply(UserMsg(name="业务用户", content=task))
     output = strip_thinking(reply.get_text_content())
+    if not output:
+        raise RuntimeError(
+            "MiniMax-M3 未返回可展示的最终正文，系统已拦截未闭合的推理文本。"
+            "请重试，并确认 model_config/config.json 的 reasoning_split=true。"
+        )
     print(output)
     print("=" * 88)
     return output
@@ -73,13 +79,30 @@ async def run_independent_agents() -> None:
     print(f"当前模型 provider：{config['active_provider']}")
     print("运行模式：前期独立工作，后期可扩展为上下游联动。")
 
-    market_agent = build_market_strategy_agent(config)
-    user_agent = build_user_insight_agent(config)
-
     market_task = os.getenv("MARKET_TASK") or config["demo_tasks"]["market_strategy"]
     user_task = os.getenv("USER_TASK") or config["demo_tasks"]["user_insight_config"]
 
+    # 月报分析任务会在创建 Agent 前注入经过数据门禁约束的业务上下文；一般战略
+    # 问题不会被强制套用月报模板，仍沿用市场机会决策的七章框架。
+    market_skill = MarketAnalysisSkill(config)
+    market_skill_context = market_skill.prepare(market_task)
+    if market_skill_context.active:
+        print("市场月报 Skill 已激活：")
+        for event in market_skill_context.events:
+            print(f"  [{event.status}] {event.stage}: {event.detail}")
+
+    market_agent = build_market_strategy_agent(
+        config,
+        skill_instruction=market_skill_context.prompt_context,
+    )
+    user_agent = build_user_insight_agent(config)
+
     market_report = await run_agent(market_agent, market_task)
+    if market_skill_context.active:
+        market_skill.validate_report(market_report, market_skill_context)
+        print(f"市场月报 Skill 输出门禁：{market_skill_context.output_gate()}")
+        for check in market_skill_context.output_checks:
+            print(f"  [{check.status}] {check.name}: {check.evidence}")
     user_report = await run_agent(user_agent, user_task)
 
     print("\n" + "#" * 88)
@@ -94,4 +117,3 @@ async def run_independent_agents() -> None:
 
 if __name__ == "__main__":
     asyncio.run(run_independent_agents())
-

@@ -12,7 +12,7 @@
       "max_tokens": 4096,
       "context_size": 128000,
       "extra_body": {
-        "reasoning_split": false
+        "reasoning_split": true
       }
     },
     "local_ollama": {
@@ -47,7 +47,7 @@
       "max_tokens": 4096,
       "context_size": 128000,
       "extra_body": {
-        "reasoning_split": false
+        "reasoning_split": true
       }
     }
   },
@@ -59,6 +59,14 @@
     "user_insight_config": {
       "name": "用户洞察与配置定义决策智能体",
       "max_iters": 6
+    }
+  },
+  "skills": {
+    "market_analysis": {
+      "enabled": true,
+      "auto_trigger": true,
+      "default_dataset": "skills/market-analysis-skill/1-5月报 AI验数.xlsx",
+      "default_dataset_label": "业务提供的1-5月乘用车月报验数样本（展示型交叉表）"
     }
   },
   "demo_tasks": {

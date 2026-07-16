@@ -55,7 +55,10 @@ MARKET_STRATEGY_PROMPT = """
 """.strip()
 
 
-def build_market_strategy_agent(config: dict[str, Any]) -> Agent:
+def build_market_strategy_agent(
+    config: dict[str, Any],
+    skill_instruction: str = "",
+) -> Agent:
     """创建市场战略性机会决策智能体。
 
     这里是 AgentScope 2.0.3 稳定版标准写法：
@@ -65,9 +68,14 @@ def build_market_strategy_agent(config: dict[str, Any]) -> Agent:
     """
 
     agent_cfg = config["agents"]["market_strategy"]
+    system_prompt = MARKET_STRATEGY_PROMPT
+    if skill_instruction:
+        # 月报 Skill 在运行时传入经数据门禁处理的上下文。它只覆盖本轮任务的
+        # 报告结构，不改变 AgentScope 2.0.3 的 Agent/ReAct/Toolkit 稳定 API。
+        system_prompt += "\n\n" + skill_instruction
     return Agent(
         name=agent_cfg["name"],
-        system_prompt=MARKET_STRATEGY_PROMPT,
+        system_prompt=system_prompt,
         model=build_model(config),
         toolkit=Toolkit(tools=build_business_toolkit()),
         react_config=ReActConfig(max_iters=int(agent_cfg.get("max_iters", 6))),
