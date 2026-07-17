@@ -71,12 +71,22 @@ class MonthlyReportPptxTest(unittest.TestCase):
             self.assertEqual(
                 [[round(value, 1) for value in series.values] for series in share_chart.series],
                 [
-                    [41.6, 40.5, 45.6, 40.8],
-                    [52.6, 54.4, 48.9, 53.7],
-                    [5.0, 4.4, 4.8, 4.9],
                     [0.8, 0.7, 0.7, 0.6],
+                    [5.0, 4.4, 4.8, 4.9],
+                    [52.6, 54.4, 48.9, 53.7],
+                    [41.6, 40.5, 45.6, 40.8],
                 ],
             )
+
+            share_slide_text = " ".join(
+                shape.text
+                for shape in presentation.slides[0].shapes
+                if getattr(shape, "has_text_frame", False)
+            )
+            self.assertIn("2026.4", share_slide_text)
+            self.assertIn("2026.5", share_slide_text)
+            self.assertIn("2025.1-12", share_slide_text)
+            self.assertIn("2026.1-5", share_slide_text)
 
             slide_text = " ".join(
                 shape.text

@@ -145,8 +145,10 @@ def build_monthly_report_pptx(
     update_segment_slide(presentation.slides[3], data.suv, sections["suv"], "2.4 SUV级别", "SUV", data)
     update_segment_slide(presentation.slides[4], data.mpv, sections["mpv"], "2.5 MPV级别", "MPV", data)
 
-    for slide in list(presentation.slides)[:5]:
+    for slide_index, slide in enumerate(list(presentation.slides)[:5]):
         replace_period_labels(slide, data)
+        if slide_index < 2:
+            update_share_chart_period_labels(slide, data)
         update_data_source_footer(slide)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -278,7 +280,7 @@ def update_overview_slide(
             [
                 data.previous_period_short,
                 data.period_short,
-                f"{last_year}.1-{data.month}",
+                f"{last_year}.1-12",
                 f"{data.year}.1-{data.month}",
             ],
             [
@@ -286,7 +288,9 @@ def update_overview_slide(
                     label_name,
                     [period_share[index] for period_share in period_shares],
                 )
-                for index, label_name in enumerate(block.labels)
+                # PowerPoint 堆积柱按系列顺序自下而上绘制。业务母版要求：
+                # 交叉型（深蓝）→ MPV → SUV → 轿车（浅蓝）。
+                for index, label_name in reversed(list(enumerate(block.labels)))
             ],
         )
     update_oval_rates(slide, [*block.yoy, *block.cumulative_yoy])
@@ -425,8 +429,11 @@ def set_slide_body(slide: object, text: str) -> None:
 def replace_period_labels(slide: object, data: MonthlyPptData) -> None:
     """替换母版中可见的月份标签，避免残留“2026年5月”等样例日期。"""
 
+    share_chart_label_ids = {id(shape) for shape in share_chart_period_label_shapes(slide)}
     for shape in slide.shapes:
         if not getattr(shape, "has_text_frame", False):
+            continue
+        if id(shape) in share_chart_label_ids:
             continue
         original = shape.text or ""
         updated = original
@@ -435,6 +442,46 @@ def replace_period_labels(slide: object, data: MonthlyPptData) -> None:
         updated = re.sub(r"20\d{2}\.\d{1,2}", data.period_short, updated)
         if updated != original:
             set_text_frame_text(shape.text_frame, updated)
+
+
+def update_share_chart_period_labels(slide: object, data: MonthlyPptData) -> None:
+    """按母版右图底部的四个独立文本框，精确写入业务期间标签。"""
+
+    labels = [
+        data.previous_period_short,
+        data.period_short,
+        f"{int(data.year) - 1}.1-12",
+        f"{data.year}.1-{data.month}",
+    ]
+    for shape, label in zip(share_chart_period_label_shapes(slide), labels):
+        # 这四个框的正文位于模板的非首段。使用 Shape.text 可避免通用替换时
+        # 清空可见段落，并确保 PowerPoint 中可继续编辑。
+        shape.text = label
+
+
+def share_chart_period_label_shapes(slide: object) -> list[object]:
+    """定位月报母版右图底部的四个期间文本框，按横向位置返回。"""
+
+    chart_shapes = [shape for shape in slide.shapes if getattr(shape, "has_chart", False)]
+    if len(chart_shapes) < 3:
+        return []
+    share_chart_shape = chart_shapes[2]
+    chart_left = share_chart_shape.left
+    chart_right = chart_left + share_chart_shape.width
+    lower_chart_top = share_chart_shape.top + int(share_chart_shape.height * 0.7)
+    rectangles = [
+        shape
+        for shape in slide.shapes
+        if getattr(shape, "has_text_frame", False)
+        and chart_left <= shape.left <= chart_right
+        and shape.top >= lower_chart_top
+        and (shape.name or "").startswith("矩形")
+    ]
+    if not rectangles:
+        return []
+    label_top = max(shape.top for shape in rectangles)
+    labels = [shape for shape in rectangles if shape.top == label_top]
+    return sorted(labels, key=lambda item: item.left) if len(labels) == 4 else []
 
 
 def update_data_source_footer(slide: object) -> None:
