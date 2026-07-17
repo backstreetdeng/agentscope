@@ -362,3 +362,27 @@ TAVILY_API_KEY=你的Tavily Key
 - `UserMsg`
 
 未使用 AgentScope 2.0.4 dev 实验接口、临时参数或私有底层 API。
+
+## 月报可编辑 PPTX
+
+市场战略 Agent 在分析类型选择“市场月报分析”后，点击“生成PPT版”会生成业务模板驱动的
+可编辑 `.pptx`，不再生成 HTML PPT。产物会同时保存：
+
+- `outputs/ppt/<名称>_<时间>.pptx`：5 页正式月报，可在 PowerPoint 中继续修改图表、表格和文字。
+- `outputs/ppt/<名称>_<时间>.md`：本次 Agent 生成的月报文字版，作为 PPT 的叙述来源和审计依据。
+
+默认版式使用 `skills/market-analysis-skill/月报skill/2026年5月月报部分.pptx`，并按业务样例固定映射为：
+车型类别、车型级别、轿车级别、SUV级别、MPV级别五页。生成器从默认验数表读取当月及累计数据，
+将总量统一转换为“万辆”口径；若替换正式模板或验数表，应保持这五个分区及其原生图表/表格结构。
+
+离线验证命令：
+
+```powershell
+E:\AI\data\envs\helloagent\Scripts\python.exe -m unittest discover -s tests -p test_monthly_report_pptx.py -v
+```
+
+若出现 `No module named pptx`，请在 `helloagent` 虚拟环境中重新执行：
+
+```powershell
+pip install -r requirements.txt
+```

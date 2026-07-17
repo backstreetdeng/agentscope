@@ -20,3 +20,8 @@ class WebSkillBindingsTest(unittest.TestCase):
         self.assertIn('market_monthly_report', HTML)
         self.assertIn('document.querySelectorAll(".skill-chip")', HTML)
         self.assertIn('$("questionInput").value = demo.question', HTML)
+
+    def test_ppt_download_link_does_not_nest_a_template_expression(self) -> None:
+        self.assertIn("const pptLinkAttribute", HTML)
+        self.assertIn("${pptLinkAttribute}", HTML)
+        self.assertNotIn('${data.pptx_url ? "download"', HTML)
