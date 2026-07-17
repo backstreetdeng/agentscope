@@ -67,6 +67,17 @@ class MonthlyReportPptxTest(unittest.TestCase):
             first_series = list(first_chart.series[0].values)
             self.assertEqual([round(value, 4) for value in first_series], [85.0076, 92.7674, 9.6054, 1.4636])
 
+            share_chart = [shape.chart for shape in presentation.slides[0].shapes if shape.has_chart][2]
+            self.assertEqual(
+                [[round(value, 1) for value in series.values] for series in share_chart.series],
+                [
+                    [41.6, 40.5, 45.6, 40.8],
+                    [52.6, 54.4, 48.9, 53.7],
+                    [5.0, 4.4, 4.8, 4.9],
+                    [0.8, 0.7, 0.7, 0.6],
+                ],
+            )
+
             slide_text = " ".join(
                 shape.text
                 for shape in presentation.slides[3].shapes

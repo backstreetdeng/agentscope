@@ -80,6 +80,7 @@ class MarketBlock:
     cumulative_last_year: list[float | None]
     cumulative_current: list[float | None]
     cumulative_yoy: list[float | None]
+    share_periods: list[list[float | None]]
     top_models: list[TopModel]
 
     @property
@@ -213,6 +214,12 @@ def parse_market_block(sheet: SheetSnapshot, title: str) -> MarketBlock:
     cumulative_last_year = row_values(rows, cumulative_pair[0], start, labels)
     cumulative_current = row_values(rows, cumulative_pair[1], start, labels)
     cumulative_yoy = row_values(rows, cumulative_pair[1] + 1, start, labels)
+    share_periods = parse_right_chart_share_periods(rows, start, labels) or [
+        shares(monthly_last_year),
+        shares(monthly_current),
+        shares(cumulative_last_year),
+        shares(cumulative_current),
+    ]
 
     return MarketBlock(
         title=title,
@@ -224,6 +231,7 @@ def parse_market_block(sheet: SheetSnapshot, title: str) -> MarketBlock:
         cumulative_last_year=cumulative_last_year,
         cumulative_current=cumulative_current,
         cumulative_yoy=cumulative_yoy,
+        share_periods=share_periods,
         top_models=parse_top_models(rows, start, end),
     )
 
@@ -261,18 +269,22 @@ def update_overview_slide(
             [(f"{last_year}累计", values_or_zero(block.cumulative_last_year)), (f"{data.year}累计", values_or_zero(block.cumulative_current))],
         )
     if len(charts) >= 3:
+        # 母版右图是“按期间的车型类别份额”堆积柱：横轴固定为上期、当期、
+        # 上年同期累计、当年累计；每根柱由轿车/SUV/MPV/交叉型乘用车构成。
+        # 验数表中的份额是 0-1 小数，母版图表以 0-100 百分比点显示。
+        period_shares = [percentage_points(values) for values in block.share_periods]
         replace_chart(
             charts[2],
-            [data.previous_period_short, data.period_short, f"{last_year}全年", f"{data.year}累计"],
+            [
+                data.previous_period_short,
+                data.period_short,
+                f"{last_year}.1-{data.month}",
+                f"{data.year}.1-{data.month}",
+            ],
             [
                 (
                     label_name,
-                    [
-                        block.monthly_share[index],
-                        block.monthly_share[index],
-                        shares(block.cumulative_last_year)[index],
-                        block.cumulative_share[index],
-                    ],
+                    [period_share[index] for period_share in period_shares],
                 )
                 for index, label_name in enumerate(block.labels)
             ],
@@ -574,6 +586,39 @@ def parse_top_models(rows: list[list[str]], start: int, end: int) -> list[TopMod
     return models[:15]
 
 
+def parse_right_chart_share_periods(
+    rows: list[list[str]],
+    start: int,
+    labels: Sequence[str],
+) -> list[list[float | None]] | None:
+    """读取验数表“右图”区域的四期标准份额，避免由左图销量重新推算。"""
+
+    header_row = next(
+        (index for index, row in enumerate(rows) if normalize(cell(rows, index, start)) == "右图"),
+        None,
+    )
+    if header_row is None:
+        return None
+
+    result: list[list[float | None]] = [[None] * len(labels) for _ in range(4)]
+    matched = 0
+    for row_index in range(header_row + 1, len(rows)):
+        label = normalize(cell(rows, row_index, start))
+        if label not in labels:
+            if matched:
+                break
+            continue
+        label_index = labels.index(label)
+        values = [to_float(cell(rows, row_index, start + offset)) for offset in range(1, 5)]
+        if any(value is None for value in values):
+            return None
+        for period_index, value in enumerate(values):
+            result[period_index][label_index] = value
+        matched += 1
+
+    return result if matched == len(labels) else None
+
+
 def extract_report_section(markdown: str, marker: str) -> str:
     """提取当前文字月报对应章节，作为 PPT 页面的因果分析正文。"""
 
@@ -624,6 +669,12 @@ def shares(values: Sequence[float | None]) -> list[float]:
     if not total:
         return [0.0 for _ in values]
     return [(value or 0) / total for value in values]
+
+
+def percentage_points(values: Sequence[float | None]) -> list[float]:
+    """将已计算的 0-1 份额转换为母版堆积图使用的百分比点。"""
+
+    return [round((value or 0) * 100, 1) for value in values]
 
 
 def values_or_zero(values: Sequence[float | None]) -> list[float]:
