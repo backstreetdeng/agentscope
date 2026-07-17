@@ -18,7 +18,6 @@ from typing import Iterable, Sequence
 from pptx import Presentation
 from pptx.chart.data import CategoryChartData
 from pptx.dml.color import RGBColor
-from pptx.enum.chart import XL_TICK_LABEL_POSITION
 from pptx.enum.shapes import PP_PLACEHOLDER
 from pptx.util import Pt
 
@@ -292,7 +291,6 @@ def update_overview_slide(
                 for index, label_name in reversed(list(enumerate(block.labels)))
             ],
         )
-        show_share_chart_category_labels(charts[2])
     update_oval_rates(slide, [*block.yoy, *block.cumulative_yoy])
     clear_stale_percentage_callouts(slide)
 
@@ -439,14 +437,6 @@ def replace_period_labels(slide: object, data: MonthlyPptData) -> None:
         updated = re.sub(r"20\d{2}\.\d{1,2}", data.period_short, updated)
         if updated != original:
             set_text_frame_text(shape.text_frame, updated)
-
-
-def show_share_chart_category_labels(chart: object) -> None:
-    """启用母版右图的横轴刻度标签，使四个期间在 PowerPoint 中可见。"""
-
-    chart.category_axis.tick_label_position = XL_TICK_LABEL_POSITION.NEXT_TO_AXIS
-    chart.category_axis.tick_labels.font.size = Pt(10)
-    chart.category_axis.tick_labels.font.color.rgb = RGBColor(0, 0, 0)
 
 
 def update_data_source_footer(slide: object) -> None:

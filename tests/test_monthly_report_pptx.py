@@ -7,7 +7,6 @@ import unittest
 from pathlib import Path
 
 from pptx import Presentation
-from pptx.enum.chart import XL_TICK_LABEL_POSITION
 
 from utils.monthly_report_pptx import build_monthly_report_pptx
 
@@ -79,7 +78,6 @@ class MonthlyReportPptxTest(unittest.TestCase):
                 ],
             )
 
-            self.assertEqual(share_chart.category_axis.tick_label_position, XL_TICK_LABEL_POSITION.NEXT_TO_AXIS)
             self.assertEqual(
                 [category.label for category in share_chart.plots[0].categories],
                 ["2026.4", "2026.5", "2025.1-12", "2026.1-5"],
