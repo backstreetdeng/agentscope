@@ -7,6 +7,7 @@ import unittest
 from pathlib import Path
 
 from pptx import Presentation
+from pptx.enum.chart import XL_TICK_LABEL_POSITION
 
 from utils.monthly_report_pptx import build_monthly_report_pptx
 
@@ -78,15 +79,11 @@ class MonthlyReportPptxTest(unittest.TestCase):
                 ],
             )
 
-            share_slide_text = " ".join(
-                shape.text
-                for shape in presentation.slides[0].shapes
-                if getattr(shape, "has_text_frame", False)
+            self.assertEqual(share_chart.category_axis.tick_label_position, XL_TICK_LABEL_POSITION.NEXT_TO_AXIS)
+            self.assertEqual(
+                [category.label for category in share_chart.plots[0].categories],
+                ["2026.4", "2026.5", "2025.1-12", "2026.1-5"],
             )
-            self.assertIn("2026.4", share_slide_text)
-            self.assertIn("2026.5", share_slide_text)
-            self.assertIn("2025.1-12", share_slide_text)
-            self.assertIn("2026.1-5", share_slide_text)
 
             slide_text = " ".join(
                 shape.text
