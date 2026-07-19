@@ -133,6 +133,17 @@ python main.py
 
 ## 启动 Web 业务界面
 
+推荐使用项目启动脚本。它会先停止当前项目的旧 `app.py` 实例，再启动新服务并检查网页是否可访问：
+
+```powershell
+cd E:\AI\data\envs\helloagent\myproject
+powershell -ExecutionPolicy Bypass -File .\scripts\start_agent.ps1
+```
+
+脚本只会停止监听 `7860` 的旧 Python 服务；若该端口被其他程序占用，会停止并提示，避免误结束其他应用。
+
+也可直接运行：
+
 ```powershell
 python app.py
 ```
