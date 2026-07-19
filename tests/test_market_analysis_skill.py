@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import unittest
+from pathlib import Path
 
 from skills.market_analysis_skill.runtime import ANALYSIS_TYPE, MarketAnalysisSkill
 from utils.text import strip_thinking
@@ -23,6 +24,26 @@ class MarketAnalysisSkillTest(unittest.TestCase):
         self.assertIn("TOP15", context.prompt_context)
         self.assertIn("### 2.3 轿车级别分析", context.prompt_context)
         self.assertIn("禁止把 2.3/2.4/2.5 合并", context.prompt_context)
+
+    def test_can_select_specified_month_sheet(self) -> None:
+        dataset = (
+            Path(__file__).resolve().parents[1]
+            / "skills"
+            / "market-analysis-skill"
+            / "月报skill"
+            / "1-5月报 AI验数.xlsx"
+        )
+        context = MarketAnalysisSkill().prepare(
+            "请基于2026年4月数据生成中国乘用车月度市场分析报告。",
+            ANALYSIS_TYPE,
+            dataset,
+            "4月",
+        )
+
+        self.assertTrue(context.active)
+        self.assertEqual(context.selected_sheet, "4月")
+        self.assertEqual([item.name for item in context.snapshots], ["4月"])
+        self.assertIn("### 4月", context.prompt_context)
 
 
     def test_non_monthly_question_does_not_use_monthly_template(self) -> None:

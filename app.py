@@ -110,6 +110,7 @@ from main import (
     strip_thinking,
 )
 from skills.market_analysis_skill import MarketAnalysisSkill
+from skills.market_analysis_skill.runtime import SkillEvent
 from tools.custom_tools import clear_tool_call_events, get_tool_call_events
 from utils.audio_tagging_engine import DEFAULT_TAG_TAXONOMY, run_audio_tagging_workflow
 from utils.html_ppt_builder import build_consulting_html_ppt
@@ -231,6 +232,7 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
                     str(payload.get("question", "请生成中国乘用车月度市场分析报告。")),
                     "market_monthly_report",
                     payload.get("dataset_path"),
+                    payload.get("sheet_name"),
                 )
                 self._send_json(context.as_response())
                 return
@@ -242,7 +244,13 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
                 if not markdown:
                     self._send_json({"error": "PPT Markdown 内容不能为空。"}, status=400)
                     return
-                result = generate_ppt_from_markdown(markdown, title, analysis_type)
+                result = generate_ppt_from_markdown(
+                    markdown,
+                    title,
+                    analysis_type,
+                    payload.get("dataset_path"),
+                    payload.get("sheet_name"),
+                )
                 self._send_json(result)
                 return
 
@@ -255,7 +263,15 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
             # AgentScope 2.0.3 的本地工具审计事件由 tools.custom_tools 暂存；
             # 串行化 chat 请求可避免并发演示时不同请求的工具日志相互串线。
             with AGENT_RUN_LOCK:
-                result = AGENT_LOOP_RUNNER.run(run_agent_once(agent_key, question, analysis_type))
+                result = AGENT_LOOP_RUNNER.run(
+                    run_agent_once(
+                        agent_key,
+                        question,
+                        analysis_type,
+                        payload.get("dataset_path"),
+                        payload.get("sheet_name"),
+                    ),
+                )
             store_latest_agent_run(result, question, analysis_type)
             self._send_json(result)
         except AuthenticationError:
@@ -453,6 +469,8 @@ def generate_ppt_from_markdown(
     markdown: str,
     title: str,
     analysis_type: str = "",
+    dataset_path: str | Path | None = None,
+    sheet_name: str | None = None,
 ) -> dict[str, Any]:
     """生成独立 HTML PPT。
 
@@ -469,6 +487,8 @@ def generate_ppt_from_markdown(
         skill_context = MarketAnalysisSkill(load_json_config()).prepare(
             "生成乘用车市场月度报告",
             analysis_type,
+            dataset_path,
+            sheet_name,
         )
         if skill_context.dataset_path is None:
             raise RuntimeError("月报 Skill 未找到可用验数数据集，无法生成可编辑 PPTX。")
@@ -477,6 +497,7 @@ def generate_ppt_from_markdown(
             markdown,
             pptx_path,
             skill_context.dataset_path,
+            sheet_name=skill_context.selected_sheet or sheet_name,
         )
         result["markdown_path"] = str(markdown_path.relative_to(PROJECT_DIR)).replace("\\", "/")
         result["pptx_url"] = "/" + str(pptx_path.relative_to(PROJECT_DIR)).replace("\\", "/")
@@ -522,7 +543,13 @@ def generate_ppt_from_markdown(
     return result
 
 
-async def run_agent_once(agent_key: str, question: str, analysis_type: str = "") -> dict[str, Any]:
+async def run_agent_once(
+    agent_key: str,
+    question: str,
+    analysis_type: str = "",
+    dataset_path: str | Path | None = None,
+    sheet_name: str | None = None,
+) -> dict[str, Any]:
     """按前端选择调用对应业务智能体。"""
     load_dotenv(ENV_PATH, override=True)
     clear_tool_call_events()
@@ -533,10 +560,17 @@ async def run_agent_once(agent_key: str, question: str, analysis_type: str = "")
     else:
         agent_key = "market_strategy"
         market_skill = MarketAnalysisSkill(config)
-        market_skill_context = market_skill.prepare(question, analysis_type)
+        market_skill_context = market_skill.prepare(question, analysis_type, dataset_path, sheet_name)
+        monthly_report_max_tokens = (
+            int(config["agents"]["market_strategy"].get("monthly_report_max_tokens", 0))
+            if market_skill_context.active and config["agents"]["market_strategy"].get("monthly_report_max_tokens")
+            else None
+        )
         agent = build_market_strategy_agent(
             config,
             skill_instruction=market_skill_context.prompt_context,
+            monthly_report=market_skill_context.active,
+            max_tokens_override=monthly_report_max_tokens,
         )
 
     reply = await agent.reply(UserMsg(name="业务用户", content=question))
@@ -549,7 +583,38 @@ async def run_agent_once(agent_key: str, question: str, analysis_type: str = "")
         )
 
     if market_skill_context and market_skill_context.active:
-        market_skill.validate_report(answer, market_skill_context)
+        output_checks = market_skill.validate_report(answer, market_skill_context)
+        failed_checks = [item for item in output_checks if item.status != "通过"]
+        if failed_checks:
+            # 首轮输出没有通过质量门禁时，执行一次同上下文的完整重写。这里不是
+            # 续写残稿，而是要求模型从标题开始交付可直接入库的完整月报。
+            market_skill_context.events.append(
+                SkillEvent("report-repair", "running", "首轮月报未通过输出门禁，正在执行一次完整重写。"),
+            )
+            failed_evidence = "；".join(f"{item.name}：{item.evidence}" for item in failed_checks)
+            repair_reply = await agent.reply(
+                UserMsg(
+                    name="月报质量门禁",
+                    content=(
+                        "上一版月报未通过输出质量门禁（"
+                        + failed_evidence
+                        + "）。请基于已注入的数据摘要，重新从总标题开始输出一份完整、"
+                        "独立的 Markdown 月报。必须覆盖 Skill 规定的全部固定标题，"
+                        "只输出报告正文，不要解释修订过程，也不要续写或引用上一版残稿。"
+                    ),
+                ),
+            )
+            repaired_answer = strip_thinking(repair_reply.get_text_content())
+            if repaired_answer:
+                answer = repaired_answer
+                market_skill_context.events.append(
+                    SkillEvent("report-repair", "success", "已返回重写后的完整月报，重新执行输出门禁。"),
+                )
+                market_skill.validate_report(answer, market_skill_context)
+            else:
+                market_skill_context.events.append(
+                    SkillEvent("report-repair", "warning", "完整重写未返回可展示正文，保留首轮结果并标记输出门禁。"),
+                )
 
     if "tavily_search" in question and not any(item.get("name") == "tavily_search" for item in tool_events):
         answer += "\n\n---\n【工具审计提示】本轮问题要求使用 tavily_search，但后端未捕获到真实 tavily_search 工具调用。请检查模型是否选择了工具、TAVILY_API_KEY 是否配置，以及 AgentScope ReAct 是否进入工具调用流程。"

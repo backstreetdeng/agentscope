@@ -128,6 +128,7 @@ class MarketSkillContext:
     question: str
     dataset_path: Path | None = None
     dataset_label: str = ""
+    selected_sheet: str = ""
     snapshots: list[SheetSnapshot] = field(default_factory=list)
     input_checks: list[SkillCheck] = field(default_factory=list)
     output_checks: list[SkillCheck] = field(default_factory=list)
@@ -151,6 +152,7 @@ class MarketSkillContext:
             "dataset": {
                 "label": self.dataset_label,
                 "path": relative_display_path(self.dataset_path),
+                "selected_sheet": self.selected_sheet,
                 "sheet_count": len(self.snapshots),
                 "sheets": [item.name for item in self.snapshots],
             },
@@ -191,6 +193,7 @@ class MarketAnalysisSkill:
         question: str,
         analysis_type: str = "",
         dataset_path: str | Path | None = None,
+        sheet_name: str | None = None,
     ) -> MarketSkillContext:
         """执行输入解析与数据门禁，并返回可注入模型的上下文。"""
 
@@ -233,6 +236,27 @@ class MarketAnalysisSkill:
             context.events.append(SkillEvent("dataset-parse", "blocked", f"Excel 解析失败：{type(exc).__name__}"))
             context.prompt_context = build_blocked_prompt(context)
             return context
+
+        if sheet_name:
+            target = normalize(sheet_name).lower()
+            selected = next((item for item in context.snapshots if normalize(item.name).lower() == target), None)
+            if selected is None:
+                context.input_checks.append(
+                    SkillCheck(
+                        "selected_sheet",
+                        "指定工作表",
+                        "阻断",
+                        f"未找到工作表：{sheet_name}。可用工作表：" + "、".join(item.name for item in context.snapshots),
+                        "传入 Excel 中真实存在的工作表名称，例如“4月”。",
+                    ),
+                )
+                context.events.append(SkillEvent("sheet-select", "blocked", f"未找到工作表：{sheet_name}"))
+                context.prompt_context = build_blocked_prompt(context)
+                return context
+            context.snapshots = [selected]
+            context.selected_sheet = selected.name
+            context.dataset_label = f"{source_label} / 工作表={selected.name}"
+            context.events.append(SkillEvent("sheet-select", "success", f"已选择工作表：{selected.name}"))
 
         context.input_checks = validate_input_dataset(context.snapshots, source)
         context.events.extend(

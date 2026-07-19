@@ -54,7 +54,8 @@
   "agents": {
     "market_strategy": {
       "name": "市场战略性机会决策智能体",
-      "max_iters": 6
+      "max_iters": 6,
+      "monthly_report_max_tokens": 12288
     },
     "user_insight_config": {
       "name": "用户洞察与配置定义决策智能体",

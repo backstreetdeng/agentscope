@@ -113,6 +113,7 @@ def build_monthly_report_pptx(
     output_path: Path,
     dataset_path: Path,
     template_path: Path | None = None,
+    sheet_name: str | None = None,
 ) -> dict[str, object]:
     """将月报文字与验数表写入业务母版，生成 5 页可编辑 PPTX。"""
 
@@ -122,7 +123,7 @@ def build_monthly_report_pptx(
     if not dataset_path.is_file():
         raise FileNotFoundError(f"未找到月报数据集：{dataset_path}")
 
-    data = load_monthly_ppt_data(dataset_path)
+    data = load_monthly_ppt_data(dataset_path, sheet_name)
     presentation = Presentation(template)
     if len(presentation.slides) < 5:
         raise ValueError("业务月报母版少于 5 页，无法套用固定月报页面映射。")
@@ -157,18 +158,30 @@ def build_monthly_report_pptx(
         "slides_count": 5,
         "template": str(template),
         "period": data.period_label,
+        "sheet_name": sheet_name or "",
         "file_size": output_path.stat().st_size,
         "engine": "business-monthly-pptx-template",
     }
 
 
-def load_monthly_ppt_data(dataset_path: Path) -> MonthlyPptData:
+def load_monthly_ppt_data(dataset_path: Path, sheet_name: str | None = None) -> MonthlyPptData:
     """从业务验数表读取本期与上期的五页制图数据。"""
 
     sheets = read_xlsx_workbook(dataset_path)
     ordered = sorted(sheets, key=sheet_month_number, reverse=True)
-    current_sheet = ordered[0]
-    previous_sheet = ordered[1] if len(ordered) > 1 else None
+    if not ordered:
+        raise ValueError(f"验数表 {dataset_path.name} 不包含可读取的工作表。")
+    if sheet_name:
+        target = normalize(sheet_name).lower()
+        current_sheet = next((sheet for sheet in ordered if normalize(sheet.name).lower() == target), None)
+        if current_sheet is None:
+            raise ValueError(f"验数表 {dataset_path.name} 未找到工作表：{sheet_name}。")
+    else:
+        current_sheet = ordered[0]
+    previous_sheet = next(
+        (sheet for sheet in ordered if sheet_month_number(sheet) < sheet_month_number(current_sheet)),
+        None,
+    )
     year = infer_year(current_sheet) or "2026"
     current_month = sheet_month_number(current_sheet)
     previous_month = sheet_month_number(previous_sheet) if previous_sheet else max(1, current_month - 1)

@@ -90,3 +90,23 @@ class MonthlyReportPptxTest(unittest.TestCase):
             )
             self.assertIn("2.4 SUV级别", slide_text)
             self.assertIn("SUV A0与C+级表现韧性较强", slide_text)
+
+    def test_can_render_specified_month_sheet(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            output_path = Path(directory) / "四月月报测试.pptx"
+            result = build_monthly_report_pptx(
+                SAMPLE_REPORT,
+                output_path,
+                DATASET_PATH,
+                sheet_name="4月",
+            )
+
+            self.assertTrue(result["success"])
+            self.assertEqual(result["period"], "2026年4月")
+            self.assertEqual(result["sheet_name"], "4月")
+            presentation = Presentation(output_path)
+            share_chart = [shape.chart for shape in presentation.slides[0].shapes if shape.has_chart][2]
+            self.assertEqual(
+                [category.label for category in share_chart.plots[0].categories],
+                ["2026.3", "2026.4", "2025.1-12", "2026.1-4"],
+            )

@@ -21,7 +21,7 @@ from model_adapters.local_adapter import build_custom_adapter_from_config
 from utils.config import expand_env
 
 
-def build_model(config: dict[str, Any]):
+def build_model(config: dict[str, Any], max_tokens_override: int | None = None):
     """基于 model_config/config.json 创建模型实例。
 
     支持三类模型：
@@ -34,6 +34,10 @@ def build_model(config: dict[str, Any]):
     provider = dict(config["providers"][provider_name])
     provider_type = provider["type"]
     provider["model"] = expand_env(provider.get("model", ""))
+    # 月报等长文本任务可通过公开的 ``max_tokens`` 参数单独提高输出额度，
+    # 不改变默认对话任务的成本和响应长度。
+    if max_tokens_override is not None:
+        provider["max_tokens"] = max(1, int(max_tokens_override))
 
     if provider_type in {"openai_compatible", "custom_openai_compatible"}:
         api_key_env = provider["api_key_env"]
@@ -73,4 +77,3 @@ def build_model(config: dict[str, Any]):
         )
 
     raise ValueError(f"不支持的 provider type: {provider_type}")
-

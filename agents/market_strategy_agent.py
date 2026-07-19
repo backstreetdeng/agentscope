@@ -55,9 +55,33 @@ MARKET_STRATEGY_PROMPT = """
 """.strip()
 
 
+MARKET_MONTHLY_REPORT_PROMPT = """
+你是“乘用车市场月报分析智能体”，负责把已验数的月度市场数据转为正式月报。
+
+本轮已由市场月报 Skill 注入数据边界、固定报告标题和可引用的数据摘要。你必须完全
+遵循该 Skill 的月报结构，不使用市场战略 Agent 的七章机会决策短模板，也不要输出
+“分析时点与任务边界”“市场进入/暂缓”等与月报无关的通用章节。
+
+输出要求：
+1. 只输出完整、独立的 Markdown 月报；从总标题开始，到“数据来源与数据缺口”结束。
+2. Skill 给出的每一个固定标题都必须出现，不得合并 2.3、2.4、2.5；先完成全部章节，
+   再补充修辞，不要在中途结束。
+3. 每节保持数据事实、结构解释、业务意义三层表达；只使用已注入的可验证数据，
+   缺少车型、品牌、区域明细时必须如实披露，禁止编造。
+4. 结构解读只能解释表内已出现的销量、同比、环比和份额变化。新能源/燃油、价格带、
+   具体产品、经销商、库存、促销、投放、政策等未在输入数据中出现的原因，一律不得写成
+   事实；确有必要时只能单独标注为“待核验假设”。
+5. 每个固定小节最多 2 个紧凑段落，目标篇幅为 2,100-2,700 个中文字符；优先保证
+   标题、展望的确定性/风险变量、数据来源与缺口全部完整。
+6. 未被用户明确要求时，不调用外部检索工具；不要展示模型推理、写作过程或修订说明。
+""".strip()
+
+
 def build_market_strategy_agent(
     config: dict[str, Any],
     skill_instruction: str = "",
+    monthly_report: bool = False,
+    max_tokens_override: int | None = None,
 ) -> Agent:
     """创建市场战略性机会决策智能体。
 
@@ -68,7 +92,9 @@ def build_market_strategy_agent(
     """
 
     agent_cfg = config["agents"]["market_strategy"]
-    system_prompt = MARKET_STRATEGY_PROMPT
+    # 月报与机会决策采用不同的交付结构。这里显式切换提示词，避免通用的
+    # “七章、1200-1600 字”约束与月报 Skill 的十段结构发生冲突。
+    system_prompt = MARKET_MONTHLY_REPORT_PROMPT if monthly_report else MARKET_STRATEGY_PROMPT
     if skill_instruction:
         # 月报 Skill 在运行时传入经数据门禁处理的上下文。它只覆盖本轮任务的
         # 报告结构，不改变 AgentScope 2.0.3 的 Agent/ReAct/Toolkit 稳定 API。
@@ -76,7 +102,7 @@ def build_market_strategy_agent(
     return Agent(
         name=agent_cfg["name"],
         system_prompt=system_prompt,
-        model=build_model(config),
+        model=build_model(config, max_tokens_override=max_tokens_override),
         toolkit=Toolkit(tools=build_business_toolkit()),
         react_config=ReActConfig(max_iters=int(agent_cfg.get("max_iters", 6))),
     )

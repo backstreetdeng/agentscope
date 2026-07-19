@@ -94,6 +94,12 @@ async def run_independent_agents() -> None:
     market_agent = build_market_strategy_agent(
         config,
         skill_instruction=market_skill_context.prompt_context,
+        monthly_report=market_skill_context.active,
+        max_tokens_override=(
+            int(config["agents"]["market_strategy"].get("monthly_report_max_tokens", 0))
+            if market_skill_context.active and config["agents"]["market_strategy"].get("monthly_report_max_tokens")
+            else None
+        ),
     )
     user_agent = build_user_insight_agent(config)
 
