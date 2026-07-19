@@ -19,6 +19,23 @@ from utils.text import strip_thinking
 
 
 class MarketAnalysisSkillTest(unittest.TestCase):
+    @staticmethod
+    def _research_enabled_config() -> dict:
+        """测试使用项目内已批准清单，不触发网络检索或 MiniMax 调用。"""
+
+        return {
+            "skills": {
+                "market_analysis": {
+                    "research_evidence": {
+                        "enabled": True,
+                        "manifest": "research/2026_china_passenger_vehicle_market_strategy_consulting/evidence_manifest.json",
+                        "max_items": 6,
+                        "max_chars_per_item": 500,
+                    },
+                },
+            },
+        }
+
     def test_default_business_dataset_can_be_parsed(self) -> None:
         context = MarketAnalysisSkill().prepare(
             "请生成中国乘用车月度市场分析报告。",
@@ -87,6 +104,61 @@ class MarketAnalysisSkillTest(unittest.TestCase):
         self.assertIn("15.海鸥", context.prompt_context)
         self.assertAlmostEqual(normalize_sales_to_wan(38373), 3.8373)
         self.assertAlmostEqual(normalize_sales_to_wan(3.8373), 3.8373)
+
+    def test_research_evidence_is_loaded_only_for_matching_report_period(self) -> None:
+        skill = MarketAnalysisSkill(self._research_enabled_config())
+
+        may_context = skill.prepare(
+            "请基于2026年5月数据生成中国乘用车月度市场分析报告。",
+            ANALYSIS_TYPE,
+        )
+        april_context = skill.prepare(
+            "请基于2026年4月数据生成中国乘用车月度市场分析报告。",
+            ANALYSIS_TYPE,
+            sheet_name="4月",
+        )
+
+        self.assertEqual(
+            [item.evidence_id for item in may_context.research_evidence],
+            ["R1", "R2", "R3", "R4", "R5", "R6"],
+        )
+        self.assertEqual([item.evidence_id for item in april_context.research_evidence], ["R1"])
+        self.assertIn("研究证据；主题=2026政策与以旧换新规则", april_context.prompt_context)
+        self.assertNotIn("5月TOP15代表车型与事件边界", april_context.prompt_context)
+        self.assertTrue(any(item.stage == "research-evidence" and item.status == "success" for item in may_context.events))
+
+    def test_report_gate_accepts_known_research_evidence_id_and_rejects_unknown_id(self) -> None:
+        skill = MarketAnalysisSkill(self._research_enabled_config())
+        context = skill.prepare(
+            "请基于2026年5月数据生成中国乘用车月度市场分析报告。",
+            ANALYSIS_TYPE,
+        )
+
+        valid_checks = skill.validate_report(
+            "## 核心数据速览\n2026年以旧换新和购置税规则已明确，"
+            "可作为政策机制的背景说明〔R1〕。",
+            context,
+        )
+        valid_boundary = next(item for item in valid_checks if item.check_id == "evidence_boundary")
+        valid_reference = next(item for item in valid_checks if item.check_id == "external_evidence_traceability")
+        self.assertEqual(valid_boundary.status, "通过")
+        self.assertEqual(valid_reference.status, "通过")
+
+        invalid_checks = skill.validate_report(
+            "## 核心数据速览\n政策影响已经验证〔R9〕。",
+            context,
+        )
+        invalid_reference = next(item for item in invalid_checks if item.check_id == "external_evidence_traceability")
+        self.assertEqual(invalid_reference.status, "风险")
+        self.assertIn("R9", invalid_reference.evidence)
+
+        causal_checks = skill.validate_report(
+            "## 核心数据速览\n政策是市场下滑的核心驱动〔R1〕。",
+            context,
+        )
+        causal_boundary = next(item for item in causal_checks if item.check_id == "evidence_boundary")
+        self.assertEqual(causal_boundary.status, "风险")
+        self.assertIn("研究证据被用于强因果", causal_boundary.evidence)
 
     def test_driver_signal_uses_top15_change_not_model_name_guess(self) -> None:
         model = TopModelEvidence(

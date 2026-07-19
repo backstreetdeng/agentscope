@@ -28,10 +28,11 @@ from xml.etree import ElementTree as ET
 from zipfile import BadZipFile, ZipFile
 
 from skills.agent_reach.adapter import EvidenceItem, search as agent_reach_search
+from skills.market_analysis_skill.research_evidence import ResearchEvidence, load_research_evidence
 
 
 SKILL_NAME = "china-passenger-vehicle-market-analysis"
-SKILL_VERSION = "1.1.0"
+SKILL_VERSION = "1.2.0"
 ANALYSIS_TYPE = "market_monthly_report"
 
 PROJECT_DIR = Path(__file__).resolve().parents[2]
@@ -262,6 +263,8 @@ class MarketSkillContext:
     top_model_records: list[TopModelEvidence] = field(default_factory=list)
     driver_signals: list[DriverSignal] = field(default_factory=list)
     external_evidence: list[ExternalEvidence] = field(default_factory=list)
+    research_evidence: list[ResearchEvidence] = field(default_factory=list)
+    research_evidence_max_chars: int = 1600
     input_checks: list[SkillCheck] = field(default_factory=list)
     output_checks: list[SkillCheck] = field(default_factory=list)
     events: list[SkillEvent] = field(default_factory=list)
@@ -296,6 +299,7 @@ class MarketSkillContext:
                 "top_model_count": len(self.top_model_records),
                 "driver_candidates": [item.as_dict() for item in self.driver_signals],
                 "external_evidence": [item.as_dict() for item in self.external_evidence],
+                "research_evidence": [item.as_dict() for item in self.research_evidence],
             },
             "events": [item.as_dict() for item in self.events],
         }
@@ -397,6 +401,14 @@ class MarketAnalysisSkill:
         context.input_checks = validate_input_dataset(context.snapshots, source)
         context.top_model_records = extract_top_model_records(selected)
         context.driver_signals = select_driver_signals(context.top_model_records)
+        research_settings = self._research_evidence_settings()
+        context.research_evidence_max_chars = clamp_research_evidence_chars(
+            research_settings.get("max_chars_per_item", 1600),
+        )
+        context.research_evidence, research_note = load_research_evidence(
+            research_settings,
+            infer_report_period(selected, question),
+        )
         context.events.extend(
             [
                 SkillEvent("dataset-resolve", "success", f"数据集={source.name}；工作表={len(context.snapshots)} 个。"),
@@ -421,6 +433,13 @@ class MarketAnalysisSkill:
                 ),
             ],
         )
+        context.events.append(
+            SkillEvent(
+                "research-evidence",
+                "success" if context.research_evidence else "skipped",
+                research_note,
+            ),
+        )
         if include_external_evidence and self._external_evidence_enabled():
             context.external_evidence = collect_external_evidence(context, self._external_evidence_settings())
         else:
@@ -432,6 +451,11 @@ class MarketAnalysisSkill:
 
     def _external_evidence_settings(self) -> dict[str, Any]:
         return dict(self.settings.get("external_evidence", {}))
+
+    def _research_evidence_settings(self) -> dict[str, Any]:
+        """读取经过运行时白名单控制的离线研究证据配置。"""
+
+        return dict(self.settings.get("research_evidence", {}))
 
     def _external_evidence_enabled(self) -> bool:
         return bool(self._external_evidence_settings().get("enabled", False))
@@ -469,6 +493,7 @@ class MarketAnalysisSkill:
                 "xlsx 展示型交叉表解析",
                 "数据输入门禁",
                 "MiniMax-M3 报告上下文注入",
+                "按报告月份加载经过门禁的研究证据",
                 "报告章节与数据缺口复核",
             ],
         }
@@ -882,7 +907,15 @@ def infer_report_period(sheet: SheetSnapshot, question: str) -> str:
                     break
             if year_match:
                 break
-    year = year_match.group(1) if year_match else str(datetime.now().year)
+    # question 使用带捕获组的正则，工作表单元格使用 fullmatch；两种 Match 的
+    # 分组结构不同，统一兼容后避免默认“生成月报”任务在读取年份时异常。
+    year = (
+        year_match.group(1)
+        if year_match and year_match.lastindex
+        else year_match.group(0)
+        if year_match
+        else str(datetime.now().year)
+    )
     return f"{year}年{sheet_month_number(sheet)}月"
 
 
@@ -938,6 +971,26 @@ def build_external_evidence_context(evidence: list[ExternalEvidence]) -> str:
     return "\n\n".join(item.to_prompt_block() for item in evidence)
 
 
+def clamp_research_evidence_chars(value: Any) -> int:
+    """限制研究证据单条长度，避免配置错误挤占月报数据上下文。"""
+
+    try:
+        return max(500, min(int(value), 2400))
+    except (TypeError, ValueError):
+        return 1600
+
+
+def build_research_evidence_context(context: MarketSkillContext) -> str:
+    """输出仅匹配当前报告月份的研究证据，保留每条引用和边界。"""
+
+    if not context.research_evidence:
+        return "当前报告周期未匹配已批准的研究证据；不可将其它月份结论迁移到本月。"
+    return "\n\n".join(
+        item.to_prompt_block(context.research_evidence_max_chars)
+        for item in context.research_evidence
+    )
+
+
 def build_agent_instruction(context: MarketSkillContext) -> str:
     """构造给 MiniMax-M3 的运行时业务约束，避免复制整个业务文档进提示词。"""
 
@@ -948,6 +1001,7 @@ def build_agent_instruction(context: MarketSkillContext) -> str:
     source = context.dataset_label or "业务月报数据集"
     driver_context = build_driver_context(context.driver_signals)
     evidence_context = build_external_evidence_context(context.external_evidence)
+    research_context = build_research_evidence_context(context)
     checks = "；".join(
         f"{item.name}={item.status}" for item in context.input_checks if item.status != "通过"
     ) or "输入数据门禁通过"
@@ -976,11 +1030,11 @@ def build_agent_instruction(context: MarketSkillContext) -> str:
    当前数据集总量覆盖轿车、SUV、MPV、交叉型乘用车四类；总量只能按这四类加总，不得写成“狭义乘用车”或静默排除交叉型乘用车。
 2. 每个“市场深度分析”必须按“总体判断 -> 代表车型贡献 -> 外部或结构解释 -> 业务含义”组织，不得逐项复述四类销量。优先从【代表车型贡献信号】中选择 2-3 个车型；同比增减量是由销量与同比反推的筛选量，写作中表述为“TOP15样本内估算减量/增量”，不得扩大为全市场精确贡献。
 3. 完整 TOP15 已注入，包含车型、销量、同比、环比、级别、份额、排名变化、累计销量。不得再写“TOP4-15缺失/未注入”。若去年同期无可比，只能写“去年同期无可比值”，不得自行推断为新车型、上市、改款或进入市场。没有品牌归属/CR5 数据时，明确披露“当前数据集未提供，不生成品牌集中度结论”。
-4. 政策、油价、促销、上市、产品换代、渠道、出口、产品生命周期等外部原因，仅能使用【外部证据包】中与该句匹配的来源。每个外部归因句末必须严格标注 `〔E1〕`；多条来源写成 `〔E1〕〔E2〕`，禁止写 `〔E1,E2〕` 或把“C级线索”等文字放进编号。A/B级来源可作为归因依据；C级来源只能写成“待核验行业线索（〔E7〕）”，不能单独支撑“主要受/核心驱动”等强因果。无匹配来源时改写为内部数据描述或“待核验假设”。不得以外部资料覆盖或改写当前中汽数据验数表的核心销量。
+4. 政策、油价、促销、上市、产品换代、渠道、出口、产品生命周期等外部原因，仅能使用【外部证据包】或【研究证据包】中与该句匹配的来源。每个外部归因句末必须严格标注 `〔E1〕` 或 `〔R1〕`；多条来源写成 `〔E1〕〔R1〕`，禁止写 `〔E1,R1〕` 或把“C级线索”等文字放进编号。R 编号只能在其“允许用途”和“引用边界”内使用，且只限当前报告月份；R 证据只能说明已验证事实、结构或待验证解释，不能单独支撑“主要受/核心驱动/导致”等强因果。A/B级即时检索来源可作为归因依据；C级即时检索来源只能写成“待核验行业线索（〔E7〕）”，不能单独支撑强因果。无匹配来源时改写为内部数据描述或“待核验假设”。不得以外部资料覆盖或改写当前中汽数据验数表的核心销量。
    当前数据未明示批发/零售/出口/上险口径，不得自行判定；也不得以单月或本年累计数据声称“首次”“连续”等跨期结论。
 5. 展望必须列出结论、确定性（高/中/低）、证据和风险变量。不得将推测表述成已验证事实。
 6. `### 2.1` 至 `### 2.5` 的每个章节第一段必须以 `◼` 开头，且控制在 120-200 个中文字符，采用“[月份]，[总体判断]；TOP15样本内[代表车型]变化；[外部证据或待核验说明]；[业务含义]”的咨询式句型。该首段是 PPT 直接使用的“市场深度分析”，禁止罗列全部销量、同比、环比。详细数据和补充说明可另起段。
-7. 文末仅统一标注一次内部数据来源；如使用外部归因，在“数据来源与数据缺口”中追加“外部证据索引”，列出已使用的 E 编号、标题、URL、发布日期和用途。正文关键数值必须与下面数据摘要一致。
+7. 文末仅统一标注一次内部数据来源；如使用外部归因，在“数据来源与数据缺口”中追加“证据索引”，列出已使用的 E/R 编号、标题、URL、发布日期、适用月份和用途。正文关键数值必须与下面数据摘要一致。
 
 【已验证数据摘要】
 {data_excerpt}
@@ -990,6 +1044,9 @@ def build_agent_instruction(context: MarketSkillContext) -> str:
 
 【外部证据包】
 {evidence_context}
+
+【研究证据包（仅限当前报告周期）】
+{research_context}
 """.strip()
 
 
@@ -1193,7 +1250,7 @@ def validate_generated_report(report: str, context: MarketSkillContext) -> list[
                 if unsupported_attributions or unmeasured_contribution_claims or weak_evidence_claims
                 else "结构解读未发现未披露的外部归因。"
             ),
-            "将该类原因改写为销量/份额结构描述；若使用外部原因，补充匹配的〔E编号〕；若称“主要拖累”，必须点明已计算的代表车型。",
+            "将该类原因改写为销量/份额结构描述；若使用外部原因，补充匹配的〔E编号〕或当前周期可用的〔R编号〕；若称“主要拖累”，必须点明已计算的代表车型。",
         ),
         SkillCheck(
             "ppt_deep_analysis",
@@ -1224,9 +1281,13 @@ def validate_generated_report(report: str, context: MarketSkillContext) -> list[
                     if part
                 )
                 if invalid_evidence_references or malformed_evidence_markers
-                else ("外部归因编号均可回溯至本轮证据包。" if context.external_evidence else "本轮未使用外部证据编号。")
+                else (
+                    "归因编号均可回溯至本轮即时/研究证据包。"
+                    if known_evidence_ids(context)
+                    else "本轮未使用证据编号。"
+                )
             ),
-            "仅引用本轮证据包中实际存在的〔E编号〕，并在“数据来源与数据缺口”中列出来源索引。",
+            "仅引用本轮证据包中实际存在的〔E编号〕或当前周期可用的〔R编号〕，并在“数据来源与数据缺口”中列出来源索引。",
         ),
         SkillCheck(
             "scope_consistency",
@@ -1238,11 +1299,28 @@ def validate_generated_report(report: str, context: MarketSkillContext) -> list[
     ]
 
 
+def known_evidence_ids(context: MarketSkillContext) -> set[str]:
+    """本轮可追溯的即时检索证据和按月批准研究证据的并集。"""
+
+    return {item.evidence_id for item in context.external_evidence} | {
+        item.evidence_id for item in context.research_evidence
+    }
+
+
+def evidence_source_tiers(context: MarketSkillContext) -> dict[str, str]:
+    """统一读取 E/R 证据的来源级别，供强因果门禁使用。"""
+
+    return {
+        **{item.evidence_id: item.item.source_tier for item in context.external_evidence},
+        **{item.evidence_id: item.source_tier for item in context.research_evidence},
+    }
+
+
 def find_unsupported_attribution_sentences(report: str, context: MarketSkillContext) -> list[str]:
-    """找出缺少有效〔E编号〕的外部归因，保留数据范围硬约束。"""
+    """找出缺少有效 E/R 编号的外部归因，保留数据范围硬约束。"""
 
     violations: list[str] = []
-    valid_evidence_ids = {item.evidence_id for item in context.external_evidence}
+    valid_evidence_ids = known_evidence_ids(context)
     for sentence in re.split(r"(?<=[。！？])", report_before_evidence_index(report)):
         if not sentence or any(marker in sentence for marker in ATTRIBUTION_DISCLOSURE_TERMS):
             continue
@@ -1260,18 +1338,18 @@ def find_unsupported_attribution_sentences(report: str, context: MarketSkillCont
 
 
 def find_invalid_evidence_references(report: str, context: MarketSkillContext) -> list[str]:
-    valid_ids = {item.evidence_id for item in context.external_evidence}
+    valid_ids = known_evidence_ids(context)
     referenced_ids = evidence_ids_in_text(report_before_evidence_index(report))
     return sorted(referenced_ids - valid_ids)
 
 
 def find_malformed_evidence_markers(report: str) -> list[str]:
-    """外部证据必须逐个写为〔E1〕，避免一个括号混入多个来源或说明文字。"""
+    """证据必须逐个写为〔E1〕或〔R1〕，避免一个括号混入多个来源或说明文字。"""
 
     malformed: list[str] = []
     for marker in re.findall(r"〔([^〕]+)〕", report_before_evidence_index(report)):
         compact = normalize(marker).replace(" ", "")
-        if "E" in compact and not re.fullmatch(r"E\d+", compact):
+        if re.search(r"[ER]", compact) and not re.fullmatch(r"[ER]\d+", compact):
             malformed.append(f"〔{compact}〕")
     return list(dict.fromkeys(malformed))
 
@@ -1279,21 +1357,25 @@ def find_malformed_evidence_markers(report: str) -> list[str]:
 def find_weak_evidence_claims(report: str, context: MarketSkillContext) -> list[str]:
     """C级媒体线索不能单独承载“主要原因/核心驱动”类强因果。"""
 
-    tiers = {item.evidence_id: item.item.source_tier for item in context.external_evidence}
+    tiers = evidence_source_tiers(context)
     violations: list[str] = []
     for sentence in re.split(r"(?<=[。！？])", report_before_evidence_index(report)):
         evidence_ids = evidence_ids_in_text(sentence)
         if not evidence_ids or not any(term in sentence for term in ("主要受", "核心驱动", "核心解释", "导致")):
             continue
-        if all(tiers.get(item) == "C" for item in evidence_ids):
+        # R 包经过数据门禁，但本轮包的 claim_boundary 均只允许事实、结构或
+        # 待验证解释，尚不提供模型/政策层面的因果识别，因此不能单独承载强因果。
+        if any(item.startswith("R") for item in evidence_ids):
+            violations.append("研究证据被用于强因果")
+        elif all(tiers.get(item) == "C" for item in evidence_ids):
             violations.append("C级线索被单独用于强因果")
     return violations
 
 
 def evidence_ids_in_text(text: str) -> set[str]:
-    """兼容模型偶发写出的〔E1,E2〕，同时可校验其中的未知编号。"""
+    """兼容模型偶发写出的组合 E/R 编号，同时可校验其中的未知编号。"""
 
-    return set(re.findall(r"E\d+", " ".join(re.findall(r"〔([^〕]+)〕", text or ""))))
+    return set(re.findall(r"[ER]\d+", " ".join(re.findall(r"〔([^〕]+)〕", text or ""))))
 
 
 def report_before_evidence_index(report: str) -> str:
@@ -1326,23 +1408,23 @@ def normalize_external_evidence_marker_format(
 ) -> tuple[str, list[str]]:
     """将可验证的组合证据编号规范为逐个编号，不改动业务语句或未知编号。
 
-    模型偶尔会把多条来源写成 ``〔E1,E2〕``，或把“C级线索”等说明混在同一
+    模型偶尔会把多条来源写成 ``〔E1,R1〕``，或把“C级线索”等说明混在同一
     括号中。这些写法不利于逐条审计，但其中已列出的编号本身仍可验证；因此仅当
-    编号全部属于本轮证据包时，改写为 ``〔E1〕〔E2〕``。未知编号保留给门禁报错，
+    编号全部属于本轮证据包时，改写为 ``〔E1〕〔R1〕``。未知编号保留给门禁报错，
     绝不擅自替换成看似正确的来源。
     """
 
-    valid_ids = {item.evidence_id for item in context.external_evidence}
+    valid_ids = known_evidence_ids(context)
     events: list[str] = []
 
     def replace_marker(match: re.Match[str]) -> str:
         marker = match.group(1)
-        ids = re.findall(r"E\d+", marker)
+        ids = re.findall(r"[ER]\d+", marker)
         if not ids or not all(item in valid_ids for item in ids):
             return match.group(0)
         canonical = "".join(f"〔{item}〕" for item in dict.fromkeys(ids))
         if canonical != match.group(0):
-            events.append(f"已将外部证据标记“〔{marker}〕”规范为“{canonical}”。")
+            events.append(f"已将证据标记“〔{marker}〕”规范为“{canonical}”。")
         return canonical
 
     return re.sub(r"〔([^〕]+)〕", replace_marker, report or ""), events

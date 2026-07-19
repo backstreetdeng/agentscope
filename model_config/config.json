@@ -74,6 +74,12 @@
         "max_results_per_query": 3,
         "max_evidence_items": 8,
         "timeout_seconds": 35
+      },
+      "research_evidence": {
+        "enabled": true,
+        "manifest": "research/2026_china_passenger_vehicle_market_strategy_consulting/evidence_manifest.json",
+        "max_items": 6,
+        "max_chars_per_item": 1600
       }
     }
   },

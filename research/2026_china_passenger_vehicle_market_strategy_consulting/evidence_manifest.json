@@ -1,0 +1,62 @@
+{
+  "version": "0.1",
+  "status": "pilot_approved_for_runtime",
+  "topic": "2026年中国乘用车市场战略咨询",
+  "purpose": "为月报市场深度分析提供经过研究门禁的补充证据；不替代内部验数表。",
+  "evidence_packs": [
+    {
+      "evidence_id": "R1",
+      "file": "results/policy_macro_demand.json",
+      "title": "2026政策与以旧换新规则",
+      "applicable_periods": ["2026年1月", "2026年2月", "2026年3月", "2026年4月", "2026年5月", "2026年6月", "2026年7月", "2026年8月", "2026年9月", "2026年10月", "2026年11月", "2026年12月"],
+      "status": "approved",
+      "allowed_use": "仅可说明已发布的2026年政策规则、资格与补贴机制；不得直接声称政策造成某车型或价格带销量变化。"
+    },
+    {
+      "evidence_id": "R2",
+      "file": "results/domestic_export_volume_split.json",
+      "title": "5月国内需求、批发与出口拆分",
+      "applicable_periods": ["2026年5月"],
+      "status": "approved",
+      "allowed_use": "仅可说明5月口径拆分和国内零售/批发/出口的边界。"
+    },
+    {
+      "evidence_id": "R3",
+      "file": "results/powertrain_price_band.json",
+      "title": "5月动力结构与车型级别分化",
+      "applicable_periods": ["2026年5月"],
+      "status": "approved",
+      "allowed_use": "仅可说明5月动力结构与B级/A00车型级别信号；不得等同于成交价格带结论。"
+    },
+    {
+      "evidence_id": "R4",
+      "file": "results/segment_class_structure.json",
+      "title": "5月车型类别与级别结构",
+      "applicable_periods": ["2026年5月"],
+      "status": "approved",
+      "allowed_use": "仅可补充5月类别和级别的结构判断，不得虚构原因。"
+    },
+    {
+      "evidence_id": "R5",
+      "file": "results/top15_model_movements.json",
+      "title": "5月TOP15代表车型与事件边界",
+      "applicable_periods": ["2026年5月"],
+      "status": "approved",
+      "allowed_use": "仅可在5月TOP15样本内描述代表车型变化和已核验产品事件；不得把同期事件写成确定因果。"
+    },
+    {
+      "evidence_id": "R6",
+      "file": "results/brand_competition.json",
+      "title": "5月品牌阵营竞争格局",
+      "applicable_periods": ["2026年5月"],
+      "status": "approved",
+      "allowed_use": "仅可说明5月自主、主流合资、豪华阵营的公开口径；不得生成品牌CR5、利润或区域渠道结论。"
+    }
+  ],
+  "rendering_rules": {
+    "max_items": 6,
+    "max_chars_per_item": 1600,
+    "citation_format": "〔R编号〕",
+    "required_disclosure": "正文若使用研究证据，必须在数据来源与数据缺口中列出研究证据索引、来源和适用边界。"
+  }
+}

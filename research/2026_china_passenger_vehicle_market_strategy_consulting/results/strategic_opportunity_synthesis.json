@@ -1,0 +1,87 @@
+{
+  "research_item_id": "strategic_opportunity_synthesis",
+  "research_item_name": "Opportunity grading and strategic decision synthesis",
+  "source_title": [
+    "Batch A and Batch B Validated Evidence Packs",
+    "Industry Risk Watchlist"
+  ],
+  "source_url_or_path": [
+    "research/2026_china_passenger_vehicle_market_strategy_consulting/results/policy_macro_demand.json",
+    "research/2026_china_passenger_vehicle_market_strategy_consulting/results/domestic_export_volume_split.json",
+    "research/2026_china_passenger_vehicle_market_strategy_consulting/results/powertrain_price_band.json",
+    "research/2026_china_passenger_vehicle_market_strategy_consulting/results/segment_class_structure.json",
+    "research/2026_china_passenger_vehicle_market_strategy_consulting/results/top15_model_movements.json",
+    "research/2026_china_passenger_vehicle_market_strategy_consulting/results/brand_competition.json",
+    "research/2026_china_passenger_vehicle_market_strategy_consulting/results/industry_risk_watchlist.json"
+  ],
+  "source_tier": ["A", "A", "A", "A", "A/B", "A/B", "Derived from validated evidence"],
+  "published_or_observed_at": ["2026 policy rules", "May 2026 market facts", "Synthesis completed 2026-07-20"],
+  "evidence_excerpt": [
+    "SUV declined less than other vehicle categories in May and year to date, while B-class BEV wholesale grew and conventional-fuel retail declined sharply.",
+    "A00 class and several entry-oriented sedan nameplates recorded large declines, while domestic retail remained much weaker than factory wholesale.",
+    "The current evidence does not provide transaction price bands, regional demand, profit economics, full brand mapping or user personas."
+  ],
+  "scope_and_caliber": "Pilot strategic synthesis for evidence-architecture validation, not a final 2026 China market-entry recommendation. All conclusions inherit the scope and limitations of the May evidence packs.",
+  "metric_name": ["SUV category performance", "B-class BEV performance", "A00 class performance", "Domestic retail versus wholesale", "Brand-bloc retail share"],
+  "metric_value_and_unit": ["SUV May -11.3% YoY and January-May -8.4%", "B-class BEV May wholesale +42%", "A00 May -54.9% YoY", "May domestic retail -22.1% versus wholesale -4.6%", "Chinese-brand May retail share 68.7%, +3.8 percentage points"],
+  "metric_type": "Validated market structure and TOP15 sample facts, with separate policy and external-event evidence.",
+  "comparison_period": "May 2026 versus May 2025, with January-May context where available.",
+  "contribution_or_rank_change": "TOP15 changes are used only as candidate explanations. They do not become full-market contribution or brand concentration measures in this synthesis.",
+  "segment_definition": "Opportunity and risk grades apply to observed category/class/powertrain structures, not to a specific transaction price band or region unless explicitly stated.",
+  "structure_change": "The evidence supports a differentiated market: SUVs and selected higher-class electrified products are relatively resilient, while entry A00 and several established MPV/sedan nameplates face greater pressure. Domestic demand remains weaker than aggregate manufacturer volume.",
+  "representative_models": "Use selected TOP15 cases as page-level examples only: Seagull, Qin PLUS and Hongguang MINI EV; Xingyue L, Model Y and no-comparable SUV entrants; Buick GL8, Denza D9, WEY Gaoshan and ZEEKR 009.",
+  "lifecycle_event": "Only the ZEEKR 009 May facelift/launch is externally confirmed in this pilot; it is not treated as proven sales causality.",
+  "overall_judgement": "The present evidence is sufficient to prioritise where to investigate and where to avoid over-commitment, but it is insufficient for a definitive 15-20 CNY market-entry decision. The correct output is a conditional opportunity map: pursue structured validation in resilient SUV/B-class electrified areas, hold entry-market and legacy-MPV commitments under watch, and do not base China-demand decisions on export-supported wholesale.",
+  "observed_fact": "SUV and C+ were relatively resilient; B-class BEV grew in the association source; A00 contracted sharply; Chinese-brand share increased; domestic retail underperformed wholesale; selected TOP15 models displayed both large declines and no-comparable rank changes.",
+  "driver_type": ["Category/class structure", "Powertrain migration", "Brand-bloc share shift", "Domestic/export split", "Policy-supported renewal"],
+  "causal_mechanism": "The synthesis ranks opportunities by convergence of observed demand resilience, product-structure signal and evidence quality. It withholds entry approval because price band, regional channel, profit and user-demand conditions are not yet measured.",
+  "confidence_level": "Medium for structure-based prioritisation; low for a price-band, regional or profitability decision.",
+  "alternative_explanations": "The relative resilience may be temporary and influenced by launch timing, price action, inventory, export allocation or scope differences. It needs multi-month and regional confirmation.",
+  "competitive_set": "SUV and sedan/MPV categories; A00 through C+ classes; BEV/PHEV/EREV/conventional-fuel structures; Chinese brands, mainstream joint ventures and luxury blocs.",
+  "competitive_advantage_or_barrier": "Relative SUV/B-class resilience may indicate a better research priority, not a proven right to win. Barriers such as charging, brand, channel, cost and configuration remain unmeasured.",
+  "configuration_threshold": "[uncertain] No validated configuration threshold exists for a 15-20 CNY product definition in the current evidence.",
+  "pricing_and_profit_signal": "[uncertain] The synthesis cannot assess profitability, transaction discount or required incentive spend without price and cost data.",
+  "target_user_segment": "[uncertain] User segments must come from the user-insight data pipeline, interviews and structured tags.",
+  "purchase_motivation_and_pain_points": "[uncertain] Current market data cannot identify whether resilience is driven by space, charging, smart features, cost of ownership, policy or brand preference.",
+  "purchase_barrier": "[uncertain] Charging availability, financing, price, residual value, perceived quality and dealer experience require direct user/channel data.",
+  "channel_signal": "Required go/no-go signals are retail growth, order conversion, cancellation, days of supply, transaction price, incentive cost, regional application use and post-launch delivery rhythm.",
+  "opportunity_or_risk_grade": "B research opportunity: SUV structural resilience and B-class BEV signal. C/D watch: A00 entry-market contraction and established MPV weakness. No A-grade investment or D-grade exit decision is issued.",
+  "recommended_action": "Run a targeted 15-20 CNY SUV validation study with regional retail, starting MSRP and transaction price, competitor configuration, order funnel, subsidy applications and user interviews. Maintain separate domestic-demand and export-capacity scenarios. Delay irreversible capacity or product-definition commitments until those inputs pass the gate.",
+  "regional_capacity_or_channel_action": "No region receives a capacity expansion recommendation in this pilot. Prepare a city-cluster scorecard only after regional demand, charging, policy execution, dealer capacity and logistics data are supplied.",
+  "decision_condition_and_trigger": "Advance from B research priority to an investable opportunity only when four conditions are jointly met: sustained domestic retail resilience in the defined price band, verified product/configuration competitiveness, acceptable incentive and profitability economics, and regionally feasible channel/fulfilment capacity. A failure in any condition keeps the decision at observation stage.",
+  "next_verification": "Connect the user-insight tag system and audio/voice-of-customer pipeline; add model MSRP/transaction price/discount, model-brand master data, regional retail/orders/inventory, dealer economics and policy-application records.",
+  "data_quality_status": "Passed as conditional strategic synthesis; blocked for final price-band, regional, product-configuration and capacity decision.",
+  "data_gap_or_conflict": "The evidence set is May-centric and lacks direct 15-20 CNY, region, profitability and user data. The external event sources are not causal proof and must be refreshed for later months.",
+  "claim_boundary": "This synthesis prioritises research and validation actions. It does not authorise entry, capacity allocation, pricing or configuration decisions for a specific market segment.",
+  "strategy_matrix": [
+    {
+      "theme": "SUV structural resilience",
+      "grade": "B research opportunity",
+      "evidence": "SUV May YoY -11.3%, less negative than other categories",
+      "action": "Validate relevant price bands, regions and products before investment",
+      "gate": "Domestic retail, economics and channel evidence"
+    },
+    {
+      "theme": "B-class BEV signal",
+      "grade": "B research opportunity",
+      "evidence": "Association source reports May B-class BEV wholesale +42%",
+      "action": "Map B-class to verified MSRP/transaction price and TOP15 models",
+      "gate": "Price band, model lifecycle and user demand evidence"
+    },
+    {
+      "theme": "A00 entry market",
+      "grade": "D watch",
+      "evidence": "May A00 class -54.9% YoY",
+      "action": "Avoid generalising this to all NEVs; investigate affordability and product-supply drivers",
+      "gate": "Two-month trend, price and policy-application evidence"
+    },
+    {
+      "theme": "Established MPV nameplates",
+      "grade": "C/D watch",
+      "evidence": "GL8 and D9 show large negative TOP15 sample movements while selected challengers grow",
+      "action": "Track product refresh, user substitution and transaction-price evidence",
+      "gate": "Model event, order and delivery evidence"
+    }
+  ],
+  "uncertain": ["configuration_threshold", "pricing_and_profit_signal", "target_user_segment", "regional_capacity_or_channel_action", "final entry decision", "price-band mapping"]
+}

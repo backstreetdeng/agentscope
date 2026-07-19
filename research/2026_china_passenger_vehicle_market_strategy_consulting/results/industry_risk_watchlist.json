@@ -1,0 +1,95 @@
+{
+  "research_item_id": "industry_risk_watchlist",
+  "research_item_name": "Risk watchlist and key monitoring variables",
+  "source_title": [
+    "Policy, Macro Conditions and Cost of Ownership Evidence Pack",
+    "Domestic Demand, Wholesale and Export Split Evidence Pack",
+    "Powertrain and Price-Band Migration Evidence Pack",
+    "Vehicle Category and Class Structure Evidence Pack",
+    "TOP15 Representative Models and Product Lifecycle Evidence Pack",
+    "Brand Blocs and Competitive Landscape Evidence Pack"
+  ],
+  "source_url_or_path": [
+    "research/2026_china_passenger_vehicle_market_strategy_consulting/results/policy_macro_demand.json",
+    "research/2026_china_passenger_vehicle_market_strategy_consulting/results/domestic_export_volume_split.json",
+    "research/2026_china_passenger_vehicle_market_strategy_consulting/results/powertrain_price_band.json",
+    "research/2026_china_passenger_vehicle_market_strategy_consulting/results/segment_class_structure.json",
+    "research/2026_china_passenger_vehicle_market_strategy_consulting/results/top15_model_movements.json",
+    "research/2026_china_passenger_vehicle_market_strategy_consulting/results/brand_competition.json"
+  ],
+  "source_tier": ["A", "A", "A", "A", "A/B", "A/B"],
+  "published_or_observed_at": ["2026-05 observation and 2026 policy rules", "Research batches A and B validated on 2026-07-20"],
+  "evidence_excerpt": [
+    "Domestic retail declined more sharply than wholesale in May, while export was 35% of manufacturer passenger-vehicle sales; domestic demand and export must therefore be monitored separately.",
+    "A00 class declined 54.9% year on year in May, while C+ declined 3.7%; entry-market and higher-class risks differ materially.",
+    "The 2026 policy rule supports qualified renewals but the net conversion effect by price band and region is unmeasured.",
+    "Selected TOP15 models contain both large negative sample movements in established nameplates and no-comparable entrants with rank changes."
+  ],
+  "scope_and_caliber": "Pilot risk framework for the 2026 China passenger-vehicle market. It converts validated May facts into monitoring rules. Management thresholds are provisional control rules, not statistically estimated causal thresholds.",
+  "metric_name": ["Domestic retail versus wholesale gap", "Export share of manufacturer sales", "A00 class year-on-year change", "Representative-model TOP15 sample movement", "Policy application and conversion indicators"],
+  "metric_value_and_unit": ["May domestic retail: -22.1% YoY; May wholesale: -4.6% YoY", "May export: 35% of manufacturer passenger-vehicle sales", "May A00 class: -54.9% YoY", "TOP15 selected model movements are measured in 10^4 units"],
+  "metric_type": "Monthly market, channel, policy and TOP15 monitoring indicators.",
+  "comparison_period": "May 2026 versus May 2025, with future monitoring on monthly and rolling two-month windows.",
+  "contribution_or_rank_change": "TOP15 signals identify monitored candidate models but do not quantify full-market contribution or a causal share of risk.",
+  "segment_definition": "Risk indicators are grouped into domestic demand, entry-level structure, product-cycle/competitive disruption, policy conversion and evidence freshness.",
+  "structure_change": "The validated evidence indicates a differentiated risk profile rather than a single market-cycle risk: domestic retail, A00 entry products, established MPV nameplates and export reliance require separate watchlists.",
+  "representative_models": "Examples for monitoring: Seagull, Qin PLUS and Hongguang MINI EV in sedans; Xingyue L and no-comparable SUV entrants; Buick GL8, Denza D9, WEY Gaoshan and ZEEKR 009 in MPVs.",
+  "lifecycle_event": "Only verified product events may be added to the watchlist. Existing research confirms a ZEEKR 009 May facelift/launch event but does not assign sales causality.",
+  "overall_judgement": "The immediate strategic risk is not simply lower market volume. It is the possibility of making decisions from the wrong signal: treating export-supported wholesale as domestic demand, treating vehicle class as price band, or treating a product event as proven model causality. The watchlist is designed to block those errors while identifying where additional data can change a decision.",
+  "observed_fact": "May domestic retail, entry A00, MPV and several established TOP15 nameplates showed material weakness, while SUVs, C+ and selected new/no-comparable models were relatively resilient or changed rank quickly.",
+  "driver_type": ["Domestic-demand weakness", "Export dependence", "Entry-market contraction", "Product-cycle uncertainty", "Policy conversion uncertainty", "Evidence freshness"],
+  "causal_mechanism": "Each risk is evaluated as a monitored condition rather than a declared cause. A trigger only tells the agent to seek additional internal and external evidence before changing the market recommendation.",
+  "confidence_level": "High for monitored facts; medium for risk prioritisation; low for threshold calibration until more months and regional data are available.",
+  "alternative_explanations": "Seasonality, data-scope differences, model aggregation, temporary supply constraints, incentives, regional conditions and prior-year base effects can change each indicator without reflecting a lasting strategic risk.",
+  "competitive_set": "Domestic retail versus export flows; entry A00 versus higher classes; established versus no-comparable TOP15 models; Chinese-brand versus mainstream joint-venture blocs.",
+  "competitive_advantage_or_barrier": "No durable advantage is assumed from the current evidence. Relative resilience is a monitoring signal that requires product, price, channel and user validation.",
+  "configuration_threshold": "[uncertain] Configuration-based risk triggers require model configuration, user preference and transaction data not present in the current pilot.",
+  "pricing_and_profit_signal": "[uncertain] No common transaction-price, incentive-cost or profit series is available for calibrated margin-risk thresholds.",
+  "target_user_segment": "[uncertain] The current watchlist is market-level and does not yet segment risks by household, age, city tier or purchase purpose.",
+  "purchase_motivation_and_pain_points": "[uncertain] User motivations must be supplied by interviews, survey labels and channel records before they become risk drivers.",
+  "purchase_barrier": "Potential barriers include eligibility, financing, charging and product fit, but their importance is not measured in this research stage.",
+  "channel_signal": "Required monthly inputs are retail, wholesale, export, inventory, orders, cancellations, transaction price, policy applications and approval ageing at brand-model-region level.",
+  "opportunity_or_risk_grade": "Risk-monitoring framework: active. It does not issue a final market-entry grade by itself.",
+  "recommended_action": "Use the watchlist as a pre-report and pre-decision gate. When a trigger occurs, require a source-backed explanation or downgrade the conclusion to a pending hypothesis.",
+  "regional_capacity_or_channel_action": "Hold regional capacity reallocation until the domestic-retail, inventory and order indicators are available by region. Export demand must use a separate utilisation scenario.",
+  "decision_condition_and_trigger": "Provisional triggers: two consecutive months of domestic retail decline materially worse than wholesale; export share above the company-defined planning tolerance while domestic retail weakens; A00 decline worse than 40% for two months; major TOP15 rank change without verified product-event data; missing or stale evidence for a claimed driver. These are review triggers, not automatic decisions.",
+  "next_verification": "Calibrate thresholds from at least 12 monthly observations, regional transaction data and business tolerance for inventory, utilisation, price and profitability.",
+  "data_quality_status": "Passed as a rule-based pilot framework; not calibrated for automatic production decisions.",
+  "data_gap_or_conflict": "No historical threshold distribution, region-level pipeline, price/profit series or user-data linkage was provided. All numerical trigger values remain provisional.",
+  "claim_boundary": "The watchlist can flag where to investigate. It cannot label a market as declining, attractive or unprofitable without the corresponding validated evidence.",
+  "risk_register": [
+    {
+      "id": "RW-01",
+      "risk": "Domestic retail is masked by export-supported wholesale",
+      "status": "Observed May signal",
+      "indicator": "Domestic retail YoY, wholesale YoY, export share and inventory",
+      "cadence": "Monthly",
+      "action": "Separate China demand decision from export capacity scenario"
+    },
+    {
+      "id": "RW-02",
+      "risk": "Entry-market contraction is generalised as all-NEV weakness",
+      "status": "Observed May signal",
+      "indicator": "A00/A0/A/B/C+ retail, price band and TOP15 model movement",
+      "cadence": "Monthly",
+      "action": "Require price and product evidence before allocating entry-market resources"
+    },
+    {
+      "id": "RW-03",
+      "risk": "New/no-comparable models distort structural conclusions",
+      "status": "Observed May signal",
+      "indicator": "No-comparable flag, rank movement, launch date, delivery start and transaction price",
+      "cadence": "Monthly",
+      "action": "Classify as ramp observation; prohibit year-on-year contribution claims"
+    },
+    {
+      "id": "RW-04",
+      "risk": "Policy rules are mistaken for measured demand impact",
+      "status": "Open data gap",
+      "indicator": "Eligible applications, approval time, regional funding and conversion by price band",
+      "cadence": "Weekly during policy windows; monthly otherwise",
+      "action": "Keep policy impact as a hypothesis until conversion data is available"
+    }
+  ],
+  "uncertain": ["threshold calibration", "configuration_threshold", "pricing_and_profit_signal", "target_user_segment", "policy elasticity", "regional capacity implication"]
+}
