@@ -705,8 +705,16 @@ def extract_report_section(markdown: str, marker: str) -> str:
     if not match:
         return ""
     body = match.group("body")
+    # 月报正文的第一个“◼”段被业务 Skill 定义为可直接进入当前页顶部的市场深度分析。
+    # 其后的数据表与补充说明保留在文字报告，不再被固定高度的 PPT 正文框截断。
+    summary_match = re.search(r"(?ms)^\s*◼\s*(?P<summary>.*?)(?=\n\s*\n|\Z)", body)
+    if summary_match:
+        body = summary_match.group("summary")
     body = re.sub(r"^\s*[-*◼]\s*", "", body, flags=re.MULTILINE)
     body = re.sub(r"\|[^\n]+\|", "", body)
+    # 文字月报用〔E1〕等编号留存外部证据审计链；PPT 只呈现业务结论和关键事实，
+    # 不把内部审计标记直接暴露在图表页顶部正文中。
+    body = re.sub(r"〔[^〕]*E\d+[^〕]*〕", "", body)
     body = re.sub(r"\n{2,}", "\n", body)
     return re.sub(r"\s+", " ", body).strip()
 

@@ -5,9 +5,14 @@ from __future__ import annotations
 import unittest
 from pathlib import Path
 
+from skills.agent_reach.adapter import EvidenceItem
 from skills.market_analysis_skill.runtime import (
     ANALYSIS_TYPE,
+    ExternalEvidence,
     MarketAnalysisSkill,
+    TopModelEvidence,
+    normalize_external_evidence_marker_format,
+    normalize_sales_to_wan,
     normalize_top15_summary_wording,
 )
 from utils.text import strip_thinking
@@ -23,6 +28,7 @@ class MarketAnalysisSkillTest(unittest.TestCase):
         self.assertTrue(context.active)
         self.assertIsNotNone(context.dataset_path)
         self.assertTrue(context.snapshots)
+        self.assertEqual(context.selected_sheet, "5月")
         self.assertIn(context.input_gate(), {"通过", "待补充"})
         self.assertIn("车型类别", context.prompt_context)
         self.assertIn("TOP15", context.prompt_context)
@@ -68,6 +74,35 @@ class MarketAnalysisSkillTest(unittest.TestCase):
         self.assertEqual(checks["model_rank_data"].status, "通过")
         self.assertEqual(checks["brand_concentration"].status, "待补充")
         self.assertIn("星愿", context.prompt_context)
+
+    def test_full_top15_is_injected_and_sales_are_normalized_to_wan(self) -> None:
+        context = MarketAnalysisSkill().prepare(
+            "请基于2026年5月数据生成中国乘用车月度市场分析报告。",
+            ANALYSIS_TYPE,
+        )
+
+        self.assertEqual(context.selected_sheet, "5月")
+        self.assertEqual(len(context.top_model_records), 45)
+        self.assertTrue(any(item.name == "秦PLUS" and item.rank == 10 for item in context.top_model_records))
+        self.assertIn("15.海鸥", context.prompt_context)
+        self.assertAlmostEqual(normalize_sales_to_wan(38373), 3.8373)
+        self.assertAlmostEqual(normalize_sales_to_wan(3.8373), 3.8373)
+
+    def test_driver_signal_uses_top15_change_not_model_name_guess(self) -> None:
+        model = TopModelEvidence(
+            segment="轿车-级别",
+            rank=10,
+            name="秦PLUS",
+            volume=1.215,
+            yoy=-0.574,
+            mom=-0.1,
+            level="A",
+            share=0.02,
+            rank_change="-6",
+            cumulative_volume=4.0,
+        )
+
+        self.assertAlmostEqual(model.yoy_delta or 0, -1.637, places=3)
 
     def test_report_gate_rejects_unsupported_causal_attribution(self) -> None:
         skill = MarketAnalysisSkill()
@@ -117,9 +152,128 @@ class MarketAnalysisSkillTest(unittest.TestCase):
             context,
         )
 
-        self.assertIn("完整 TOP15 可回溯至原始表", report)
+        self.assertIn("完整 TOP15 已注入并可回溯至原始表", report)
         self.assertNotIn("未注入", report)
         self.assertTrue(events)
+
+    def test_report_gate_allows_external_reason_only_with_existing_evidence_id(self) -> None:
+        skill = MarketAnalysisSkill()
+        context = skill.prepare("请生成中国乘用车月度市场分析报告。", ANALYSIS_TYPE)
+        context.external_evidence = [
+            ExternalEvidence(
+                "E1",
+                EvidenceItem(
+                    title="行业月度分析",
+                    url="https://www.cada.cn/example",
+                    highlights="高油价影响传统车表现。",
+                    source_tier="A",
+                ),
+                "行业宏观背景",
+            ),
+        ]
+        checks = skill.validate_report("## 核心数据速览\n高油价下传统车表现承压〔E1〕。", context)
+        evidence_boundary = next(item for item in checks if item.check_id == "evidence_boundary")
+        evidence_reference = next(item for item in checks if item.check_id == "external_evidence_traceability")
+
+        self.assertEqual(evidence_boundary.status, "通过")
+        self.assertEqual(evidence_reference.status, "通过")
+
+    def test_report_gate_rejects_unknown_external_evidence_id(self) -> None:
+        skill = MarketAnalysisSkill()
+        context = skill.prepare("请生成中国乘用车月度市场分析报告。", ANALYSIS_TYPE)
+        context.external_evidence = [
+            ExternalEvidence("E1", EvidenceItem(title="行业月度分析", url="https://www.cada.cn/example"), "行业宏观背景"),
+        ]
+        checks = skill.validate_report("## 核心数据速览\n高油价下传统车表现承压〔E9〕。", context)
+        evidence_reference = next(item for item in checks if item.check_id == "external_evidence_traceability")
+
+        self.assertEqual(evidence_reference.status, "风险")
+        self.assertIn("E9", evidence_reference.evidence)
+
+    def test_report_gate_rejects_combined_or_annotated_evidence_marker(self) -> None:
+        skill = MarketAnalysisSkill()
+        context = skill.prepare("请生成中国乘用车月度市场分析报告。", ANALYSIS_TYPE)
+        context.external_evidence = [
+            ExternalEvidence("E1", EvidenceItem(title="行业月度分析", url="https://www.cada.cn/example"), "行业宏观背景"),
+            ExternalEvidence("E2", EvidenceItem(title="车型月度分析", url="https://www.bitauto.com/example"), "SUV代表车型"),
+        ]
+        checks = skill.validate_report("## 核心数据速览\n高油价影响传统车表现〔E1,E2〕。", context)
+        evidence_reference = next(item for item in checks if item.check_id == "external_evidence_traceability")
+
+        self.assertEqual(evidence_reference.status, "风险")
+        self.assertIn("〔E1,E2〕", evidence_reference.evidence)
+
+    def test_known_combined_evidence_markers_are_normalized_before_delivery_gate(self) -> None:
+        skill = MarketAnalysisSkill()
+        context = skill.prepare("请生成中国乘用车月度市场分析报告。", ANALYSIS_TYPE)
+        context.external_evidence = [
+            ExternalEvidence("E1", EvidenceItem(title="行业月度分析", url="https://www.cada.cn/example"), "行业宏观背景"),
+            ExternalEvidence("E2", EvidenceItem(title="车型月度分析", url="https://www.bitauto.com/example"), "SUV代表车型"),
+        ]
+        normalized, events = normalize_external_evidence_marker_format(
+            "高油价影响传统车表现〔E1,E2〕；另一条待核验线索〔E2,C级线索〕。",
+            context,
+        )
+
+        self.assertEqual(normalized, "高油价影响传统车表现〔E1〕〔E2〕；另一条待核验线索〔E2〕。")
+        self.assertEqual(len(events), 2)
+
+    def test_unknown_evidence_marker_is_not_silently_rewritten(self) -> None:
+        skill = MarketAnalysisSkill()
+        context = skill.prepare("请生成中国乘用车月度市场分析报告。", ANALYSIS_TYPE)
+        context.external_evidence = [
+            ExternalEvidence("E1", EvidenceItem(title="行业月度分析", url="https://www.cada.cn/example"), "行业宏观背景"),
+        ]
+        normalized, events = normalize_external_evidence_marker_format("未经核验的来源〔E9,E1〕。", context)
+
+        self.assertEqual(normalized, "未经核验的来源〔E9,E1〕。")
+        self.assertFalse(events)
+
+    def test_report_gate_requires_ppt_ready_deep_analysis_paragraphs(self) -> None:
+        skill = MarketAnalysisSkill()
+        context = skill.prepare("请生成中国乘用车月度市场分析报告。", ANALYSIS_TYPE)
+        report = "\n".join(
+            [
+                "### 2.1 车型类别",
+                "只罗列数据，缺少可直接落入 PPT 的业务判断。",
+                "### 2.2 车型级别",
+                "只罗列数据，缺少可直接落入 PPT 的业务判断。",
+                "### 2.3 轿车级别分析",
+                "只罗列数据，缺少可直接落入 PPT 的业务判断。",
+                "### 2.4 SUV级别分析",
+                "只罗列数据，缺少可直接落入 PPT 的业务判断。",
+                "### 2.5 MPV级别分析",
+                "只罗列数据，缺少可直接落入 PPT 的业务判断。",
+            ],
+        )
+        checks = skill.validate_report(report, context)
+        deep_analysis = next(item for item in checks if item.check_id == "ppt_deep_analysis")
+
+        self.assertEqual(deep_analysis.status, "风险")
+        self.assertIn("2.1 车型类别", deep_analysis.evidence)
+
+    def test_ppt_ready_paragraph_accepts_a_section_title_with_parenthetical_note(self) -> None:
+        skill = MarketAnalysisSkill()
+        context = skill.prepare("请生成中国乘用车月度市场分析报告。", ANALYSIS_TYPE)
+        summary = (
+            "◼ 5月，市场结构呈现分化；TOP15样本内代表车型同比变化拉开了细分市场差距；"
+            "外部原因尚需以本轮证据和车型公告交叉核验；业务上应持续跟踪新品承接与存量车型节奏。"
+        )
+        report = "\n".join(
+            f"### {section}（市场深度分析）\n{summary}"
+            for section in (
+                "2.1 车型类别",
+                "2.2 车型级别",
+                "2.3 轿车级别分析",
+                "2.4 SUV级别分析",
+                "2.5 MPV级别分析",
+            )
+        )
+
+        checks = skill.validate_report(report, context)
+        deep_analysis = next(item for item in checks if item.check_id == "ppt_deep_analysis")
+
+        self.assertEqual(deep_analysis.status, "通过")
 
     def test_report_gate_rejects_unverified_new_model_claim(self) -> None:
         skill = MarketAnalysisSkill()

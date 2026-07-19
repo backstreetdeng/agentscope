@@ -17,8 +17,6 @@ import html
 import json
 import os
 import re
-import shutil
-import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
@@ -34,6 +32,7 @@ from agentscope.permission import (
     PermissionDecision,
 )
 from agentscope.tool import ToolBase, ToolChunk
+from skills.agent_reach.adapter import search as agent_reach_search
 from skills.anysearch.adapter import search as anysearch_search
 
 
@@ -355,37 +354,15 @@ def tool(name: str, description: str) -> Callable:
     description="调用本机 agent-reach CLI 执行互联网搜索或平台路由查询。",
 )
 def agent_reach_search_impl(query: str, limit: int = 5) -> str:
-    """agent-reach CLI 适配函数。
+    """调用项目内适配器执行 Agent Reach 的 Exa 搜索。
 
-    若本机未安装 agent-reach，则回退到工程内 AnySearch 适配器。此函数通过装饰器暴露元数据，
-    再由 AgentReachDecoratedTool 适配为 AgentScope 2.0.3 ToolBase。
+    Agent Reach CLI 是路由器，实际网页搜索需走其推荐的 ``mcporter/exa`` 路径；
+    不能调用并不存在的 ``agent-reach search``。AnySearch 保持为独立工具，避免在
+    审计日志里把实际提供方写错。
     """
 
-    executable = shutil.which("agent-reach")
-    if not executable:
-        code, stdout, stderr, cli_path = anysearch_search(query, max_results=limit)
-        if code == 0:
-            return "agent-reach CLI 未安装，已自动回退到 AnySearch。\n" + (
-                stdout or "AnySearch 未返回内容。"
-            )
-        return (
-            "agent-reach CLI 未安装，AnySearch 兜底也未成功。\n"
-            f"AnySearch CLI 路径：{cli_path}\n"
-            f"错误信息：{stderr or stdout or 'unknown error'}\n"
-            f"本次查询词：{query}"
-        )
-
-    completed = subprocess.run(
-        [executable, "search", query, "--limit", str(max(1, min(int(limit), 10)))],
-        check=False,
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        timeout=30,
-    )
-    output = completed.stdout.strip() or completed.stderr.strip()
-    return output or "agent-reach 未返回内容。"
+    result = agent_reach_search(query, max_results=limit)
+    return result.to_agent_text()
 
 
 class AgentReachDecoratedTool(ReadOnlyBusinessTool):
@@ -403,10 +380,15 @@ class AgentReachDecoratedTool(ReadOnlyBusinessTool):
     }
 
     async def call(self, query: str, limit: int = 5) -> ToolChunk:
-        text = await asyncio.to_thread(agent_reach_search_impl, query, limit)
-        status = "success" if "未成功" not in text else "error"
-        record_tool_call(self.name, status, f"query={query}; limit={limit}")
-        return ToolChunk(content=[TextBlock(text=text)])
+        result = await asyncio.to_thread(agent_reach_search, query, limit)
+        status = "success" if result.ok else "error"
+        detail = (
+            f"provider=agent-reach/exa; query={query}; sources={len(result.items)}"
+            if result.ok
+            else f"provider=agent-reach/exa; query={query}; error={result.error}"
+        )
+        record_tool_call(self.name, status, detail)
+        return ToolChunk(content=[TextBlock(text=result.to_agent_text())])
 
 
 class UserInsightTaggerTool(ReadOnlyBusinessTool):

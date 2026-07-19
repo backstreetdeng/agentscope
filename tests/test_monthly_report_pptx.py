@@ -8,7 +8,7 @@ from pathlib import Path
 
 from pptx import Presentation
 
-from utils.monthly_report_pptx import build_monthly_report_pptx, truncate, truncate_for_slide
+from utils.monthly_report_pptx import build_monthly_report_pptx, extract_report_section, truncate, truncate_for_slide
 
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
@@ -42,6 +42,20 @@ MPV市场规模较小，A级同比正增长但需持续验证。
 
 @unittest.skipUnless(DATASET_PATH.is_file() and TEMPLATE_PATH.is_file(), "缺少业务验数表或 PPTX 模板")
 class MonthlyReportPptxTest(unittest.TestCase):
+    def test_ppt_section_strips_external_evidence_markers_but_keeps_conclusion(self) -> None:
+        markdown = "### 2.1 车型类别\n5月传统车表现承压〔E1〕，SUV跌幅相对较小。\n"
+        section = extract_report_section(markdown, r"2\.1\s*车型类别")
+
+        self.assertEqual(section, "5月传统车表现承压，SUV跌幅相对较小。")
+
+    def test_ppt_uses_first_business_summary_not_later_data_appendix(self) -> None:
+        summary = "◼ 5月，SUV表现相对稳定；TOP15样本内星愿与海鸥变化带来结构分化；行业高基数影响仍待结合证据核验；建议跟踪新品承接。〔E1〕"
+        markdown = f"### 2.1 车型类别\n{summary}\n\n当月销量、同比、环比等明细数据另附。"
+
+        section = extract_report_section(markdown, r"2\.1\s*车型类别")
+
+        self.assertEqual(section, summary.replace("◼ ", "").replace("〔E1〕", ""))
+
     def test_builds_five_editable_slides_from_business_template(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             output_path = Path(directory) / "月报测试.pptx"

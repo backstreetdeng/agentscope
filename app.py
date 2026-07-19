@@ -110,7 +110,11 @@ from main import (
     strip_thinking,
 )
 from skills.market_analysis_skill import MarketAnalysisSkill
-from skills.market_analysis_skill.runtime import SkillEvent, normalize_top15_summary_wording
+from skills.market_analysis_skill.runtime import (
+    SkillEvent,
+    normalize_external_evidence_marker_format,
+    normalize_top15_summary_wording,
+)
 from tools.custom_tools import clear_tool_call_events, get_tool_call_events
 from utils.audio_tagging_engine import DEFAULT_TAG_TAXONOMY, run_audio_tagging_workflow
 from utils.html_ppt_builder import build_consulting_html_ppt
@@ -571,7 +575,15 @@ async def run_agent_once(
     else:
         agent_key = "market_strategy"
         market_skill = MarketAnalysisSkill(config)
-        market_skill_context = market_skill.prepare(question, analysis_type, dataset_path, sheet_name)
+        # 只有真实月报执行才采集外部证据；前端预检和 PPT 导出只读取已生成文本，
+        # 避免同一任务因两次 prepare 重复发起 Agent Reach 搜索。
+        market_skill_context = market_skill.prepare(
+            question,
+            analysis_type,
+            dataset_path,
+            sheet_name,
+            include_external_evidence=True,
+        )
         monthly_report_max_tokens = (
             int(config["agents"]["market_strategy"].get("monthly_report_max_tokens", 0))
             if market_skill_context.active and config["agents"]["market_strategy"].get("monthly_report_max_tokens")
@@ -621,6 +633,9 @@ async def run_agent_once(
         answer, wording_events = normalize_top15_summary_wording(answer, market_skill_context)
         for detail in wording_events:
             market_skill_context.events.append(SkillEvent("report-normalize", "success", detail))
+        answer, marker_events = normalize_external_evidence_marker_format(answer, market_skill_context)
+        for detail in marker_events:
+            market_skill_context.events.append(SkillEvent("report-normalize", "success", detail))
         output_checks = market_skill.validate_report(answer, market_skill_context)
         first_answer = answer
         first_checks = list(output_checks)
@@ -659,10 +674,16 @@ async def run_agent_once(
                     repaired_answer,
                     market_skill_context,
                 )
+                repaired_answer, repaired_marker_events = normalize_external_evidence_marker_format(
+                    repaired_answer,
+                    market_skill_context,
+                )
                 repaired_checks = market_skill.validate_report(repaired_answer, market_skill_context)
                 if monthly_report_check_score(repaired_checks) > first_score:
                     answer = repaired_answer
                     for detail in repaired_wording_events:
+                        market_skill_context.events.append(SkillEvent("report-normalize", "success", detail))
+                    for detail in repaired_marker_events:
                         market_skill_context.events.append(SkillEvent("report-normalize", "success", detail))
                     market_skill_context.events.append(
                         SkillEvent("report-repair", "success", "已采用质量门禁结果更优的完整重写版本。"),
