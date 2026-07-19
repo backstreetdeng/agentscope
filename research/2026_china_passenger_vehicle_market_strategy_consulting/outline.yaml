@@ -1,0 +1,150 @@
+topic: "2026年中国乘用车市场战略咨询"
+version: "0.1"
+status: "outline_review"
+created_at: "2026-07-19"
+
+scope:
+  geography: "中国大陆乘用车市场；区域维度下钻至省级/城市群，需有可复核数据才下结论。"
+  vehicle_scope: "轿车、SUV、MPV、交叉型乘用车；覆盖燃油、HEV、PHEV、EREV、BEV。"
+  decision_window:
+    historical_baseline: "2024-01-01 至 2025-12-31"
+    current_observation: "2026-01-01 至 2026-07-19"
+    forward_window: "2026-07-20 至 2026-12-31"
+  exclusions:
+    - "不将商用车、海外市场销量直接混入中国国内乘用车需求判断。"
+    - "不以未经来源核验的媒体预测作为销量事实。"
+
+research_goals:
+  - "解释2026年乘用车总量、结构、动力形式和价格带的变化，而非仅罗列同比数据。"
+  - "识别可进入或加码的细分机会，以及应暂缓、降资源投入或设预警线的高风险市场。"
+  - "输出可落地的产品、区域产能、渠道和节奏建议，并显式标注证据强度与未决问题。"
+
+items:
+  - id: policy_macro_demand
+    name: "政策、宏观与用车成本环境"
+    priority: "P0"
+    objective: "识别购置税、以旧换新、金融、限购/牌照、油价及居民消费预期对需求节奏的直接影响。"
+    research_questions:
+      - "2026年已落地和待落地政策分别覆盖哪些人群、车型和时间窗口？"
+      - "油价、利率、消费信心等变量如何改变燃油/新能源及不同价格带的购买门槛？"
+    evidence_minimum: "至少2条A/B级来源，其中政策须有政府或正式发布页面。"
+
+  - id: domestic_export_volume_split
+    name: "总量、国内需求与出口拆分"
+    priority: "P0"
+    objective: "区分国内零售、批发、产销和出口，避免出口增长掩盖内需变化。"
+    research_questions:
+      - "2026年累计及最近三个月的国内需求、批发和出口各自同比/环比如何？"
+      - "总量变化来自真实终端需求、渠道补库还是出口贡献？"
+    evidence_minimum: "内部验数数据为主；外部口径仅用于核验和解释。"
+
+  - id: powertrain_price_band
+    name: "动力形式与价格带迁移"
+    priority: "P0"
+    objective: "寻找BEV、PHEV、EREV、燃油车在10万以下、10-15万、15-20万、20-30万及30万以上的份额迁移。"
+    research_questions:
+      - "哪类动力形式在各价格带获得或失去份额？"
+      - "政策、产品供给、价格战和补能条件分别对迁移有何贡献？"
+    evidence_minimum: "每个重要结论须同时有销量结构证据和至少一条外部归因证据。"
+
+  - id: segment_class_structure
+    name: "车型类别与车型级别结构"
+    priority: "P0"
+    objective: "解释轿车、SUV、MPV及A00-A级、B级及以上市场的结构性增减。"
+    research_questions:
+      - "哪些类别/级别是同比拖累项和增长项？"
+      - "变化来自基数、新品爬坡、旧款衰退、产品切换还是用户场景变化？"
+    evidence_minimum: "每类结论至少对应一个代表车型或级别的销量事实。"
+
+  - id: top15_model_movements
+    name: "TOP15代表车型与产品生命周期"
+    priority: "P0"
+    objective: "从轿车、SUV、MPV TOP15中选取真正驱动变化的车型，建立车型变化到细分市场变化的证据链。"
+    research_questions:
+      - "销量增减绝对值、份额和排名变化最大的车型分别是谁？"
+      - "新车上市、改款、价格调整、产能爬坡、换代和竞品挤压如何解释变化？"
+    evidence_minimum: "每个页面至少选择2个代表车型；不得把TOP15之外的推测写成主要原因。"
+
+  - id: brand_competition
+    name: "品牌阵营与竞争格局"
+    priority: "P0"
+    objective: "判断自主、合资、豪华及新势力的份额、产品节奏和竞争位置变化。"
+    research_questions:
+      - "主要品牌阵营的份额变化由哪些车系和动力路线贡献？"
+      - "是否出现渠道、补能、软件/智驾或品牌认知构成的进入壁垒？"
+    evidence_minimum: "品牌份额与产品/车型事实分开取证，避免以单一车型外推整个阵营。"
+
+  - id: product_technology_supply
+    name: "新品供给、技术路线与补能条件"
+    priority: "P1"
+    objective: "评估800V、超快充、智能驾驶、座舱、混动等产品要素是否已形成可验证的市场门槛。"
+    research_questions:
+      - "哪些技术配置正在从差异化卖点变为目标价格带的准入条件？"
+      - "补能网络、平台成本和供应能力会限制哪些细分市场的进入？"
+    evidence_minimum: "优先主机厂发布、第三方测试和行业机构资料；营销话术不得单独作为结论证据。"
+
+  - id: regional_demand_capacity
+    name: "区域需求、产能与物流配置"
+    priority: "P1"
+    objective: "将消费能力、补能条件、地方政策、供应链与产能/物流约束转化为区域投放建议。"
+    research_questions:
+      - "哪些城市群适合优先投放或加配，哪些区域需要以混动/低配策略过渡？"
+      - "区域产能、物流和经销网络是否能支持预计销量节奏？"
+    evidence_minimum: "区域判断须分别具备需求端和供给端依据；资料不足时输出待验证。"
+
+  - id: consumer_channel
+    name: "用户需求、购车决策与渠道反馈"
+    priority: "P1"
+    objective: "连接用户洞察智能体：识别购买动机、核心痛点、配置偏好和转化阻力。"
+    research_questions:
+      - "不同细分人群的预算、补能、空间、安全、智能化与品牌诉求如何变化？"
+      - "终端询盘、试驾、金融方案、置换和保值率对成交的影响是什么？"
+    evidence_minimum: "调研访谈/口碑应与销量事实交叉验证，不能以个例代表总体。"
+
+  - id: price_profitability
+    name: "价格战、终端成交与盈利压力"
+    priority: "P1"
+    objective: "识别官方指导价、优惠、金融补贴、残值和单车盈利之间的取舍。"
+    research_questions:
+      - "哪些价格带在以销量换份额，哪些市场存在不可持续的利润风险？"
+      - "什么条件下应进入、持价观察或暂缓投入？"
+    evidence_minimum: "价格信息需标明指导价/成交价/金融补贴口径与地区、日期。"
+
+  - id: industry_risk_watchlist
+    name: "风险预警与关键观察变量"
+    priority: "P0"
+    objective: "将宏观、政策、竞品、产能、舆情和渠道变量转成可监测的预警指标。"
+    research_questions:
+      - "哪些变量可能在未来1-2个季度改变现有结论？"
+      - "每个风险的触发阈值、监测频率和建议动作是什么？"
+    evidence_minimum: "风险须区分已发生事实、合理推断和待验证假设。"
+
+  - id: strategic_opportunity_synthesis
+    name: "机会分级与战略决策综合"
+    priority: "P0"
+    objective: "综合前序证据，形成机会市场、风险市场、区域产能和进入/暂缓建议。"
+    research_questions:
+      - "哪些机会同时满足需求增长、产品可赢、盈利可承受、区域可交付四项条件？"
+      - "哪些市场应暂缓，暂缓解除需要观察哪些信号？"
+    evidence_minimum: "只汇总已完成项；结论必须回链到来源、销量事实和不确定项。"
+
+execution:
+  batch_size: 3
+  items_per_agent: 1
+  output_dir: "./results"
+  work_order:
+    - "先完成P0事实与证据项，再执行P1解释项，最后执行战略综合。"
+    - "每个研究项独立产出结构化结果，禁止多个主题混写为一篇泛化长文。"
+    - "战略综合项只能读取已通过质量门禁的研究结果。"
+  source_acquisition:
+    internal_data_role: "销量验数、TOP15车型、价格/渠道/调研数据是量化事实主源。"
+    agent_reach_role: "通过Exa检索并抓取政策、主机厂公告、行业报告、产品上市与竞争动态，补齐解释证据。"
+    preferred_source_order:
+      - "A：政府、行业协会、主机厂正式公告、业务内部已验数数据"
+      - "B：中汽数据、行业研究机构、专业媒体的可追溯原文"
+      - "C：综合媒体或二次转载，仅用于线索，不单独支撑关键结论"
+  quality_gates:
+    - "所有外部事实保留URL、发布日期、来源等级、适用口径和摘录。"
+    - "销量、份额、同比、环比必须标明零售/批发/产销/出口与时间范围。"
+    - "因果结论须同时具备数据现象和外部/内部业务证据；否则标注为假设。"
+    - "对相互冲突的来源，记录冲突原因，不以模型判断强行合并。"
