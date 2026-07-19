@@ -27,3 +27,90 @@
 - 原因：本地 agent-browser 的 CDP 自动启动通道异常，与本项目 Web 页面无关。
 - 处理：改用项目虚拟环境中的 Playwright 完成页面错误采集和真实点击回归。
 - 预防：后续如需使用 agent-browser，先单独诊断其浏览器/CDP 安装状态；项目 UI 回归优先保留 Playwright 测试路径。
+
+---
+
+## [ERR-20260719-001] powerpoint-com-visibility
+
+**Logged**: 2026-07-19
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+PowerPoint COM automation does not accept a PowerShell Boolean for the `Visible` property.
+
+### Error
+```
+Cannot convert value "False" to type "Microsoft.Office.Core.MsoTriState".
+```
+
+### Context
+- Operation: render a generated PPTX to temporary PNG files for visual QA.
+- Environment: Windows PowerPoint COM automation.
+
+### Suggested Fix
+Do not set `Visible` for headless export, or use the Office `MsoTriState` numeric constant rather than `$false`.
+
+### Metadata
+- Reproducible: yes
+- Related Files: outputs/ppt/2026年4月中国乘用车市场月报_20260719_115524.pptx
+
+---
+
+## [ERR-20260719-003] top-model-parser-helper
+
+**Logged**: 2026-07-19
+**Priority**: medium
+**Status**: resolved
+**Area**: tests
+
+### Summary
+The newly added TOP15 preview parser referenced a missing safe-cell helper.
+
+### Error
+```
+NameError: name 'cell_value' is not defined
+```
+
+### Context
+- Operation: monthly Skill regression tests after adding TOP15 table recognition.
+- Impact: Skill preparation failed before model invocation; no service restart occurred.
+
+### Suggested Fix
+Define a bounds-safe `cell_value` helper in the runtime module and retain the regression test for TOP15 recognition.
+
+### Metadata
+- Reproducible: yes
+- Related Files: skills/market_analysis_skill/runtime.py
+
+---
+
+## [ERR-20260719-002] slide-summary-boundary-test
+
+**Logged**: 2026-07-19
+**Priority**: low
+**Status**: resolved
+**Area**: tests
+
+### Summary
+The first version of PPT slide-summary truncation ignored a valid short first sentence and still returned a fragment.
+
+### Error
+```
+Expected: 第一句已完整。
+Actual: 第一句已完整。第二句很长但不能被截。
+```
+
+### Context
+- Operation: unit test for natural sentence-boundary truncation.
+- Root cause: the preferred boundary threshold rejected the only available complete sentence.
+
+### Suggested Fix
+Use the latest available sentence terminator within the character limit before considering comma or raw-length fallback.
+
+### Metadata
+- Reproducible: yes
+- Related Files: utils/monthly_report_pptx.py, tests/test_monthly_report_pptx.py
+
+---

@@ -8,7 +8,7 @@ from pathlib import Path
 
 from pptx import Presentation
 
-from utils.monthly_report_pptx import build_monthly_report_pptx
+from utils.monthly_report_pptx import build_monthly_report_pptx, truncate, truncate_for_slide
 
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
@@ -110,3 +110,21 @@ class MonthlyReportPptxTest(unittest.TestCase):
                 [category.label for category in share_chart.plots[0].categories],
                 ["2026.3", "2026.4", "2025.1-12", "2026.1-4"],
             )
+            overlay_labels = [
+                shape.text
+                for shape in presentation.slides[0].shapes
+                if getattr(shape, "name", "").startswith("当前期间标签_")
+            ]
+            self.assertEqual(overlay_labels, ["2026.3", "2026.4", "2025.1-12", "2026.1-4"])
+
+    def test_slide_summary_is_limited_to_template_capacity(self) -> None:
+        long_text = "市场结构分析" * 80
+
+        self.assertLessEqual(len(truncate(long_text, 220)), 220)
+        self.assertLessEqual(len(truncate(long_text, 170)), 170)
+        self.assertLessEqual(len(truncate(long_text, 145)), 145)
+
+    def test_slide_summary_ends_at_a_complete_sentence(self) -> None:
+        text = "第一句已完整。第二句很长但不能被截成半句话，仍然继续补充更多文字。"
+
+        self.assertEqual(truncate_for_slide(text, 18), "第一句已完整。")

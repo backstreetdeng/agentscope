@@ -18,7 +18,8 @@ from typing import Iterable, Sequence
 from pptx import Presentation
 from pptx.chart.data import CategoryChartData
 from pptx.dml.color import RGBColor
-from pptx.enum.shapes import PP_PLACEHOLDER
+from pptx.enum.shapes import MSO_SHAPE, PP_PLACEHOLDER
+from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.util import Pt
 
 from skills.market_analysis_skill.runtime import SheetSnapshot, read_xlsx_workbook
@@ -146,9 +147,13 @@ def build_monthly_report_pptx(
     update_segment_slide(presentation.slides[3], data.suv, sections["suv"], "2.4 SUV级别", "SUV", data)
     update_segment_slide(presentation.slides[4], data.mpv, sections["mpv"], "2.5 MPV级别", "MPV", data)
 
-    for slide in list(presentation.slides)[:5]:
+    for slide_index, slide in enumerate(list(presentation.slides)[:5]):
         replace_period_labels(slide, data)
         update_data_source_footer(slide)
+        # 业务母版的右侧份额图在 PowerPoint 中会保留历史分类轴的渲染缓存。
+        # 因此在图表上方补一层当前期间标签，保证选中任意月份时可见标签与图表数据一致。
+        if slide_index < 2:
+            add_share_period_label_overlays(slide, data)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     presentation.save(output_path)
@@ -263,7 +268,8 @@ def update_overview_slide(
     body = narrative or build_data_narrative(block, data.period_label)
     last_year = str(int(data.year) - 1)
     set_slide_title(slide, title)
-    set_slide_body(slide, body)
+    # 总览页的正文区高于图表标题，控制为约四行，避免长文本侵入图表区域。
+    set_slide_body(slide, body, max_chars=220)
     tables = tables_in(slide)
     if tables:
         write_row(tables[0], ["环比", *[format_rate(value) for value in block.mom]])
@@ -322,7 +328,10 @@ def update_segment_slide(
     body = narrative or build_data_narrative(block, data.period_label)
     last_year = str(int(data.year) - 1)
     set_slide_title(slide, title)
-    set_slide_body(slide, body)
+    # 三页细分市场模板右侧含 TOP15 表格，图表区的顶部更高。MPV 页正文框又比
+    # 轿车/SUV 页更矮，因此分别采用更紧凑的单页摘要长度。
+    body_limit = 145 if segment_name == "MPV" else 170
+    set_slide_body(slide, body, max_chars=body_limit)
 
     tables = tables_in(slide)
     if len(tables) >= 1:
@@ -427,13 +436,18 @@ def set_slide_title(slide: object, text: str) -> None:
             return
 
 
-def set_slide_body(slide: object, text: str) -> None:
+def set_slide_body(slide: object, text: str, max_chars: int = 220) -> None:
+    """将报告章节压缩为模板顶部可容纳的单页摘要。
+
+    月报完整论证保存在 Markdown 正文中；PPT 顶部只承载本页结论和关键证据。模板
+    的正文框高度固定，若直接填入整段分析会遮挡图表标题，因此按页面类型限制字符数。
+    """
     for shape in slide.shapes:
         if not getattr(shape, "is_placeholder", False):
             continue
         placeholder_type = shape.placeholder_format.type
         if placeholder_type in {PP_PLACEHOLDER.BODY, PP_PLACEHOLDER.OBJECT} and getattr(shape, "has_text_frame", False):
-            set_text_frame_text(shape.text_frame, truncate(text, 310))
+            set_text_frame_text(shape.text_frame, truncate_for_slide(text, max_chars))
             return
 
 
@@ -447,9 +461,55 @@ def replace_period_labels(slide: object, data: MonthlyPptData) -> None:
         updated = original
         updated = re.sub(r"20\d{2}年\d{1,2}月", data.period_label, updated)
         updated = re.sub(r"20\d{2}\.1-\d{1,2}", f"{data.year}.1-{data.month}", updated)
-        updated = re.sub(r"20\d{2}\.\d{1,2}", data.period_short, updated)
+        updated = re.sub(r"20\d{2}\.(?!1-)\d{1,2}", data.period_short, updated)
         if updated != original:
             set_text_frame_text(shape.text_frame, updated)
+
+
+def add_share_period_label_overlays(slide: object, data: MonthlyPptData) -> None:
+    """覆盖母版右图的旧期间文字，保留底层原生图表的可编辑性。"""
+
+    chart_shapes = [shape for shape in slide.shapes if getattr(shape, "has_chart", False)]
+    if len(chart_shapes) < 3:
+        return
+
+    chart_shape = chart_shapes[2]
+    # python-pptx 已更新图表数据源，但该业务母版在 PowerPoint 渲染时仍可能显示旧的
+    # 分类轴缓存。隐藏底层轴文字，改由当前数据驱动的文本框显示，避免出现两组日期。
+    chart_shape.chart.category_axis.tick_labels.font.color.rgb = RGBColor(255, 255, 255)
+    labels = [
+        data.previous_period_short,
+        data.period_short,
+        f"{int(data.year) - 1}.1-12",
+        f"{data.year}.1-{data.month}",
+    ]
+    label_width = int(chart_shape.width * 0.19)
+    label_height = int(Pt(18))
+    # 轴标签位于绘图区的最下沿。与母版原标签同位覆盖，避免出现旧日期和新日期两组文字。
+    label_top = chart_shape.top + int(chart_shape.height * 0.938)
+    # 右图绘图区左侧为纵轴与留白，四个类别轴标签的中心点按模板比例分布。
+    for index, label in enumerate(labels):
+        label_center = 0.14 + index * 0.24
+        label_left = chart_shape.left + int(chart_shape.width * label_center) - label_width // 2
+        overlay = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, label_left, label_top, label_width, label_height)
+        overlay.name = f"当前期间标签_{index + 1}"
+        overlay.fill.solid()
+        overlay.fill.fore_color.rgb = RGBColor(255, 255, 255)
+        overlay.line.fill.background()
+        text_frame = overlay.text_frame
+        text_frame.clear()
+        text_frame.margin_left = 0
+        text_frame.margin_right = 0
+        text_frame.margin_top = 0
+        text_frame.margin_bottom = 0
+        text_frame.vertical_anchor = MSO_ANCHOR.MIDDLE
+        paragraph = text_frame.paragraphs[0]
+        paragraph.alignment = PP_ALIGN.CENTER
+        run = paragraph.add_run()
+        run.text = label
+        run.font.name = "Arial"
+        run.font.size = Pt(10.5)
+        run.font.color.rgb = RGBColor(0, 0, 0)
 
 
 def update_data_source_footer(slide: object) -> None:
@@ -773,3 +833,23 @@ def normalize(value: object) -> str:
 def truncate(text: str, limit: int) -> str:
     normalized = normalize(text)
     return normalized if len(normalized) <= limit else normalized[: limit - 1].rstrip("，。；；") + "。"
+
+
+def truncate_for_slide(text: str, limit: int) -> str:
+    """优先在完整句/分句结束处截断 PPT 顶部摘要，避免出现半个级别名称。"""
+
+    normalized = normalize(text)
+    if len(normalized) <= limit:
+        return normalized
+
+    candidate = normalized[:limit]
+    sentence_boundary = max(candidate.rfind(separator) for separator in ("。", "；", "！", "？"))
+    if sentence_boundary >= 0:
+        return candidate[: sentence_boundary + 1]
+
+    # 当输入本身没有完整句号时，至少在逗号处收束为一句，避免在数字、车型级别或
+    # 英文名称中间截断。找不到可靠边界时才回退到通用截断。
+    comma_position = max(candidate.rfind("，"), candidate.rfind("、"))
+    if comma_position >= max(36, int(limit * 0.45)):
+        return candidate[:comma_position].rstrip("，、") + "。"
+    return truncate(normalized, limit)

@@ -67,6 +67,55 @@ REPORT_SECTIONS = (
     "数据来源",
 )
 
+# 展示型验数表并不包含这些解释变量。若没有明确标为风险变量、待核验假设或数据
+# 缺口，月报不得把它们写成已经验证的市场因果。
+UNSUPPORTED_ATTRIBUTION_TERMS = (
+    "新能源",
+    "燃油",
+    "纯电",
+    "共享出行",
+    "排产",
+    "渠道",
+    "经销商",
+    "库存",
+    "促销",
+    "政策",
+    "价格带",
+    "合资",
+    "微型客货",
+    "终端需求",
+    "产能",
+    "交付",
+    "批发",
+    "零售",
+    "出口",
+    "上险",
+    "首次",
+    "连续",
+    "新车型",
+    "上市",
+    "改款",
+    "换代",
+    "终端总需求",
+    "主动收缩",
+    "抗周期",
+    "主要拖累",
+)
+ATTRIBUTION_DISCLOSURE_TERMS = (
+    "数据缺口",
+    "未提供",
+    "不生成",
+    "不作",
+    "不进行",
+    "待核验",
+    "若",
+    "可能",
+    "预计",
+    "无法",
+    "未明示",
+    "无可比",
+)
+
 
 @dataclass
 class SkillCheck:
@@ -437,7 +486,8 @@ def validate_input_dataset(sheets: list[SheetSnapshot], source: Path) -> list[Sk
     has_category = all(token in workbook_text for token in ("轿车", "SUV", "MPV"))
     has_trend = all(token in workbook_text for token in ("同比", "环比"))
     has_level = any(token in workbook_text for token in ("A00", "A0", "C+"))
-    has_top_model = "TOP" in workbook_text.upper() and "车型" in workbook_text
+    top_model_table_count = count_top_model_tables(sheets)
+    has_top_model = top_model_table_count > 0
     has_brand = "品牌" in workbook_text or "CR5" in workbook_text.upper()
 
     checks = [
@@ -471,10 +521,17 @@ def validate_input_dataset(sheets: list[SheetSnapshot], source: Path) -> list[Sk
         ),
         SkillCheck(
             "model_rank_data",
-            "车型/品牌竞争数据",
-            "通过" if has_top_model and has_brand else "待补充",
-            "已识别 TOP 车型及品牌/集中度数据。" if has_top_model and has_brand else "当前验数表为展示型结构数据，未识别完整车型排名和品牌集中度明细。",
-            "正式生成 TOP15、品牌集中度和 CR5 章节时，需接入车型销量及品牌归属明细表。",
+            "车型 TOP15 数据",
+            "通过" if has_top_model else "待补充",
+            f"已识别 {top_model_table_count} 个车型 TOP15 明细表。" if has_top_model else "当前验数表未识别车型 TOP15 明细表。",
+            "车型 TOP15 可用于细分市场竞品观察；若无明细，请接入车型销量表。",
+        ),
+        SkillCheck(
+            "brand_concentration",
+            "品牌集中度数据",
+            "通过" if has_brand else "待补充",
+            "已识别品牌或 CR5 相关字段。" if has_brand else "未识别品牌归属、品牌份额或 CR5 集中度字段。",
+            "如需输出品牌集中度和 CR5，需接入车型品牌映射及品牌销量汇总表。",
         ),
         SkillCheck(
             "data_scope",
@@ -498,21 +555,33 @@ def build_agent_instruction(context: MarketSkillContext) -> str:
     checks = "；".join(
         f"{item.name}={item.status}" for item in context.input_checks if item.status != "通过"
     ) or "输入数据门禁通过"
+    model_rank_available = any(
+        item.check_id == "model_rank_data" and item.status == "通过"
+        for item in context.input_checks
+    )
+    dataset_shape = (
+        "按月份 Sheet 的交叉表，已包含车型类别/级别与轿车、SUV、MPV 的 TOP15 车型明细；"
+        "未提供完整品牌归属和品牌集中度。"
+        if model_rank_available
+        else "按月份 Sheet 的展示型交叉表，适合车型类别/级别的同比环比与结构解读；不是完整车型、品牌明细库。"
+    )
     return f"""
 【已激活业务 Skill：{SKILL_NAME}】
 本轮任务是中国乘用车月度/季度市场报告，不使用默认的七章战略问答短模板，改按本 Skill 的月报结构输出。
 
 数据来源与范围：
 - 当前数据集：{source}（{relative_display_path(context.dataset_path)}）。
-- 数据集形态：按月份 Sheet 的展示型交叉表，适合车型类别/级别的同比环比与结构解读；不是完整车型、品牌明细库。
+- 数据集形态：{dataset_shape}
 - 数据门禁结论：{context.input_gate()}；待补充项：{checks}。
 
 报告写作规则：
 1. 以下标题必须逐行、逐字作为独立 Markdown 标题输出，禁止把 2.3/2.4/2.5 合并在一个段落：
    `## 核心数据速览`、`## 01 当月乘用车市场走势解读`、`## 02 当月乘用车市场结构特征分析`、`### 2.1 车型类别`、`### 2.2 车型级别`、`### 2.3 轿车级别分析`、`### 2.4 SUV级别分析`、`### 2.5 MPV级别分析`、`## 03 下月乘用车市场展望`、`## 数据来源与数据缺口`。
-2. 每个可分析层级先给数据事实，再回答“为什么”和“意味着什么”；把同比、环比、份额/结构变化和产品驱动联系起来。
-3. 每个层级写一段结构小结。没有车型排名或品牌集中度明细时，明确写“当前数据集未提供，不生成虚构 TOP15/CR5 结论”。
+   当前数据集总量覆盖轿车、SUV、MPV、交叉型乘用车四类；总量只能按这四类加总，不得写成“狭义乘用车”或静默排除交叉型乘用车。
+2. 每个可分析层级先给数据事实，再回答“为什么”和“意味着什么”；“为什么”只能指向表内的同比、环比、份额、级别或已提供的 TOP15 车型，不得补充未给出的能源、产品属性、品牌、渠道、政策或价格原因。不得把销量变化写成“终端总需求主动收缩”“抗周期能力”或“主要拖累”等未做贡献测算的因果判断；可改为“同比降幅最小”“份额上升”“绝对量下降”等表内描述。
+3. 每个层级写一段结构小结。TOP15 仅可陈述已注入的车型名称、销量、同比/环比和排名；原始表有完整 TOP15，但摘要只列前三。正文可写“仅引用前三，完整 TOP15 可回溯至原始表”，禁止声称 TOP4-15 缺失、未提供或未注入。若去年同期值不可比，只能写“去年同期无可比值”，不得推断为新车型、上市、改款或进入市场。没有车型排名或品牌集中度明细时，明确写“当前数据集未提供，不生成虚构 TOP15/CR5 结论”。
 4. 用户未明确要求实时政策、竞品、新品或新闻时，只基于当前数据集完成报告并披露解释性数据缺口，不调用外部检索工具。用户明确要求实时信息时，所有不来自当前数据集的政策、新品、油价、竞品原因必须调用公开检索工具取得证据；无法取得时标为“待核验假设”。
+   当前数据未明示批发/零售/出口/上险口径，不得自行判定；也不得以单月或本年累计数据声称“首次”“连续”等跨期结论。
 5. 展望必须列出结论、确定性（高/中/低）、证据和风险变量。不得将推测表述成已验证事实。
 6. 文末仅统一标注一次数据来源；正文关键数值必须与下面数据摘要一致。
 
@@ -585,7 +654,61 @@ def extract_sheet_blocks(sheet: SheetSnapshot) -> list[str]:
                 metric_lines.append(f"- {metric_name}：" + "；".join(pairs))
         if metric_lines:
             blocks.append(f"{title}\n" + "\n".join(metric_lines))
+    blocks.extend(extract_top_model_blocks(sheet))
     return blocks
+
+
+def count_top_model_tables(sheets: list[SheetSnapshot]) -> int:
+    """识别“车型、销量、同比、环比”表头组合，不依赖表内是否写有 TOP15 字样。"""
+
+    return sum(
+        1
+        for sheet in sheets
+        for row in sheet.rows
+        for column in range(max(0, len(row) - 1))
+        if normalize(row[column]) == "车型" and normalize(row[column + 1]) == "销量"
+    )
+
+
+def extract_top_model_blocks(sheet: SheetSnapshot) -> list[str]:
+    """提取每个细分市场 TOP15 表的前三车型，供月报正文进行有限竞品观察。"""
+
+    blocks: list[str] = []
+    for row_index, row in enumerate(sheet.rows):
+        for model_column in range(max(0, len(row) - 1)):
+            if normalize(row[model_column]) != "车型" or normalize(row[model_column + 1]) != "销量":
+                continue
+            segment_column = model_column - 1
+            segment = normalize(cell_value(sheet.rows, 0, segment_column)) if segment_column >= 0 else "细分市场"
+            items: list[str] = []
+            for data_row_index in range(row_index + 1, min(row_index + 16, len(sheet.rows))):
+                rank = normalize(cell_value(sheet.rows, data_row_index, segment_column))
+                model = normalize(cell_value(sheet.rows, data_row_index, model_column))
+                volume = normalize(cell_value(sheet.rows, data_row_index, model_column + 1))
+                yoy = normalize(cell_value(sheet.rows, data_row_index, model_column + 2))
+                if not rank.isdigit() or not model:
+                    break
+                item = f"{rank}.{model}={format_metric(volume, '销量')}"
+                if yoy:
+                    item += f"（同比{format_metric(yoy, '同比')}）"
+                items.append(item)
+                if len(items) == 3:
+                    break
+            if items:
+                blocks.append(
+                    f"{segment} TOP15 车型明细（原始表含第4-15名，本摘要仅列前三）\n- "
+                    + "；".join(items),
+                )
+    return blocks
+
+
+def cell_value(rows: list[list[str]], row_index: int, column_index: int) -> str:
+    """安全读取展示型工作表单元格，空白列和不规则行统一返回空字符串。"""
+
+    if row_index < 0 or column_index < 0 or row_index >= len(rows):
+        return ""
+    row = rows[row_index]
+    return row[column_index] if column_index < len(row) else ""
 
 
 def format_metric(value: str, metric_name: str) -> str:
@@ -615,6 +738,14 @@ def validate_generated_report(report: str, context: MarketSkillContext) -> list[
         and "TOP15" in normalized_report.upper()
         and not has_disclosure
     )
+    model_rank_available = any(
+        check.check_id == "model_rank_data" and check.status == "通过"
+        for check in context.input_checks
+    )
+    top15_source_mismatch = model_rank_available and find_top15_source_mismatch_claims(report)
+    unsupported_attributions = find_unsupported_attribution_sentences(report)
+    has_cross_category = any("交叉型乘用车" in sheet.text() for sheet in context.snapshots)
+    scope_inconsistent = has_cross_category and "狭义乘用车" in normalized_report
 
     return [
         SkillCheck(
@@ -645,7 +776,96 @@ def validate_generated_report(report: str, context: MarketSkillContext) -> list[
             "存在基于缺失明细的未披露 TOP15 结论。" if has_false_top_risk else "已披露数据缺口。" if has_disclosure else "未见数据缺口/待核验说明。",
             "没有车型/品牌明细时，不输出具体排名或集中度；改为列出补数需求。",
         ),
+        SkillCheck(
+            "top15_source_fidelity",
+            "TOP15 数据边界一致性",
+            "风险" if top15_source_mismatch else "通过",
+            (
+                "原始表含完整 TOP15，报告却写为：" + "、".join(top15_source_mismatch)
+                if top15_source_mismatch
+                else "车型明细引用范围与原始表一致。"
+            ),
+            "正文可仅引用前三，但应注明完整 TOP15 可回溯至原始表，不得把摘要范围误写为数据缺失。",
+        ),
+        SkillCheck(
+            "evidence_boundary",
+            "解释性证据边界",
+            "风险" if unsupported_attributions else "通过",
+            (
+                "发现未由当前验数表支撑的归因：" + "、".join(unsupported_attributions)
+                if unsupported_attributions
+                else "结构解读未发现未披露的外部归因。"
+            ),
+            "将该类原因改写为销量/份额结构描述，或单独标注为待核验假设并补充外部证据。",
+        ),
+        SkillCheck(
+            "scope_consistency",
+            "车型范围一致性",
+            "风险" if scope_inconsistent else "通过",
+            "数据集包含交叉型乘用车，但报告将总量写为狭义乘用车。" if scope_inconsistent else "总量口径与当前四类车型范围一致。",
+            "总量统一按轿车、SUV、MPV、交叉型乘用车四类加总，并在正文保持同一口径。",
+        ),
     ]
+
+
+def find_unsupported_attribution_sentences(report: str) -> list[str]:
+    """找出未做证据披露的能源、渠道、政策等外部归因关键词。"""
+
+    violations: list[str] = []
+    for sentence in re.split(r"(?<=[。！？])", normalize(report)):
+        if not sentence or any(marker in sentence for marker in ATTRIBUTION_DISCLOSURE_TERMS):
+            continue
+        for term in UNSUPPORTED_ATTRIBUTION_TERMS:
+            if term in sentence and term not in violations:
+                violations.append(term)
+    return violations
+
+
+def find_top15_source_mismatch_claims(report: str) -> list[str]:
+    """防止把“摘要仅列前三”误写成原始 TOP15 数据缺失。"""
+
+    normalized_report = re.sub(r"\s+", "", normalize(report)).upper()
+    patterns = (
+        r"TOP4[-—–至到]15(?:排名|排名信息)?(?:缺失|未提供|未注入|没有)",
+        r"第4[-—–至到]15名(?:缺失|未提供|未注入|没有)",
+        r"(?:完整)?TOP15(?:排名|排名信息|明细)?(?:缺失|未提供|未注入|没有)",
+    )
+    return [pattern for pattern in patterns if re.search(pattern, normalized_report)]
+
+
+def normalize_top15_summary_wording(report: str, context: MarketSkillContext) -> tuple[str, list[str]]:
+    """仅修正摘要范围的误披露，不改写任何销量、同比或业务判断。"""
+
+    model_rank_available = any(
+        check.check_id == "model_rank_data" and check.status == "通过"
+        for check in context.input_checks
+    )
+    if not model_rank_available:
+        return report, []
+
+    full_sentence = re.compile(
+        r"摘要\s*仅列前三\s*[，,；;]?\s*(?:TOP\s*)?4\s*[-—–至到]\s*15\s*"
+        r"(?:排名|排名信息)?\s*(?:未注入|缺失|未提供|没有)"
+        r"(?:\s*[，,；;]\s*不生成虚构结论)?[。.]?",
+        re.IGNORECASE,
+    )
+    compact_phrase = re.compile(
+        r"(?:TOP\s*)?4\s*[-—–至到]\s*15\s*(?:排名|排名信息)?\s*"
+        r"(?:未注入|缺失|未提供|没有)",
+        re.IGNORECASE,
+    )
+    normalized_report, full_count = full_sentence.subn(
+        "正文仅引用前三，完整 TOP15 可回溯至原始表。",
+        report,
+    )
+    normalized_report, phrase_count = compact_phrase.subn(
+        "完整 TOP15 可回溯至原始表",
+        normalized_report,
+    )
+    if not full_count and not phrase_count:
+        return report, []
+
+    return normalized_report, ["已将 TOP15 摘要范围误披露修正为可回溯原始表的表述。"]
 
 
 def calculate_gate(checks: list[SkillCheck]) -> str:

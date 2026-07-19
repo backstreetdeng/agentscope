@@ -110,7 +110,7 @@ from main import (
     strip_thinking,
 )
 from skills.market_analysis_skill import MarketAnalysisSkill
-from skills.market_analysis_skill.runtime import SkillEvent
+from skills.market_analysis_skill.runtime import SkillEvent, normalize_top15_summary_wording
 from tools.custom_tools import clear_tool_call_events, get_tool_call_events
 from utils.audio_tagging_engine import DEFAULT_TAG_TAXONOMY, run_audio_tagging_workflow
 from utils.html_ppt_builder import build_consulting_html_ppt
@@ -543,6 +543,17 @@ def generate_ppt_from_markdown(
     return result
 
 
+def monthly_report_check_score(checks: list[Any]) -> tuple[int, int, int]:
+    """比较首稿与重写稿，避免不完整的重写结果覆盖更好的首稿。"""
+
+    weight = {"通过": 3, "待补充": 1, "风险": -3, "阻断": -6}
+    return (
+        sum(weight.get(getattr(item, "status", ""), -2) for item in checks),
+        sum(getattr(item, "status", "") == "通过" for item in checks),
+        -sum(getattr(item, "status", "") in {"风险", "阻断"} for item in checks),
+    )
+
+
 async def run_agent_once(
     agent_key: str,
     question: str,
@@ -574,16 +585,46 @@ async def run_agent_once(
         )
 
     reply = await agent.reply(UserMsg(name="业务用户", content=question))
-    tool_events = get_tool_call_events()
     answer = strip_thinking(reply.get_text_content())
     if not answer:
+        # MiniMax 偶发只返回未闭合的推理片段。使用全新会话做一次限额重试，避免把
+        # 不可展示内容直接抛给业务侧；仍为空时才把真实错误返回给前端。
+        if market_skill_context and market_skill_context.active:
+            market_skill_context.events.append(
+                SkillEvent("model-retry", "running", "首轮未返回可展示正文，正在使用全新会话重试一次。"),
+            )
+            retry_agent = build_market_strategy_agent(
+                config,
+                skill_instruction=market_skill_context.prompt_context,
+                monthly_report=True,
+                max_tokens_override=monthly_report_max_tokens,
+            )
+        elif agent_key == "market_strategy":
+            retry_agent = build_market_strategy_agent(config)
+        else:
+            retry_agent = build_user_insight_agent(config)
+        retry_reply = await retry_agent.reply(UserMsg(name="业务用户", content=question))
+        answer = strip_thinking(retry_reply.get_text_content())
+        if answer and market_skill_context and market_skill_context.active:
+            market_skill_context.events.append(
+                SkillEvent("model-retry", "success", "已获得可展示正文，继续执行月报输出门禁。"),
+            )
+
+    tool_events = get_tool_call_events()
+    if not answer:
         raise RuntimeError(
-            "MiniMax-M3 本轮未返回可展示的最终正文，系统已拦截未闭合的推理文本，"
-            "请重试；若持续出现，请检查 model_config/config.json 中 reasoning_split 是否为 true。"
+            "MiniMax-M3 连续两次未返回可展示的最终正文，系统已拦截未闭合的推理文本；"
+            "请稍后重试，并检查 model_config/config.json 中 reasoning_split 是否为 true。"
         )
 
     if market_skill_context and market_skill_context.active:
+        answer, wording_events = normalize_top15_summary_wording(answer, market_skill_context)
+        for detail in wording_events:
+            market_skill_context.events.append(SkillEvent("report-normalize", "success", detail))
         output_checks = market_skill.validate_report(answer, market_skill_context)
+        first_answer = answer
+        first_checks = list(output_checks)
+        first_score = monthly_report_check_score(first_checks)
         failed_checks = [item for item in output_checks if item.status != "通过"]
         if failed_checks:
             # 首轮输出没有通过质量门禁时，执行一次同上下文的完整重写。这里不是
@@ -592,7 +633,15 @@ async def run_agent_once(
                 SkillEvent("report-repair", "running", "首轮月报未通过输出门禁，正在执行一次完整重写。"),
             )
             failed_evidence = "；".join(f"{item.name}：{item.evidence}" for item in failed_checks)
-            repair_reply = await agent.reply(
+            # 新建一个 Agent 执行重写，避免首轮长报告已写入的会话历史挤占修订轮的
+            # 输出空间，或让模型错误地把“重写”理解为继续追加残稿。
+            repair_agent = build_market_strategy_agent(
+                config,
+                skill_instruction=market_skill_context.prompt_context,
+                monthly_report=True,
+                max_tokens_override=monthly_report_max_tokens,
+            )
+            repair_reply = await repair_agent.reply(
                 UserMsg(
                     name="月报质量门禁",
                     content=(
@@ -606,11 +655,24 @@ async def run_agent_once(
             )
             repaired_answer = strip_thinking(repair_reply.get_text_content())
             if repaired_answer:
-                answer = repaired_answer
-                market_skill_context.events.append(
-                    SkillEvent("report-repair", "success", "已返回重写后的完整月报，重新执行输出门禁。"),
+                repaired_answer, repaired_wording_events = normalize_top15_summary_wording(
+                    repaired_answer,
+                    market_skill_context,
                 )
-                market_skill.validate_report(answer, market_skill_context)
+                repaired_checks = market_skill.validate_report(repaired_answer, market_skill_context)
+                if monthly_report_check_score(repaired_checks) > first_score:
+                    answer = repaired_answer
+                    for detail in repaired_wording_events:
+                        market_skill_context.events.append(SkillEvent("report-normalize", "success", detail))
+                    market_skill_context.events.append(
+                        SkillEvent("report-repair", "success", "已采用质量门禁结果更优的完整重写版本。"),
+                    )
+                else:
+                    answer = first_answer
+                    market_skill_context.output_checks = first_checks
+                    market_skill_context.events.append(
+                        SkillEvent("report-repair", "warning", "重写版本未优于首轮，已保留章节更完整的首轮版本。"),
+                    )
             else:
                 market_skill_context.events.append(
                     SkillEvent("report-repair", "warning", "完整重写未返回可展示正文，保留首轮结果并标记输出门禁。"),
