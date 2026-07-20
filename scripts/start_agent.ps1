@@ -33,16 +33,16 @@ if ($listener) {
 }
 
 $env:PYTHONUTF8 = '1'
-$process = Start-Process -FilePath $python -ArgumentList @($app) -WorkingDirectory $projectRoot -WindowStyle Hidden -PassThru
+# app.py 首次导入 AgentScope 与前端资源需要十余秒。直接启动 Python 能避开某些
+# Windows PowerShell 环境在输出重定向时的 PATH/Path 冲突，后续用端口探针确认成功。
+Start-Process -FilePath $python -ArgumentList @('-u', $app) -WorkingDirectory $projectRoot -WindowStyle Hidden | Out-Null
 
-for ($attempt = 1; $attempt -le 20; $attempt++) {
+for ($attempt = 1; $attempt -le 60; $attempt++) {
     Start-Sleep -Milliseconds 500
     try {
         $response = Invoke-WebRequest -Uri $url -UseBasicParsing -TimeoutSec 2
         if ($response.StatusCode -eq 200) {
-            $listener = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1
             Write-Host "Agent is running: $url"
-            Write-Host "PID=$($process.Id)"
             exit 0
         }
     }
@@ -50,7 +50,4 @@ for ($attempt = 1; $attempt -le 20; $attempt++) {
     }
 }
 
-if ($process.HasExited) {
-    throw "Agent process exited with code $($process.ExitCode)."
-}
-throw "Agent did not respond within 10 seconds."
+throw "Agent did not respond within 30 seconds. Please run: $python -u $app"
