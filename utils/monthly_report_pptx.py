@@ -536,7 +536,7 @@ def update_data_source_footer(slide: object) -> None:
 
 
 def update_oval_rates(slide: object, rates: Sequence[float | None]) -> None:
-    """更新母版中圆形同比标记，清除示例月份的旧百分比。"""
+    """更新母版中圆形同比标记，并统一为业务要求的强调文字样式。"""
 
     oval_shapes = [
         shape
@@ -548,8 +548,11 @@ def update_oval_rates(slide: object, rates: Sequence[float | None]) -> None:
         first_paragraph = shape.text_frame.paragraphs[0]
         if first_paragraph.runs:
             run = first_paragraph.runs[0]
+            # 问题5：五页图表中的椭圆同比标签统一使用微软雅黑、10号、加粗，
+            # 避免在替换数值后继承到母版示例中的 Arial 常规字。
+            run.font.name = "微软雅黑"
             run.font.size = Pt(10)
-            run.font.bold = False
+            run.font.bold = True
             run.font.color.rgb = RGBColor(0, 51, 112)
 
 

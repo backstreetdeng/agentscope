@@ -77,6 +77,31 @@ class MonthlyReportPptxTest(unittest.TestCase):
             self.assertTrue(any(value == "4.9%" for value in rate_values))
             self.assertFalse(any(value.startswith("+") and value.endswith("%") for value in rate_values))
 
+    def test_all_oval_rate_callouts_use_business_font_style(self) -> None:
+        """问题5：五页图表的椭圆同比标签必须统一为微软雅黑、10号、加粗。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            output_path = Path(directory) / "椭圆标签样式校验.pptx"
+            build_monthly_report_pptx(SAMPLE_REPORT, output_path, DATASET_PATH)
+            presentation = Presentation(output_path)
+
+            oval_runs = []
+            for slide in presentation.slides:
+                for shape in slide.shapes:
+                    if "椭圆" not in (getattr(shape, "name", "") or ""):
+                        continue
+                    if not getattr(shape, "has_text_frame", False):
+                        continue
+                    paragraph = shape.text_frame.paragraphs[0]
+                    if paragraph.runs:
+                        oval_runs.append(paragraph.runs[0])
+
+            self.assertGreaterEqual(len(oval_runs), 1)
+            for run in oval_runs:
+                self.assertEqual(run.font.name, "微软雅黑")
+                self.assertEqual(run.font.size.pt, 10)
+                self.assertTrue(run.font.bold)
+
     def test_ppt_section_strips_external_evidence_markers_but_keeps_conclusion(self) -> None:
         markdown = "### 2.1 车型类别\n5月传统车表现承压〔E1〕，SUV跌幅相对较小〔R3〕。\n"
         section = extract_report_section(markdown, r"2\.1\s*车型类别")
