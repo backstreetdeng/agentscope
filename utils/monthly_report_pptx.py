@@ -765,11 +765,13 @@ def values_or_zero(values: Sequence[float | None]) -> list[float]:
 
 
 def format_rate(value: float | None) -> str:
+    """按业务月报规范显示比例：正数不加 ``+``，负数保留 ``-``。"""
+
     if value is None:
         return "-"
     if abs(value) >= 10:
         return ">1000%" if value > 10 else "<-1000%"
-    return f"{value * 100:+.1f}%" if value else "0.0%"
+    return f"{value * 100:.1f}%" if value else "0.0%"
 
 
 def format_volume(value: float | None) -> str:

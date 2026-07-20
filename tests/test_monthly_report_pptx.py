@@ -8,7 +8,13 @@ from pathlib import Path
 
 from pptx import Presentation
 
-from utils.monthly_report_pptx import build_monthly_report_pptx, extract_report_section, truncate, truncate_for_slide
+from utils.monthly_report_pptx import (
+    build_monthly_report_pptx,
+    extract_report_section,
+    format_rate,
+    truncate,
+    truncate_for_slide,
+)
 
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
@@ -42,6 +48,34 @@ MPV市场规模较小，A级同比正增长但需持续验证。
 
 @unittest.skipUnless(DATASET_PATH.is_file() and TEMPLATE_PATH.is_file(), "缺少业务验数表或 PPTX 模板")
 class MonthlyReportPptxTest(unittest.TestCase):
+    def test_positive_rates_do_not_show_plus_sign_in_ppt(self) -> None:
+        """问题4：同比、环比、份额的正值必须不显示加号。"""
+
+        self.assertEqual(format_rate(0.049), "4.9%")
+        self.assertEqual(format_rate(0.087), "8.7%")
+        self.assertEqual(format_rate(0.0), "0.0%")
+        self.assertEqual(format_rate(-0.113), "-11.3%")
+
+    def test_all_ppt_tables_and_rate_callouts_hide_positive_plus_sign(self) -> None:
+        """问题4：业务母版生成后的五页表格和同比圆形标记都遵循同一格式。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            output_path = Path(directory) / "正数格式校验.pptx"
+            build_monthly_report_pptx(SAMPLE_REPORT, output_path, DATASET_PATH)
+            presentation = Presentation(output_path)
+
+            rate_values: list[str] = []
+            for slide in presentation.slides:
+                for shape in slide.shapes:
+                    if getattr(shape, "has_table", False):
+                        for row in shape.table.rows:
+                            rate_values.extend(cell.text.strip() for cell in row.cells)
+                    elif "椭圆" in (getattr(shape, "name", "") or "") and getattr(shape, "has_text_frame", False):
+                        rate_values.append(shape.text.strip())
+
+            self.assertTrue(any(value == "4.9%" for value in rate_values))
+            self.assertFalse(any(value.startswith("+") and value.endswith("%") for value in rate_values))
+
     def test_ppt_section_strips_external_evidence_markers_but_keeps_conclusion(self) -> None:
         markdown = "### 2.1 车型类别\n5月传统车表现承压〔E1〕，SUV跌幅相对较小。\n"
         section = extract_report_section(markdown, r"2\.1\s*车型类别")
