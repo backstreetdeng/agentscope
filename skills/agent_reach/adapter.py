@@ -36,6 +36,16 @@ PRIMARY_DOMAIN_SUFFIXES = (
     "cpcaauto.com",
     "catarc.ac.cn",
 )
+OFFICIAL_OEM_DOMAIN_SUFFIXES = (
+    "byd.com",
+    "denza.com",
+    "buick.com.cn",
+    "li.com",
+    "nio.com",
+    "zeekrlife.com",
+    "saic-gm.com",
+    "greatwall.com.cn",
+)
 INDUSTRY_DOMAIN_SUFFIXES = (
     "gasgoo.com",
     "marklines.com",
@@ -240,6 +250,8 @@ def classify_source_tier(url: str, author: str = "", title: str = "") -> str:
 
     host = (urlparse(url).hostname or "").lower()
     if any(host == suffix.lstrip(".") or host.endswith(suffix) for suffix in PRIMARY_DOMAIN_SUFFIXES):
+        return "A"
+    if any(host == suffix or host.endswith("." + suffix) for suffix in OFFICIAL_OEM_DOMAIN_SUFFIXES):
         return "A"
     publisher_hint = (author + " " + title).lower()
     if any(token in publisher_hint for token in ("乘联会", "中国汽车流通协会", "中国汽车工业协会", "中汽数据")):

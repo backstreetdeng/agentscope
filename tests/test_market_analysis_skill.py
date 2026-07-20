@@ -14,6 +14,7 @@ from skills.market_analysis_skill.runtime import (
     normalize_external_evidence_marker_format,
     normalize_sales_to_wan,
     normalize_top15_summary_wording,
+    strip_internal_evidence_markers,
 )
 from utils.text import strip_thinking
 
@@ -301,6 +302,14 @@ class MarketAnalysisSkillTest(unittest.TestCase):
         self.assertEqual(normalized, "未经核验的来源〔E9,E1〕。")
         self.assertFalse(events)
 
+    def test_delivery_strips_internal_evidence_markers_after_audit(self) -> None:
+        delivered, events = strip_internal_evidence_markers(
+            "高油价下传统车表现承压〔E1〕，新能源渗透率继续提升〔R3〕。",
+        )
+
+        self.assertEqual(delivered, "高油价下传统车表现承压，新能源渗透率继续提升。")
+        self.assertTrue(events)
+
     def test_report_gate_requires_ppt_ready_deep_analysis_paragraphs(self) -> None:
         skill = MarketAnalysisSkill()
         context = skill.prepare("请生成中国乘用车月度市场分析报告。", ANALYSIS_TYPE)
@@ -327,25 +336,37 @@ class MarketAnalysisSkillTest(unittest.TestCase):
     def test_ppt_ready_paragraph_accepts_a_section_title_with_parenthetical_note(self) -> None:
         skill = MarketAnalysisSkill()
         context = skill.prepare("请生成中国乘用车月度市场分析报告。", ANALYSIS_TYPE)
-        summary = (
-            "◼ 5月，市场结构呈现分化；TOP15样本内代表车型同比变化拉开了细分市场差距；"
-            "外部原因尚需以本轮证据和车型公告交叉核验；业务上应持续跟踪新品承接与存量车型节奏。"
+        sections = (
+            "2.1 车型类别",
+            "2.2 车型级别",
+            "2.3 轿车级别分析",
+            "2.4 SUV级别分析",
+            "2.5 MPV级别分析",
         )
-        report = "\n".join(
-            f"### {section}（市场深度分析）\n{summary}"
-            for section in (
-                "2.1 车型类别",
-                "2.2 车型级别",
-                "2.3 轿车级别分析",
-                "2.4 SUV级别分析",
-                "2.5 MPV级别分析",
+        blocks = []
+        for section in sections:
+            candidates = [
+                item.model.name
+                for item in context.driver_signals
+                if not section.startswith("2.3") or item.segment.startswith("轿车")
+                if not section.startswith("2.4") or item.segment.startswith("SUV")
+                if not section.startswith("2.5") or item.segment.startswith("MPV")
+            ]
+            model = candidates[0] if candidates else context.driver_signals[0].model.name
+            summary = (
+                f"◼ 5月，相关细分市场同比承压但结构分化延续；{model}的销量变化反映出代表车型"
+                "之间的竞争强弱差异；高油价与同期基数等外部机制仍需按来源交叉核验；整体看，"
+                "应继续跟踪新品承接、存量产品节奏、终端成交和下一期结构变化，并验证价格与交付因素，避免仅依据单月数据下结论。"
             )
-        )
+            blocks.append(f"### {section}：结构变化与后续观察\n{summary}")
+        report = "\n".join(blocks)
 
         checks = skill.validate_report(report, context)
         deep_analysis = next(item for item in checks if item.check_id == "ppt_deep_analysis")
+        delivery_language = next(item for item in checks if item.check_id == "business_delivery_language")
 
         self.assertEqual(deep_analysis.status, "通过")
+        self.assertEqual(delivery_language.status, "通过")
 
     def test_report_gate_rejects_unverified_new_model_claim(self) -> None:
         skill = MarketAnalysisSkill()

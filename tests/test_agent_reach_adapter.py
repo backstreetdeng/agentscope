@@ -42,3 +42,12 @@ class AgentReachAdapterTest(unittest.TestCase):
         self.assertEqual(classify_source_tier("https://www.gov.cn/example"), "A")
         self.assertEqual(classify_source_tier("https://auto.gasgoo.com/example"), "B")
         self.assertEqual(classify_source_tier("https://example.com/article"), "C")
+
+    def test_source_tier_recognizes_official_oem_domains(self) -> None:
+        self.assertEqual(classify_source_tier("https://www.buick.com.cn/news/432"), "A")
+        self.assertEqual(classify_source_tier("https://www.byd.com/cn/detail617"), "A")
+        self.assertEqual(classify_source_tier("https://www.marklines.com/cn/report/example"), "B")
+
+
+if __name__ == "__main__":
+    unittest.main()

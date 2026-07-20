@@ -136,16 +136,23 @@ def build_monthly_report_pptx(
         "suv": extract_report_section(markdown, r"2\.4\s*SUV"),
         "mpv": extract_report_section(markdown, r"2\.5\s*MPV"),
     }
+    headings = {
+        "category": extract_report_heading(markdown, r"2\.1\s*车型类别"),
+        "level": extract_report_heading(markdown, r"2\.2\s*车型级别"),
+        "sedan": extract_report_heading(markdown, r"2\.3\s*轿车"),
+        "suv": extract_report_heading(markdown, r"2\.4\s*SUV"),
+        "mpv": extract_report_heading(markdown, r"2\.5\s*MPV"),
+    }
 
     update_overview_slide(
-        presentation.slides[0], data.category, sections["category"], "2.1 车型类别", data, "车型类别",
+        presentation.slides[0], data.category, sections["category"], "2.1 车型类别", data, "车型类别", headings["category"],
     )
     update_overview_slide(
-        presentation.slides[1], data.level, sections["level"], "2.2 车型级别", data, "车型级别",
+        presentation.slides[1], data.level, sections["level"], "2.2 车型级别", data, "车型级别", headings["level"],
     )
-    update_segment_slide(presentation.slides[2], data.sedan, sections["sedan"], "2.3 轿车级别", "轿车", data)
-    update_segment_slide(presentation.slides[3], data.suv, sections["suv"], "2.4 SUV级别", "SUV", data)
-    update_segment_slide(presentation.slides[4], data.mpv, sections["mpv"], "2.5 MPV级别", "MPV", data)
+    update_segment_slide(presentation.slides[2], data.sedan, sections["sedan"], "2.3 轿车级别", "轿车", data, headings["sedan"])
+    update_segment_slide(presentation.slides[3], data.suv, sections["suv"], "2.4 SUV级别", "SUV", data, headings["suv"])
+    update_segment_slide(presentation.slides[4], data.mpv, sections["mpv"], "2.5 MPV级别", "MPV", data, headings["mpv"])
 
     for slide_index, slide in enumerate(list(presentation.slides)[:5]):
         replace_period_labels(slide, data)
@@ -261,10 +268,11 @@ def update_overview_slide(
     prefix: str,
     data: MonthlyPptData,
     label: str,
+    heading: str = "",
 ) -> None:
     """更新车型类别或车型级别总览页的结论、图表、环比与同比标签。"""
 
-    title = build_headline(prefix, block)
+    title = build_headline(prefix, block, heading)
     body = narrative or build_data_narrative(block, data.period_label)
     last_year = str(int(data.year) - 1)
     set_slide_title(slide, title)
@@ -321,10 +329,11 @@ def update_segment_slide(
     prefix: str,
     segment_name: str,
     data: MonthlyPptData,
+    heading: str = "",
 ) -> None:
     """更新轿车、SUV、MPV 三页的分级别图表、TOP15 车型表及排名柱图。"""
 
-    title = build_headline(prefix, block)
+    title = build_headline(prefix, block, heading)
     body = narrative or build_data_narrative(block, data.period_label)
     last_year = str(int(data.year) - 1)
     set_slide_title(slide, title)
@@ -712,15 +721,32 @@ def extract_report_section(markdown: str, marker: str) -> str:
         body = summary_match.group("summary")
     body = re.sub(r"^\s*[-*◼]\s*", "", body, flags=re.MULTILINE)
     body = re.sub(r"\|[^\n]+\|", "", body)
-    # 文字月报用〔E1〕等编号留存外部证据审计链；PPT 只呈现业务结论和关键事实，
-    # 不把内部审计标记直接暴露在图表页顶部正文中。
-    body = re.sub(r"〔[^〕]*E\d+[^〕]*〕", "", body)
+    # 审计草稿中的〔E/R〕编号只供服务端门禁使用；PPT 只呈现业务结论和关键事实。
+    body = re.sub(r"〔[^〕]*[ER]\d+[^〕]*〕", "", body)
+    # 车型明细用于后台筛选，不应作为咨询交付语言出现在正文中。
+    body = re.sub(r"(?:TOP\s*15\s*样本(?:内|中)?|样本(?:内|中))", "", body, flags=re.IGNORECASE)
     body = re.sub(r"\n{2,}", "\n", body)
     return re.sub(r"\s+", " ", body).strip()
 
 
-def build_headline(prefix: str, block: MarketBlock) -> str:
+def extract_report_heading(markdown: str, marker: str) -> str:
+    """取模型给出的结论式章节标题，供 PPT 保留专家的“原因 + 结果”表达。"""
+
+    pattern = re.compile(rf"(?mi)^###\s*(?P<heading>{marker}[^\n]*)$")
+    match = pattern.search(markdown or "")
+    if not match:
+        return ""
+    heading = re.sub(r"〔[^〕]*[ER]\d+[^〕]*〕", "", match.group("heading"))
+    return re.sub(r"\s+", " ", heading).strip()
+
+
+def build_headline(prefix: str, block: MarketBlock, report_heading: str = "") -> str:
     """按业务样例的“结论式标题”风格生成 1 句可落在 PPT 顶部的标题。"""
+
+    # 业务专家写出的“原因 + 结果”标题优先于数据规则的兜底标题，既保留月报的
+    # 叙事逻辑，也不把模板固定为“最好/最差类别”的机械句型。
+    if report_heading and "：" in report_heading:
+        return report_heading[:74].rstrip("，；; ")
 
     valid = [(label, rate) for label, rate in zip(block.labels, block.yoy) if rate is not None]
     if not valid:

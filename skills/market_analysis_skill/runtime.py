@@ -32,7 +32,7 @@ from skills.market_analysis_skill.research_evidence import ResearchEvidence, loa
 
 
 SKILL_NAME = "china-passenger-vehicle-market-analysis"
-SKILL_VERSION = "1.2.0"
+SKILL_VERSION = "1.3.0"
 ANALYSIS_TYPE = "market_monthly_report"
 
 PROJECT_DIR = Path(__file__).resolve().parents[2]
@@ -118,6 +118,37 @@ ATTRIBUTION_DISCLOSURE_TERMS = (
     "无法",
     "未明示",
     "无可比",
+)
+
+# 以下措辞服务于内部数据筛选和审计，不属于业务专家面向管理层的表达。模型输出
+# 出现这类字样时先触发重写；即使漏网，PPT 渲染层也会做最后一道展示清理。
+INTERNAL_DELIVERY_TERMS = (
+    "TOP15样本",
+    "样本内",
+    "估算同比增减量",
+    "同比减量候选",
+    "同比增量候选",
+    "排名异动候选",
+    "证据索引",
+)
+
+# 专家月报的“市场深度分析”不是数据播报，而是“现象—车型—机制—小结”的
+# 一段式咨询结论。该词表只用于检查是否真正写出了机制层解释，不能替代证据门禁。
+DEEP_ANALYSIS_MECHANISM_TERMS = (
+    "主要受",
+    "受",
+    "叠加",
+    "带动",
+    "拖累",
+    "影响",
+    "由于",
+    "因",
+    "在高油价",
+    "在同期高基数",
+    "产品切换",
+    "新品",
+    "改款",
+    "促销",
 )
 
 
@@ -836,8 +867,12 @@ def collect_external_evidence(context: MarketSkillContext, settings: dict[str, A
                 reason = type(response).__name__ if isinstance(response, Exception) else response.error[:160]
                 context.events.append(SkillEvent("evidence-search", "warning", f"{focus}未获取证据：{reason}"))
                 continue
+        # 先取协会/政府/主机厂和专业机构来源；只有本轮没有 A/B 级结果时才保留
+        # C 级线索，且 C 级来源仍受后续强因果门禁限制。
+        preferred_items = [item for item in response.items if item.source_tier in {"A", "B"}]
+        ranked_items = preferred_items or list(response.items)
         usable = 0
-        for item in response.items:
+        for item in ranked_items:
             if item.url in seen_urls or len(evidence) >= max_items or usable >= per_focus_limit:
                 continue
             seen_urls.add(item.url)
@@ -1010,7 +1045,7 @@ def build_agent_instruction(context: MarketSkillContext) -> str:
         for item in context.input_checks
     )
     dataset_shape = (
-        "按月份 Sheet 的交叉表，已包含车型类别/级别与轿车、SUV、MPV 的 TOP15 车型明细；"
+        "按月份 Sheet 的交叉表，已包含车型类别/级别与轿车、SUV、MPV 的完整车型明细；"
         "未提供完整品牌归属和品牌集中度。"
         if model_rank_available
         else "按月份 Sheet 的展示型交叉表，适合车型类别/级别的同比环比与结构解读；不是完整车型、品牌明细库。"
@@ -1025,16 +1060,16 @@ def build_agent_instruction(context: MarketSkillContext) -> str:
 - 数据门禁结论：{context.input_gate()}；待补充项：{checks}。
 
 报告写作规则：
-1. 以下标题必须逐行、逐字作为独立 Markdown 标题输出，禁止把 2.3/2.4/2.5 合并在一个段落：
+1. 以下标题必须逐行作为独立 Markdown 标题输出，禁止把 2.3/2.4/2.5 合并在一个段落。五个结构章节的标题必须以规定章节名开头，随后可使用“：原因或结构特征，结果”的结论式副标题：
    `## 核心数据速览`、`## 01 当月乘用车市场走势解读`、`## 02 当月乘用车市场结构特征分析`、`### 2.1 车型类别`、`### 2.2 车型级别`、`### 2.3 轿车级别分析`、`### 2.4 SUV级别分析`、`### 2.5 MPV级别分析`、`## 03 下月乘用车市场展望`、`## 数据来源与数据缺口`。
    当前数据集总量覆盖轿车、SUV、MPV、交叉型乘用车四类；总量只能按这四类加总，不得写成“狭义乘用车”或静默排除交叉型乘用车。
-2. 每个“市场深度分析”必须按“总体判断 -> 代表车型贡献 -> 外部或结构解释 -> 业务含义”组织，不得逐项复述四类销量。优先从【代表车型贡献信号】中选择 2-3 个车型；同比增减量是由销量与同比反推的筛选量，写作中表述为“TOP15样本内估算减量/增量”，不得扩大为全市场精确贡献。
-3. 完整 TOP15 已注入，包含车型、销量、同比、环比、级别、份额、排名变化、累计销量。不得再写“TOP4-15缺失/未注入”。若去年同期无可比，只能写“去年同期无可比值”，不得自行推断为新车型、上市、改款或进入市场。没有品牌归属/CR5 数据时，明确披露“当前数据集未提供，不生成品牌集中度结论”。
-4. 政策、油价、促销、上市、产品换代、渠道、出口、产品生命周期等外部原因，仅能使用【外部证据包】或【研究证据包】中与该句匹配的来源。每个外部归因句末必须严格标注 `〔E1〕` 或 `〔R1〕`；多条来源写成 `〔E1〕〔R1〕`，禁止写 `〔E1,R1〕` 或把“C级线索”等文字放进编号。R 编号只能在其“允许用途”和“引用边界”内使用，且只限当前报告月份；R 证据只能说明已验证事实、结构或待验证解释，不能单独支撑“主要受/核心驱动/导致”等强因果。A/B级即时检索来源可作为归因依据；C级即时检索来源只能写成“待核验行业线索（〔E7〕）”，不能单独支撑强因果。无匹配来源时改写为内部数据描述或“待核验假设”。不得以外部资料覆盖或改写当前中汽数据验数表的核心销量。
+2. 每个“市场深度分析”必须按“总体判断 -> 代表车型变化 -> 已核验机制 -> 业务小结”组织，不得逐项复述四类销量。优先从【代表车型贡献信号】中选择 2-3 个车型：在正文中直接说车型名称和已验证变化，例如“秦PLUS、海鸥增长乏力”，不要出现“TOP15样本、样本内、候选、估算增减量”等内部筛选措辞，也不得把筛选量扩大为全市场精确贡献。
+3. 完整车型明细已注入，包含车型、销量、同比、环比、级别、份额、排名变化、累计销量。不得再写“TOP4-15缺失/未注入”。若去年同期无可比，只能写“去年同期无可比值”，不得自行推断为新车型、上市、改款或进入市场。没有品牌归属/CR5 数据时，明确披露“当前数据集未提供，不生成品牌集中度结论”。
+4. 政策、油价、促销、上市、产品换代、渠道、出口、产品生命周期等外部原因，仅能使用【外部证据包】或【研究证据包】中与该句匹配的来源。请在每个外部归因句末按 `〔E1〕` 或 `〔R1〕` 记录内部审计标记；系统将在正式业务报告和 PPT 导出前自动移除这些标记。R 编号只能在其“允许用途”和“引用边界”内使用，且只限当前报告月份；R 证据只能说明已验证事实、结构或待验证解释，不能单独支撑“主要受/核心驱动/导致”等强因果。A/B级即时检索来源可作为归因依据；C级即时检索来源只能写成待核验行业线索，不能单独支撑强因果。无匹配来源时改写为内部数据描述或“待核验假设”。不得以外部资料覆盖或改写当前中汽数据验数表的核心销量。
    当前数据未明示批发/零售/出口/上险口径，不得自行判定；也不得以单月或本年累计数据声称“首次”“连续”等跨期结论。
 5. 展望必须列出结论、确定性（高/中/低）、证据和风险变量。不得将推测表述成已验证事实。
-6. `### 2.1` 至 `### 2.5` 的每个章节第一段必须以 `◼` 开头，且控制在 120-200 个中文字符，采用“[月份]，[总体判断]；TOP15样本内[代表车型]变化；[外部证据或待核验说明]；[业务含义]”的咨询式句型。该首段是 PPT 直接使用的“市场深度分析”，禁止罗列全部销量、同比、环比。详细数据和补充说明可另起段。
-7. 文末仅统一标注一次内部数据来源；如使用外部归因，在“数据来源与数据缺口”中追加“证据索引”，列出已使用的 E/R 编号、标题、URL、发布日期、适用月份和用途。正文关键数值必须与下面数据摘要一致。
+6. `### 2.1` 至 `### 2.5` 的每个章节第一段必须以 `◼` 开头，且控制在 120-220 个中文字符。严格采用专家月报句法：“[月份]，[市场总体判断]；[车型A、车型B]的变化体现[结构现象]；[高油价/同期基数/新品爬坡/产品切换/促销等已核验机制]；整体看，[可执行的小结或后续观察点]。”该首段是 PPT 直接使用的“市场深度分析”，禁止罗列全部销量、同比、环比，也禁止只写“数据表明/结构分化”而不解释原因。详细数据和补充说明可另起段。
+7. 文末仅统一标注一次内部数据来源，并说明统计口径或数据缺口。不要在业务正文、标题、表格或 PPT 中输出“证据索引”、`〔E1〕`、`〔R1〕` 等内部审计编号；系统会留存审计链。正文关键数值必须与下面数据摘要一致。
 
 【已验证数据摘要】
 {data_excerpt}
@@ -1196,7 +1231,8 @@ def validate_generated_report(report: str, context: MarketSkillContext) -> list[
     malformed_evidence_markers = find_malformed_evidence_markers(report)
     weak_evidence_claims = find_weak_evidence_claims(report, context)
     unmeasured_contribution_claims = find_unmeasured_contribution_claims(report, context)
-    shallow_sections = find_shallow_deep_analysis_sections(report)
+    shallow_sections = find_shallow_deep_analysis_sections(report, context)
+    internal_delivery_terms = find_internal_delivery_terms(report)
     has_cross_category = any("交叉型乘用车" in sheet.text() for sheet in context.snapshots)
     scope_inconsistent = has_cross_category and "狭义乘用车" in normalized_report
 
@@ -1257,11 +1293,22 @@ def validate_generated_report(report: str, context: MarketSkillContext) -> list[
             "PPT市场深度分析可用性",
             "风险" if shallow_sections else "通过",
             (
-                "以下章节缺少以◼开头、可直接用于PPT的120-200字深度分析首段：" + "、".join(shallow_sections)
+                "以下章节缺少以◼开头、可直接用于PPT的总体判断、车型、机制与小结：" + "、".join(shallow_sections)
                 if shallow_sections
                 else "五个结构章节均包含可直接进入PPT的深度分析首段。"
             ),
-            "每个2.1-2.5章节首段按“总体判断-代表车型贡献-证据/待核验-业务含义”重写，避免逐项数据罗列。",
+            "每个2.1-2.5章节首段按“总体判断-代表车型-已核验机制-业务小结”重写，避免逐项数据罗列。",
+        ),
+        SkillCheck(
+            "business_delivery_language",
+            "业务交付表达",
+            "风险" if internal_delivery_terms else "通过",
+            (
+                "正文包含仅用于内部筛选/审计的措辞：" + "、".join(internal_delivery_terms)
+                if internal_delivery_terms
+                else "未发现TOP15样本、候选或证据索引等内部表达。"
+            ),
+            "正文直接陈述代表车型和已验证变化；内部车型筛选、证据编号仅保留在服务端审计链。",
         ),
         SkillCheck(
             "external_evidence_traceability",
@@ -1287,7 +1334,7 @@ def validate_generated_report(report: str, context: MarketSkillContext) -> list[
                     else "本轮未使用证据编号。"
                 )
             ),
-            "仅引用本轮证据包中实际存在的〔E编号〕或当前周期可用的〔R编号〕，并在“数据来源与数据缺口”中列出来源索引。",
+            "仅引用本轮证据包中实际存在的〔E编号〕或当前周期可用的〔R编号〕；编号仅供服务端审计，正式交付前由系统移除。",
         ),
         SkillCheck(
             "scope_consistency",
@@ -1384,8 +1431,8 @@ def report_before_evidence_index(report: str) -> str:
     return re.split(r"(?:外部证据索引|##\s*数据来源与数据缺口)", report or "", maxsplit=1)[0]
 
 
-def find_shallow_deep_analysis_sections(report: str) -> list[str]:
-    """检查五页PPT对应章节是否已有可复用的咨询式首段。"""
+def find_shallow_deep_analysis_sections(report: str, context: MarketSkillContext) -> list[str]:
+    """检查五页PPT对应章节是否已有“现象—车型—机制—小结”的咨询式首段。"""
 
     missing: list[str] = []
     for section in ("2.1 车型类别", "2.2 车型级别", "2.3 轿车级别分析", "2.4 SUV级别分析", "2.5 MPV级别分析"):
@@ -1397,9 +1444,40 @@ def find_shallow_deep_analysis_sections(report: str) -> list[str]:
         match = pattern.search(report or "")
         body = match.group("body").strip() if match else ""
         first_paragraph = re.split(r"\n\s*\n", body, maxsplit=1)[0].strip()
-        if not first_paragraph.startswith("◼") or not 80 <= len(normalize(first_paragraph)) <= 240:
+        required_models = representative_models_for_section(section, context)
+        has_model = any(model in first_paragraph for model in required_models)
+        has_mechanism = any(term in first_paragraph for term in DEEP_ANALYSIS_MECHANISM_TERMS)
+        if (
+            not first_paragraph.startswith("◼")
+            or not 120 <= len(normalize(first_paragraph)) <= 260
+            or not has_model
+            or not has_mechanism
+        ):
             missing.append(section)
     return missing
+
+
+def representative_models_for_section(section: str, context: MarketSkillContext) -> set[str]:
+    """按页面优先选择本细分市场的车型，类别页和级别页可横向引用。"""
+
+    segment_prefix = {
+        "2.3 轿车级别分析": "轿车",
+        "2.4 SUV级别分析": "SUV",
+        "2.5 MPV级别分析": "MPV",
+    }.get(section, "")
+    models = {
+        item.model.name
+        for item in context.driver_signals
+        if not segment_prefix or item.segment.startswith(segment_prefix)
+    }
+    return models or {item.model.name for item in context.driver_signals}
+
+
+def find_internal_delivery_terms(report: str) -> list[str]:
+    """阻止内部选择逻辑、证据清单直接进入业务报告。"""
+
+    normalized_report = normalize(report)
+    return [term for term in INTERNAL_DELIVERY_TERMS if term in normalized_report]
 
 
 def normalize_external_evidence_marker_format(
@@ -1428,6 +1506,24 @@ def normalize_external_evidence_marker_format(
         return canonical
 
     return re.sub(r"〔([^〕]+)〕", replace_marker, report or ""), events
+
+
+def strip_internal_evidence_markers(report: str) -> tuple[str, list[str]]:
+    """将通过门禁后的审计草稿转换为业务可读交付稿。
+
+    E/R 编号参与门禁、修订和服务端运行记录，但业务用户在文字报告或 PPT 中无法
+    反查编号，因此交付前统一移除。该函数只删除明确的审计标记，不删除事实、来源
+    名称或数据来源章节。
+    """
+
+    cleaned = re.sub(r"\s*〔(?:[ER]\d+)〕", "", report or "")
+    # 兼容历史版本中“TOP15样本内/中”的多种写法。车型名称和事实数据保留，
+    # 仅移除业务侧无法理解的内部筛选前缀。
+    cleaned = re.sub(r"TOP\s*15\s*样本(?:内|中)?", "", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"样本(?:内|中)", "", cleaned)
+    cleaned = re.sub(r"[ \t]+([，。；；：])", r"\1", cleaned)
+    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned).strip()
+    return cleaned, (["已从业务交付文本移除内部证据编号；审计链保留在服务端。"] if cleaned != (report or "").strip() else [])
 
 
 def find_unmeasured_contribution_claims(report: str, context: MarketSkillContext) -> list[str]:

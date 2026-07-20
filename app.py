@@ -114,6 +114,7 @@ from skills.market_analysis_skill.runtime import (
     SkillEvent,
     normalize_external_evidence_marker_format,
     normalize_top15_summary_wording,
+    strip_internal_evidence_markers,
 )
 from tools.custom_tools import clear_tool_call_events, get_tool_call_events
 from utils.audio_tagging_engine import DEFAULT_TAG_TAXONOMY, run_audio_tagging_workflow
@@ -698,6 +699,12 @@ async def run_agent_once(
                 market_skill_context.events.append(
                     SkillEvent("report-repair", "warning", "完整重写未返回可展示正文，保留首轮结果并标记输出门禁。"),
                 )
+
+        # 输出门禁、证据编号格式化和必要的重写均针对“审计草稿”完成。业务交付
+        # 不暴露〔E/R〕编号，避免在无法查看服务端来源链的 PPT 中产生误解。
+        answer, delivery_events = strip_internal_evidence_markers(answer)
+        for detail in delivery_events:
+            market_skill_context.events.append(SkillEvent("report-delivery", "success", detail))
 
     if "tavily_search" in question and not any(item.get("name") == "tavily_search" for item in tool_events):
         answer += "\n\n---\n【工具审计提示】本轮问题要求使用 tavily_search，但后端未捕获到真实 tavily_search 工具调用。请检查模型是否选择了工具、TAVILY_API_KEY 是否配置，以及 AgentScope ReAct 是否进入工具调用流程。"

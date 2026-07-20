@@ -10,6 +10,7 @@ from pptx import Presentation
 
 from utils.monthly_report_pptx import (
     build_monthly_report_pptx,
+    extract_report_heading,
     extract_report_section,
     format_rate,
     truncate,
@@ -77,18 +78,47 @@ class MonthlyReportPptxTest(unittest.TestCase):
             self.assertFalse(any(value.startswith("+") and value.endswith("%") for value in rate_values))
 
     def test_ppt_section_strips_external_evidence_markers_but_keeps_conclusion(self) -> None:
-        markdown = "### 2.1 车型类别\n5月传统车表现承压〔E1〕，SUV跌幅相对较小。\n"
+        markdown = "### 2.1 车型类别\n5月传统车表现承压〔E1〕，SUV跌幅相对较小〔R3〕。\n"
         section = extract_report_section(markdown, r"2\.1\s*车型类别")
 
         self.assertEqual(section, "5月传统车表现承压，SUV跌幅相对较小。")
 
     def test_ppt_uses_first_business_summary_not_later_data_appendix(self) -> None:
-        summary = "◼ 5月，SUV表现相对稳定；TOP15样本内星愿与海鸥变化带来结构分化；行业高基数影响仍待结合证据核验；建议跟踪新品承接。〔E1〕"
+        summary = "◼ 5月，SUV表现相对稳定；星愿与海鸥变化带来结构分化；行业高基数影响仍待结合证据核验；建议跟踪新品承接。〔E1〕"
         markdown = f"### 2.1 车型类别\n{summary}\n\n当月销量、同比、环比等明细数据另附。"
 
         section = extract_report_section(markdown, r"2\.1\s*车型类别")
 
         self.assertEqual(section, summary.replace("◼ ", "").replace("〔E1〕", ""))
+
+    def test_ppt_uses_conclusion_style_section_heading(self) -> None:
+        markdown = "### 2.4 SUV级别分析：新品承接与传统车承压并存，A级市场同比走弱\n正文。"
+
+        heading = extract_report_heading(markdown, r"2\.4\s*SUV")
+
+        self.assertEqual(heading, "2.4 SUV级别分析：新品承接与传统车承压并存，A级市场同比走弱")
+
+    def test_ppt_hides_internal_audit_and_sample_language(self) -> None:
+        report = SAMPLE_REPORT.replace(
+            "### 2.1 车型类别\n轿车和SUV仍是主体，SUV降幅相对较小，建议继续跟踪结构份额变化。",
+            "### 2.1 车型类别：同期高基数下SUV相对抗跌，MPV市场承压\n"
+            "◼ 5月，SUV市场同比降幅相对较小；星愿与海鸥的变化体现入门级产品分化；"
+            "高油价影响传统车表现〔R3〕；整体看，应跟踪新品承接。TOP15样本中仅作内部筛选。",
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            output_path = Path(directory) / "交付表达校验.pptx"
+            build_monthly_report_pptx(report, output_path, DATASET_PATH)
+            presentation = Presentation(output_path)
+            slide_text = " ".join(
+                shape.text
+                for slide in presentation.slides
+                for shape in slide.shapes
+                if getattr(shape, "has_text_frame", False)
+            )
+
+        self.assertIn("同期高基数下SUV相对抗跌", slide_text)
+        self.assertNotIn("〔R3〕", slide_text)
+        self.assertNotIn("TOP15样本", slide_text)
 
     def test_builds_five_editable_slides_from_business_template(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
