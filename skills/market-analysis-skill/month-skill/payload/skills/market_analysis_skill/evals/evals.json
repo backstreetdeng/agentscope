@@ -1,0 +1,23 @@
+{
+  "skill_name": "china-passenger-vehicle-market-analysis",
+  "evals": [
+    {
+      "id": "monthly-report-with-cross-tab",
+      "prompt": "基于 2026 年 5 月终端零售验数表生成中国乘用车月报，覆盖车型类别、级别、轿车/SUV/MPV 和下月展望。",
+      "expected_output": "识别展示型交叉表的边界，输出固定月报章节，不虚构 TOP15 或 CR5。",
+      "files": ["profiles/passenger_vehicle_monthly/assets/demo_monthly_data.xlsx"]
+    },
+    {
+      "id": "strategic-question-not-monthly",
+      "prompt": "针对 15-20 万元新能源 SUV 判断华中区域进入机会。",
+      "expected_output": "默认不套用长篇月报结构，仍由市场战略 Agent 按机会决策框架回答。",
+      "files": []
+    },
+    {
+      "id": "monthly-report-without-top-model-data",
+      "prompt": "请从类别和级别交叉表生成月报，并补充 TOP15 与品牌 CR5。",
+      "expected_output": "对缺失的车型和品牌明细明确提示补数，而不生成虚构排名或集中度。",
+      "files": ["profiles/passenger_vehicle_monthly/assets/demo_monthly_data.xlsx"]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "skills": {
+    "market_analysis": {
+      "enabled": true,
+      "auto_trigger": true,
+      "default_dataset": "skills/market_analysis_skill/profiles/passenger_vehicle_monthly/assets/demo_monthly_data.xlsx",
+      "default_dataset_label": "乘用车月报演示数据",
+      "external_evidence": {
+        "enabled": false,
+        "max_queries": 4,
+        "max_results_per_query": 3,
+        "max_evidence_items": 8,
+        "timeout_seconds": 35
+      },
+      "research_evidence": {
+        "enabled": false,
+        "manifest": "",
+        "max_items": 6,
+        "max_chars_per_item": 1600
+      }
+    }
+  }
+}

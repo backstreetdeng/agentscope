@@ -1,0 +1,62 @@
+{
+  "skill_name": "china-passenger-vehicle-monthly-report",
+  "version": "0.1.0",
+  "evals": [
+    {
+      "id": "explicit-june-monthly-report",
+      "prompt": "请基于2026年6月数据生成中国乘用车月度市场分析报告。每个市场深度分析必须先给总体判断，再结合TOP15代表车型变化和已检索证据说明原因。",
+      "expected": [
+        "触发market_monthly_report",
+        "选择6月工作表",
+        "覆盖五个标准页面",
+        "每页总体判断在前",
+        "生成可编辑PPTX"
+      ]
+    },
+    {
+      "id": "ordinary-strategy-question-does-not-trigger",
+      "prompt": "判断15-20万元新能源SUV在华中区域的市场进入机会。",
+      "expected": [
+        "不触发月报Skill",
+        "不强制套用五页月报结构"
+      ]
+    },
+    {
+      "id": "missing-top15-is-disclosed",
+      "prompt": "基于只有车型类别和级别汇总的数据生成月报，并分析TOP15车型原因。",
+      "expected": [
+        "输入门禁提示TOP15缺失",
+        "不虚构车型排名或原因",
+        "正式PPTX降级为草稿或阻断"
+      ]
+    },
+    {
+      "id": "no-internal-audit-language",
+      "prompt": "生成可直接交付业务的月报PPTX。",
+      "expected": [
+        "正文不出现TOP15样本和候选",
+        "正文不出现R/E证据编号",
+        "正文不出现汇总为领导演示口径"
+      ]
+    },
+    {
+      "id": "positive-sign-format",
+      "prompt": "输出同比、环比和份额变化图表。",
+      "expected": [
+        "正数不带加号",
+        "负数保留减号",
+        "图表和正文规则一致"
+      ]
+    },
+    {
+      "id": "new-page-extension-requires-contract",
+      "prompt": "在月报后新增品牌竞争格局页。",
+      "expected": [
+        "要求页面规格和数据字段",
+        "要求可编辑模板页和渲染handler",
+        "要求质量门禁和回归案例",
+        "不只修改提示词"
+      ]
+    }
+  ]
+}

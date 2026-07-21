@@ -1,0 +1,86 @@
+schema_version: 1
+profile: passenger_vehicle_monthly
+
+status_order:
+  - 通过
+  - 待补充
+  - 风险
+  - 阻断
+
+input_gate:
+  - id: dataset_readable
+    severity: blocking
+    rule: 输入必须是未加密、可读取的 xlsx 文件
+  - id: reporting_period
+    severity: blocking
+    rule: 必须能识别报告年份、月份和目标工作表
+  - id: statistical_scope
+    severity: blocking
+    rule: 必须确认批发、零售、上险或交付口径，默认不得混用
+  - id: category_and_level
+    severity: blocking
+    rule: 五页报告所需车型类别、车型级别和三个细分区块必须齐全
+  - id: trend_metrics
+    severity: warning
+    rule: 销量、同比、环比、份额和累计指标应满足页面所需字段
+  - id: top15_detail
+    severity: warning
+    rule: 轿车、SUV、MPV TOP15 应包含车型、销量、同比、环比、级别、份额和排名变化
+  - id: source_lineage
+    severity: warning
+    rule: 数据版本、生成时间、提供部门和修订记录应可追溯
+  - id: internal_evidence
+    severity: warning
+    rule: 新品、价格、政策、油价和历史报告等内部原因资料应登记来源与日期
+
+output_gate:
+  - id: report_structure
+    severity: blocking
+    rule: 必须覆盖2.1车型类别、2.2车型级别、2.3轿车、2.4SUV、2.5MPV
+  - id: headline_quality
+    severity: warning
+    rule: 页面标题必须表达结构特征或原因结果，不得只复述图表数值
+  - id: overall_judgement_first
+    severity: blocking
+    rule: 每页市场深度分析第一句先给总体判断
+  - id: representative_models
+    severity: blocking
+    rule: 细分页必须结合2到3个代表车型解释变化，不得堆砌名单
+  - id: causal_evidence
+    severity: blocking
+    rule: 强因果必须同时具备数据变化、可追溯事件和时间一致性
+  - id: data_consistency
+    severity: blocking
+    rule: 正文中的销量、同比、环比、份额和方向必须与输入数据一致
+  - id: confidence_boundary
+    severity: warning
+    rule: 未核验原因必须写为待核验假设或观察项
+  - id: forbidden_internal_terms
+    severity: blocking
+    forbidden_terms:
+      - TOP15样本
+      - 样本内
+      - 候选车型
+      - 估算增减量
+      - 汇总为领导演示口径
+  - id: hidden_evidence_ids
+    severity: blocking
+    rule: 业务正文和PPTX不得展示内部R/E证据编号
+  - id: positive_sign
+    severity: blocking
+    rule: 正数不显示加号，负数保留减号
+  - id: slide_overflow
+    severity: blocking
+    rule: 标题、正文、表格和图表不得溢出或重叠
+  - id: editable_delivery
+    severity: blocking
+    rule: 正式交付必须是可编辑PPTX原生对象，不以截图替代数据图表
+
+release_gate:
+  allow_pptx_when:
+    - no_blocking_failures
+    - dataset_and_period_confirmed
+    - all_five_pages_mapped
+  downgrade_to_draft_when:
+    - causal_evidence_incomplete
+    - source_lineage_incomplete

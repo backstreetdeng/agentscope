@@ -1,0 +1,59 @@
+schema_version: 1
+id: passenger_vehicle_monthly
+display_name: 中国乘用车行业月报
+version: 1.0.0
+locale: zh-CN
+
+business_scope:
+  geography: 中国
+  industry: 乘用车
+  frequency: monthly
+  default_statistical_scope: 终端零售
+  supported_categories:
+    - 轿车
+    - SUV
+    - MPV
+    - 交叉型乘用车
+  supported_levels:
+    - A00
+    - A0
+    - A
+    - B
+    - C+
+
+inputs:
+  primary: xlsx_cross_tab
+  contract: data_contract.md
+  demo_dataset: assets/demo_monthly_data.xlsx
+  preferred_internal_sources:
+    - 终端零售销量与份额
+    - 车型TOP15及排名变化
+    - 新车上市与改款监测
+    - 官方指导价与促销记录
+    - 历史正式月报
+    - 政策与油价事件台账
+
+outputs:
+  report: markdown
+  presentation: editable_pptx
+  audit: json
+  template: assets/monthly_report_template.pptx
+  default_page_count: 5
+
+evidence_policy:
+  priority:
+    - internal_structured_data
+    - internal_research_content
+    - official_external_source
+    - professional_industry_source
+    - media_lead
+  strong_causality_requires:
+    - data_change
+    - traceable_event
+    - time_alignment
+  public_report_hides_internal_evidence_ids: true
+
+compatibility:
+  agentscope: "2.0.3"
+  model_protocol: openai-compatible
+  tested_model: MiniMax-M3

@@ -1,0 +1,58 @@
+schema_version: 1
+name: china-passenger-vehicle-monthly-report
+display_name: 中国乘用车行业月报 Skill
+version: 0.1.0
+status: internal-preview
+language: zh-CN
+
+framework:
+  name: AgentScope
+  required_version: "2.0.3"
+  forbidden_versions:
+    - "2.0.4.dev*"
+  python: ">=3.11,<3.12"
+
+model:
+  protocol: openai-compatible
+  tested_model: MiniMax-M3
+  model_owned_by_host_project: true
+
+entrypoints:
+  skill: skills.market_analysis_skill:MarketAnalysisSkill
+  cli: python -m skills.market_analysis_skill.cli
+  renderer: utils.monthly_report_pptx:build_monthly_report_pptx
+  analysis_type: market_monthly_report
+
+profile:
+  id: passenger_vehicle_monthly
+  path: profiles/passenger_vehicle_monthly/profile.yaml
+  page_specs: profiles/passenger_vehicle_monthly/page_specs.yaml
+  quality_rules: profiles/passenger_vehicle_monthly/quality_rules.yaml
+  template: profiles/passenger_vehicle_monthly/assets/monthly_report_template.pptx
+  demo_dataset: profiles/passenger_vehicle_monthly/assets/demo_monthly_data.xlsx
+
+capabilities:
+  - monthly_skill_dispatch
+  - xlsx_cross_tab_parser
+  - input_quality_gate
+  - top15_driver_selection
+  - internal_first_evidence_chain
+  - agent_reach_external_evidence
+  - minimax_report_context
+  - output_quality_gate
+  - editable_pptx_rendering
+
+install:
+  mode: merge-with-backup
+  default: dry-run
+  payload: payload
+  profile_target: skills/market_analysis_skill/profiles/passenger_vehicle_monthly
+  config_example: config/market_analysis.example.json
+
+not_included:
+  - api_keys
+  - env_files
+  - web_ui_routes
+  - model_credentials
+  - internal_database_connectors
+  - vector_database_content
