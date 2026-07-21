@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import asyncio
+from copy import deepcopy
 import json
 import re
 import subprocess
@@ -133,6 +134,33 @@ HTML_REPORT_SKILL_RUNNER = (
     / "executors"
     / "run.py"
 )
+
+
+def build_final_answer_retry_config(config: dict[str, Any]) -> dict[str, Any]:
+    """构造 MiniMax-M3 未产出正文时的最终交付重试配置。
+
+    首轮继续保留 MiniMax-M3 的自适应思考能力。仅当首轮没有产生任何可展示正文时，
+    才使用 MiniMax OpenAI 兼容接口公开支持的 ``thinking={"type": "disabled"}``
+    重试，避免模型再次停留在推理阶段而没有报告正文。这里仍通过 AgentScope 2.0.3
+    稳定的 ``extra_body`` 参数透传厂商字段，不使用任何 dev 接口。
+    """
+
+    retry_config = deepcopy(config)
+    provider_name = str(retry_config.get("active_provider", ""))
+    providers = retry_config.get("providers", {})
+    provider = providers.get(provider_name)
+    if not isinstance(provider, dict):
+        return retry_config
+
+    model_name = str(expand_env(provider.get("model", ""))).strip()
+    if model_name != "MiniMax-M3":
+        return retry_config
+
+    extra_body = dict(provider.get("extra_body") or {})
+    extra_body["reasoning_split"] = True
+    extra_body["thinking"] = {"type": "disabled"}
+    provider["extra_body"] = extra_body
+    return retry_config
 REPORT_FILE_TYPES = {
     ".txt": "文字报告",
     ".md": "Markdown报告",
@@ -600,22 +628,23 @@ async def run_agent_once(
     reply = await agent.reply(UserMsg(name="业务用户", content=question))
     answer = strip_thinking(reply.get_text_content())
     if not answer:
-        # MiniMax 偶发只返回未闭合的推理片段。使用全新会话做一次限额重试，避免把
-        # 不可展示内容直接抛给业务侧；仍为空时才把真实错误返回给前端。
+        # MiniMax-M3 偶发只完成推理阶段而未进入正文。使用全新会话执行一次
+        # “最终交付模式”重试，避免把不可展示的推理片段直接抛给业务侧。
+        retry_config = build_final_answer_retry_config(config)
         if market_skill_context and market_skill_context.active:
             market_skill_context.events.append(
-                SkillEvent("model-retry", "running", "首轮未返回可展示正文，正在使用全新会话重试一次。"),
+                SkillEvent("model-retry", "running", "首轮未返回可展示正文，正在使用最终交付模式重试一次。"),
             )
             retry_agent = build_market_strategy_agent(
-                config,
+                retry_config,
                 skill_instruction=market_skill_context.prompt_context,
                 monthly_report=True,
                 max_tokens_override=monthly_report_max_tokens,
             )
         elif agent_key == "market_strategy":
-            retry_agent = build_market_strategy_agent(config)
+            retry_agent = build_market_strategy_agent(retry_config)
         else:
-            retry_agent = build_user_insight_agent(config)
+            retry_agent = build_user_insight_agent(retry_config)
         retry_reply = await retry_agent.reply(UserMsg(name="业务用户", content=question))
         answer = strip_thinking(retry_reply.get_text_content())
         if answer and market_skill_context and market_skill_context.active:
@@ -626,8 +655,8 @@ async def run_agent_once(
     tool_events = get_tool_call_events()
     if not answer:
         raise RuntimeError(
-            "MiniMax-M3 连续两次未返回可展示的最终正文，系统已拦截未闭合的推理文本；"
-            "请稍后重试，并检查 model_config/config.json 中 reasoning_split 是否为 true。"
+            "MiniMax-M3 连续两次未返回可展示的最终正文，系统已拦截推理文本；"
+            "请稍后重试。若持续发生，请检查 MiniMax 服务状态与任务规模。"
         )
 
     if market_skill_context and market_skill_context.active:
