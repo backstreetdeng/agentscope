@@ -66,8 +66,8 @@
     "market_analysis": {
       "enabled": true,
       "auto_trigger": true,
-      "default_dataset": "skills/market-analysis-skill/1-5月报 AI验数.xlsx",
-      "default_dataset_label": "业务提供的1-5月乘用车月报验数样本（展示型交叉表）",
+      "default_dataset": "skills/market-analysis-skill/月报skill/1-5月报 AI验数.xlsx",
+      "default_dataset_label": "业务提供的1-6月乘用车月报验数数据（展示型交叉表）",
       "external_evidence": {
         "enabled": true,
         "max_queries": 4,
