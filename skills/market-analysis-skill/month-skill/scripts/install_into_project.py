@@ -116,7 +116,7 @@ def main() -> int:
         json.dumps(
             {
                 "skill": "china-passenger-vehicle-monthly-report",
-                "version": "0.1.0",
+                "version": "0.1.1",
                 "installed_at": datetime.now().isoformat(timespec="seconds"),
                 "source_package": str(ROOT),
                 "installed_files": installed,

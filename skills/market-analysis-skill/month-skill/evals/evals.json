@@ -1,6 +1,6 @@
 {
   "skill_name": "china-passenger-vehicle-monthly-report",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "evals": [
     {
       "id": "explicit-june-monthly-report",

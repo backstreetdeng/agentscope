@@ -19,7 +19,14 @@ from utils.monthly_report_pptx import (
 
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
-DATASET_PATH = PROJECT_DIR / "skills" / "market-analysis-skill" / "1-5月报 AI验数.xlsx"
+DATASET_PATH = (
+    PROJECT_DIR
+    / "skills"
+    / "market-analysis-skill"
+    / "月报skill"
+    / "1-5月报 AI验数.xlsx"
+)
+SIX_MONTH_DATASET_PATH = DATASET_PATH
 TEMPLATE_PATH = (
     PROJECT_DIR
     / "skills"
@@ -49,6 +56,34 @@ MPV市场规模较小，A级同比正增长但需持续验证。
 
 @unittest.skipUnless(DATASET_PATH.is_file() and TEMPLATE_PATH.is_file(), "缺少业务验数表或 PPTX 模板")
 class MonthlyReportPptxTest(unittest.TestCase):
+    @unittest.skipUnless(SIX_MONTH_DATASET_PATH.is_file(), "缺少包含6月的业务验数表")
+    def test_six_month_sales_charts_clear_template_axis_ceiling(self) -> None:
+        """问题6：销量超过5月母版旧上限时，柱高必须按真实数值自动缩放。"""
+
+        with tempfile.TemporaryDirectory() as directory:
+            output_path = Path(directory) / "六月纵轴校验.pptx"
+            build_monthly_report_pptx(
+                SAMPLE_REPORT,
+                output_path,
+                SIX_MONTH_DATASET_PATH,
+                sheet_name="6月",
+            )
+            presentation = Presentation(output_path)
+            charts = [shape.chart for shape in presentation.slides[0].shapes if shape.has_chart]
+
+            monthly_chart, cumulative_chart, share_chart = charts[:3]
+            self.assertEqual(
+                [round(value, 4) for value in monthly_chart.series[0].values],
+                [97.3963, 106.6977, 10.8309, 1.5728],
+            )
+            self.assertEqual(
+                [round(value, 4) for value in monthly_chart.series[1].values],
+                [68.3574, 93.2123, 7.7313, 0.9169],
+            )
+            self.assertIsNone(monthly_chart.value_axis.maximum_scale)
+            self.assertIsNone(cumulative_chart.value_axis.maximum_scale)
+            self.assertEqual(share_chart.value_axis.maximum_scale, 100.0)
+
     def test_positive_rates_do_not_show_plus_sign_in_ppt(self) -> None:
         """问题4：同比、环比、份额的正值必须不显示加号。"""
 
@@ -62,7 +97,7 @@ class MonthlyReportPptxTest(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             output_path = Path(directory) / "正数格式校验.pptx"
-            build_monthly_report_pptx(SAMPLE_REPORT, output_path, DATASET_PATH)
+            build_monthly_report_pptx(SAMPLE_REPORT, output_path, DATASET_PATH, sheet_name="5月")
             presentation = Presentation(output_path)
 
             rate_values: list[str] = []
@@ -82,7 +117,7 @@ class MonthlyReportPptxTest(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             output_path = Path(directory) / "椭圆标签样式校验.pptx"
-            build_monthly_report_pptx(SAMPLE_REPORT, output_path, DATASET_PATH)
+            build_monthly_report_pptx(SAMPLE_REPORT, output_path, DATASET_PATH, sheet_name="5月")
             presentation = Presentation(output_path)
 
             oval_runs = []
@@ -132,7 +167,7 @@ class MonthlyReportPptxTest(unittest.TestCase):
         )
         with tempfile.TemporaryDirectory() as directory:
             output_path = Path(directory) / "交付表达校验.pptx"
-            build_monthly_report_pptx(report, output_path, DATASET_PATH)
+            build_monthly_report_pptx(report, output_path, DATASET_PATH, sheet_name="5月")
             presentation = Presentation(output_path)
             slide_text = " ".join(
                 shape.text
@@ -148,7 +183,7 @@ class MonthlyReportPptxTest(unittest.TestCase):
     def test_builds_five_editable_slides_from_business_template(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             output_path = Path(directory) / "月报测试.pptx"
-            result = build_monthly_report_pptx(SAMPLE_REPORT, output_path, DATASET_PATH)
+            result = build_monthly_report_pptx(SAMPLE_REPORT, output_path, DATASET_PATH, sheet_name="5月")
 
             self.assertTrue(result["success"])
             self.assertEqual(result["slides_count"], 5)

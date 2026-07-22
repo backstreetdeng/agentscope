@@ -125,8 +125,8 @@ def validate() -> dict[str, object]:
     details["skill_lines"] = len(skill_lines)
 
     manifest = load_yaml(ROOT / "manifest.yaml")
-    if manifest.get("version") != "0.1.0":
-        errors.append("manifest version must be 0.1.0")
+    if manifest.get("version") != "0.1.1":
+        errors.append("manifest version must be 0.1.1")
     if manifest.get("framework", {}).get("required_version") != "2.0.3":
         errors.append("AgentScope required_version must be exactly 2.0.3")
     details["manifest"] = {

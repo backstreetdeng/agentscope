@@ -319,6 +319,7 @@ def update_overview_slide(
                 # 交叉型（深蓝）→ MPV → SUV → 轿车（浅蓝）。
                 for index, label_name in reversed(list(enumerate(block.labels)))
             ],
+            fixed_value_axis_maximum=100.0,
         )
     update_oval_rates(slide, [*block.yoy, *block.cumulative_yoy])
     clear_stale_percentage_callouts(slide)
@@ -386,14 +387,31 @@ def update_segment_slide(
     clear_stale_percentage_callouts(slide)
 
 
-def replace_chart(chart: object, categories: Sequence[str], series: Sequence[tuple[str, Sequence[float]]]) -> None:
-    """替换母版图表的缓存与嵌入数据表，图表仍保持 PowerPoint 原生可编辑。"""
+def replace_chart(
+    chart: object,
+    categories: Sequence[str],
+    series: Sequence[tuple[str, Sequence[float]]],
+    fixed_value_axis_maximum: float | None = None,
+) -> None:
+    """替换图表数据，并清除母版残留的销量轴上限。
+
+    业务母版会保存制模月份的纵轴最大值。新月份销量超过旧上限时，多根柱会同时
+    被截在图顶，造成“数值不同、高度相同”。销量图恢复自动上限；份额堆积图由
+    调用方显式传入 100，继续固定为百分比坐标轴。
+    """
 
     chart_data = CategoryChartData()
     chart_data.categories = list(categories)
     for name, values in series:
         chart_data.add_series(name, list(values))
     chart.replace_data(chart_data)
+    try:
+        value_axis = chart.value_axis
+        value_axis.minimum_scale = 0.0
+        value_axis.maximum_scale = fixed_value_axis_maximum
+    except (AttributeError, ValueError):
+        # 极坐标图或无数值轴图表不需要处理。
+        pass
 
 
 def color_top_model_chart(chart: object, models: Sequence[TopModel]) -> None:

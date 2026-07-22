@@ -10,7 +10,7 @@ from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
 
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / "dist"
-ARCHIVE = DIST / "china-passenger-vehicle-month-skill-0.1.0.zip"
+ARCHIVE = DIST / "china-passenger-vehicle-month-skill-0.1.1.zip"
 
 
 def include(path: Path) -> bool:
