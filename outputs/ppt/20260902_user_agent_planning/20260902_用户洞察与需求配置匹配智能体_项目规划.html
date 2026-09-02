@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<!--
+MIT License
+
+Copyright (c) 2026 lewis <sudolewis@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+ISC License
+
+Copyright (c) 2026 Lucide Icons and Contributors
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+- --
+
+The following Lucide icons are derived from the Feather project:
+
+airplay, alert-circle, alert-octagon, alert-triangle, aperture, arrow-down-circle, arrow-down-left, arrow-down-right, arrow-down, arrow-left-circle, arrow-left, arrow-right-circle, arrow-right, arrow-up-circle, arrow-up-left, arrow-up-right, arrow-up, at-sign, calendar, cast, check, chevron-down, chevron-left, chevron-right, chevron-up, chevrons-down, chevrons-left, chevrons-right, chevrons-up, circle, clipboard, clock, code, columns, command, compass, corner-down-left, corner-down-right, corner-left-down, corner-left-up, corner-right-down, corner-right-up, corner-up-left, corner-up-right, crosshair, database, divide-circle, divide-square, dollar-sign, download, external-link, feather, frown, hash, headphones, help-circle, info, italic, key, layout, life-buoy, link-2, link, loader, lock, log-in, log-out, maximize, meh, minimize, minimize-2, minus-circle, minus-square, minus, monitor, moon, more-horizontal, more-vertical, move, music, navigation-2, navigation, octagon, pause-circle, percent, plus-circle, plus-square, plus, power, radio, rss, search, server, share, shopping-bag, sidebar, smartphone, smile, square, table-2, tablet, target, terminal, trash-2, trash, triangle, tv, type, upload, x-circle, x-octagon, x-square, x, zoom-in, zoom-out
+
+The MIT License (MIT) (for the icons listed above)
+
+Copyright (c) 2013-present Cole Bemis
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>用户洞察与需求配置匹配智能体 · 项目规划</title>
+<style>/* html-ppt :: base.css — reset + shared tokens + layout primitives */
+/* Default tokens. Themes in assets/themes/*.css override the :root block. */
+:root {
+  --bg: #ffffff;
+  --bg-soft: #f7f7f8;
+  --surface: #ffffff;
+  --surface-2: #f2f2f4;
+  --border: rgba(0,0,0,.08);
+  --border-strong: rgba(0,0,0,.16);
+  --text-1: #111216;
+  --text-2: #55596a;
+  --text-3: #8a8f9e;
+  --accent: #3b6cff;
+  --accent-2: #7a5cff;
+  --accent-3: #ff5c8a;
+  --good: #1aaf6c;
+  --warn: #f5a524;
+  --bad:  #e0445a;
+  --grad: linear-gradient(135deg,#3b6cff,#7a5cff 55%,#ff5c8a);
+  --grad-soft: linear-gradient(135deg,#eef2ff,#f5ecff 55%,#ffeef5);
+  --radius: 18px;
+  --radius-sm: 12px;
+  --radius-lg: 26px;
+  --shadow: 0 10px 30px rgba(18,24,40,.08), 0 2px 6px rgba(18,24,40,.04);
+  --shadow-lg: 0 24px 60px rgba(18,24,40,.14), 0 6px 16px rgba(18,24,40,.06);
+  --font-sans: 'Inter','Noto Sans SC',-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;
+  --font-serif: 'Playfair Display','Noto Serif SC',Georgia,serif;
+  --font-mono: 'JetBrains Mono','IBM Plex Mono',SFMono-Regular,Menlo,monospace;
+  --font-display: var(--font-sans);
+  --letter-tight: -.03em;
+  --letter-normal: -.01em;
+  --ease: cubic-bezier(.4,0,.2,1);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text-1);
+  font-family:var(--font-sans);font-weight:400;line-height:1.6;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  letter-spacing:var(--letter-normal)}
+img,svg,video{max-width:100%;display:block}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+code,kbd,pre,samp{font-family:var(--font-mono)}
+
+/* ================= SLIDE SYSTEM ================= */
+.deck{position:relative;width:100vw;height:100vh;overflow:hidden;background:var(--bg)}
+.slide{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:72px 96px;
+  box-sizing:border-box;
+  opacity:0;pointer-events:none;
+  transition:opacity .5s var(--ease), transform .5s var(--ease);
+  transform:translateX(30px);
+  overflow:hidden;
+}
+.slide.is-active{opacity:1;pointer-events:auto;transform:translateX(0);z-index:2}
+.slide.is-prev{transform:translateX(-30px)}
+
+/* single-page standalone (used when a layout file is opened directly) */
+body.single .slide{position:relative;width:100vw;height:100vh;opacity:1;transform:none;pointer-events:auto}
+
+/* ================= TYPOGRAPHY ================= */
+.eyebrow{font-size:13px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--text-3)}
+.kicker{font-size:14px;font-weight:600;color:var(--accent);letter-spacing:.08em;text-transform:uppercase}
+h1.title,.h1{font-family:var(--font-display);font-size:72px;line-height:1.05;font-weight:800;letter-spacing:var(--letter-tight);margin:0 0 18px;color:var(--text-1)}
+h2.title,.h2{font-family:var(--font-display);font-size:54px;line-height:1.1;font-weight:700;letter-spacing:var(--letter-tight);margin:0 0 14px}
+h3,.h3{font-size:32px;line-height:1.2;font-weight:600;letter-spacing:var(--letter-normal);margin:0 0 10px}
+h4,.h4{font-size:22px;line-height:1.3;font-weight:600;margin:0 0 8px}
+.lede{font-size:22px;line-height:1.55;color:var(--text-2);font-weight:300;max-width:62ch}
+.dim{color:var(--text-2)}
+.dim2{color:var(--text-3)}
+.mono{font-family:var(--font-mono)}
+.serif{font-family:var(--font-serif)}
+.gradient-text{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+
+/* ================= LAYOUT PRIMITIVES ================= */
+.stack>*+*{margin-top:14px}
+.row{display:flex;gap:24px;align-items:center}
+.row.wrap{flex-wrap:wrap}
+.grid{display:grid;gap:24px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.center{display:flex;align-items:center;justify-content:center;text-align:center}
+.fill{flex:1}
+.sp-t{padding-top:24px}.sp-b{padding-bottom:24px}
+.mt-s{margin-top:8px}.mt-m{margin-top:18px}.mt-l{margin-top:32px}
+.mb-s{margin-bottom:8px}.mb-m{margin-bottom:18px}.mb-l{margin-bottom:32px}
+
+/* ================= CARDS ================= */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:26px 28px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.card-soft{background:var(--surface-2);border:1px solid var(--border)}
+.card-outline{background:transparent;border:1.5px solid var(--border-strong);box-shadow:none}
+.card-accent{background:var(--surface);border-top:3px solid var(--accent)}
+.card-hover{transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
+.card-hover:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+
+.pill{display:inline-block;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:500;
+  background:var(--surface-2);color:var(--text-2);border:1px solid var(--border)}
+.pill-accent{background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent);border-color:color-mix(in srgb,var(--accent) 28%,transparent)}
+
+/* ================= BARS / DIVIDERS ================= */
+.divider{height:1px;background:var(--border);width:100%}
+.divider-accent{height:3px;width:72px;background:var(--accent);border-radius:2px}
+
+/* ================= CHROME (header/footer/progress) ================= */
+.deck-header{position:absolute;top:24px;left:40px;right:40px;display:flex;align-items:center;justify-content:space-between;
+  font-size:12px;color:var(--text-3);letter-spacing:.12em;text-transform:uppercase;z-index:10;pointer-events:none}
+.deck-footer{position:absolute;bottom:24px;left:40px;right:40px;display:flex;align-items:center;justify-content:space-between;
+  font-size:12px;color:var(--text-3);z-index:10;pointer-events:none}
+.slide-number::before{content:attr(data-current)}
+.slide-number::after{content:" / " attr(data-total)}
+.progress-bar{position:fixed;left:0;right:0;bottom:0;height:3px;background:transparent;z-index:20}
+.progress-bar > span{display:block;height:100%;width:0;background:var(--accent);transition:width .3s var(--ease)}
+
+/* ================= PRESENTER / OVERVIEW ================= */
+.notes{display:none!important}
+.notes-overlay{position:fixed;inset:auto 0 0 0;max-height:42vh;background:rgba(20,22,30,.95);color:#e8ebf4;
+  padding:20px 32px;font-size:16px;line-height:1.6;border-top:1px solid rgba(255,255,255,.1);transform:translateY(100%);
+  transition:transform .3s var(--ease);z-index:40;overflow:auto;font-family:var(--font-sans)}
+.notes-overlay.open{transform:translateY(0)}
+.overview{position:fixed;inset:0;background:rgba(10,12,18,.92);backdrop-filter:blur(12px);z-index:50;
+  display:none;padding:40px;overflow:auto}
+.overview.open{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;align-content:start}
+.overview .thumb{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  aspect-ratio:16/9;overflow:hidden;cursor:pointer;position:relative;color:var(--text-1);padding:16px;
+  font-size:11px;transition:transform .2s var(--ease)}
+.overview .thumb:hover{transform:scale(1.04)}
+.overview .thumb .n{position:absolute;top:8px;left:10px;font-weight:700;font-size:14px;color:var(--text-3)}
+.overview .thumb .t{position:absolute;bottom:10px;left:14px;right:14px;font-weight:600;color:var(--text-1)}
+
+/* ================= PRESENTER VIEW ================= */
+/* Presenter view opens in a separate popup window (S key).
+ * All presenter styles are self-contained in the popup HTML generated by runtime.js.
+ * The audience window (this file) is NOT affected — it stays as normal deck view.
+ * Only the .notes class below is needed to hide speaker notes from audience. */
+
+/* ================= UTILITY ================= */
+.hidden{display:none!important}
+.nowrap{white-space:nowrap}
+.tr{text-align:right}.tc{text-align:center}.tl{text-align:left}
+.uppercase{text-transform:uppercase;letter-spacing:.12em}
+
+/* ================= PRINT ================= */
+@media print{
+  .slide{position:relative;opacity:1!important;transform:none!important;page-break-after:always;height:100vh}
+  .deck-header,.deck-footer,.progress-bar,.notes-overlay,.overview{display:none!important}
+}
+
+/* theme: corporate-clean — 企业商务 */
+:root{
+  --bg:#ffffff;--bg-soft:#f5f7fa;--surface:#ffffff;--surface-2:#f0f3f7;
+  --border:rgba(10,37,64,.12);--border-strong:rgba(10,37,64,.28);
+  --text-1:#0a2540;--text-2:#425466;--text-3:#8898aa;
+  --accent:#0a2540;--accent-2:#1d4ed8;--accent-3:#64748b;
+  --good:#0e9f6e;--warn:#d97706;--bad:#dc2626;
+  --grad:linear-gradient(135deg,#0a2540,#1d4ed8);
+  --grad-soft:linear-gradient(135deg,#f0f4fb,#e4ecf7);
+  --radius:6px;--radius-sm:4px;--radius-lg:10px;
+  --shadow:0 1px 3px rgba(10,37,64,.08),0 4px 12px rgba(10,37,64,.05);
+  --shadow-lg:0 4px 12px rgba(10,37,64,.1),0 16px 40px rgba(10,37,64,.08);
+  --font-sans:'Inter','Noto Sans SC',sans-serif;
+  --font-display:'Inter','Noto Sans SC',sans-serif;
+}
+.card{border:1px solid var(--border)}
+.divider-accent{background:var(--accent);height:3px;width:56px}
+.kicker{color:var(--accent-2)}
+h1.title,h2.title,.h1,.h2{font-weight:700;color:var(--accent)}
+
+/* tpl-presenter-mode-reveal · scoped styles
+ * Presenter-mode demo deck. Inherits tokens from active theme.
+ * Minimal overrides — focus is on content + notes structure.
+ */
+
+.tpl-presenter-mode-reveal .slide {
+  padding: 72px 96px;
+}
+
+.tpl-presenter-mode-reveal .kicker {
+  font-family: var(--font-mono, monospace);
+  font-size: 13px;
+  color: var(--text-3);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin: 0 0 18px 0;
+}
+
+.tpl-presenter-mode-reveal .h1 {
+  font-size: clamp(44px, 5.6vw, 76px);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  margin: 0 0 24px 0;
+}
+
+.tpl-presenter-mode-reveal .h2 {
+  font-size: clamp(32px, 3.6vw, 48px);
+  line-height: 1.22;
+  letter-spacing: -0.01em;
+  margin: 0 0 28px 0;
+}
+
+.tpl-presenter-mode-reveal .lede {
+  font-size: 20px;
+  line-height: 1.55;
+  color: var(--text-2);
+}
+
+.tpl-presenter-mode-reveal .mono {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.9em;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.08);
+  color: var(--accent, #58a6ff);
+}
+
+.tpl-presenter-mode-reveal .accent {
+  color: var(--accent, #f0883e);
+  font-weight: 700;
+}
+
+.tpl-presenter-mode-reveal .speaker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 32px;
+}
+.tpl-presenter-mode-reveal .speaker .av {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent, #58a6ff), #bc8cff);
+}
+.tpl-presenter-mode-reveal .speaker b {
+  display: block;
+  font-size: 16px;
+}
+.tpl-presenter-mode-reveal .speaker span {
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+/* Agenda rows */
+.tpl-presenter-mode-reveal .agenda-row {
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 18px;
+  border: 1px solid var(--border, rgba(255,255,255,0.1));
+  border-radius: 10px;
+  margin-bottom: 10px;
+  background: var(--surface, rgba(255,255,255,0.03));
+}
+.tpl-presenter-mode-reveal .agenda-row .num {
+  font-family: var(--font-mono, monospace);
+  font-size: 14px;
+  color: var(--accent, #58a6ff);
+  font-weight: 700;
+}
+.tpl-presenter-mode-reveal .agenda-row .t {
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--text-1);
+}
+.tpl-presenter-mode-reveal .agenda-row .d {
+  font-family: var(--font-mono, monospace);
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+/* Cards */
+.tpl-presenter-mode-reveal .card {
+  background: var(--surface, rgba(255,255,255,0.03));
+  border: 1px solid var(--border, rgba(255,255,255,0.1));
+  border-radius: 12px;
+  padding: 22px 24px;
+}
+.tpl-presenter-mode-reveal .card-accent {
+  border-top: 3px solid var(--accent, #58a6ff);
+}
+.tpl-presenter-mode-reveal .card h4 {
+  margin: 0 0 10px 0;
+  font-size: 18px;
+  color: var(--text-1);
+}
+.tpl-presenter-mode-reveal .card .dim {
+  color: var(--text-2);
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Feature rows (presenter view features) */
+.tpl-presenter-mode-reveal .feature-row {
+  display: flex;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border, rgba(255,255,255,0.08));
+}
+.tpl-presenter-mode-reveal .feature-row:last-child { border-bottom: none; }
+.tpl-presenter-mode-reveal .feature-row .num {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.tpl-presenter-mode-reveal .feature-row b {
+  display: block;
+  font-size: 17px;
+  margin-bottom: 4px;
+  color: var(--text-1);
+}
+.tpl-presenter-mode-reveal .feature-row .dim {
+  font-size: 14px;
+  color: var(--text-2);
+  line-height: 1.55;
+  margin: 0;
+}
+.tpl-presenter-mode-reveal .blue { color: #58a6ff; }
+.tpl-presenter-mode-reveal .green { color: #3fb950; }
+.tpl-presenter-mode-reveal .orange { color: #f0883e; }
+.tpl-presenter-mode-reveal .purple { color: #bc8cff; }
+.tpl-presenter-mode-reveal .red { color: #f85149; }
+
+/* Rule rows (3 铁律) */
+.tpl-presenter-mode-reveal .rule-row {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 20px;
+  align-items: start;
+  padding: 18px 22px;
+  border: 1px solid var(--border, rgba(255,255,255,0.1));
+  border-radius: 12px;
+  margin-bottom: 14px;
+  background: var(--surface, rgba(255,255,255,0.03));
+}
+.tpl-presenter-mode-reveal .rule-row .num {
+  font-size: 28px;
+  font-weight: 800;
+  font-family: var(--font-mono, monospace);
+  line-height: 1;
+}
+.tpl-presenter-mode-reveal .rule-row b {
+  display: block;
+  font-size: 18px;
+  margin-bottom: 6px;
+  color: var(--text-1);
+}
+.tpl-presenter-mode-reveal .rule-row .dim {
+  font-size: 15px;
+  color: var(--text-2);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Code block */
+.tpl-presenter-mode-reveal .code-block {
+  background: #0d1117;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 20px 26px;
+  font-family: var(--font-mono, "SF Mono", monospace);
+  font-size: 15px;
+  line-height: 1.8;
+  color: #e6edf3;
+  white-space: pre-wrap;
+  text-align: left;
+}
+.tpl-presenter-mode-reveal .code-block .comment { color: #8b949e; }
+.tpl-presenter-mode-reveal .code-block .cmd { color: #3fb950; font-weight: 600; }
+.tpl-presenter-mode-reveal .code-block .flag { color: #f0883e; }
+
+/* Stack helper */
+.tpl-presenter-mode-reveal .stack > * + * { margin-top: 0; }
+
+/* Grid helpers */
+.tpl-presenter-mode-reveal .grid { display: grid; gap: 20px; }
+.tpl-presenter-mode-reveal .grid.g2 { grid-template-columns: 1fr 1fr; }
+.tpl-presenter-mode-reveal .grid.g3 { grid-template-columns: repeat(3, 1fr); }
+
+.tpl-presenter-mode-reveal .mt-m { margin-top: 20px; }
+.tpl-presenter-mode-reveal .mt-l { margin-top: 32px; }
+.tpl-presenter-mode-reveal .mt-s { margin-top: 10px; }
+.tpl-presenter-mode-reveal .tc { text-align: center; }
+
+/* 基于 html-ppt corporate-clean / presenter-mode-reveal 模板的汇报样式。
+ * 固定 1920 x 1080 画布整体缩放，字号不随视口单独变化。 */
+:root {
+  --bg: #ffffff; --bg-soft: #f3f6f8; --surface: #ffffff; --surface-2: #edf3f7;
+  --text-1: #15344b; --text-2: #465c6b; --text-3: #617888;
+  --accent: #145ba0; --accent-2: #00857d; --good: #00857d; --warn: #b75b16;
+  --bad: #b64242; --border: #d6e0e6; --mint: #eaf6f2; --blue-soft: #edf4fb;
+  --orange-soft: #fff3e7; --white: #ffffff; --stage: #e3e8ec;
+  --radius: 6px; --shadow: none;
+  --font-sans: "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC", sans-serif;
+  --font-display: var(--font-sans); --font-mono: Consolas, monospace;
+}
+* { box-sizing: border-box; letter-spacing: 0 !important; }
+html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: var(--stage); }
+body { color: var(--text-1); font-family: var(--font-sans); }
+body > .deck { position: absolute; left: 50%; top: calc(50% - var(--control-space, 52px) / 2); width: 1920px; height: 1080px;
+  transform: translate(-50%, -50%) scale(var(--deck-scale, 1)); transform-origin: center; background: var(--bg); }
+.tpl-presenter-mode-reveal .slide { padding: 112px 104px 120px; justify-content: flex-start;
+  gap: 0; background: var(--bg); transform: translateX(18px); transition: opacity .22s ease, transform .22s ease; }
+.tpl-presenter-mode-reveal .slide.is-active { transform: none; }
+.deck-header { top: 38px; left: 104px; right: 104px; font-size: 21px; color: var(--text-3);
+  border-bottom: 1px solid var(--border); padding-bottom: 20px; display: flex; justify-content: space-between; }
+.deck-header b { color: var(--text-1); font-weight: 700; }
+.deck-footer { left: 104px; right: 104px; bottom: 35px; padding-top: 18px; border-top: 1px solid var(--border);
+  font-size: 19px; color: var(--text-3); display: flex; justify-content: space-between; align-items: center; }
+.page-count { color: var(--accent); font-family: var(--font-mono); font-size: 22px; }
+.page-heading { flex: 0 0 202px; }
+.tpl-presenter-mode-reveal .kicker { font-size: 20px; margin: 0 0 14px; color: var(--accent-2); font-family: var(--font-sans); font-weight: 700; }
+.tpl-presenter-mode-reveal h2 { font-family: var(--font-sans); font-size: 53px; line-height: 1.25; font-weight: 700; margin: 0 0 18px; }
+.subtitle { font-size: 27px; line-height: 1.5; color: var(--text-2); margin: 0; }
+.content { display: flex; flex-direction: column; gap: 28px; min-height: 0; flex: 1; }
+h3, .tpl-presenter-mode-reveal h3 { font-size: 32px; line-height: 1.35; margin: 0 0 16px; font-weight: 700; }
+h4 { font-size: 27px; line-height: 1.4; margin: 0 0 10px; }
+p { margin: 0; font-size: 27px; line-height: 1.58; }
+small, .small { font-size: 21px; line-height: 1.5; color: var(--text-3); }
+strong { color: var(--text-1); }
+.accent, .teal { color: var(--accent-2) !important; }
+.warn { color: var(--warn); }
+.muted { color: var(--text-2); }
+.grid { display: grid; gap: 34px; }
+.g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.g4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.fill { flex: 1; min-height: 0; }
+.panel { padding: 26px 30px; border: 1px solid var(--border); border-top: 5px solid var(--accent); border-radius: var(--radius); background: var(--surface); }
+.panel.teal-panel { border-top-color: var(--accent-2); }
+.panel.warn-panel { border-top-color: var(--warn); }
+.flat { border-top: 4px solid var(--accent-2); padding: 26px 8px 0 0; }
+.flat + .flat { border-left: 1px solid var(--border); padding-left: 26px; }
+.eyebrow { display: block; font-size: 22px; font-weight: 700; color: var(--accent-2); margin-bottom: 18px; }
+.large { font-size: 42px; font-weight: 700; line-height: 1.4; }
+.big-number { font-size: 78px; font-weight: 700; line-height: 1.15; color: var(--accent); margin-bottom: 20px; }
+.bullets { list-style: none; margin: 0; padding: 0; }
+.bullets li { position: relative; padding-left: 22px; font-size: 27px; line-height: 1.55; margin-top: 16px; }
+.bullets li::before { content: ''; position: absolute; width: 6px; height: 6px; background: var(--accent-2); left: 0; top: 18px; }
+.takeaway { margin-top: auto; padding: 20px 26px; border-left: 5px solid var(--accent-2); background: var(--mint); font-size: 27px; line-height: 1.5; }
+.takeaway.caution { background: var(--orange-soft); border-left-color: var(--warn); }
+.takeaway b { margin-right: 14px; }
+.flow { display: flex; align-items: stretch; gap: 0; }
+.flow .node { flex: 1; min-width: 0; padding: 26px 24px; border-top: 5px solid var(--accent-2); background: var(--bg-soft); }
+.flow .node:nth-of-type(4n+1) { border-top-color: var(--accent); }
+.flow .node b { display: block; font-size: 31px; line-height: 1.4; margin-bottom: 16px; }
+.flow .node p { font-size: 25px; }
+.flow .arr { width: 54px; flex: 0 0 54px; display: flex; align-items: center; justify-content: center; color: var(--text-3); }
+.flow .arr svg { width: 32px; height: 32px; }
+.num { font-family: var(--font-mono); color: var(--accent-2); font-size: 25px; display: block; margin-bottom: 18px; }
+.vs { display: grid; grid-template-columns: 1fr 90px 1fr; gap: 28px; align-items: stretch; }
+.vs .separator { display: flex; align-items: center; justify-content: center; color: var(--accent-2); }
+.vs .separator svg { width: 48px; height: 48px; }
+.vs .side { padding: 30px 36px; background: var(--bg-soft); border-top: 5px solid var(--border); }
+.vs .side.to { background: var(--mint); border-top-color: var(--accent-2); }
+.matrix { width: 100%; border-collapse: collapse; font-size: 25px; line-height: 1.45; table-layout: fixed; }
+.matrix th { background: var(--text-1); color: var(--white); font-size: 23px; font-weight: 600; text-align: left; padding: 19px 22px; }
+.matrix td { padding: 21px 22px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.matrix tr:nth-child(even) td { background: var(--bg-soft); }
+.matrix td:first-child { font-weight: 700; color: var(--accent); }
+.matrix.compact td { padding: 16px 20px; font-size: 24px; }
+.matrix.compact th { padding: 16px 20px; }
+.line-list { display: flex; flex-direction: column; }
+.line-item { display: grid; grid-template-columns: 72px 1fr; gap: 24px; padding: 25px 0; border-bottom: 1px solid var(--border); }
+.line-item .num { font-size: 32px; margin: 0; }
+.line-item h3 { margin-bottom: 9px; }
+.line-item p { color: var(--text-2); }
+.split-36 { display: grid; grid-template-columns: .8fr 1.7fr; gap: 56px; }
+.signal { padding: 28px 32px; background: var(--blue-soft); border-left: 5px solid var(--accent); }
+.signal strong { font-size: 33px; display: block; margin-bottom: 14px; }
+.loop-return { border: 2px solid var(--accent-2); border-top: 0; margin: 0 95px; padding: 18px; text-align: center; color: var(--accent-2); font-size: 28px; }
+.arch { display: grid; gap: 14px; }
+.arch .tier { display: grid; grid-template-columns: 210px 1fr; gap: 20px; }
+.arch .label { background: var(--text-1); color: var(--white); padding: 18px 24px; font-size: 26px; font-weight: 700; display: flex; align-items: center; }
+.arch .cells { display: grid; gap: 18px; grid-template-columns: repeat(3, 1fr); }
+.arch .cell { background: var(--bg-soft); padding: 18px 26px; font-size: 25px; line-height: 1.5; border-left: 3px solid var(--accent-2); }
+.arch .cell b { display: block; margin-bottom: 6px; }
+.rm { display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px; }
+.rm .col { border-top: 6px solid var(--accent-2); padding: 26px 24px; background: var(--bg-soft); }
+.rm .col:nth-child(even) { border-color: var(--accent); }
+.rm .date { color: var(--accent-2); font-size: 24px; font-weight: 700; margin-bottom: 20px; }
+.rm .gate { border-top: 1px solid var(--border); padding-top: 20px; margin-top: 25px; font-size: 24px; color: var(--text-2); }
+.capability { display: grid; grid-template-columns: 56px 1fr; gap: 18px; padding: 24px 0; border-top: 2px solid var(--border); }
+.capability svg { width: 38px; height: 38px; color: var(--accent-2); margin-top: 3px; }
+.capability h3 { font-size: 28px; margin-bottom: 10px; }
+.capability p { font-size: 24px; color: var(--text-2); }
+.cover-title { font-size: 85px; line-height: 1.25; margin: 38px 0 27px; font-weight: 700; }
+.cover-title em { font-style: normal; color: var(--accent-2); }
+.cover-lede { font-size: 34px; line-height: 1.6; max-width: 1540px; color: var(--text-2); }
+.cover-flow { margin-top: auto; margin-bottom: 32px; }
+.cover-flow .node { background: transparent; padding-left: 0; }
+.cover-tag { color: var(--accent); font-size: 24px; font-weight: 700; margin-top: 42px; }
+.quote { font-size: 39px; line-height: 1.65; border-left: 6px solid var(--accent-2); padding: 8px 0 8px 34px; }
+.decision-row { display: grid; grid-template-columns: 76px 300px 1fr; gap: 28px; padding: 24px 0; border-bottom: 1px solid var(--border); align-items: center; }
+.decision-row .num { font-size: 38px; margin: 0; }
+.decision-row h3 { margin: 0; }
+.decision-row p { color: var(--text-2); }
+.review-origin { font-size: 25px; padding: 21px 26px; background: var(--bg-soft); color: var(--text-2); border-left: 4px solid var(--border); }
+.review-origin b { color: var(--text-1); margin-right: 14px; }
+.review-actions .flat h3 { font-size: 29px; }
+.review-actions .flat p { font-size: 26px; }
+.review-actions .flat { min-height: 180px; }
+.review-output { padding: 26px 30px; border-left: 5px solid var(--accent); background: var(--blue-soft); }
+.review-output h3 { color: var(--accent); font-size: 29px; }
+.review-output p { font-size: 27px; }
+.source-list { display: grid; grid-template-columns: 1fr 1fr; gap: 28px 42px; }
+.source-list a { font-size: 25px; line-height: 1.45; color: var(--accent); text-decoration: none; }
+.source-list small { display: block; margin-top: 8px; }
+.toolbar { position: fixed; left: 50%; transform: translateX(-50%); bottom: 5px; z-index: 50; display: flex; gap: 3px; padding: 5px; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); }
+.toolbar button { width: 36px; height: 34px; display: flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 4px; background: transparent; cursor: pointer; color: var(--text-2); }
+.toolbar button:hover, .toolbar button:focus-visible { color: var(--accent); background: var(--blue-soft); outline: 2px solid var(--accent); }
+.toolbar svg { width: 18px; height: 18px; }
+.progress-bar { height: 3px; z-index: 60; background: var(--border); }
+.progress-bar span { background: var(--accent-2); }
+.notes-overlay { background: var(--white); color: var(--text-1); border-top: 4px solid var(--accent-2); padding: 30px 6%; max-height: 44vh; }
+.notes-overlay p { font-size: 23px; line-height: 1.7; margin-bottom: 14px; }
+.overview { background: var(--stage); padding: 35px; }
+.overview.open { gap: 26px; grid-template-columns: repeat(3, 1fr); }
+.overview .thumb { border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; }
+.overview .thumb:hover { outline: 3px solid var(--accent-2); }
+.overview .mini-slide + div { background: transparent !important; }
+.overview .mini-slide + div .n { background: var(--text-1); border-radius: 4px; padding: 3px 7px; left: 5px !important; top: 5px !important; text-shadow: none !important; font-size: 12px !important; }
+.overview .mini-slide + div .t { display: none; }
+[data-preview="1"] .toolbar { display: none; }
+@media (max-width: 640px) { .overview { padding: 20px; } .overview.open { grid-template-columns: 1fr; } .notes-overlay p { font-size: 17px; } }
+@media (prefers-reduced-motion: reduce) { .slide { transition: none !important; } }
+@media print {
+  @page { size: 508mm 285.75mm; margin: 0; }
+  html, body { width: 1920px; height: auto; overflow: visible; background: var(--white); }
+  body > .deck { position: static; width: 1920px; height: auto; transform: none; overflow: visible; }
+  .tpl-presenter-mode-reveal .slide { position: relative; width: 1920px; height: 1080px; opacity: 1; transform: none; transition: none !important; page-break-after: always; break-inside: avoid; }
+  .deck-header, .deck-footer { display: flex !important; }
+  .toolbar, .progress-bar, .notes-overlay, .overview { display: none !important; }
+}
+</style></head>
+
+<body class="tpl-presenter-mode-reveal"><div class="deck"><section class="slide cover" data-title="用户洞察与需求配置匹配智能体" data-source="原规划 §0、§2、§15">
+<header class="deck-header"><b>乘用车咨询 · 用户智能体</b><span>项目规划汇报 / 2026.09.02</span></header>
+<div class="content"><p class="kicker">乘用车咨询业务 · 项目规划建议</p><h1 class="cover-title">用户洞察与<br><em>需求配置匹配智能体</em></h1><p class="cover-lede">让AI从“整理材料”走向“提出研究路径、检验证据、比较方案”，<br>让专家专注洞察判断与产品取舍。</p><p class="cover-tag">首期：一个真实咨询项目，贯通两类业务决策</p><div class="cover-flow"><div class="flow"><div class="node"><span class="num">01</span><b>业务问题</b><p>为谁做产品</p></div><div class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div><div class="node"><span class="num">02</span><b>用户洞察</b><p>为什么选择或放弃</p></div><div class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div><div class="node"><span class="num">03</span><b>需求规格</b><p>场景与可验证要求</p></div><div class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div><div class="node"><span class="num">04</span><b>配置权衡</b><p>预算与工程约束</p></div><div class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div><div class="node"><span class="num">05</span><b>专家验收</b><p>可信、可用、可复制</p></div></div></div></div><footer class="deck-footer"><span>规划建议 · 需经真实项目验证，不代表已交付能力</span><span class="page-count">01 / 22</span></footer><aside class="notes"><p>今天讨论的<strong>不是再增加一个聊天入口</strong>，而是把用户研究的方法变成能执行、能复核的咨询能力。业务提出问题后，AI需要知道该找什么资料、怎样比较不同解释、缺数据时怎么调整计划，最后把用户语言翻译成产品需求。这里所有目标能力和排期都属于规划建议，不能当作现有工程已经完成。首期用一个真实项目验证，再决定是否扩大投入。</p><p>先看这项建设到底要改变哪几个业务环节。</p></aside></section>
+<section class="slide" data-title="从材料自动化，走向可追溯的咨询决策" data-source="原规划 §0、§1、§10">
+<header class="deck-header"><b>乘用车咨询 · 用户智能体</b><span>项目规划汇报 / 2026.09.02</span></header>
+<div class="page-heading"><p class="kicker">01 / 业务价值</p><h2>从材料自动化，走向可追溯的咨询决策</h2><p class="subtitle">真正的提升不在于更快写字，而在于把研究结论连接到产品取舍。</p></div><div class="content"><div class="vs fill"><article class="side"><span class="eyebrow">当前常见做法</span><h3>已有资料，却难以支撑决策</h3><ul class="bullets"><li>访谈、问卷、口碑分散，复查原始依据耗时</li><li>标签与数据描述较多，选择机制解释不足</li><li>“想要什么”难以转换为“应该怎么配”</li></ul></article><div class="separator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div><article class="side to"><span class="eyebrow">目标能力</span><h3>同一条证据链，支撑两类决策</h3><ul class="bullets"><li>识别人群差异与购车取舍，说明支持证据和反例</li><li>把场景痛点转成需求规格，而非直接堆配置</li><li>在成本、依赖与工程限制下比较方案</li></ul></article></div><div class="takeaway"><b>价值衡量</b>结论是否更可信、方案是否可比较、专家总投入是否下降。</div></div><footer class="deck-footer"><span>规划建议 · 需经真实项目验证，不代表已交付能力</span><span class="page-count">02 / 22</span></footer><aside class="notes"><p>原有工作里，资料本身往往并不少，难的是<strong>从材料到解释，再从解释到决策</strong>。自动整理和写报告仍然重要，但它们只是底层效率。这个项目要让业务能追问：这类人为什么流失，证据能否排除另一种解释，改产品还是改交易服务更有效。我们也不预设AI一定更好，最后要把专家修改时间算进去，和原来的方式比较，防止机器更快、人工返工更多。</p><p>对应这些决策，先把智能体职责分清。</p></aside></section>
+<section class="slide" data-title="两个业务角色贯通研究与产品定义" data-source="原规划 §3">
+<header class="deck-header"><b>乘用车咨询 · 用户智能体</b><span>项目规划汇报 / 2026.09.02</span></header>
+<div class="page-heading"><p class="kicker">02 / 职责划分</p><h2>两个业务角色贯通研究与产品定义</h2><p class="subtitle">先划清交接内容，再决定哪些底层功能封装为Skill。</p></div><div class="content"><div class="grid g2 fill"><article class="panel"><h3>A · 用户洞察与选择机制</h3><ul class="bullets"><li>回答：服务谁，为什么买或不买</li><li>研究：人群、场景、选择旅程、战胜战败</li><li>输出：洞察、证据、反例、补访要求</li></ul></article><article class="panel teal-panel"><h3>B · 需求与配置权衡</h3><ul class="bullets"><li>承接：已经审核的洞察与适用范围</li><li>分析：需求规格、候选解法、成本与限制</li><li>输出：配置方案、取舍、未覆盖需求</li></ul></article></div><div class="signal"><strong>交接物：结构化洞察包</strong><p>目标人群 + 使用场景 + 需求依据 + 置信与限制 + 待验证问题</p></div><div class="takeaway">市场战略Agent后续可提供目标市场边界；本期用户研究试点不以联动完成为前提。</div></div><footer class="deck-footer"><span>规划建议 · 需经真实项目验证，不代表已交付能力</span><span class="page-count">03 / 22</span></footer><aside class="notes"><p>这里的两个角色是<strong>职责边界，不是必须再做两个孤立聊天机器人</strong>。角色A解释用户差异和选择机制，角色B把审核后的洞察转成需求与配置比较。中间不能只传一段漂亮摘要，必须带人群、场景、原始证据和限制。战胜战败、需求识别和使用评价可以是共享Skill，不需要每项都单独设Agent。市场战略智能体将来能够提供范围，但不能让它成为当前试点落地的前置依赖。</p><p>接着看，相比固定流程，AI具体多承担什么。</p></aside></section>
+<section class="slide" data-title="自主能力必须体现在“选择下一步”" data-source="原规划 §2、§8">
+<header class="deck-header"><b>乘用车咨询 · 用户智能体</b><span>项目规划汇报 / 2026.09.02</span></header>
+<div class="page-heading"><p class="kicker">03 / AI自主能力</p><h2>自主能力必须体现在“选择下一步”</h2><p class="subtitle">固定脚本负责确定性动作；AI负责受约束的规划、解释和调整。</p></div><div class="content"><div class="grid g4 fill"><article class="capability"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="19" r="3"></circle><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"></path><circle cx="18" cy="5" r="3"></circle></svg><div><h3>任务规划</h3><p>根据目标选择研究方法，形成步骤与停止条件</p></div></article><article class="capability"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path><circle cx="12" cy="12" r="3"></circle><path d="m16 16-1.9-1.9"></path></svg><div><h3>语义对齐</h3><p>理解原声语境，对齐对象、否定和研究口径</p></div></article><article class="capability"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"></path><path d="M9 18h6"></path><path d="M10 22h4"></path></svg><div><h3>需求发现</h3><p>提出新需求或人群差异，并保留反例</p></div></article><article class="capability"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6a9 9 0 0 0-9 9V3"></path><circle cx="18" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle></svg><div><h3>选择机制</h3><p>连接考虑、试驾、报价和最终取舍</p></div></article><article class="capability"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m8 11 2 2 4-4"></path><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg><div><h3>主动补证</h3><p>发现缺口或冲突，优先回查内部资料</p></div></article><article class="capability"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 8 6 6"></path><path d="m4 14 6-6 2-3"></path><path d="M2 5h12"></path><path d="M7 2h1"></path><path d="m22 22-5-10-5 10"></path><path d="M14 18h6"></path></svg><div><h3>需求翻译</h3><p>从用户表述转换为可验证的产品要求</p></div></article><article class="capability"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 5H3"></path><path d="M12 19H3"></path><path d="M14 3v4"></path><path d="M16 17v4"></path><path d="M21 12h-9"></path><path d="M21 19h-5"></path><path d="M21 5h-7"></path><path d="M8 10v4"></path><path d="M8 12H3"></path></svg><div><h3>配置权衡</h3><p>调用计算工具比较满足约束的备选组合</p></div></article><article class="capability"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><path d="m9 14 2 2 4-4"></path></svg><div><h3>验证迭代</h3><p>接受专家纠错，更新规则与回归用例</p></div></article></div><div class="takeaway"><b>边界</b>AI可以提出研究动作；外发数据、联系受访者、发布规则和正式交付需要审批。</div></div><footer class="deck-footer"><span>规划建议 · 需经真实项目验证，不代表已交付能力</span><span class="page-count">04 / 22</span></footer><aside class="notes"><p>这八项能力最关键的共同点，是<strong>会根据中间结果选择下一步</strong>。比如只有已购用户时，不该硬算战败率；两条原声互相矛盾时，不该挑一条支持自己。AI应能发现问题并调整任务。文件解析、比例计算、权限检查和成本求解还是交给程序。所谓自主，不意味着无限权限，也不意味着我们能看到模型全部内部思考，只需要记录计划、证据、工具结果和变更理由，让业务可复核。</p><p>用一条带反馈分支的流程，说明这种自主性。</p></aside></section>
+<section class="slide" data-title="先检查结果，再决定继续、补证或暂停" data-source="原规划 §2.2、§4、§8">
+<header class="deck-header"><b>乘用车咨询 · 用户智能体</b><span>项目规划汇报 / 2026.09.02</span></header>
+<div class="page-heading"><p class="kicker">04 / 执行机制</p><h2>先检查结果，再决定继续、补证或暂停</h2><p class="subtitle">业务可观察的是任务状态和调整依据，而不是一段模拟“思考日志”。</p></div><div class="content"><div class="flow"><div class="node"><span class="num">01</span><b>明确目标</b><p>价格带、车型、时点、决策问题</p></div><div class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div><div class="node"><span class="num">02</span><b>提出计划</b><p>数据源、方法、预算、审批点</p></div><div class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div><div class="node"><span class="num">03</span><b>调用工具</b><p>筛样本、查原声、统计、求解</p></div><div class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div><div class="node"><span class="num">04</span><b>检查结果</b><p>缺数？矛盾？越界？无解？</p></div><div class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div><div class="node"><span class="num">05</span><b>交付或请示</b><p>达到门槛才交付；否则降级</p></div></div><div class="loop-return">发现缺口或矛盾 → 更新研究计划 → 重新执行必要步骤</div><div class="grid g3 fill"><article class="flat"><h3>可以自动处理</h3><p>只读检索、证据校验、计算重跑、草稿修改。</p></article><article class="flat"><h3>需要人工批准</h3><p>外部传输、追加调研、规则发布、正式报告签发。</p></article><article class="flat"><h3>必须停止或降级</h3><p>权限不足、证据不够、预算耗尽、配置无可行解。</p></article></div></div><footer class="deck-footer"><span>规划建议 · 需经真实项目验证，不代表已交付能力</span><span class="page-count">05 / 22</span></footer><aside class="notes"><p>这条流程保留计划、工具执行、检查和调整四个关键状态。<strong>检查结果不是装饰节点</strong>：缺数据要返回补证，配置无解要保留冲突约束，权限不足要停止。每次重跑都留下原因、耗时、费用和版本，不让模型无限循环。业务看到的日志应是实际发生的状态和动作，而不是为了展示而预写的进度文案。最终报告由专家确认，尤其是涉及真实受访者联系或资料外发的步骤，需要单独审批。</p><p>下面把这些节点放进一个真实咨询类型的问题。</p></aside></section>
+<section class="slide" data-title="为什么放弃车型A，转向车型B？" data-source="原规划 §4、§5.4">
+<header class="deck-header"><b>乘用车咨询 · 用户智能体</b><span>项目规划汇报 / 2026.09.02</span></header>
+<div class="page-heading"><p class="kicker">05 / 首个咨询任务</p><h2>为什么放弃车型A，转向车型B？</h2><p class="subtitle">试点场景建议：15–20万元新能源SUV，最终范围由业务确认。</p></div><div class="content"><table class="matrix"><colgroup><col style="width:18%"><col style="width:45%"><col style="width:37%"></colgroup><thead><tr><th>阶段</th><th>AI采取的动作</th><th>形成的业务产物</th></tr></thead><tbody><tr><td>界定选择事件</td><td>关联考虑车型、试驾、报价、成交或放弃时间</td><td>可分析样本清单 + 有效分母</td></tr><tr><td>比较解释</td><td>区分产品体验、价格交易、交付服务等因素</td><td>支持证据 + 反例 + 竞争性解释</td></tr><tr><td>遇到样本缺口</td><td>若只有已购样本，暂停战败归因并提出补样</td><td>范围调整 + 待补证清单</td></tr><tr><td>连接产品改善</td><td>将已审核需求交给配置角色，在约束下重算</td><td>备选配置包 + 需求覆盖变化</td></tr></tbody></table><div class="takeaway">验证点：能否主动承认“不知道”，并给出成本可控的下一步研究动作。</div></div><footer class="deck-footer"><span>规划建议 · 需经真实项目验证，不代表已交付能力</span><span class="page-count">06 / 22</span></footer><aside class="notes"><p>我们建议用<strong>从A转向B的选择问题</strong>做首个试点，因为它同时检验研究和配置两端。首先要有真实的考虑、试驾、报价和结果记录，不能把所有A车主都视为战胜样本。接着区分产品、交易和服务原因，再看证据能否支持。如果缺少流失用户，AI应该缩小结论范围并提出补样。最后只把已经审核的需求交给配置比较，而不是先定一个功能，再找几句原声为它背书。</p><p>能否做出这样的解释，取决于洞察结构是否完整。</p></aside></section>
+<section class="slide" data-title="每个洞察都要有支持、有反例、有适用边界" data-source="原规划 §5">
+<header class="deck-header"><b>乘用车咨询 · 用户智能体</b><span>项目规划汇报 / 2026.09.02</span></header>
+<div class="page-heading"><p class="kicker">06 / 洞察方法</p><h2>每个洞察都要有支持、有反例、有适用边界</h2><p class="subtitle">从“提及了什么”提升到“在什么场景下，为什么形成取舍”。</p></div><div class="content"><div class="grid g3 fill"><article class="flat"><h3>① 描述差异</h3><ul class="bullets"><li>按研究设计识别人群与场景</li><li>统一问卷口径、项目与时间范围</li><li>不强制聚成三个固定圈层</li></ul></article><article class="flat"><h3>② 解释选择</h3><ul class="bullets"><li>关联考虑 → 试驾 → 报价 → 选择</li><li>区分自述理由、相关关系与因果</li><li>检查价格、产品、服务的替代解释</li></ul></article><article class="flat"><h3>③ 反向检验</h3><ul class="bullets"><li>谁没有这个痛点，为什么？</li><li>是否存在支持相反解释的证据？</li><li>不足处转成补访或验证计划</li></ul></article></div><div class="takeaway caution"><b>统计纪律</b>访谈提及频次 ≠ 总体用户占比；口碑热度 ≠ 真实需求强度；偏好 ≠ 愿付价格。</div></div><footer class="deck-footer"><span>规划建议 · 需经真实项目验证，不代表已交付能力</span><span class="page-count">07 / 22</span></footer><aside class="notes"><p>用户洞察不能停在高频词和三个人群名称。<strong>差异、机制、反例</strong>要一起出现。定量数据解决比例和可比性，访谈帮助理解取舍过程，口碑用来发现线索，它们的统计意义不同。即使原声里很多人提到一个功能，也不等于整体市场愿意付费。选择机制还要区分产品与交易因素。我们希望最终每条结论都能说清适用于谁、依据是什么、哪些反例尚未解释，而不是用同一套标签套所有项目。</p><p>洞察审核后，下一步不是直接填配置清单。</p></aside></section>
+<section class="slide" data-title="先定义体验要求，再比较技术解法" data-source="原规划 §6.1、§6.2">
+<header class="deck-header"><b>乘用车咨询 · 用户智能体</b><span>项目规划汇报 / 2026.09.02</span></header>
+<div class="page-heading"><p class="kicker">07 / 需求翻译</p><h2>先定义体验要求，再比较技术解法</h2><p class="subtitle">同一句用户表述，可能对应多种配置与非配置方案。</p></div><div class="content"><table class="matrix"><colgroup><col style="width:30%"><col style="width:34%"><col style="width:36%"></colgroup><thead><tr><th>用户原声 / 场景</th><th>应转成的需求</th><th>候选解法与验证点</th></tr></thead><tbody><tr><td>冬天带孩子出门，后排很冷</td><td>低温下后排达到舒适温度的时间与能耗</td><td>热管理、分区送风、座椅加热；低温实测</td></tr><tr><td>家里老人上下车不方便</td><td>上下车动作、门槛、开口与扶持便利性</td><td>离地间隙、门洞、扶手、座椅；用户试验</td></tr><tr><td>长途不敢开纯电出门</td><td>充电站可达、可靠性及总补能时间</td><td>充电策略、网络服务、平台能力；路线验证</td></tr></tbody></table><div class="takeaway"><b>转译链</b>原声 → 场景任务 → 可验证要求 → 备选解法 → 配置与约束；不把“需求”直接等同于某项硬件。</div></div><footer class="deck-footer"><span>规划建议 · 需经真实项目验证，不代表已交付能力</span><span class="page-count">08 / 22</span></footer><aside class="notes"><p>比如冬天后排冷，不能直接判定用户需要热泵。<strong>需求是体验目标，配置是可能的解法</strong>。我们要把温度达到的时间、位置、场景等要求交给产品和工程确认，再比较不同技术方案。老人上下车不便也不一定靠空气悬架解决。这里的例子是方法示意，并不是已经得到的用户结论或工程指标。AI负责提出和对齐需求，技术可行性、性能阈值以及验证方式仍然需要专业人员审核。</p><p>有了需求与候选解法，才能进入有约束的配置比较。</p></aside></section>
+<section class="slide" data-title="输出可比较的方案，不包装“最优配置”" data-source="原规划 §6.3、§6.4">
+<header class="deck-header"><b>乘用车咨询 · 用户智能体</b><span>项目规划汇报 / 2026.09.02</span></header>
+<div class="page-heading"><p class="kicker">08 / 配置决策</p><h2>输出可比较的方案，不包装“最优配置”</h2><p class="subtitle">真实成本和工程约束缺失时，只交需求优先级，不承诺自动优化。</p></div><div class="content"><div class="flow"><div class="node"><span class="num">01</span><b>输入已审核需求</b><p>需求证据、目标用户、适用场景</p></div><div class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div><div class="node"><span class="num">02</span><b>建立候选集合</b><p>真实成本、依赖、互斥、供应时间</p></div><div class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div><div class="node"><span class="num">03</span><b>调用确定性工具</b><p>小规模枚举；复杂组合再用求解器</p></div><div class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div><div class="node"><span class="num">04</span><b>比较取舍</b><p>需求覆盖、成本、剩余缺口与风险</p></div></div><div class="grid g3 fill"><article class="flat"><h3>基础保障包</h3><p>优先满足刚性需求，在预算内减少未覆盖项。</p></article><article class="flat"><h3>体验增强包</h3><p>对核心场景增加投入，明确牺牲了什么。</p></article><article class="flat"><h3>差异化探索包</h3><p>保留创新假设，列出工程和用户验证条件。</p></article></div><div class="takeaway caution">求解结果要区分：可行、已证最优、无可行解、未完成证明；不能悄悄放宽硬约束。</div></div><footer class="deck-footer"><span>规划建议 · 需经真实项目验证，不代表已交付能力</span><span class="page-count">09 / 22</span></footer><aside class="notes"><p>配置权衡最容易出现虚假的精确感。<strong>没有真实成本，就不能算真实成本最优</strong>；没有经过验证的偏好权重，也不能承诺销量提升。首期适合先比较有限候选功能，明确需求覆盖和成本变化。若资料齐全，再由程序做枚举或约束求解。模型负责解释方案差异，不负责心算复杂组合。当条件冲突时，要返回哪个约束导致无解，请业务或工程决定，而不是为了输出答案偷偷删除限制。</p><p>所以，数据准备不能只有访谈和问卷。</p></aside></section>
+<section class="slide" data-title="七类资料，分别支撑不同层级的结论" data-source="原规划 §7.1、§7.2">
+<header class="deck-header"><b>乘用车咨询 · 用户智能体</b><span>项目规划汇报 / 2026.09.02</span></header>
+<div class="page-heading"><p class="kicker">09 / 数据条件</p><h2>七类资料，分别支撑不同层级的结论</h2><p class="subtitle">试点规模用于工程验证，不等于统计代表性，也不是已具备的数据量。</p></div><div class="content"><table class="matrix compact"><colgroup><col style="width:22%"><col style="width:39%"><col style="width:39%"></colgroup><thead><tr><th>数据资产</th><th>试点准备建议</th><th>支撑什么 / 缺少什么就不能做</th></tr></thead><tbody><tr><td>定量问卷与码本</td><td>完整项目与历史码本；300–500条验证记录</td><td>计算比例与差异；没有题意和有效分母不能比较</td></tr><tr><td>深访与群访</td><td>20–30份授权深访；2–3场群访做技术验证</td><td>理解场景和取舍；不能外推总体占比</td></tr><tr><td>定制调研与口碑</td><td>保留用途、时间、对象、来源与授权</td><td>补充假设与外部线索；不能替代真人样本</td></tr><tr><td>选择事件与产品配置</td><td>真实战胜战败记录；5–10个年款，20–40项候选功能</td><td>解释选择并比较配置；缺成本只能排需求优先级</td></tr><tr><td>专家报告与评审记录</td><td>3–5套“原始数据—结论—修改理由”案例</td><td>学习业务规则与反例；不能只照抄成品</td></tr></tbody></table></div><footer class="deck-footer"><span>规划建议 · 需经真实项目验证，不代表已交付能力</span><span class="page-count">10 / 22</span></footer><aside class="notes"><p>这里最重要的是<strong>每种资料只回答它能回答的问题</strong>。问卷要有题目、跳题、量表和有效分母，访谈要有授权和上下文，配置要有真实成本和技术约束。页面上的数量只是工程试点建议，不代表统计抽样设计，也不是我们已经拥有的资产。历史资料还要检查年份与车型年款是否可比。专家案例最好配套原始数据和修改理由，这样才能学习判断规则，而不是只学习一句话的写法。</p><p>其中音频需要先变成可审核、可追溯的证据资产。</p></aside></section>
+<section class="slide" data-title="音频入库只是起点，可信证据才是资产" data-source="原规划 §5.2、§7.3">
+<header class="deck-header"><b>乘用车咨询 · 用户智能体</b><span>项目规划汇报 / 2026.09.02</span></header>
+<div class="page-heading"><p class="kicker">10 / 高质量数据集</p><h2>音频入库只是起点，可信证据才是资产</h2><p class="subtitle">建立原始层、处理层与审核层，不让清洗过程抹掉真实语境。</p></div><div class="content"><div class="flow"><div class="node"><span class="num">01</span><b>授权与体检</b><p>用途、噪声、语言、保留与删除规则</p></div><div class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div><div class="node"><span class="num">02</span><b>转写与角色</b><p>ASR、说话人、主持人区分、时间对齐</p></div><div class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div><div class="node"><span class="num">03</span><b>脱敏与切分</b><p>原件隔离；片段保留前后文与匿名ID</p></div><div class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div><div class="node"><span class="num">04</span><b>编码与审核</b><p>原句、对象、否定、标签、需求、证据</p></div><div class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div><div class="node"><span class="num">05</span><b>评测与入库</b><p>双人标注、分歧仲裁、版本与追溯</p></div></div><div class="grid g3 fill"><article class="flat"><h3>金标准验证集</h3><p>建议先准备300–500个片段，覆盖噪声、转述、否定和多说话人难例。</p></article><article class="flat"><h3>防止评测泄漏</h3><p>按受访者或项目隔离训练示例与盲测集，不把同一人的相邻片段分到两边。</p></article><article class="flat"><h3>修正可以回溯</h3><p>转写、标签和结论保留版本；授权撤回与删除能关联到衍生数据。</p></article></div><div class="takeaway caution">情绪和强度不得用“标签数量”代替；不能凭声音推断身份、人格或未经验证的心理特征。</div></div><footer class="deck-footer"><span>规划建议 · 需经真实项目验证，不代表已交付能力</span><span class="page-count">11 / 22</span></footer><aside class="notes"><p>高质量不是音频成功转成文字，而是<strong>每个结论能够回到正确的人和片段</strong>。群访里尤其要避免把主持人的引导问题当成用户观点。原始音频、清洗文本、标签和审核结果要分层保存，修正时能追踪影响。金标准需要双人独立标注和分歧处理，测试集要按人或项目隔离。情绪评价也不能靠标签数量，必要时先不做。首期可先从脱敏文本开始，避免同时承担完整音频平台的建设风险。</p><p>这些证据怎样存，才容易被多个项目复用？</p></aside></section>
+<section class="slide" data-title="用轻量关系模型连接人、场景、需求与配置" data-source="原规划 §8.3、§8.4">
+<header class="deck-header"><b>乘用车咨询 · 用户智能体</b><span>项目规划汇报 / 2026.09.02</span></header>
+<div class="page-heading"><p class="kicker">11 / 证据资产</p><h2>用轻量关系模型连接人、场景、需求与配置</h2><p class="subtitle">PostgreSQL做权威结构化记录；pgvector辅助找相似证据，不承担统计真值。</p></div><div class="content"><div class="flow"><div class="node"><span class="num">01</span><b>匿名受访者</b><p>项目、样本、研究设计</p></div><div class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div><div class="node"><span class="num">02</span><b>原声片段</b><p>原文、说话人、时间戳</p></div><div class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div><div class="node"><span class="num">03</span><b>场景与需求</b><p>上下文、标签、审核状态</p></div><div class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div><div class="node"><span class="num">04</span><b>候选功能</b><p>年款、成本、依赖、版本</p></div><div class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></div><div class="node"><span class="num">05</span><b>结论与方案</b><p>证据关系、反例、签发记录</p></div></div><div class="grid g3 fill"><article class="flat"><span class="eyebrow">精确查询</span><h3>关系表与统计工具</h3><p>算分母、筛权限、查成本、管理版本；保留可复算结果。</p></article><article class="flat"><span class="eyebrow">语义召回</span><h3>向量检索</h3><p>找相近表达与历史案例，再核对原文、时点和适用范围。</p></article><article class="flat"><span class="eyebrow">经验复用</span><h3>规则与案例库</h3><p>专家经验沉淀为码本、映射、正反例和评测，不是修改模型权重。</p></article></div><div class="takeaway">不要求引入Neo4j。先用带来源与版本的关系表，把“为什么关联”记录清楚。</div></div><footer class="deck-footer"><span>规划建议 · 需经真实项目验证，不代表已交付能力</span><span class="page-count">12 / 22</span></footer><aside class="notes"><p>轻量知识图谱最后可以就是<strong>一组关系表和可追溯的连接</strong>，不必先上专用图数据库。比如某个片段支持哪个需求，需求对应哪些候选功能，哪个方案用了什么证据，都可以存在PostgreSQL。向量索引用来寻找语义相近的内容，但统计用户比例必须回到结构化表。专家经验的积累，是规则、案例和评测集不断完善，不等于在训练MiniMax权重。这样同事也能检查为什么得出某条建议。</p><p>基于现有工程，技术组合可以保持克制。</p></aside></section>
+<section class="slide" data-title="沿用现有宿主，把边界落实到运行代码" data-source="原规划 §8.1、§8.2、§12">
+<header class="deck-header"><b>乘用车咨询 · 用户智能体</b><span>项目规划汇报 / 2026.09.02</span></header>
+<div class="page-heading"><p class="kicker">12 / 工程路线</p><h2>沿用现有宿主，把边界落实到运行代码</h2><p class="subtitle">拟议架构；数据库已部署不等于当前项目已完成业务接入。</p></div><div class="content"><div class="arch"><div class="tier"><div class="label">业务工作台</div><div class="cells"><div class="cell"><b>任务与计划</b>范围、预算、审批</div><div class="cell"><b>洞察与证据</b>原声、反例、复核</div><div class="cell"><b>配置与交付</b>方案比较、报告资产</div></div></div><div class="tier"><div class="label">受控编排</div><div class="cells"><div class="cell"><b>角色A：用户洞察</b>研究方法与选择机制</div><div class="cell"><b>状态与质量门禁</b>重试、停止、降级、审计</div><div class="cell"><b>角色B：需求配置</b>需求规格与约束权衡</div></div></div><div class="tier"><div class="label">Skill与工具</div><div class="cells"><div class="cell"><b>研究方法Skill</b>契约、案例、规则、测试</div><div class="cell"><b>确定性计算</b>ASR、统计、配置求解</div><div class="cell"><b>受控MCP接口</b>数据、文件、BI只读访问</div></div></div><div class="tier"><div class="label">数据与模型</div><div class="cells"><div class="cell"><b>PostgreSQL + pgvector</b>结构化事实 + 语义检索</div><div class="cell"><b>文件与证据存储</b>授权、版本、项目隔离</div><div class="cell"><b>现有AgentScope / MiniMax</b>沿用2.0.3宿主，评测接口能力</div></div></div></div><div class="takeaway caution">MCP是访问协议，不替代业务规则。优先窄参数、只读、按项目授权，不开放任意SQL或Shell。</div></div><footer class="deck-footer"><span>规划建议 · 需经真实项目验证，不代表已交付能力</span><span class="page-count">13 / 22</span></footer><aside class="notes"><p>这套架构优先<strong>复用现有AgentScope与MiniMax工程</strong>，没有要求换框架。新增工作集中在真实数据接口、任务状态、研究方法和配置约束。PostgreSQL和pgvector虽然已部署，仍然要验证权限、连接和字段契约。MCP解决工具访问方式，不自动提供质量和安全。检索到的文件也可能包含错误指令，必须作为资料而不是系统命令。权限、预算和停止条件应该由程序控制，不能只写在提示词里。</p><p>方法真正可复制，需要把Skill封装完整。</p></aside></section>
+<section class="slide" data-title="交付的是可验证的方法包，不是一段提示词" data-source="原规划 §8.2、§8.4、§9">
+<header class="deck-header"><b>乘用车咨询 · 用户智能体</b><span>项目规划汇报 / 2026.09.02</span></header>
+<div class="page-heading"><p class="kicker">13 / Skill复用</p><h2>交付的是可验证的方法包，不是一段提示词</h2><p class="subtitle">业务同事复用时替换项目配置与案例，不能绕过输入条件和质量检查。</p></div><div class="content"><div class="grid g3 fill"><article class="panel"><h3>方法与契约</h3><ul class="bullets"><li>适用问题、研究步骤、停止条件</li><li>输入字段、输出结构、证据要求</li><li>核心码本 + 项目扩展映射</li></ul></article><article class="panel teal-panel"><h3>执行与安全</h3><ul class="bullets"><li>工具实现、项目权限、调用预算</li><li>缺数、冲突、无解等失败分支</li><li>状态日志、审核节点和回滚</li></ul></article><article class="panel"><h3>案例与评测</h3><ul class="bullets"><li>专家正反例、修改理由、盲测集</li><li>固定回归任务与质量检查</li><li>版本、依赖、安装与迁移指南</li></ul></article></div><div class="signal"><strong>首期建议形成五类可组合能力</strong><p>访谈证据编码 · 人群与选择机制 · 需求规格映射 · 配置方案比较 · 复核与报告</p></div><div class="takeaway">复用成功的标志：第二个项目能接入、能解释差异、能通过同一套验收。</div></div><footer class="deck-footer"><span>规划建议 · 需经真实项目验证，不代表已交付能力</span><span class="page-count">14 / 22</span></footer><aside class="notes"><p>Skill不能只是一份长提示词。<strong>方法、工具和失败处理必须一起交付</strong>。例如成本缺失时，配置Skill应该返回缺口而不是输出最优结论；引用不足时，研究Skill应回查证据，仍不足就保留假设。同事复用时主要替换项目配置、码本映射和案例，不要复制整套代码后各自修改。每次版本更新还要跑历史反例与盲测任务，确保某个项目效果变好没有破坏其他项目的口径和权限。</p><p>业务端只需围绕少数关键动作开展复核。</p></aside></section>
+<section class="slide" data-title="先把三个复核动作做深，再扩展功能菜单" data-source="原规划 §8.1、§9、§14">
+<header class="deck-header"><b>乘用车咨询 · 用户智能体</b><span>项目规划汇报 / 2026.09.02</span></header>
+<div class="page-heading"><p class="kicker">14 / 业务体验</p><h2>先把三个复核动作做深，再扩展功能菜单</h2><p class="subtitle">以下为目标交互设计，不是当前系统功能截图。</p></div><div class="content"><div class="grid g3 fill"><article class="panel"><h3>点击结论，看证据</h3><ul class="bullets"><li>结论关联匿名样本、原句与时间戳</li><li>同屏查看支持、反例和样本口径</li><li>可回放授权片段，记录审核意见</li></ul></article><article class="panel teal-panel"><h3>发现冲突，改计划</h3><ul class="bullets"><li>显示冲突对象、来源与解释分歧</li><li>选择回查、补样或降低结论强度</li><li>保留谁批准了什么调整</li></ul></article><article class="panel"><h3>改变约束，比方案</h3><ul class="bullets"><li>修改预算或必须满足的体验要求</li><li>程序重算合法组合，展示差异</li><li>解释成本与需求覆盖的增减</li></ul></article></div><div class="takeaway"><b>交付物</b>洞察卡、选择机制、需求—配置矩阵、配置备选包、可编辑PPT、数据附件与审计记录。</div></div><footer class="deck-footer"><span>规划建议 · 需经真实项目验证，不代表已交付能力</span><span class="page-count">15 / 22</span></footer><aside class="notes"><p>前端不需要一开始就堆很多入口。<strong>结论看证据、冲突改计划、约束比方案</strong>是业务最值得优先验证的三个动作。点开结论能回到原始依据，才有审阅价值；调整预算后能看到需求覆盖变化，才体现产品决策价值。页面不是当前系统截图，而是建议的交互目标。最后仍输出业务可编辑的PPT和表格附件，但报告必须保留可读出处和审计线索，不能只有无法核查的编号引用。</p><p>为了避免“看起来能用”，验收需要拆成可测项目。</p></aside></section>
+<section class="slide" data-title="八类门禁，分别验证事实、解释与交付" data-source="原规划 §10.1、§12">
+<header class="deck-header"><b>乘用车咨询 · 用户智能体</b><span>项目规划汇报 / 2026.09.02</span></header>
+<div class="page-heading"><p class="kicker">15 / 质量验收</p><h2>八类门禁，分别验证事实、解释与交付</h2><p class="subtitle">下列为待校准的试点目标，不是行业统一阈值，也不是当前实测成绩。</p></div><div class="content"><table class="matrix compact"><colgroup><col style="width:22%"><col style="width:40%"><col style="width:38%"></colgroup><thead><tr><th>检查项</th><th>建议验收口径</th><th>执行方式</th></tr></thead><tbody><tr><td>数值与口径</td><td>交付统计100%可由源数据复算</td><td>确定性程序复算，有效分母核对</td></tr><tr><td>标签与语义</td><td>宏平均F1参考0.85；否定识别参考0.95</td><td>独立金标准盲测，按难例切分</td></tr><tr><td>证据与引用</td><td>交付结论100%具有依据或明确假设标识</td><td>原句、角色、时间与支持关系检查</td></tr><tr><td>洞察业务可用</td><td>参考80%达到专家可用标准</td><td>独立盲评，记录重大修改与反例</td></tr><tr><td>配置、权限与效率</td><td>硬约束违规0；越权测试泄漏0；总工时下降参考30%</td><td>计算校验 + 安全测试 + 全流程计时</td></tr></tbody></table><div class="takeaway">八类：数值、标签、否定语义、证据、洞察、配置、权限、效率；阈值必须在第0阶段与业务一起校准。</div></div><footer class="deck-footer"><span>规划建议 · 需经真实项目验证，不代表已交付能力</span><span class="page-count">16 / 22</span></footer><aside class="notes"><p>质量不能只用一个“准确率”代表。<strong>数值、语义、证据、业务价值和安全要分别验</strong>。这页把八类门禁合并展示，比例目标是建议值，需要先建立人工基线再确认。数值应确定性复算，洞察需要独立专家盲评，不能由同一个模型自评后就算通过。效率还要包含查证、纠错和签发时间。只有规则写在文档或配置文件里不够，必须演示失败样例确实被拦截、降级或转人工。</p><p>自主能力还要用异常条件，而不仅是顺利流程来检验。</p></aside></section>
+<section class="slide" data-title="用八个异常场景证明AI会调整，而非照跑" data-source="原规划 §10.2、§10.3">
+<header class="deck-header"><b>乘用车咨询 · 用户智能体</b><span>项目规划汇报 / 2026.09.02</span></header>
+<div class="page-heading"><p class="kicker">16 / 自主能力验收</p><h2>用八个异常场景证明AI会调整，而非照跑</h2><p class="subtitle">对比：通用模型回答、固定工作流、受控Agent，在同任务与预算下盲测。</p></div><div class="content"><table class="matrix"><colgroup><col style="width:21%"><col style="width:29%"><col style="width:21%"><col style="width:29%"></colgroup><thead><tr><th>触发情境</th><th>期望动作</th><th>触发情境</th><th>期望动作</th></tr></thead><tbody><tr><td>只有已购样本</td><td>停止战败归因，提出补样</td><td>预算突然改变</td><td>重新计算并说明取舍</td></tr><tr><td>两类证据矛盾</td><td>回查对象、时间与反例</td><td>配置约束冲突</td><td>报告无解，不删约束</td></tr><tr><td>说话人不确定</td><td>降低证据等级，转人工</td><td>内部资料过时</td><td>检查适用性，再补外部证据</td></tr><tr><td>子样本过小</td><td>披露不足，不强推总体</td><td>检索材料含指令</td><td>只当资料，不执行越权动作</td></tr></tbody></table><div class="takeaway">比较质量、专家修改、耗时和成本；若Agent没有额外收益，就保留更简单的固定流程。</div></div><footer class="deck-footer"><span>规划建议 · 需经真实项目验证，不代表已交付能力</span><span class="page-count">17 / 22</span></footer><aside class="notes"><p>自主能力最好的证明是<strong>遇到变化还能做对</strong>。这八个场景分别检查缺数、冲突、角色、时间、约束和权限。不能只选一个顺利案例演示。我们建议同一批未见任务，在模型直答、固定流程和受控Agent三种方式下比较，尽可能统一资料与预算，由专家盲评。若复杂Agent增加了成本却没有减少错误或提高洞察，就不必强行使用。这让架构选择也回到业务收益，而不是追求复杂程度。</p><p>以这些验收条件作为阶段门槛，排期才有约束力。</p></aside></section>
+<section class="slide" data-title="9–12月，以真实任务通过验收为推进条件" data-source="原规划 §11">
+<header class="deck-header"><b>乘用车咨询 · 用户智能体</b><span>项目规划汇报 / 2026.09.02</span></header>
+<div class="page-heading"><p class="kicker">17 / 阶段安排</p><h2>9–12月，以真实任务通过验收为推进条件</h2><p class="subtitle">以下为建议计划；启动日、人员与数据到位情况变化时需重排。</p></div><div class="content"><div class="rm fill"><article class="col"><span class="eyebrow">阶段0</span><div class="date">9月上旬</div><h3>锁定试点与基线</h3><p>业务牵头：任务、授权、样本、专家基线。</p><div class="gate">准入：数据责任人和验收集明确</div></article><article class="col"><span class="eyebrow">阶段1</span><div class="date">9月下旬—10月中</div><h3>打通证据闭环</h3><p>数据与工程：真实资料处理、证据查询、审核。</p><div class="gate">准入：结论能回到正确原声</div></article><article class="col"><span class="eyebrow">阶段2</span><div class="date">10月下旬—11月中</div><h3>贯通有限配置</h3><p>研究与产品：需求规格、20–40项功能比较。</p><div class="gate">准入：真实约束完整，可复算</div></article><article class="col"><span class="eyebrow">阶段3</span><div class="date">11月下旬—12月</div><h3>盲评与第二项目</h3><p>业务与测试：未见任务、复用、版本发布。</p><div class="gate">准入：质量、权限、总工时达标</div></article></div><div class="takeaway caution">降级策略：无流失样本，不交战败归因；无成本约束，只交需求优先级；数据未授权，不进入处理。</div></div><footer class="deck-footer"><span>规划建议 · 需经真实项目验证，不代表已交付能力</span><span class="page-count">18 / 22</span></footer><aside class="notes"><p>排期不是到日期就宣布完成。<strong>每个阶段都要有准入和验收条件</strong>。先确定数据和人工基线，再做证据闭环，然后才是配置比较，最后用第二个项目检验复用。建议时间按九月启动安排，实际要随资源重新确认。如果成本资料没有到位，可以先交需求优先级；没有流失样本，就不能把当前分析包装成战败归因。缩范围比带着缺陷扩大功能更有利于正式业务使用。</p><p>与这份范围对应，需要哪些人和怎样核算费用？</p></aside></section>
+<section class="slide" data-title="投入先保障研究与数据，不只安排开发" data-source="原规划 §1.2、§11.1">
+<header class="deck-header"><b>乘用车咨询 · 用户智能体</b><span>项目规划汇报 / 2026.09.02</span></header>
+<div class="page-heading"><p class="kicker">18 / 资源与起点</p><h2>投入先保障研究与数据，不只安排开发</h2><p class="subtitle">建议约4–5人当量并配合领域专家；不是已批准编制或费用预算。</p></div><div class="content"><div class="split-36 fill"><div><div class="big-number">4–5</div><h3>建议人力当量</h3><p class="muted">业务负责人、研究员、Agent后端、数据工程、前端测试协作。</p><div class="signal" style="margin-top:28px"><strong>专家不可替代</strong><p>产品、成本、工程、合规，在阶段门禁中参与。</p></div></div><div><table class="matrix compact"><colgroup><col style="width:27%"><col style="width:73%"></colgroup><thead><tr><th>当前起点</th><th>必须区分的状态</th></tr></thead><tbody><tr><td>已有工程资产</td><td>用户Agent入口、模型和工具接口、报告输出经验</td></tr><tr><td>当前Demo</td><td>规划时核验：6条内置样本、关键词标签、规则分数</td></tr><tr><td>业务单例验证</td><td>访谈单例与约7.5元/人需复验口径，不否定也不外推</td></tr><tr><td>待工程化</td><td>真实数据接入、统计口径、权限、成本约束与验收</td></tr></tbody></table></div></div><div class="takeaway caution">若仅1–2名开发：先做“脱敏文本 + 定量数据 → 洞察 → 人工确认的需求配置对照”。</div></div><footer class="deck-footer"><span>规划建议 · 需经真实项目验证，不代表已交付能力</span><span class="page-count">19 / 22</span></footer><aside class="notes"><p>这项工作需要<strong>业务研究、数据和工程共同投入</strong>，不能只给开发一个成品报告就期待复现专家判断。四到五人当量是原规划的建议，其中部分岗位可阶段共享。现有系统有入口和接口，但内置样本不能证明生产效果；业务侧已经跑通的单例也要尊重并复验。费用需要把音频、模型、重试、检索和人工复核一起计入，单例约七点五元不能直接乘全量人数作为预算。资源少时应主动缩范围。</p><p>先把第0阶段可以分派的事项确认下来。</p></aside></section>
+<section class="slide" data-title="启动两周，交付一份能验收的试点任务书" data-source="原规划 §14">
+<header class="deck-header"><b>乘用车咨询 · 用户智能体</b><span>项目规划汇报 / 2026.09.02</span></header>
+<div class="page-heading"><p class="kicker">19 / 近期行动</p><h2>启动两周，交付一份能验收的试点任务书</h2><p class="subtitle">不是先采购更多工具，而是先锁定问题、依据和判定标准。</p></div><div class="content"><table class="matrix compact"><colgroup><col style="width:20%"><col style="width:55%"><col style="width:25%"></colgroup><thead><tr><th>责任牵头</th><th>应交付的工作包</th><th>完成标志</th></tr></thead><tbody><tr><td>业务负责人</td><td>选定真实项目、两个决策问题与今年不做的范围</td><td>项目与交付对象明确</td></tr><tr><td>数据与研究</td><td>资产盘点、授权、完整问卷、标准片段、隔离盲测集</td><td>资料可访问、口径可解释</td></tr><tr><td>产品与工程</td><td>候选功能、真实成本、技术依赖与缺口台账</td><td>可计算与不可计算边界明确</td></tr><tr><td>技术与测试</td><td>核验业务单例、数据库接口、任务状态与失败场景</td><td>能回查、能阻断、能记录费用</td></tr><tr><td>联合评审</td><td>定义三种基线对比与一个未见任务的验收方式</td><td>质量与总工时可以同口径比较</td></tr></tbody></table></div><footer class="deck-footer"><span>规划建议 · 需经真实项目验证，不代表已交付能力</span><span class="page-count">20 / 22</span></footer><aside class="notes"><p>第零阶段最有价值的产物是<strong>能验收的试点任务书</strong>。请业务明确到底要回答哪两个决策问题，研究同事提供可比较的数据与金标准，产品团队补上配置术语和真实限制。技术先核验已有单例能复用哪些组件，再定义接口与失败处理。这里把原规划十项近期任务归成五个责任包，不是要求每个人各做一套系统。两周结束时应能说明资料够不够、哪些结论不能做、验收怎么判，而不只是展示界面。</p><p>最后，需要管理层确认四件事。</p></aside></section>
+<section class="slide" data-title="批准一个可验证的试点，再扩大复制" data-source="原规划 §15、§13">
+<header class="deck-header"><b>乘用车咨询 · 用户智能体</b><span>项目规划汇报 / 2026.09.02</span></header>
+<div class="page-heading"><p class="kicker">20 / 请求决策</p><h2>批准一个可验证的试点，再扩大复制</h2><p class="subtitle">项目价值：让专家研究方法成为可执行、可复核的咨询能力。</p></div><div class="content"><div class="fill"><div class="decision-row"><span class="num">01</span><h3>一个真实项目</h3><p>业务负责人、服务对象、两类决策问题与边界。</p></div><div class="decision-row"><span class="num">02</span><h3>数据与授权</h3><p>原始资料、选择事件、产品成本、项目访问权限。</p></div><div class="decision-row"><span class="num">03</span><h3>专家与工程投入</h3><p>研究复核、配置约束、技术实现和阶段责任人。</p></div><div class="decision-row"><span class="num">04</span><h3>质量与效率门槛</h3><p>盲测、反例、总工时、预算上限和正式签发责任。</p></div></div><div class="quote">AI负责规划、补证和比较；<strong class="teal">专家负责验证、取舍和签发。</strong></div></div><footer class="deck-footer"><span>规划建议 · 需经真实项目验证，不代表已交付能力</span><span class="page-count">21 / 22</span></footer><aside class="notes"><p>今天希望形成的决策不是马上建设一个覆盖所有研究场景的平台，而是<strong>批准一个边界清楚的真实试点</strong>。需要项目、数据、专家投入和验收门槛四项一起确认。我们承诺的是验证过程透明、结论可追溯、问题能暴露，不是提前承诺所有洞察自动正确。试点通过后，再用第二个项目复制，把有效方法封装成Skill。专家的角色不会消失，而是把精力从整理材料转向更重要的判断、取舍和正式交付。</p><p>后面的依据页供评审追问时核对，不作为效果背书。</p></aside></section>
+<section class="slide" data-title="方法有依据，效果需要本项目验证" data-source="原规划 §16">
+<header class="deck-header"><b>乘用车咨询 · 用户智能体</b><span>项目规划汇报 / 2026.09.02</span></header>
+<div class="page-heading"><p class="kicker">附录 / 依据与边界</p><h2>方法有依据，效果需要本项目验证</h2><p class="subtitle">外部资料取自原规划的参考清单；本次仅做汇报重组，未新增行业事实或产品能力。</p></div><div class="content"><div class="source-list fill"><div><a href="https://www.anthropic.com/engineering/building-effective-agents" target="_blank" rel="noopener noreferrer">固定流程与动态Agent</a><small>Anthropic · 受控编排与反馈方法</small></div><div><a href="https://aapor.org/wp-content/uploads/2026/05/Responsible-AI-Integration-In-Survey-Research.pdf" target="_blank" rel="noopener noreferrer">研究中的AI责任边界</a><small>AAPOR · 真人与合成资料区分、验证与披露</small></div><div><a href="https://community.esomar.org/uploads/public/knowledge-and-standards/codes-and-guidelines/ICCESOMAR-International-Code_English.pdf" target="_blank" rel="noopener noreferrer">市场研究专业责任</a><small>ICC / ESOMAR · 研究参与者与专业责任</small></div><div><a href="https://sawtoothsoftware.com/help/lighthouse-studio/manual/understanding-willingness-to-pay.html" target="_blank" rel="noopener noreferrer">支付意愿与偏好解释</a><small>Sawtooth · 不将偏好直接解释为支付意愿</small></div><div><a href="https://developers.google.com/optimization/cp/cp_solver" target="_blank" rel="noopener noreferrer">约束求解与结果状态</a><small>Google OR-Tools · 可行、最优、无解等状态</small></div><div><a href="https://www.npc.gov.cn/npc/c2/c30834/202108/t20210820_313088.html" target="_blank" rel="noopener noreferrer">个人信息处理设计</a><small>中国人大网 · 具体适用需公司合规审核</small></div></div><div class="takeaway">样本规模、组织配置、阶段安排和质量阈值均为项目建议；不冒充外部标准原文或已测得成果。</div></div><footer class="deck-footer"><span>规划建议 · 需经真实项目验证，不代表已交付能力</span><span class="page-count">22 / 22</span></footer><aside class="notes"><p>这一页主要应对方法依据的追问。<strong>参考资料不能替代项目验证</strong>：研究伦理、约束求解和流程设计有成熟原则，但样本规模、阈值和排期是针对我们当前情况提出的建议。原规划还列有数据库和说话人分离指标资料，需要时可回查完整文档。这里保留可点击来源，离线汇报不会依赖它们加载。涉及个人信息的具体处理仍由公司合规确认，不把规划中的一般性原则当作法律审查结论。</p><p>讨论可以回到第21页，逐项确认试点与资源。</p></aside></section></div><nav class="toolbar" aria-label="演示控制"><button type="button" title="上一页" aria-label="上一页" data-key="ArrowLeft"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg></button><button type="button" title="下一页" aria-label="下一页" data-key="ArrowRight"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></button><button type="button" title="页面总览" aria-label="页面总览" data-key="o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="14" rx="1"></rect><rect width="7" height="7" x="3" y="14" rx="1"></rect></svg></button><button type="button" title="讲稿" aria-label="讲稿" data-key="n"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"></path><path d="M2 6h4"></path><path d="M2 10h4"></path><path d="M2 14h4"></path><path d="M2 18h4"></path><path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"></path></svg></button><button type="button" title="演讲者视图" aria-label="演讲者视图" data-key="s"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h20"></path><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"></path><path d="m7 21 5-5 5 5"></path></svg></button><button type="button" title="全屏" aria-label="全屏" data-key="f"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3"></path><path d="M21 8V5a2 2 0 0 0-2-2h-3"></path><path d="M3 16v3a2 2 0 0 0 2 2h3"></path><path d="M16 21h3a2 2 0 0 0 2-2v-3"></path></svg></button></nav>
+<script>/* html-ppt :: runtime.js
+ * Keyboard-driven deck runtime. Zero dependencies.
+ *
+ * Features:
+ *   ← → / space / PgUp PgDn / Home End  navigation
+ *   F  fullscreen
+ *   S  presenter mode (opens a NEW WINDOW with current/next slide preview + notes + timer)
+ *       The original window stays as audience view, synced via BroadcastChannel.
+ *       Slide previews use CSS transform:scale() at design resolution for pixel-perfect layout.
+ *   N  quick notes overlay (bottom drawer)
+ *   O  slide overview grid
+ *   T  cycle themes (reads data-themes on <html> or <body>)
+ *   A  cycle demo animation on current slide
+ *   URL hash #/N  deep-link to slide N (1-based)
+ *   Progress bar auto-managed
+ */
+(function () {
+  'use strict';
+
+  const ANIMS = ['fade-up','fade-down','fade-left','fade-right','rise-in','drop-in',
+    'zoom-pop','blur-in','glitch-in','typewriter','neon-glow','shimmer-sweep',
+    'gradient-flow','stagger-list','counter-up','path-draw','parallax-tilt',
+    'card-flip-3d','cube-rotate-3d','page-turn-3d','perspective-zoom',
+    'marquee-scroll','kenburns','confetti-burst','spotlight','morph-shape','ripple-reveal'];
+
+  function ready(fn){ if(document.readyState!='loading')fn(); else document.addEventListener('DOMContentLoaded',fn);}
+
+  /* ========== Parse URL for preview-only mode ==========
+   * When loaded as iframe.src = "index.html?preview=3", runtime enters a
+   * locked single-slide mode: only slide N is visible, no chrome, no keys,
+   * no hash updates. This is how the presenter window shows pixel-perfect
+   * previews — by loading the actual deck file in an iframe and telling it
+   * to display only a specific slide.
+   */
+  function getPreviewIdx() {
+    const m = /[?&]preview=(\d+)/.exec(location.search || '');
+    return m ? parseInt(m[1], 10) - 1 : -1;
+  }
+
+  ready(function () {
+    const deck = document.querySelector('.deck');
+    if (!deck) return;
+    const slides = Array.from(deck.querySelectorAll('.slide'));
+    if (!slides.length) return;
+
+    const previewOnlyIdx = getPreviewIdx();
+    const isPreviewMode = previewOnlyIdx >= 0 && previewOnlyIdx < slides.length;
+
+    /* ===== Preview-only mode: show one slide, hide everything else ===== */
+    if (isPreviewMode) {
+      function showSlide(i) {
+        slides.forEach((s, j) => {
+          const active = (j === i);
+          s.classList.toggle('is-active', active);
+          s.style.display = active ? '' : 'none';
+          if (active) {
+            s.style.opacity = '1';
+            s.style.transform = 'none';
+            s.style.pointerEvents = 'auto';
+          }
+        });
+      }
+      showSlide(previewOnlyIdx);
+      /* Hide chrome that the presenter shouldn't see in preview */
+      const hideSel = '.progress-bar, .notes-overlay, .overview, .notes, aside.notes, .speaker-notes';
+      document.querySelectorAll(hideSel).forEach(el => { el.style.display = 'none'; });
+      document.documentElement.setAttribute('data-preview', '1');
+      document.body.setAttribute('data-preview', '1');
+      /* Auto-detect theme base path for theme switching in preview mode */
+      function getPreviewThemeBase() {
+        const base = document.documentElement.getAttribute('data-theme-base');
+        if (base) return base;
+        const tl = document.getElementById('theme-link');
+        if (tl) {
+          const raw = tl.getAttribute('href') || '';
+          const ls = raw.lastIndexOf('/');
+          if (ls >= 0) return raw.substring(0, ls + 1);
+        }
+        return 'assets/themes/';
+      }
+      const previewThemeBase = getPreviewThemeBase();
+
+      /* Listen for postMessage from parent presenter window:
+       *  - preview-goto: switch visible slide WITHOUT reloading
+       *  - preview-theme: switch theme CSS link to match audience window */
+      window.addEventListener('message', function(e) {
+        if (!e.data) return;
+        if (e.data.type === 'preview-goto') {
+          const n = parseInt(e.data.idx, 10);
+          if (n >= 0 && n < slides.length) showSlide(n);
+        } else if (e.data.type === 'preview-theme' && e.data.name) {
+          let link = document.getElementById('theme-link');
+          if (!link) {
+            link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.id = 'theme-link';
+            document.head.appendChild(link);
+          }
+          link.href = previewThemeBase + e.data.name + '.css';
+          document.documentElement.setAttribute('data-theme', e.data.name);
+        }
+      });
+      /* Signal to parent that preview iframe is ready */
+      try { window.parent && window.parent.postMessage({ type: 'preview-ready' }, '*'); } catch(e) {}
+      return;
+    }
+
+    let idx = 0;
+    const total = slides.length;
+
+    /* ===== BroadcastChannel for presenter sync ===== */
+    const CHANNEL_NAME = 'html-ppt-presenter-' + location.pathname;
+    let bc;
+    try { bc = new BroadcastChannel(CHANNEL_NAME); } catch(e) { bc = null; }
+
+    // Are we running inside the presenter popup? (legacy flag, now unused)
+    const isPresenterWindow = false;
+
+    /* ===== progress bar ===== */
+    let bar = document.querySelector('.progress-bar');
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.className = 'progress-bar';
+      bar.innerHTML = '<span></span>';
+      document.body.appendChild(bar);
+    }
+    const barFill = bar.querySelector('span');
+
+    /* ===== notes overlay (N key) ===== */
+    let notes = document.querySelector('.notes-overlay');
+    if (!notes) {
+      notes = document.createElement('div');
+      notes.className = 'notes-overlay';
+      document.body.appendChild(notes);
+    }
+
+    /* ===== overview grid (O key) ===== */
+    let overview = document.querySelector('.overview');
+    if (!overview) {
+      overview = document.createElement('div');
+      overview.className = 'overview';
+      slides.forEach((s, i) => {
+        const t = document.createElement('div');
+        t.className = 'thumb';
+        // Force 16:9 aspect ratio robustly
+        t.style.padding = '0 0 56.25% 0';
+        t.style.height = '0';
+        t.style.position = 'relative';
+        t.style.overflow = 'hidden';
+
+        const title = s.getAttribute('data-title') ||
+          (s.querySelector('h1,h2,h3')||{}).textContent || ('Slide '+(i+1));
+        
+        // Create a container for the mini-slide
+        const mini = document.createElement('div');
+        mini.className = 'mini-slide';
+        mini.style.position = 'absolute';
+        mini.style.top = '0';
+        mini.style.left = '0';
+        mini.style.width = '1920px';
+        mini.style.height = '1080px';
+        mini.style.transformOrigin = 'top left';
+        mini.style.pointerEvents = 'none';
+        mini.style.background = 'var(--bg)';
+        
+        // Clone the slide content
+        const clone = s.cloneNode(true);
+        clone.className = s.className + ' is-active'; // force active styles
+        clone.style.position = 'absolute';
+        clone.style.inset = '0';
+        clone.style.transform = 'none';
+        clone.style.opacity = '1';
+        clone.style.padding = '112px 104px 120px'; // ensure padding is kept
+        
+        mini.appendChild(clone);
+        t.appendChild(mini);
+
+        // Add the number and title overlay
+        const overlay = document.createElement('div');
+        overlay.style.position = 'absolute';
+        overlay.style.inset = '0';
+        overlay.style.background = 'linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.8) 100%)';
+        overlay.style.color = '#fff';
+        overlay.style.zIndex = '10';
+        overlay.style.pointerEvents = 'none';
+        
+        const n = document.createElement('div');
+        n.className = 'n';
+        n.textContent = i + 1;
+        n.style.position = 'absolute';
+        n.style.top = '12px';
+        n.style.left = '16px';
+        n.style.fontWeight = '700';
+        n.style.fontSize = '16px';
+        n.style.color = '#fff';
+        n.style.textShadow = '0 1px 4px rgba(0,0,0,0.8)';
+        
+        const text = document.createElement('div');
+        text.className = 't';
+        text.textContent = title.trim().slice(0,80);
+        text.style.position = 'absolute';
+        text.style.bottom = '12px';
+        text.style.left = '16px';
+        text.style.right = '16px';
+        text.style.fontWeight = '600';
+        text.style.fontSize = '14px';
+        text.style.color = '#fff';
+        text.style.textShadow = '0 1px 4px rgba(0,0,0,0.8)';
+        
+        overlay.appendChild(n);
+        overlay.appendChild(text);
+        t.appendChild(overlay);
+
+        t.addEventListener('click', () => { go(i); toggleOverview(false); });
+        overview.appendChild(t);
+      });
+      document.body.appendChild(overview);
+    }
+
+    /* ===== navigation ===== */
+    function go(n, fromRemote){
+      n = Math.max(0, Math.min(total-1, n));
+      slides.forEach((s,i) => {
+        s.classList.toggle('is-active', i===n);
+        s.classList.toggle('is-prev', i<n);
+      });
+      idx = n;
+      barFill.style.width = ((n+1)/total*100)+'%';
+      const numEl = document.querySelector('.slide-number');
+      if (numEl) { numEl.setAttribute('data-current', n+1); numEl.setAttribute('data-total', total); }
+
+      // notes (bottom overlay)
+      const note = slides[n].querySelector('.notes, aside.notes, .speaker-notes');
+      notes.innerHTML = note ? note.innerHTML : '';
+
+      // hash
+      const hashTarget = '#/'+(n+1);
+      if (location.hash !== hashTarget && !isPresenterWindow) {
+        history.replaceState(null,'', hashTarget);
+      }
+
+      // re-trigger entry animations
+      slides[n].querySelectorAll('[data-anim]').forEach(el => {
+        const a = el.getAttribute('data-anim');
+        el.classList.remove('anim-'+a);
+        void el.offsetWidth;
+        el.classList.add('anim-'+a);
+      });
+
+      // counter-up
+      slides[n].querySelectorAll('.counter').forEach(el => {
+        const target = parseFloat(el.getAttribute('data-to')||el.textContent);
+        const dur = parseInt(el.getAttribute('data-dur')||'1200',10);
+        const start = performance.now();
+        const from = 0;
+        function tick(now){
+          const t = Math.min(1,(now-start)/dur);
+          const v = from + (target-from)*(1-Math.pow(1-t,3));
+          el.textContent = (target % 1 === 0) ? Math.round(v) : v.toFixed(1);
+          if (t<1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      });
+
+      // Broadcast to other window (audience ↔ presenter)
+      if (!fromRemote && bc) {
+        bc.postMessage({ type: 'go', idx: n });
+      }
+    }
+
+    /* ===== listen for remote navigation / theme changes ===== */
+    if (bc) {
+      bc.onmessage = function(e) {
+        if (!e.data) return;
+        if (e.data.type === 'go' && typeof e.data.idx === 'number') {
+          go(e.data.idx, true);
+        } else if (e.data.type === 'theme' && e.data.name) {
+          /* Sync theme across windows */
+          const i = themes.indexOf(e.data.name);
+          if (i >= 0) themeIdx = i;
+          applyTheme(e.data.name);
+        }
+      };
+    }
+
+    function toggleNotes(force){ notes.classList.toggle('open', force!==undefined?force:!notes.classList.contains('open')); }
+    function toggleOverview(force){
+      const isOpen = force!==undefined ? force : !overview.classList.contains('open');
+      overview.classList.toggle('open', isOpen);
+      if (isOpen) {
+        requestAnimationFrame(() => {
+          const thumbs = overview.querySelectorAll('.thumb');
+          if (thumbs.length) {
+            const scale = thumbs[0].clientWidth / 1920;
+            overview.querySelectorAll('.mini-slide').forEach(m => {
+              m.style.transform = 'scale(' + scale + ')';
+            });
+          }
+        });
+      }
+    }
+
+    /* ========== PRESENTER MODE — Magnetic-card popup window ========== */
+    /* Opens a new window with 4 draggable, resizable cards:
+     *   CURRENT  — iframe(?preview=N)   pixel-perfect preview of current slide
+     *   NEXT     — iframe(?preview=N+1) pixel-perfect preview of next slide
+     *   SCRIPT   — large speaker notes (逐字稿)
+     *   TIMER    — elapsed timer + page counter + controls
+     * Cards remember position/size in localStorage.
+     * Two windows sync via BroadcastChannel.
+     */
+    let presenterWin = null;
+
+    function openPresenterWindow() {
+      if (presenterWin && !presenterWin.closed) {
+        presenterWin.focus();
+        return;
+      }
+
+      // Build absolute URL of THIS deck file (without hash/query)
+      const deckUrl = location.protocol + '//' + location.host + location.pathname;
+
+      // Collect slide titles + notes (HTML strings)
+      const slideMeta = slides.map((s, i) => {
+        const note = s.querySelector('.notes, aside.notes, .speaker-notes');
+        return {
+          title: s.getAttribute('data-title') ||
+            (s.querySelector('h1,h2,h3')||{}).textContent || ('Slide '+(i+1)),
+          notes: note ? note.innerHTML : ''
+        };
+      });
+
+      /* Capture current theme so presenter previews match the audience */
+      const currentTheme = root.getAttribute('data-theme') || (themes[themeIdx] || '');
+      const presenterHTML = buildPresenterHTML(deckUrl, slideMeta, total, idx, CHANNEL_NAME, currentTheme);
+
+      presenterWin = window.open('', 'html-ppt-presenter', 'width=1280,height=820,menubar=no,toolbar=no');
+      if (!presenterWin) {
+        alert('请允许弹出窗口以使用演讲者视图');
+        return;
+      }
+      presenterWin.document.open();
+      presenterWin.document.write(presenterHTML);
+      presenterWin.document.close();
+    }
+
+    function buildPresenterHTML(deckUrl, slideMeta, total, startIdx, channelName, currentTheme) {
+      const metaJSON = JSON.stringify(slideMeta);
+      const deckUrlJSON = JSON.stringify(deckUrl);
+      const channelJSON = JSON.stringify(channelName);
+      const themeJSON = JSON.stringify(currentTheme || '');
+      const storageKey = 'html-ppt-presenter:' + location.pathname;
+
+      // Build the document as a single template string for clarity
+      return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Presenter View</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%; overflow: hidden;
+    background: #1a1d24;
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(88,166,255,.04), transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(188,140,255,.04), transparent 50%);
+    color: #e6edf3;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+  }
+  /* Stage: positioned area where cards live */
+  #stage { position: absolute; inset: 0; overflow: hidden; }
+
+  /* Magnetic card */
+  .pcard {
+    position: absolute;
+    background: #0d1117;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.45), 0 0 0 1px rgba(255,255,255,.02);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    min-width: 180px; min-height: 100px;
+    transition: box-shadow .2s, border-color .2s;
+  }
+  .pcard.dragging { box-shadow: 0 16px 48px rgba(0,0,0,.6), 0 0 0 2px rgba(88,166,255,.5); border-color: #58a6ff; transition: none; z-index: 9999; }
+  .pcard.resizing { box-shadow: 0 16px 48px rgba(0,0,0,.6), 0 0 0 2px rgba(63,185,80,.5); border-color: #3fb950; transition: none; z-index: 9999; }
+  .pcard:hover { border-color: rgba(88,166,255,.3); }
+
+  /* Card header (drag handle) */
+  .pcard-head {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px;
+    background: rgba(255,255,255,.04);
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    cursor: move;
+    user-select: none;
+    flex-shrink: 0;
+  }
+  .pcard-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--dot-color, #58a6ff); flex-shrink: 0; }
+  .pcard-title {
+    font-size: 11px; letter-spacing: 0; text-transform: uppercase;
+    font-weight: 700; color: #8b949e; flex: 1;
+  }
+  .pcard-meta { font-size: 11px; color: #6e7681; }
+
+  /* Card body */
+  .pcard-body { flex: 1; position: relative; overflow: hidden; min-height: 0; }
+
+  /* Preview cards (CURRENT/NEXT) — iframe-based pixel-perfect render */
+  .pcard-preview .pcard-body { background: #000; }
+  .pcard-preview iframe {
+    position: absolute; top: 0; left: 0;
+    width: 1920px; height: 1080px;
+    border: none;
+    transform-origin: top left;
+    pointer-events: none;
+    background: transparent;
+  }
+  .pcard-preview .preview-end {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: #484f58; font-size: 14px; letter-spacing: .12em;
+  }
+
+  /* Notes card */
+  .pcard-notes .pcard-body {
+    padding: 14px 18px;
+    overflow-y: auto;
+    font-size: 18px; line-height: 1.75;
+    color: #d0d7de;
+    font-family: "Noto Sans SC", -apple-system, sans-serif;
+  }
+  .pcard-notes .pcard-body p { margin: 0 0 .7em 0; }
+  .pcard-notes .pcard-body strong { color: #f0883e; }
+  .pcard-notes .pcard-body em { color: #58a6ff; font-style: normal; }
+  .pcard-notes .pcard-body code {
+    font-family: "SF Mono", monospace; font-size: .9em;
+    background: rgba(255,255,255,.08); padding: 1px 6px; border-radius: 4px;
+  }
+  .pcard-notes .empty { color: #484f58; font-style: italic; }
+
+  /* Timer card */
+  .pcard-timer .pcard-body {
+    display: flex; flex-direction: column; gap: 14px;
+    padding: 18px 20px; justify-content: center;
+  }
+  .timer-display {
+    font-family: "SF Mono", "JetBrains Mono", monospace;
+    font-size: 42px; font-weight: 700;
+    color: #3fb950;
+    letter-spacing: .04em;
+    line-height: 1;
+  }
+  .timer-row {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 14px; color: #8b949e;
+  }
+  .timer-row .label { font-size: 10px; letter-spacing: 0; text-transform: uppercase; color: #6e7681; }
+  .timer-row .val { color: #e6edf3; font-weight: 600; font-family: "SF Mono", monospace; }
+  .timer-controls { display: flex; gap: 8px; flex-wrap: wrap; }
+  .timer-btn {
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.1);
+    color: #e6edf3;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .timer-btn:hover { background: rgba(88,166,255,.15); border-color: #58a6ff; }
+  .timer-btn:active { transform: translateY(1px); }
+
+  /* Resize handle */
+  .pcard-resize {
+    position: absolute; right: 0; bottom: 0;
+    width: 18px; height: 18px;
+    cursor: nwse-resize;
+    background: linear-gradient(135deg, transparent 50%, rgba(255,255,255,.25) 50%, rgba(255,255,255,.25) 60%, transparent 60%, transparent 70%, rgba(255,255,255,.25) 70%, rgba(255,255,255,.25) 80%, transparent 80%);
+    z-index: 5;
+  }
+  .pcard-resize:hover { background: linear-gradient(135deg, transparent 50%, #58a6ff 50%, #58a6ff 60%, transparent 60%, transparent 70%, #58a6ff 70%, #58a6ff 80%, transparent 80%); }
+
+  /* Bottom hint bar */
+  .hint-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: rgba(0,0,0,.6);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255,255,255,.08);
+    padding: 6px 16px;
+    font-size: 11px; color: #8b949e;
+    display: flex; gap: 18px; align-items: center;
+    z-index: 1000;
+  }
+  .hint-bar kbd {
+    background: rgba(255,255,255,.08);
+    padding: 1px 6px; border-radius: 3px;
+    font-family: "SF Mono", monospace;
+    font-size: 10px;
+    border: 1px solid rgba(255,255,255,.1);
+    color: #e6edf3;
+  }
+  .hint-bar .reset-layout {
+    margin-left: auto;
+    background: transparent; border: 1px solid rgba(255,255,255,.15);
+    color: #8b949e; padding: 3px 10px; border-radius: 4px;
+    font-size: 11px; cursor: pointer; font-family: inherit;
+  }
+  .hint-bar .reset-layout:hover { background: rgba(248,81,73,.15); border-color: #f85149; color: #f85149; }
+
+  body.is-dragging-card * { user-select: none !important; }
+  body.is-dragging-card iframe { pointer-events: none !important; }
+</style>
+</head>
+<body>
+
+<div id="stage">
+  <div class="pcard pcard-preview" id="card-cur" style="--dot-color:#58a6ff">
+    <div class="pcard-head" data-drag>
+      <span class="pcard-dot"></span>
+      <span class="pcard-title">CURRENT</span>
+      <span class="pcard-meta" id="cur-meta">—</span>
+    </div>
+    <div class="pcard-body"><iframe id="iframe-cur"></iframe></div>
+    <div class="pcard-resize" data-resize></div>
+  </div>
+
+  <div class="pcard pcard-preview" id="card-nxt" style="--dot-color:#bc8cff">
+    <div class="pcard-head" data-drag>
+      <span class="pcard-dot"></span>
+      <span class="pcard-title">NEXT</span>
+      <span class="pcard-meta" id="nxt-meta">—</span>
+    </div>
+    <div class="pcard-body"><iframe id="iframe-nxt"></iframe></div>
+    <div class="pcard-resize" data-resize></div>
+  </div>
+
+  <div class="pcard pcard-notes" id="card-notes" style="--dot-color:#f0883e">
+    <div class="pcard-head" data-drag>
+      <span class="pcard-dot"></span>
+      <span class="pcard-title">SPEAKER SCRIPT · 逐字稿</span>
+    </div>
+    <div class="pcard-body" id="notes-body"></div>
+    <div class="pcard-resize" data-resize></div>
+  </div>
+
+  <div class="pcard pcard-timer" id="card-timer" style="--dot-color:#3fb950">
+    <div class="pcard-head" data-drag>
+      <span class="pcard-dot"></span>
+      <span class="pcard-title">TIMER</span>
+    </div>
+    <div class="pcard-body">
+      <div class="timer-display" id="timer-display">00:00</div>
+      <div class="timer-row">
+        <span class="label">Slide</span>
+        <span class="val" id="timer-count">1 / ${total}</span>
+      </div>
+      <div class="timer-controls">
+        <button class="timer-btn" id="btn-prev">← Prev</button>
+        <button class="timer-btn" id="btn-next">Next →</button>
+        <button class="timer-btn" id="btn-reset">⏱ Reset</button>
+      </div>
+    </div>
+    <div class="pcard-resize" data-resize></div>
+  </div>
+</div>
+
+<div class="hint-bar">
+  <span><kbd>← →</kbd> 翻页</span>
+  <span><kbd>R</kbd> 重置计时</span>
+  <span><kbd>Esc</kbd> 关闭</span>
+  <span style="color:#6e7681">拖动卡片头部移动 · 拖动右下角调整大小</span>
+  <button class="reset-layout" id="reset-layout">重置布局</button>
+</div>
+
+<script>
+(function(){
+  var slideMeta = ${metaJSON};
+  var total = ${total};
+  var idx = ${startIdx};
+  var deckUrl = ${deckUrlJSON};
+  var STORAGE_KEY = ${JSON.stringify(storageKey)};
+  var bc;
+  try { bc = new BroadcastChannel(${channelJSON}); } catch(e) {}
+
+  var iframeCur = document.getElementById('iframe-cur');
+  var iframeNxt = document.getElementById('iframe-nxt');
+  var notesBody = document.getElementById('notes-body');
+  var curMeta = document.getElementById('cur-meta');
+  var nxtMeta = document.getElementById('nxt-meta');
+  var timerDisplay = document.getElementById('timer-display');
+  var timerCount = document.getElementById('timer-count');
+
+  /* ===== Default card layout ===== */
+  function defaultLayout() {
+    var w = window.innerWidth;
+    var h = window.innerHeight - 36; /* leave room for hint bar */
+    return {
+      'card-cur':   { x: 16,        y: 16,            w: Math.round(w*0.55) - 24, h: Math.round(h*0.62) - 16 },
+      'card-nxt':   { x: Math.round(w*0.55) + 8, y: 16, w: w - Math.round(w*0.55) - 24, h: Math.round(h*0.42) - 16 },
+      'card-notes': { x: Math.round(w*0.55) + 8, y: Math.round(h*0.42) + 8, w: w - Math.round(w*0.55) - 24, h: h - Math.round(h*0.42) - 16 },
+      'card-timer': { x: 16,        y: Math.round(h*0.62) + 8, w: Math.round(w*0.55) - 24, h: h - Math.round(h*0.62) - 16 }
+    };
+  }
+
+  /* ===== Apply / save / restore layout ===== */
+  function applyLayout(layout) {
+    Object.keys(layout).forEach(function(id){
+      var el = document.getElementById(id);
+      var l = layout[id];
+      if (el && l) {
+        el.style.left = l.x + 'px';
+        el.style.top = l.y + 'px';
+        el.style.width = l.w + 'px';
+        el.style.height = l.h + 'px';
+      }
+    });
+    rescaleAll();
+  }
+  function readLayout() {
+    try {
+      var saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch(e) {}
+    return defaultLayout();
+  }
+  function saveLayout() {
+    var layout = {};
+    ['card-cur','card-nxt','card-notes','card-timer'].forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) {
+        layout[id] = {
+          x: parseInt(el.style.left,10) || 0,
+          y: parseInt(el.style.top,10) || 0,
+          w: parseInt(el.style.width,10) || 300,
+          h: parseInt(el.style.height,10) || 200
+        };
+      }
+    });
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(layout)); } catch(e) {}
+  }
+
+  /* ===== iframe rescale to fit card body ===== */
+  function rescaleIframe(iframe) {
+    if (!iframe || iframe.style.display === 'none') return;
+    var body = iframe.parentElement;
+    var cw = body.clientWidth, ch = body.clientHeight;
+    if (!cw || !ch) return;
+    var s = Math.min(cw / 1920, ch / 1080);
+    iframe.style.transform = 'scale(' + s + ')';
+    /* Center the scaled iframe in the body */
+    var sw = 1920 * s, sh = 1080 * s;
+    iframe.style.left = Math.max(0, (cw - sw) / 2) + 'px';
+    iframe.style.top = Math.max(0, (ch - sh) / 2) + 'px';
+  }
+  function rescaleAll() {
+    rescaleIframe(iframeCur);
+    rescaleIframe(iframeNxt);
+  }
+  window.addEventListener('resize', rescaleAll);
+
+  /* ===== Drag (move card by header) ===== */
+  document.querySelectorAll('[data-drag]').forEach(function(handle){
+    handle.addEventListener('mousedown', function(e){
+      if (e.button !== 0) return;
+      var card = handle.closest('.pcard');
+      if (!card) return;
+      e.preventDefault();
+      card.classList.add('dragging');
+      document.body.classList.add('is-dragging-card');
+      var startX = e.clientX, startY = e.clientY;
+      var startL = parseInt(card.style.left,10) || 0;
+      var startT = parseInt(card.style.top,10)  || 0;
+      function onMove(ev){
+        var nx = Math.max(0, Math.min(window.innerWidth - 100, startL + ev.clientX - startX));
+        var ny = Math.max(0, Math.min(window.innerHeight - 50, startT + ev.clientY - startY));
+        card.style.left = nx + 'px';
+        card.style.top = ny + 'px';
+      }
+      function onUp(){
+        card.classList.remove('dragging');
+        document.body.classList.remove('is-dragging-card');
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        saveLayout();
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+  });
+
+  /* ===== Resize (drag bottom-right corner) ===== */
+  document.querySelectorAll('[data-resize]').forEach(function(handle){
+    handle.addEventListener('mousedown', function(e){
+      if (e.button !== 0) return;
+      var card = handle.closest('.pcard');
+      if (!card) return;
+      e.preventDefault(); e.stopPropagation();
+      card.classList.add('resizing');
+      document.body.classList.add('is-dragging-card');
+      var startX = e.clientX, startY = e.clientY;
+      var startW = parseInt(card.style.width,10)  || card.offsetWidth;
+      var startH = parseInt(card.style.height,10) || card.offsetHeight;
+      function onMove(ev){
+        var nw = Math.max(180, startW + ev.clientX - startX);
+        var nh = Math.max(100, startH + ev.clientY - startY);
+        card.style.width = nw + 'px';
+        card.style.height = nh + 'px';
+        if (card.querySelector('iframe')) rescaleIframe(card.querySelector('iframe'));
+      }
+      function onUp(){
+        card.classList.remove('resizing');
+        document.body.classList.remove('is-dragging-card');
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        rescaleAll();
+        saveLayout();
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+  });
+
+  /* ===== Preview iframe ready tracking =====
+   * Each iframe loads the deck ONCE with ?preview=1 on init. Subsequent
+   * slide changes are sent via postMessage('preview-goto') so the iframe
+   * just toggles visibility of a different .slide — no reload, no flicker.
+   */
+  var iframeReady = { cur: false, nxt: false };
+  var currentTheme = ${themeJSON};
+  window.addEventListener('message', function(e) {
+    if (!e.data || e.data.type !== 'preview-ready') return;
+    var iframe = null;
+    if (e.source === iframeCur.contentWindow) {
+      iframeReady.cur = true;
+      iframe = iframeCur;
+      postPreviewGoto(iframeCur, idx);
+    } else if (e.source === iframeNxt.contentWindow) {
+      iframeReady.nxt = true;
+      iframe = iframeNxt;
+      postPreviewGoto(iframeNxt, idx + 1 < total ? idx + 1 : idx);
+    }
+    /* Sync current theme to the iframe */
+    if (iframe && currentTheme) {
+      try { iframe.contentWindow.postMessage({ type: 'preview-theme', name: currentTheme }, '*'); } catch(err) {}
+    }
+    if (iframe) rescaleIframe(iframe);
+  });
+
+  function postPreviewGoto(iframe, n) {
+    try {
+      iframe.contentWindow.postMessage({ type: 'preview-goto', idx: n }, '*');
+    } catch(e) {}
+  }
+
+  /* ===== Update content =====
+   * Smooth (no-reload) navigation: send postMessage to iframes instead of
+   * resetting src. Iframes stay loaded, just switch visible .slide.
+   */
+  function update(n) {
+    n = Math.max(0, Math.min(total - 1, n));
+    idx = n;
+
+    /* Current preview — postMessage (smooth) */
+    if (iframeReady.cur) postPreviewGoto(iframeCur, n);
+    curMeta.textContent = (n + 1) + '/' + total;
+
+    /* Next preview */
+    if (n + 1 < total) {
+      iframeNxt.style.display = '';
+      var endEl = document.querySelector('#card-nxt .preview-end');
+      if (endEl) endEl.remove();
+      if (iframeReady.nxt) postPreviewGoto(iframeNxt, n + 1);
+      nxtMeta.textContent = (n + 2) + '/' + total;
+    } else {
+      iframeNxt.style.display = 'none';
+      var body = document.querySelector('#card-nxt .pcard-body');
+      if (body && !body.querySelector('.preview-end')) {
+        var end = document.createElement('div');
+        end.className = 'preview-end';
+        end.textContent = '— END OF DECK —';
+        body.appendChild(end);
+      }
+      nxtMeta.textContent = 'END';
+    }
+
+    /* Notes */
+    var note = slideMeta[n].notes;
+    notesBody.innerHTML = note || '<span class="empty">（这一页还没有逐字稿）</span>';
+
+    /* Timer count */
+    timerCount.textContent = (n + 1) + ' / ' + total;
+  }
+
+  /* ===== Timer ===== */
+  var tStart = Date.now();
+  setInterval(function(){
+    var s = Math.floor((Date.now() - tStart) / 1000);
+    var mm = String(Math.floor(s/60)).padStart(2,'0');
+    var ss = String(s%60).padStart(2,'0');
+    timerDisplay.textContent = mm + ':' + ss;
+  }, 1000);
+  function resetTimer(){ tStart = Date.now(); timerDisplay.textContent = '00:00'; }
+
+  /* ===== BroadcastChannel sync ===== */
+  if (bc) {
+    bc.onmessage = function(e){
+      if (!e.data) return;
+      if (e.data.type === 'go') update(e.data.idx);
+      else if (e.data.type === 'theme' && e.data.name) {
+        currentTheme = e.data.name;
+        /* Forward theme change to preview iframes */
+        [iframeCur, iframeNxt].forEach(function(iframe){
+          try {
+            iframe.contentWindow.postMessage({ type: 'preview-theme', name: e.data.name }, '*');
+          } catch(err) {}
+        });
+      }
+    };
+  }
+  function go(n) {
+    update(n);
+    if (bc) bc.postMessage({ type: 'go', idx: idx });
+  }
+
+  /* ===== Buttons ===== */
+  document.getElementById('btn-prev').addEventListener('click', function(){ go(idx - 1); });
+  document.getElementById('btn-next').addEventListener('click', function(){ go(idx + 1); });
+  document.getElementById('btn-reset').addEventListener('click', resetTimer);
+  document.getElementById('reset-layout').addEventListener('click', function(){
+    if (confirm('恢复默认卡片布局？')) {
+      try { localStorage.removeItem(STORAGE_KEY); } catch(e){}
+      applyLayout(defaultLayout());
+    }
+  });
+
+  /* ===== Keyboard ===== */
+  document.addEventListener('keydown', function(e){
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    switch(e.key) {
+      case 'ArrowRight': case ' ': case 'PageDown': go(idx + 1); e.preventDefault(); break;
+      case 'ArrowLeft':  case 'PageUp':   go(idx - 1); e.preventDefault(); break;
+      case 'Home': go(0); break;
+      case 'End':  go(total - 1); break;
+      case 'r': case 'R': resetTimer(); break;
+      case 'Escape': window.close(); break;
+    }
+  });
+
+  /* ===== Iframe load → rescale (catches initial size) ===== */
+  iframeCur.addEventListener('load', function(){ rescaleIframe(iframeCur); });
+  iframeNxt.addEventListener('load', function(){ rescaleIframe(iframeNxt); });
+
+  /* ===== Init =====
+   * Load each iframe ONCE with the deck file. After they post
+   * 'preview-ready', all subsequent navigation is via postMessage
+   * (smooth, no reload, no flicker).
+   */
+  applyLayout(readLayout());
+  iframeCur.src = deckUrl + '?preview=' + (idx + 1);
+  if (idx + 1 < total) iframeNxt.src = deckUrl + '?preview=' + (idx + 2);
+  /* Initialize notes/timer/count without touching iframes */
+  notesBody.innerHTML = slideMeta[idx].notes || '<span class="empty">（这一页还没有逐字稿）</span>';
+  curMeta.textContent = (idx + 1) + '/' + total;
+  nxtMeta.textContent = (idx + 2) + '/' + total;
+  timerCount.textContent = (idx + 1) + ' / ' + total;
+})();
+</` + `script>
+</body></html>`;
+    }
+
+    function fullscreen(){ const el=document.documentElement;
+      if (!document.fullscreenElement) el.requestFullscreen&&el.requestFullscreen();
+      else document.exitFullscreen&&document.exitFullscreen();
+    }
+
+    // theme cycling
+    const root = document.documentElement;
+    const themesAttr = root.getAttribute('data-themes') || document.body.getAttribute('data-themes');
+    const themes = themesAttr ? themesAttr.split(',').map(s=>s.trim()).filter(Boolean) : [];
+    let themeIdx = 0;
+
+    // Auto-detect theme base path from existing <link id="theme-link">
+    let themeBase = root.getAttribute('data-theme-base');
+    if (!themeBase) {
+      const existingLink = document.getElementById('theme-link');
+      if (existingLink) {
+        // el.getAttribute('href') gives the raw relative path written in HTML
+        const rawHref = existingLink.getAttribute('href') || '';
+        const lastSlash = rawHref.lastIndexOf('/');
+        themeBase = lastSlash >= 0 ? rawHref.substring(0, lastSlash + 1) : 'assets/themes/';
+      } else {
+        themeBase = 'assets/themes/';
+      }
+    }
+
+    function applyTheme(name) {
+      let link = document.getElementById('theme-link');
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.id = 'theme-link';
+        document.head.appendChild(link);
+      }
+      link.href = themeBase + name + '.css';
+      root.setAttribute('data-theme', name);
+      const ind = document.querySelector('.theme-indicator');
+      if (ind) ind.textContent = name;
+    }
+    function cycleTheme(fromRemote){
+      if (!themes.length) return;
+      themeIdx = (themeIdx+1) % themes.length;
+      const name = themes[themeIdx];
+      applyTheme(name);
+      /* Broadcast to other window (audience ↔ presenter) */
+      if (!fromRemote && bc) bc.postMessage({ type: 'theme', name: name });
+    }
+
+    // animation cycling on current slide
+    let animIdx = 0;
+    function cycleAnim(){
+      animIdx = (animIdx+1) % ANIMS.length;
+      const a = ANIMS[animIdx];
+      const target = slides[idx].querySelector('[data-anim-target]') || slides[idx];
+      ANIMS.forEach(x => target.classList.remove('anim-'+x));
+      void target.offsetWidth;
+      target.classList.add('anim-'+a);
+      target.setAttribute('data-anim', a);
+      const ind = document.querySelector('.anim-indicator');
+      if (ind) ind.textContent = a;
+    }
+
+    document.addEventListener('keydown', function (e) {
+      if (e.metaKey||e.ctrlKey||e.altKey) return;
+      switch (e.key) {
+        case 'ArrowRight': case ' ': case 'PageDown': case 'Enter': go(idx+1); e.preventDefault(); break;
+        case 'ArrowLeft': case 'PageUp': case 'Backspace': go(idx-1); e.preventDefault(); break;
+        case 'Home': go(0); break;
+        case 'End': go(total-1); break;
+        case 'f': case 'F': fullscreen(); break;
+        case 's': case 'S': openPresenterWindow(); break;
+        case 'n': case 'N': toggleNotes(); break;
+        case 'o': case 'O': toggleOverview(); break;
+        case 't': case 'T': cycleTheme(); break;
+        case 'a': case 'A': cycleAnim(); break;
+        case 'Escape': toggleOverview(false); toggleNotes(false); break;
+      }
+    });
+
+    // hash deep-link
+    function fromHash(){
+      const m = /^#\/(\d+)/.exec(location.hash||'');
+      if (m) go(Math.max(0, parseInt(m[1],10)-1));
+    }
+    window.addEventListener('hashchange', fromHash);
+    fromHash();
+    go(idx);
+  });
+})();
+</script><script>// 只负责画布缩放和控件桥接；翻页、总览、讲稿、演讲者视图沿用 Skill runtime。
+(() => {
+  function fit() {
+    const reserved = new URLSearchParams(location.search).has('preview') ? 0 : 52;
+    const scale = Math.min(window.innerWidth / 1920, Math.max(1, window.innerHeight - reserved) / 1080);
+    document.documentElement.style.setProperty('--control-space', reserved + 'px');
+    document.documentElement.style.setProperty('--deck-scale', String(scale));
+  }
+  fit();
+  window.addEventListener('resize', fit);
+  document.querySelectorAll('[data-key]').forEach(button => {
+    button.addEventListener('click', () => {
+      document.dispatchEvent(new KeyboardEvent('keydown', {key: button.dataset.key, bubbles: true}));
+    });
+  });
+  let start = null;
+  document.querySelector('.deck').addEventListener('touchstart', e => {
+    if(e.touches.length === 1) start = {x:e.touches[0].clientX,y:e.touches[0].clientY};
+  }, {passive:true});
+  document.querySelector('.deck').addEventListener('touchend', e => {
+    if(!start || !e.changedTouches.length) return;
+    const dx = e.changedTouches[0].clientX - start.x;
+    const dy = e.changedTouches[0].clientY - start.y;
+    if(Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)*1.5) document.dispatchEvent(new KeyboardEvent('keydown',{key:dx<0?'ArrowRight':'ArrowLeft',bubbles:true}));
+    start = null;
+  }, {passive:true});
+})();
+</script></body></html>
