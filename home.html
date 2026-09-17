@@ -394,7 +394,7 @@
               </div>
             </article>
 
-            <article class='agent-card agent-card--insight' aria-labelledby='insight-agent-title'>
+            <article class='agent-card agent-card--insight' data-ai-output='true' aria-labelledby='insight-agent-title'>
               <header class='agent-card__head'>
                 <span class='agent-card__icon' aria-hidden='true'>
                   <svg viewBox='0 0 32 32' width='36' height='36' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'>
@@ -443,7 +443,7 @@
         <section class='projects' aria-labelledby='projects-title'>
           <header class='section-head'>
             <div class='section-head__text'>
-              <h2 id='projects-title' class='section-head__title'>项目 · 已执行过的任务</h2>
+              <h2 id='projects-title' class='section-head__title section-head__title--ai'>项目 · 已执行过的任务</h2>
               <p class='section-head__desc'>每个项目都是一次智能体编排的完整轨迹，点击重入即可继续。</p>
             </div>
             <div class='section-head__actions'>
@@ -662,7 +662,7 @@
         <section class='analysis' aria-labelledby='analysis-title'>
           <header class='section-head'>
             <div class='section-head__text'>
-              <h2 id='analysis-title' class='section-head__title'>市场分析 · 月报与专题报告自动生成</h2>
+              <h2 id='analysis-title' class='section-head__title section-head__title--ai'>市场分析 · 月报与专题报告自动生成</h2>
               <p class='section-head__desc'>基于已对接的四类数据底座，由市场战略Agent 自动编排拉数、解读、排版、交付。</p>
             </div>
             <div class='section-head__actions'>
@@ -933,7 +933,7 @@
         <section class='forecast' aria-labelledby='forecast-title'>
           <header class='section-head'>
             <div class='section-head__text'>
-              <h2 id='forecast-title' class='section-head__title'>市场预测 · Demo 演示</h2>
+              <h2 id='forecast-title' class='section-head__title section-head__title--ai'>市场预测 · Demo 演示</h2>
               <p class='section-head__desc'>基于销量弹性、渗透率拐点、价格带迁移三类模型给出的下一周期市场预测样例。</p>
             </div>
             <div class='section-head__actions'>
@@ -1113,7 +1113,7 @@
         <section class='insight' aria-labelledby='insight-title'>
           <header class='section-head'>
             <div class='section-head__text'>
-              <h2 id='insight-title' class='section-head__title'>用户洞察 · Demo 演示</h2>
+              <h2 id='insight-title' class='section-head__title section-head__title--ai'>用户洞察 · Demo 演示</h2>
               <p class='section-head__desc'>从评论、访谈、销售数据中识别用户圈层与配置优先级，样例展示。</p>
             </div>
             <div class='section-head__actions'>
@@ -1199,11 +1199,28 @@
                 </span>
               </header>
               <p class='agent-card__desc'>已婚有孩，关注后排空间、安全配置、续航真实性。购车预算 18-25 万。</p>
-              <ul class='agent-card__capabilities' aria-label='核心需求权重'>
-                <li><span aria-hidden='true'>·</span> 安全（碰撞成绩 + 主动安全）权重 28%</li>
-                <li><span aria-hidden='true'>·</span> 空间（后排腿部 + 行李厢）权重 22%</li>
-                <li><span aria-hidden='true'>·</span> 续航（真实达成率）权重 18%</li>
-                <li><span aria-hidden='true'>·</span> 智能座舱权重 14%</li>
+              <div style='margin-top: -4px'><span class='ai-tag'>智能聚类生成</span></div>
+              <ul class='weight-list' aria-label='核心需求权重'>
+                <li class='weight-item weight-item--hi'>
+                  <span class='weight-item__label'>安全（碰撞成绩 + 主动安全）</span>
+                  <span class='weight-item__value'>28%</span>
+                  <span class='weight-item__bar' role='progressbar' aria-valuenow='28' aria-valuemin='0' aria-valuemax='100'><span style='width: 28%'></span></span>
+                </li>
+                <li class='weight-item'>
+                  <span class='weight-item__label'>空间（后排腿部 + 行李厢）</span>
+                  <span class='weight-item__value'>22%</span>
+                  <span class='weight-item__bar' role='progressbar' aria-valuenow='22' aria-valuemin='0' aria-valuemax='100'><span style='width: 22%'></span></span>
+                </li>
+                <li class='weight-item'>
+                  <span class='weight-item__label'>续航（真实达成率）</span>
+                  <span class='weight-item__value'>18%</span>
+                  <span class='weight-item__bar' role='progressbar' aria-valuenow='18' aria-valuemin='0' aria-valuemax='100'><span style='width: 18%'></span></span>
+                </li>
+                <li class='weight-item'>
+                  <span class='weight-item__label'>智能座舱</span>
+                  <span class='weight-item__value'>14%</span>
+                  <span class='weight-item__bar' role='progressbar' aria-valuenow='14' aria-valuemin='0' aria-valuemax='100'><span style='width: 14%'></span></span>
+                </li>
               </ul>
               <div class='agent-card__meta'>
                 <span class='agent-card__meta-key'>推荐标配</span>
@@ -1235,11 +1252,28 @@
                 </span>
               </header>
               <p class='agent-card__desc'>单身或情侣，注重新潮外观、智能驾驶、车机生态。购车预算 12-18 万。</p>
-              <ul class='agent-card__capabilities' aria-label='核心需求权重'>
-                <li><span aria-hidden='true'>·</span> 智驾（高速 NOA）权重 26%</li>
-                <li><span aria-hidden='true'>·</span> 车机 / 智能座舱权重 24%</li>
-                <li><span aria-hidden='true'>·</span> 外观设计权重 20%</li>
-                <li><span aria-hidden='true'>·</span> 价格敏感度权重 18%</li>
+              <div style='margin-top: -4px'><span class='ai-tag'>智能聚类生成</span></div>
+              <ul class='weight-list' aria-label='核心需求权重'>
+                <li class='weight-item weight-item--hi'>
+                  <span class='weight-item__label'>智驾（高速 NOA）</span>
+                  <span class='weight-item__value'>26%</span>
+                  <span class='weight-item__bar' role='progressbar' aria-valuenow='26' aria-valuemin='0' aria-valuemax='100'><span style='width: 26%'></span></span>
+                </li>
+                <li class='weight-item'>
+                  <span class='weight-item__label'>车机 / 智能座舱</span>
+                  <span class='weight-item__value'>24%</span>
+                  <span class='weight-item__bar' role='progressbar' aria-valuenow='24' aria-valuemin='0' aria-valuemax='100'><span style='width: 24%'></span></span>
+                </li>
+                <li class='weight-item'>
+                  <span class='weight-item__label'>外观设计</span>
+                  <span class='weight-item__value'>20%</span>
+                  <span class='weight-item__bar' role='progressbar' aria-valuenow='20' aria-valuemin='0' aria-valuemax='100'><span style='width: 20%'></span></span>
+                </li>
+                <li class='weight-item'>
+                  <span class='weight-item__label'>价格敏感度</span>
+                  <span class='weight-item__value'>18%</span>
+                  <span class='weight-item__bar' role='progressbar' aria-valuenow='18' aria-valuemin='0' aria-valuemax='100'><span style='width: 18%'></span></span>
+                </li>
               </ul>
               <div class='agent-card__meta'>
                 <span class='agent-card__meta-key'>推荐标配</span>
@@ -1273,11 +1307,28 @@
                 </span>
               </header>
               <p class='agent-card__desc'>高管或私营业主，关注品牌、调性、舒适后排、NVH 表现。购车预算 30-50 万。</p>
-              <ul class='agent-card__capabilities' aria-label='核心需求权重'>
-                <li><span aria-hidden='true'>·</span> 品牌调性权重 30%</li>
-                <li><span aria-hidden='true'>·</span> 舒适 / NVH 权重 24%</li>
-                <li><span aria-hidden='true'>·</span> 安全权重 18%</li>
-                <li><span aria-hidden='true'>·</span> 售后服务权重 16%</li>
+              <div style='margin-top: -4px'><span class='ai-tag'>智能聚类生成</span></div>
+              <ul class='weight-list' aria-label='核心需求权重'>
+                <li class='weight-item weight-item--hi'>
+                  <span class='weight-item__label'>品牌调性</span>
+                  <span class='weight-item__value'>30%</span>
+                  <span class='weight-item__bar' role='progressbar' aria-valuenow='30' aria-valuemin='0' aria-valuemax='100'><span style='width: 30%'></span></span>
+                </li>
+                <li class='weight-item'>
+                  <span class='weight-item__label'>舒适 / NVH</span>
+                  <span class='weight-item__value'>24%</span>
+                  <span class='weight-item__bar' role='progressbar' aria-valuenow='24' aria-valuemin='0' aria-valuemax='100'><span style='width: 24%'></span></span>
+                </li>
+                <li class='weight-item'>
+                  <span class='weight-item__label'>安全</span>
+                  <span class='weight-item__value'>18%</span>
+                  <span class='weight-item__bar' role='progressbar' aria-valuenow='18' aria-valuemin='0' aria-valuemax='100'><span style='width: 18%'></span></span>
+                </li>
+                <li class='weight-item'>
+                  <span class='weight-item__label'>售后服务</span>
+                  <span class='weight-item__value'>16%</span>
+                  <span class='weight-item__bar' role='progressbar' aria-valuenow='16' aria-valuemin='0' aria-valuemax='100'><span style='width: 16%'></span></span>
+                </li>
               </ul>
               <div class='agent-card__meta'>
                 <span class='agent-card__meta-key'>推荐标配</span>
@@ -1351,7 +1402,7 @@
         <section class='skills' aria-labelledby='skills-title'>
           <header class='section-head'>
             <div class='section-head__text'>
-              <h2 id='skills-title' class='section-head__title'>已封装的技能 / Skills</h2>
+              <h2 id='skills-title' class='section-head__title section-head__title--ai'>已封装的技能 / Skills</h2>
               <p class='section-head__desc'>8 个原子技能，可以被智能体按需编排。点击卡片查看输入输出契约与最近调用记录。</p>
             </div>
             <div class='section-head__actions'>
@@ -1623,7 +1674,7 @@
         <section class='plugins' aria-labelledby='plugins-title'>
           <header class='section-head'>
             <div class='section-head__text'>
-              <h2 id='plugins-title' class='section-head__title'>数据底座 / Plugins 管理</h2>
+              <h2 id='plugins-title' class='section-head__title section-head__title--ai'>数据底座 / Plugins 管理</h2>
               <p class='section-head__desc'>四类数据底座是所有上层情报与决策的源头，状态与更新频率实时可见。</p>
             </div>
             <div class='section-head__actions'>

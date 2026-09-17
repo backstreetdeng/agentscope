@@ -534,13 +534,13 @@ dl, dd { margin: 0; }
   align-items: center;
   gap: 8px;
   height: 32px;
-  padding: 0 12px;
+  padding: 0 14px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
-  background: rgba(16, 185, 129, 0.10);
-  color: var(--c-growth-green);
-  border: 1px solid rgba(16, 185, 129, 0.18);
+  background: var(--c-success-soft);
+  color: var(--c-success);
+  border: 1px solid rgba(54, 207, 201, 0.30);
   flex-shrink: 0;
 }
 
@@ -652,21 +652,21 @@ dl, dd { margin: 0; }
    ===================================================================== */
 .chip {
   display: inline-block;
-  padding: 2px 10px;
+  padding: 3px 10px;
   border-radius: 999px;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
   font-family: var(--ff-body);
-  background: var(--bg-surface-soft);
-  color: var(--text-primary);
+  background: var(--c-bg-hover);
+  color: var(--c-text-secondary);
   vertical-align: 1px;
-  border: 1px solid transparent;
+  border: 1px solid var(--c-border);
 }
 
-.chip--policy { background: rgba(3, 105, 161, 0.10); color: var(--c-cockpit-blue); border-color: rgba(3, 105, 161, 0.20); }
-.chip--rights { background: rgba(6, 182, 212, 0.10); color: var(--c-info-cyan);   border-color: rgba(6, 182, 212, 0.20); }
-.chip--newcar { background: rgba(16, 185, 129, 0.10); color: var(--c-growth-green); border-color: rgba(16, 185, 129, 0.20); }
-.chip--wom    { background: rgba(245, 158, 11, 0.10); color: var(--c-warning-amber); border-color: rgba(245, 158, 11, 0.20); }
+.chip--policy { background: var(--c-ai-blue-50); color: var(--c-ai-blue); border-color: var(--c-ai-blue-100); }
+.chip--rights { background: #F5EEFF; color: #722ED1; border-color: #D3ADF7; }
+.chip--newcar { background: #E8F8F0; color: #13A10E; border-color: #A6DCB6; }
+.chip--wom    { background: #FFF3E0; color: #FF7D00; border-color: #FFD8A8; }
 
 
 /* =====================================================================
@@ -941,20 +941,22 @@ dl, dd { margin: 0; }
   font-family: var(--ff-mono);
   font-size: 10px;
   font-weight: 600;
-  padding: 4px 8px;
+  padding: 4px 10px;
   border-radius: 999px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  background: var(--bg-surface-soft);
-  color: var(--text-tertiary);
+  background: var(--c-bg-hover);
+  color: var(--c-text-secondary);
+  border: 1px solid var(--c-border);
   white-space: nowrap;
   flex-shrink: 0;
   align-self: flex-start;
 }
 
 .data-card__status--live {
-  background: rgba(16, 185, 129, 0.12);
-  color: var(--c-growth-green);
+  background: var(--c-success-soft);
+  color: var(--c-success);
+  border-color: rgba(54, 207, 201, 0.35);
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -2567,6 +2569,214 @@ dl, dd { margin: 0; }
 @keyframes footer-pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.6; transform: scale(0.85); }
+}
+
+
+
+
+/* =====================================================================
+   AI Badge 🤖 标识（AI 推理产出模块专用）
+   ===================================================================== */
+.ai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--ff-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--c-ai-blue-50);
+  color: var(--c-ai-blue-d);
+  border: 1px solid var(--c-ai-blue-100);
+  letter-spacing: 0.04em;
+}
+
+.ai-badge::before {
+  content: '🤖';
+  font-size: 11px;
+  line-height: 1;
+}
+
+.ai-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--c-ai-blue-50);
+  color: var(--c-ai-blue-d);
+  letter-spacing: 0.04em;
+}
+
+.ai-tag::before {
+  content: '🤖';
+  font-size: 10px;
+  line-height: 1;
+}
+
+
+/* =====================================================================
+   Section Header with AI icon 🤖
+   ===================================================================== */
+.section-head__title--ai::before {
+  content: '🤖 ';
+  font-size: 22px;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+
+/* =====================================================================
+   Progress Bar (用户洞察 · 权重进度条)
+   用蓝色填充替代灰底权重条目
+   ===================================================================== */
+.weight-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.weight-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 0;
+}
+
+.weight-item__label {
+  font-size: 12.5px;
+  color: var(--c-text-secondary);
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.weight-item__value {
+  font-family: var(--ff-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--c-ai-blue);
+  font-feature-settings: "tnum";
+  white-space: nowrap;
+}
+
+.weight-item__bar {
+  grid-column: 1 / -1;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--c-bg-hover);
+  overflow: hidden;
+  position: relative;
+}
+
+.weight-item__bar span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--c-ai-blue), var(--c-ai-blue-h));
+  border-radius: 999px;
+  transition: width 600ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.weight-item--hi .weight-item__value {
+  color: var(--c-ai-blue-d);
+}
+
+
+/* =====================================================================
+   AI Output Card (白底 + 淡蓝色描边)
+   用 data-ai-output 属性标识
+   ===================================================================== */
+[data-ai-output="true"] {
+  border-color: var(--c-ai-blue-100) !important;
+}
+
+[data-ai-output="true"]::before {
+  background: var(--c-ai-blue) !important;
+}
+
+[data-ai-output="true"]:hover {
+  border-color: var(--c-ai-blue) !important;
+  box-shadow: 0 4px 16px rgba(22, 119, 255, 0.10);
+}
+
+
+/* =====================================================================
+   Footer Brand
+   ===================================================================== */
+.footer__mode-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--c-success);
+  box-shadow: 0 0 6px var(--c-success);
+  animation: footer-pulse 2s ease-in-out infinite;
+  margin-right: 6px;
+  display: inline-block;
+}
+
+@keyframes footer-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.85); }
+}
+
+
+/* =====================================================================
+   Toast (通知提示)
+   ===================================================================== */
+.toast-container {
+  position: fixed;
+  top: 80px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: var(--c-bg-card);
+  color: var(--c-text-primary);
+  border: 1px solid var(--c-border);
+  box-shadow: 0 8px 24px rgba(29, 33, 41, 0.08), 0 2px 6px rgba(29, 33, 41, 0.04);
+  font-size: 13.5px;
+  font-weight: 500;
+  min-width: 240px;
+  max-width: 360px;
+  pointer-events: auto;
+  animation: toast-slide 0.18s ease-out;
+}
+
+.toast::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--c-ai-blue);
+  flex-shrink: 0;
+}
+
+.toast--success::before { background: var(--c-success); }
+.toast--warn::before { background: var(--c-warning); }
+.toast--error::before { background: var(--c-danger); }
+
+@keyframes toast-slide {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 
