@@ -47,12 +47,26 @@
 
   <div class='app-shell'>
     <aside class='sidebar' aria-label='主导航'>
+            <div class='brand-block'>
+        <span class='brand-mark' aria-hidden='true'>
+          <svg viewBox='0 0 32 32' width='20' height='20' fill='none'>
+            <path d='M11 11 V21 M11 16 H17 M17 11 V21' stroke='currentColor' stroke-width='2' stroke-linecap='round'/>
+            <circle cx='22' cy='10' r='1.4' fill='currentColor'/>
+          </svg>
+        </span>
+        <div class='brand-text'>
+          <span class='eyebrow'>AI Cockpit</span>
+          <strong>战略驾驶舱</strong>
+        </div>
+      </div>
+
       <nav class='sidebar__nav'>
         <div class='nav-section' data-section='main'>
-          <a class='nav-item is-active' data-view='intel' href='#intel' aria-label='情报速览，含政策、权益、新车、口碑四类情报' aria-current='page'>
+          <p class='nav-section__title'>主功能</p>
+        <a class='nav-item is-active' data-view='intel' href='#intel' aria-label='情报速览，含政策、权益、新车、口碑四类情报' aria-current='page'>
             <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><circle cx='12' cy='12' r='5.5'/><circle cx='12' cy='12' r='2'/><path d='M12 3 a9 9 0 0 1 9 9'/><circle cx='18' cy='6' r='1' fill='currentColor'/></svg></span>
             <span class='nav-label'>情报速览</span>
-            <span class='nav-badge'>实时</span>
+            <span class='nav-badge nav-badge--live'>LIVE</span>
           </a>
           <a class='nav-item' data-view='projects' href='#projects' aria-label='项目列表，记录已执行过的任务'>
             <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M3 7 a2 2 0 0 1 2-2 h4 l2 2 h7 a2 2 0 0 1 2 2 v9 a2 2 0 0 1-2 2 H5 a2 2 0 0 1-2-2 z'/></svg></span>
@@ -62,19 +76,20 @@
           <a class='nav-item' data-view='analysis' href='#analysis' aria-label='市场分析，乘用车月报与新能源月报自动生成'>
             <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M3 20 V10 M8 20 V4 M13 20 V14 M18 20 V7'/></svg></span>
             <span class='nav-label'>市场分析</span>
-            <span class='nav-badge'>在线</span>
+            <span class='nav-badge nav-badge--ai'>AI</span>
           </a>
           <a class='nav-item' data-view='forecast' href='#forecast' aria-label='市场预测，演示示例'>
             <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M12 7 v5 l3 3'/></svg></span>
             <span class='nav-label'>市场预测</span>
-            <span class='nav-badge'>demo</span>
+            <span class='nav-badge nav-badge--demo'>demo</span>
           </a>
           <a class='nav-item' data-view='insight' href='#insight' aria-label='用户洞察，演示示例'>
             <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='9' cy='8' r='3'/><circle cx='17' cy='9' r='2.5'/><path d='M3 20 c0-3 3-5 6-5 s6 2 6 5 M14 20 c0-2 2-4 5-4'/></svg></span>
             <span class='nav-label'>用户洞察</span>
             <span class='nav-badge'>demo</span>
           </a>
-          <a class='nav-item' data-view='skills' href='#skills' aria-label='技能，已封装好的技能卡片'>
+          <p class='nav-section__title'>能力</p>
+        <a class='nav-item' data-view='skills' href='#skills' aria-label='技能，已封装好的技能卡片'>
             <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='8' height='8' rx='1'/><rect x='13' y='3' width='8' height='8' rx='1'/><rect x='3' y='13' width='8' height='8' rx='1'/><path d='M13 17 h8 M17 13 v8'/></svg></span>
             <span class='nav-label'>技能</span>
             <span class='nav-badge'>9</span>
