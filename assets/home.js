@@ -112,7 +112,72 @@
       enabled = !!(mql && mql.matches);
       document.documentElement.setAttribute('data-reduced-motion', enabled ? 'true' : 'false');
     }
+    
+  // ────────────────────────────────────────────────────────────────────────
+  //  KouBei Integration — 懂车帝口碑平台数据集成
+  //  Fetches /api/dashboard from port 8765 and updates the WOM card.
+  //  Gracefully falls back to static values when platform is offline.
+  // ────────────────────────────────────────────────────────────────────────
+  const KouBei = (() => {
+    const KOUBEI_BASE = 'http://127.0.0.1:8765';
+    const TIMEOUT_MS = 5000;
+
+    function setText(id, val) {
+      const el = utils.qs('#' + id);
+      if (el) el.textContent = val;
+    }
+
+    function formatNumber(n) {
+      if (typeof n !== 'number' || isNaN(n)) return String(n);
+      return n.toLocaleString('en-US');
+    }
+
+    async function fetchDashboard() {
+      try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+        const res = await fetch(KOUBEI_BASE + '/api/dashboard', { signal: controller.signal });
+        clearTimeout(timer);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        return data;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function updateCard(data) {
+      if (!data || !data.stats) return;
+      const s = data.stats;
+      setText('koubei-total', formatNumber(s.koubei_total || 9631));
+      setText('koubei-series', formatNumber(s.matched_total || 107));
+      setText('koubei-matched', formatNumber(s.matched_total || 107));
+      if (s.latest_posttime) {
+        setText('koubei-latest-date', s.latest_posttime.substring(0, 10));
+      }
+    }
+
     function init() {
+      // Delay to not block initial render
+      if (typeof requestIdleCallback === 'function') {
+        requestIdleCallback(async () => {
+          const data = await fetchDashboard();
+          if (data) updateCard(data);
+        });
+      } else {
+        setTimeout(async () => {
+          const data = await fetchDashboard();
+          if (data) updateCard(data);
+        }, 1500);
+      }
+    }
+
+    return { init };
+  })();
+
+  // ────────────────────────────────────────────────────────────────────────
+
+  function init() {
       mql = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
       if (!mql) { enabled = false; return; }
       enabled = mql.matches;
@@ -728,6 +793,7 @@
     Shortcuts.init();
     Pulse.init();
     Health.init();
+    KouBei.init();
 
     window.Home = Object.freeze({
       version: '1.0.0',

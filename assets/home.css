@@ -2734,6 +2734,86 @@ dl, dd { margin: 0; }
 
 
 
+
+/* =====================================================================
+   KouBei Metrics (口碑核心指标 · 懂车帝数据集成)
+   ===================================================================== */
+.koubei-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: -4px 0 2px;
+}
+
+.koubei-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  background: var(--c-ai-blue-50);
+  border: 1px solid var(--c-ai-blue-100);
+  border-radius: 10px;
+  transition: border-color var(--t-base), box-shadow var(--t-base);
+}
+
+.koubei-metric:hover {
+  border-color: var(--c-ai-blue);
+  box-shadow: 0 2px 8px rgba(22, 119, 255, 0.08);
+}
+
+.koubei-metric__label {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--c-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.koubei-metric__value {
+  font-family: var(--ff-mono);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--c-text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  font-feature-settings: "tnum";
+}
+
+.koubei-metric__value--primary {
+  color: var(--c-ai-blue);
+  font-size: 22px;
+}
+
+.koubei-sub-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 0;
+  border-top: 1px dashed var(--c-border);
+  border-bottom: 1px dashed var(--c-border);
+}
+
+.koubei-sub-info__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.koubei-sub-info__label {
+  color: var(--c-text-tertiary);
+  font-weight: 500;
+}
+
+.koubei-sub-info__value {
+  font-family: var(--ff-mono);
+  color: var(--c-text-primary);
+  font-weight: 600;
+  font-feature-settings: "tnum";
+}
+
+
+
 /* =====================================================================
    响应式 · Tablet (≤1024px)
    侧边栏变窄；隐藏 model-info；skills 改 3 列

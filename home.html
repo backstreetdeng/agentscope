@@ -277,33 +277,67 @@
               </div>
             </article>
 
-            <article class='data-card data-card--wom' data-domain='wom' aria-labelledby='wom-title'>
+            
+            <article class='data-card data-card--wom' data-domain='wom' aria-labelledby='wom-title' data-ai-output='true'>
               <header class='data-card__head'>
                 <div class='data-card__title-stack'>
-                  <h3 id='wom-title' class='data-card__title'>口碑</h3>
-                  <p class='data-card__sub'>论坛 / 短视频 / 垂媒 · 评论聚合</p>
+                  <div class='data-card__title-row'>
+                    <span class='data-card__icon' aria-hidden='true'>
+                      <svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M21 15 a2 2 0 0 1-2 2 H7 l-4 4 V5 a2 2 0 0 1 2-2 h14 a2 2 0 0 1 2 2 z'/></svg>
+                    </span>
+                    <h3 id='wom-title' class='data-card__title'>口碑</h3>
+                  </div>
+                  <p class='data-card__sub'>懂车帝 · 论坛 · 短视频 · 评论聚合</p>
                 </div>
-                <span class='data-card__status' aria-label='每日更新'>每日</span>
+                <span class='data-card__status data-card__status--live' aria-label='实时更新'>
+                  <span aria-hidden='true'></span>实时
+                </span>
               </header>
-              <div class='data-card__metric'>
-                <span class='data-card__metric-value' data-target='92.6' data-decimals='1' data-counter>0</span>
-                <span class='data-card__metric-unit'>情感分</span>
-                <span class='data-card__trend data-card__trend--up' aria-label='本月环比上升 2.1 分'>+2.1</span>
+
+              <!-- 口碑核心指标 -->
+              <div class='koubei-metrics'>
+                <div class='koubei-metric'>
+                  <span class='koubei-metric__label'>口碑总量</span>
+                  <span class='koubei-metric__value koubei-metric__value--primary' id='koubei-total'>9,631</span>
+                </div>
+                <div class='koubei-metric'>
+                  <span class='koubei-metric__label'>覆盖车系</span>
+                  <span class='koubei-metric__value' id='koubei-series'>107</span>
+                </div>
+                <div class='koubei-metric'>
+                  <span class='koubei-metric__label'>已匹配</span>
+                  <span class='koubei-metric__value' id='koubei-matched'>107</span>
+                </div>
               </div>
-              <p class='data-card__desc'>本月采集 1,260 万条口碑内容，正面 71%，续航与智驾被讨论最多，补能网络是负面焦点。</p>
+
+              <div class='koubei-sub-info'>
+                <span class='koubei-sub-info__item'>
+                  <span class='koubei-sub-info__label'>最近发布</span>
+                  <span class='koubei-sub-info__value' id='koubei-latest-date'>2026-09-16</span>
+                </span>
+                <span class='koubei-sub-info__item'>
+                  <span class='koubei-sub-info__label'>情感分</span>
+                  <span class='koubei-sub-info__value' id='koubei-sentiment'>92.6</span>
+                  <span class='data-card__trend data-card__trend--up' style='font-size:11px;padding:1px 6px'>+2.1</span>
+                </span>
+              </div>
+
+              <p class='data-card__desc'>本月采集 <strong id='koubei-month-count'>1,260万</strong> 条口碑，正面 71%，续航与智驾讨论最多，补能网络是负面焦点。</p>
+
               <svg class='data-card__sparkline' viewBox='0 0 200 60' preserveAspectRatio='none' aria-hidden='true'>
                 <defs>
                   <linearGradient id='grad-wom' x1='0' y1='0' x2='0' y2='1'>
-                    <stop offset='0%' stop-color='#F59E0B' stop-opacity='0.30'/>
-                    <stop offset='100%' stop-color='#F59E0B' stop-opacity='0'/>
+                    <stop offset='0%' stop-color='#FF7D00' stop-opacity='0.30'/>
+                    <stop offset='100%' stop-color='#FF7D00' stop-opacity='0'/>
                   </linearGradient>
                 </defs>
                 <path d='M0,35 L20,32 L40,30 L60,32 L80,28 L100,26 L120,22 L140,20 L160,18 L180,16 L200,14 L200,60 L0,60 Z' fill='url(#grad-wom)'/>
-                <path d='M0,35 L20,32 L40,30 L60,32 L80,28 L100,26 L120,22 L140,20 L160,18 L180,16 L200,14' fill='none' stroke='#F59E0B' stroke-width='1.8'/>
-                <circle cx='200' cy='14' r='2.5' fill='#F59E0B'/>
+                <path d='M0,35 L20,32 L40,30 L60,32 L80,28 L100,26 L120,22 L140,20 L160,18 L180,16 L200,14' fill='none' stroke='#FF7D00' stroke-width='1.8'/>
+                <circle cx='200' cy='14' r='2.5' fill='#FF7D00'/>
               </svg>
+
               <div class='data-card__actions'>
-                <a class='data-card__btn data-card__btn--primary' href='#wom-detail' aria-label='查看口碑明细'>查看明细</a>
+                <a class='data-card__btn data-card__btn--primary' href='http://127.0.0.1:8765/' target='_blank' rel='noopener' aria-label='打开口碑查询平台'>查看明细</a>
                 <button class='data-card__btn btn-download' type='button' data-download='wom' aria-label='下载口碑情报'>下载情报</button>
               </div>
             </article>
