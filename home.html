@@ -1,0 +1,1849 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <meta name='description' content='乘用车市场战略决策AI智能体系统 — 战略驾驶舱，把情报和决策交给我们'>
+  <meta name='color-scheme' content='dark'>
+  <title>乘用车市场战略决策AI智能体系统 · Strategy Cockpit</title>
+  <link rel='stylesheet' href='/assets/home.css'>
+  <link rel='icon' type='image/svg+xml' href='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Cpath d=%27M16 2 L28 9 L28 23 L16 30 L4 23 L4 9 Z%27 fill=%27%2322d3ee%27 fill-opacity=%270.2%27 stroke=%27%2322d3ee%27 stroke-width=%272%27/%3E%3Ctext x=%2716%27 y=%2721%27 font-size=%2712%27 font-family=%27monospace%27 fill=%27%2322d3ee%27 font-weight=%27bold%27%3EAI%3C/text%3E%3C/svg%3E'>
+</head>
+<body>
+  <a class='skip-link' href='#main-content' aria-label='跳到主内容，跳过左侧导航'>跳到主内容</a>
+
+  <header class='topbar' role='banner' aria-label='顶部状态栏'>
+    <div class='topbar__brand'>
+      <span class='topbar__logo' aria-hidden='true'>
+        <svg viewBox='0 0 32 32' width='32' height='32' fill='none'>
+          <defs>
+            <linearGradient id='brandGrad' x1='0' y1='0' x2='1' y2='1'>
+              <stop offset='0%' stop-color='#22d3ee'/>
+              <stop offset='100%' stop-color='#6366f1'/>
+            </linearGradient>
+          </defs>
+          <path d='M16 2 L28 9 L28 23 L16 30 L4 23 L4 9 Z' fill='url(#brandGrad)' fill-opacity='0.12' stroke='url(#brandGrad)' stroke-width='1.6'/>
+          <path d='M11 11 V21 M11 16 H17 M17 11 V21' stroke='#22d3ee' stroke-width='2' stroke-linecap='round'/>
+          <circle cx='22' cy='10' r='1.4' fill='#22d3ee'/>
+        </svg>
+      </span>
+      <div class='topbar__brand-text'>
+        <span class='topbar__brand-name'>乘用车市场战略决策AI智能体系统</span>
+        <span class='topbar__brand-subtitle'>Strategy Orchestrator Live</span>
+      </div>
+    </div>
+    <div class='topbar__status'>
+      <span class='status-pill status-pill--online' aria-label='服务在线'>
+        <span class='status-pill__dot' aria-hidden='true'></span>
+        <span class='status-pill__text'>服务在线</span>
+      </span>
+      <dl class='model-info' aria-label='当前模型连接信息'>
+        <div class='model-info__item'><dt>Provider</dt><dd>OpenAI Codex</dd></div>
+        <div class='model-info__item'><dt>Model</dt><dd>MiniMax-M3</dd></div>
+        <div class='model-info__item'><dt>Endpoint</dt><dd>chat/completions</dd></div>
+      </dl>
+    </div>
+  </header>
+
+  <div class='app-shell'>
+    <aside class='sidebar' aria-label='主导航'>
+      <nav class='sidebar__nav'>
+        <div class='nav-section' data-section='main'>
+          <a class='nav-item is-active' data-view='intel' href='#intel' aria-label='情报速览，含政策、权益、新车、口碑四类情报' aria-current='page'>
+            <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><circle cx='12' cy='12' r='5.5'/><circle cx='12' cy='12' r='2'/><path d='M12 3 a9 9 0 0 1 9 9'/><circle cx='18' cy='6' r='1' fill='currentColor'/></svg></span>
+            <span class='nav-label'>情报速览</span>
+            <span class='nav-badge'>实时</span>
+          </a>
+          <a class='nav-item' data-view='projects' href='#projects' aria-label='项目列表，记录已执行过的任务'>
+            <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M3 7 a2 2 0 0 1 2-2 h4 l2 2 h7 a2 2 0 0 1 2 2 v9 a2 2 0 0 1-2 2 H5 a2 2 0 0 1-2-2 z'/></svg></span>
+            <span class='nav-label'>项目</span>
+            <span class='nav-badge'>8</span>
+          </a>
+          <a class='nav-item' data-view='analysis' href='#analysis' aria-label='市场分析，乘用车月报与新能源月报自动生成'>
+            <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M3 20 V10 M8 20 V4 M13 20 V14 M18 20 V7'/></svg></span>
+            <span class='nav-label'>市场分析</span>
+            <span class='nav-badge'>在线</span>
+          </a>
+          <a class='nav-item' data-view='forecast' href='#forecast' aria-label='市场预测，演示示例'>
+            <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M12 7 v5 l3 3'/></svg></span>
+            <span class='nav-label'>市场预测</span>
+            <span class='nav-badge'>demo</span>
+          </a>
+          <a class='nav-item' data-view='insight' href='#insight' aria-label='用户洞察，演示示例'>
+            <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='9' cy='8' r='3'/><circle cx='17' cy='9' r='2.5'/><path d='M3 20 c0-3 3-5 6-5 s6 2 6 5 M14 20 c0-2 2-4 5-4'/></svg></span>
+            <span class='nav-label'>用户洞察</span>
+            <span class='nav-badge'>demo</span>
+          </a>
+          <a class='nav-item' data-view='skills' href='#skills' aria-label='技能，已封装好的技能卡片'>
+            <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='8' height='8' rx='1'/><rect x='13' y='3' width='8' height='8' rx='1'/><rect x='3' y='13' width='8' height='8' rx='1'/><path d='M13 17 h8 M17 13 v8'/></svg></span>
+            <span class='nav-label'>技能</span>
+            <span class='nav-badge'>9</span>
+          </a>
+          <a class='nav-item' data-view='plugins' href='#plugins' aria-label='插件，数据底座：政策、权益、新车、口碑'>
+            <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5 v6 c0 1.7 4 3 9 3 s9-1.3 9-3 V5'/><path d='M3 11 v6 c0 1.7 4 3 9 3 s9-1.3 9-3 v-6'/></svg></span>
+            <span class='nav-label'>插件</span>
+            <span class='nav-badge'>4</span>
+          </a>
+        </div>
+
+        <div class='sidebar__divider' data-section='history'>
+          <span class='sidebar__divider-label'>历史信息栏</span>
+        </div>
+        <a class='nav-item nav-item--external' data-view='legacy-workbench' href='/legacy/workbench.html' aria-label='打开原工作台（战略决策工作台）'>市场分析（战略决策工作台）</a>
+        <a class='legacy-nav__link' href='#legacy-insight'>用户洞察</a>
+        <a class='legacy-nav__link' href='#legacy-tag'>用户标签</a>
+        <a class='legacy-nav__link' href='#legacy-config'>配置管理</a>
+        <a class='legacy-nav__link' href='#legacy-report'>报告查询</a>
+        <a class='legacy-nav__link' href='#legacy-newcar'>新车情报</a>
+      </nav>
+
+      <div class='sidebar__foot' aria-label='当前版本与模式'>
+        <svg viewBox='0 0 24 24' width='14' height='14' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><circle cx='12' cy='12' r='9'/><path d='M12 7 v5 l3 3'/></svg>
+        <span>v 2.4.1 · LIVE</span>
+      </div>
+    </aside>
+
+    <main class='main-content' id='main-content' tabindex='-1'>
+      <!-- ============================================================
+           VIEW 1: 情报速览 intel — 完整驾驶舱主页（Hero + 4 大情报 + 实时统计）
+           ============================================================ -->
+      <div class='view is-visible' data-view='intel'>
+
+        <section class='hero' aria-labelledby='hero-title'>
+          <span class='hero__eyebrow'>
+            <span class='hero__eyebrow-dot' aria-hidden='true'></span>
+            情报 · 决策 · 配置 · 闭环
+          </span>
+          <h1 id='hero-title' class='hero__title'>战略驾驶舱，把情报和决策交给我们</h1>
+          <p class='hero__subtitle'>实时汇聚 <span class='chip chip--policy'>政策</span> · <span class='chip chip--rights'>权益</span> · <span class='chip chip--newcar'>新车</span> · <span class='chip chip--wom'>口碑</span> 四大数据底座，由 AI 智能体驱动市场研判与配置定义。</p>
+          <div class='hero__cta'>
+            <a href='#analysis' class='btn btn--primary' data-view-trigger='analysis'>
+              <span>开始一次市场分析</span>
+              <svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M5 12 h14 M13 6 l6 6-6 6'/></svg>
+            </a>
+            <a href='#skills' class='btn btn--ghost' data-view-trigger='skills'>
+              <svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><rect x='3' y='3' width='7' height='7' rx='1'/><rect x='14' y='3' width='7' height='7' rx='1'/><rect x='3' y='14' width='7' height='7' rx='1'/><rect x='14' y='14' width='7' height='7' rx='1'/></svg>
+              <span>查看技能列表</span>
+            </a>
+          </div>
+          <div class='pulse-dots' role='list' aria-label='四类数据流实时指示'>
+            <div class='pulse-dots__item pulse-dots__item--policy' role='listitem'>
+              <span class='pulse-dots__dot' aria-hidden='true'></span>
+              <span class='pulse-dots__label'>政策</span>
+            </div>
+            <div class='pulse-dots__item pulse-dots__item--rights' role='listitem'>
+              <span class='pulse-dots__dot' aria-hidden='true'></span>
+              <span class='pulse-dots__label'>权益</span>
+            </div>
+            <div class='pulse-dots__item pulse-dots__item--newcar' role='listitem'>
+              <span class='pulse-dots__dot' aria-hidden='true'></span>
+              <span class='pulse-dots__label'>新车</span>
+            </div>
+            <div class='pulse-dots__item pulse-dots__item--wom' role='listitem'>
+              <span class='pulse-dots__dot' aria-hidden='true'></span>
+              <span class='pulse-dots__label'>口碑</span>
+            </div>
+          </div>
+        </section>
+
+        <section class='intelligence' aria-labelledby='intelligence-title'>
+          <header class='section-head'>
+            <div class='section-head__text'>
+              <h2 id='intelligence-title' class='section-head__title'>情报速览 · 四大数据底座实时态势</h2>
+              <p class='section-head__desc'>每一张卡片都是一条数据流，节选自最新一次同步。点击查看明细或下载情报。</p>
+            </div>
+            <div class='section-head__actions'>
+              <button class='chip-btn' type='button' aria-label='刷新四类情报数据'>
+                <svg viewBox='0 0 24 24' width='14' height='14' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M3 12 a9 9 0 0 1 15-6.7 M21 4 v5 h-5'/><path d='M21 12 a9 9 0 0 1-15 6.7 M3 20 v-5 h5'/></svg>
+                刷新
+              </button>
+              <button class='chip-btn' type='button' aria-label='切换时间窗口为近 24 小时'>
+                <svg viewBox='0 0 24 24' width='14' height='14' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><circle cx='12' cy='12' r='9'/><path d='M12 7 v5 l3 3'/></svg>
+                近 24 小时
+              </button>
+            </div>
+          </header>
+
+          <div class='intelligence__grid'>
+            <article class='data-card data-card--policy' data-domain='policy' aria-labelledby='policy-title'>
+              <header class='data-card__head'>
+                <div class='data-card__title-stack'>
+                  <h3 id='policy-title' class='data-card__title'>政策</h3>
+                  <p class='data-card__sub'>国务院 / 部委 / 地方 · 原文 + 摘要</p>
+                </div>
+                <span class='data-card__status data-card__status--live' aria-label='实时更新'>
+                  <span aria-hidden='true'></span>实时
+                </span>
+              </header>
+              <div class='data-card__metric'>
+                <span class='data-card__metric-value' data-target='1284' data-counter>0</span>
+                <span class='data-card__metric-unit'>条政策</span>
+                <span class='data-card__trend data-card__trend--up' aria-label='本周环比上升 12.3 个百分点'>+12.3%</span>
+              </div>
+              <p class='data-card__desc'>本周新发布 142 条重点政策，集中在以旧换新补贴与新能源购置税延续。</p>
+              <svg class='data-card__sparkline' viewBox='0 0 200 60' preserveAspectRatio='none' aria-hidden='true'>
+                <defs>
+                  <linearGradient id='grad-policy' x1='0' y1='0' x2='0' y2='1'>
+                    <stop offset='0%' stop-color='#0369A1' stop-opacity='0.30'/>
+                    <stop offset='100%' stop-color='#0369A1' stop-opacity='0'/>
+                  </linearGradient>
+                </defs>
+                <path d='M0,40 L20,38 L40,36 L60,34 L80,28 L100,30 L120,24 L140,20 L160,18 L180,14 L200,12 L200,60 L0,60 Z' fill='url(#grad-policy)'/>
+                <path d='M0,40 L20,38 L40,36 L60,34 L80,28 L100,30 L120,24 L140,20 L160,18 L180,14 L200,12' fill='none' stroke='#0369A1' stroke-width='1.8'/>
+                <circle cx='200' cy='12' r='2.5' fill='#0369A1'/>
+              </svg>
+              <div class='data-card__actions'>
+                <a class='data-card__btn data-card__btn--primary' href='#policy-detail' aria-label='查看政策明细'>查看明细</a>
+                <button class='data-card__btn btn-download' type='button' data-download='policy' aria-label='下载政策情报'>下载情报</button>
+              </div>
+            </article>
+
+            <article class='data-card data-card--rights' data-domain='rights' aria-labelledby='rights-title'>
+              <header class='data-card__head'>
+                <div class='data-card__title-stack'>
+                  <h3 id='rights-title' class='data-card__title'>权益</h3>
+                  <p class='data-card__sub'>厂商金融 / 置换 / 补贴 · 礼包规则</p>
+                </div>
+                <span class='data-card__status' aria-label='每日更新'>每日</span>
+              </header>
+              <div class='data-card__metric'>
+                <span class='data-card__metric-value' data-target='3756' data-counter>0</span>
+                <span class='data-card__metric-unit'>项权益</span>
+                <span class='data-card__trend data-card__trend--down' aria-label='本周环比下降 5.4 个百分点'>-5.4%</span>
+              </div>
+              <p class='data-card__desc'>本周新增 312 项权益套餐，0 利率与置换补贴仍是主流，本月调整以收紧为主。</p>
+              <svg class='data-card__sparkline' viewBox='0 0 200 60' preserveAspectRatio='none' aria-hidden='true'>
+                <defs>
+                  <linearGradient id='grad-rights' x1='0' y1='0' x2='0' y2='1'>
+                    <stop offset='0%' stop-color='#06B6D4' stop-opacity='0.30'/>
+                    <stop offset='100%' stop-color='#06B6D4' stop-opacity='0'/>
+                  </linearGradient>
+                </defs>
+                <path d='M0,30 L20,32 L40,28 L60,30 L80,34 L100,32 L120,36 L140,38 L160,40 L180,42 L200,44 L200,60 L0,60 Z' fill='url(#grad-rights)'/>
+                <path d='M0,30 L20,32 L40,28 L60,30 L80,34 L100,32 L120,36 L140,38 L160,40 L180,42 L200,44' fill='none' stroke='#06B6D4' stroke-width='1.8'/>
+                <circle cx='200' cy='44' r='2.5' fill='#06B6D4'/>
+              </svg>
+              <div class='data-card__actions'>
+                <a class='data-card__btn data-card__btn--primary' href='#rights-detail' aria-label='查看权益明细'>查看明细</a>
+                <button class='data-card__btn btn-download' type='button' data-download='rights' aria-label='下载权益情报'>下载情报</button>
+              </div>
+            </article>
+
+            <article class='data-card data-card--newcar' data-domain='newcar' aria-labelledby='newcar-title'>
+              <header class='data-card__head'>
+                <div class='data-card__title-stack'>
+                  <h3 id='newcar-title' class='data-card__title'>新车</h3>
+                  <p class='data-card__sub'>上市公告 / 工信部 / 申报图 · 配置</p>
+                </div>
+                <span class='data-card__status data-card__status--live' aria-label='实时更新'>
+                  <span aria-hidden='true'></span>实时
+                </span>
+              </header>
+              <div class='data-card__metric'>
+                <span class='data-card__metric-value' data-target='487' data-counter>0</span>
+                <span class='data-card__metric-unit'>款新车</span>
+                <span class='data-card__trend data-card__trend--up' aria-label='本月新增 38 款，环比上升 8.1 个百分点'>+8.1%</span>
+              </div>
+              <p class='data-card__desc'>本月上市 38 款新车，新能源占比 71%，智能驾驶硬件（激光雷达 + 高算力芯片）成为标配。</p>
+              <svg class='data-card__sparkline' viewBox='0 0 200 60' preserveAspectRatio='none' aria-hidden='true'>
+                <defs>
+                  <linearGradient id='grad-newcar' x1='0' y1='0' x2='0' y2='1'>
+                    <stop offset='0%' stop-color='#10B981' stop-opacity='0.30'/>
+                    <stop offset='100%' stop-color='#10B981' stop-opacity='0'/>
+                  </linearGradient>
+                </defs>
+                <path d='M0,45 L20,42 L40,38 L60,36 L80,30 L100,28 L120,24 L140,22 L160,18 L180,16 L200,14 L200,60 L0,60 Z' fill='url(#grad-newcar)'/>
+                <path d='M0,45 L20,42 L40,38 L60,36 L80,30 L100,28 L120,24 L140,22 L160,18 L180,16 L200,14' fill='none' stroke='#10B981' stroke-width='1.8'/>
+                <circle cx='200' cy='14' r='2.5' fill='#10B981'/>
+              </svg>
+              <div class='data-card__actions'>
+                <a class='data-card__btn data-card__btn--primary' href='#newcar-detail' aria-label='查看新车明细'>查看明细</a>
+                <button class='data-card__btn btn-download' type='button' data-download='newcar' aria-label='下载新车情报'>下载情报</button>
+              </div>
+            </article>
+
+            <article class='data-card data-card--wom' data-domain='wom' aria-labelledby='wom-title'>
+              <header class='data-card__head'>
+                <div class='data-card__title-stack'>
+                  <h3 id='wom-title' class='data-card__title'>口碑</h3>
+                  <p class='data-card__sub'>论坛 / 短视频 / 垂媒 · 评论聚合</p>
+                </div>
+                <span class='data-card__status' aria-label='每日更新'>每日</span>
+              </header>
+              <div class='data-card__metric'>
+                <span class='data-card__metric-value' data-target='92.6' data-decimals='1' data-counter>0</span>
+                <span class='data-card__metric-unit'>情感分</span>
+                <span class='data-card__trend data-card__trend--up' aria-label='本月环比上升 2.1 分'>+2.1</span>
+              </div>
+              <p class='data-card__desc'>本月采集 1,260 万条口碑内容，正面 71%，续航与智驾被讨论最多，补能网络是负面焦点。</p>
+              <svg class='data-card__sparkline' viewBox='0 0 200 60' preserveAspectRatio='none' aria-hidden='true'>
+                <defs>
+                  <linearGradient id='grad-wom' x1='0' y1='0' x2='0' y2='1'>
+                    <stop offset='0%' stop-color='#F59E0B' stop-opacity='0.30'/>
+                    <stop offset='100%' stop-color='#F59E0B' stop-opacity='0'/>
+                  </linearGradient>
+                </defs>
+                <path d='M0,35 L20,32 L40,30 L60,32 L80,28 L100,26 L120,22 L140,20 L160,18 L180,16 L200,14 L200,60 L0,60 Z' fill='url(#grad-wom)'/>
+                <path d='M0,35 L20,32 L40,30 L60,32 L80,28 L100,26 L120,22 L140,20 L160,18 L180,16 L200,14' fill='none' stroke='#F59E0B' stroke-width='1.8'/>
+                <circle cx='200' cy='14' r='2.5' fill='#F59E0B'/>
+              </svg>
+              <div class='data-card__actions'>
+                <a class='data-card__btn data-card__btn--primary' href='#wom-detail' aria-label='查看口碑明细'>查看明细</a>
+                <button class='data-card__btn btn-download' type='button' data-download='wom' aria-label='下载口碑情报'>下载情报</button>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class='quick-stats' aria-labelledby='quick-stats-title'>
+          <header class='section-head'>
+            <div class='section-head__text'>
+              <h2 id='quick-stats-title' class='section-head__title'>实时运行统计</h2>
+              <p class='section-head__desc'>智能体、数据底座与底层模型的运行健康度概览。</p>
+            </div>
+          </header>
+          <div class='plugins__grid' style='grid-template-columns: repeat(4, minmax(0, 1fr))'>
+            <div class='plugin-card plugin-card--policy'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>今日采集</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>实时</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>记录数</dt><dd style='font-family: var(--ff-mono); font-weight: 700; color: var(--text-primary); font-size: 18px'>12,840</dd></div>
+                <div><dt>数据源</dt><dd>8 个底座</dd></div>
+              </div>
+            </div>
+            <div class='plugin-card plugin-card--rights'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>智能体运行</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>在线</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>本会话</dt><dd style='font-family: var(--ff-mono); font-weight: 700; color: var(--text-primary); font-size: 18px'>14 次</dd></div>
+                <div><dt>成功率</dt><dd>94.7%</dd></div>
+              </div>
+            </div>
+            <div class='plugin-card plugin-card--newcar'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>待处理任务</h3></div>
+                <span class='plugin-card__status'><span class='plugin-card__dot'></span>排队</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>队列</dt><dd style='font-family: var(--ff-mono); font-weight: 700; color: var(--text-primary); font-size: 18px'>3 个</dd></div>
+                <div><dt>预计时长</dt><dd>~ 18 分钟</dd></div>
+              </div>
+            </div>
+            <div class='plugin-card plugin-card--wom'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>模型调用</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>活跃</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>Token 用量</dt><dd style='font-family: var(--ff-mono); font-weight: 700; color: var(--text-primary); font-size: 18px'>1.42M</dd></div>
+                <div><dt>平均时延</dt><dd>2.3 秒</dd></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class='agents' aria-labelledby='agents-title'>
+          <header class='section-head'>
+            <div class='section-head__text'>
+              <h2 id='agents-title' class='section-head__title'>我们的智能体</h2>
+              <p class='section-head__desc'>两类智能体分别负责市场战略与用户洞察，可独立调用，也可协同编排。</p>
+            </div>
+            <div class='section-head__actions'>
+              <a href='#analysis' class='chip-btn' data-view-trigger='analysis'>查看更多 →</a>
+            </div>
+          </header>
+
+          <div class='agents__grid'>
+            <article class='agent-card agent-card--strategy' aria-labelledby='strategy-agent-title'>
+              <header class='agent-card__head'>
+                <span class='agent-card__icon' aria-hidden='true'>
+                  <svg viewBox='0 0 32 32' width='36' height='36' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'>
+                    <rect x='3' y='3' width='26' height='26' rx='4'/>
+                    <path d='M7 10 h12 M7 15 h18 M7 20 h9 M22 22 l3 3 5-5'/>
+                  </svg>
+                </span>
+                <div class='agent-card__title-stack'>
+                  <h3 id='strategy-agent-title' class='agent-card__title'>市场战略Agent</h3>
+                  <p class='agent-card__role'>Market Strategy Agent · 战略决策</p>
+                </div>
+                <span class='agent-card__status' aria-label='当前状态：在线'>
+                  <span class='agent-card__status-dot' aria-hidden='true'></span>在线
+                </span>
+              </header>
+              <p class='agent-card__desc'>识别机会 / 风险 / 产能 / 进入决策，生成可被业务团队直接采纳的市场研判、配置定义与季度计划。</p>
+              <ul class='agent-card__capabilities' aria-label='核心能力'>
+                <li><span aria-hidden='true'>·</span> 政策 · 权益 · 新车 · 口碑 四源融合</li>
+                <li><span aria-hidden='true'>·</span> 自动月报 / 周报 / 专题报告</li>
+                <li><span aria-hidden='true'>·</span> 销量弹性与渗透率预测</li>
+                <li><span aria-hidden='true'>·</span> 进入决策建议与产能测算</li>
+              </ul>
+              <div class='agent-card__meta'>
+                <span class='agent-card__meta-key'>已对接技能</span>
+                <span class='agent-card__meta-val'>market_monthly_report · multi_agent</span>
+              </div>
+              <div class='agent-card__actions'>
+                <button class='btn btn--primary btn-call-agent' type='button' data-agent='market_strategy' data-skill='market_monthly_report' aria-label='调用市场战略Agent开始一次任务'>
+                  <span>调用市场战略Agent</span>
+                  <svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M5 12 h14 M13 6 l6 6-6 6'/></svg>
+                </button>
+                <button class='btn btn--ghost' type='button' aria-label='查看市场战略Agent详情'>查看详情</button>
+              </div>
+            </article>
+
+            <article class='agent-card agent-card--insight' aria-labelledby='insight-agent-title'>
+              <header class='agent-card__head'>
+                <span class='agent-card__icon' aria-hidden='true'>
+                  <svg viewBox='0 0 32 32' width='36' height='36' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'>
+                    <circle cx='11' cy='12' r='5'/>
+                    <path d='M3 27 c0-4 4-7 8-7 s8 3 8 7'/>
+                    <circle cx='22' cy='10' r='3'/>
+                    <path d='M19 16 c3 0 6 2 6 5'/>
+                  </svg>
+                </span>
+                <div class='agent-card__title-stack'>
+                  <h3 id='insight-agent-title' class='agent-card__title'>用户洞察Agent</h3>
+                  <p class='agent-card__role'>User Insight Agent · 用户与配置</p>
+                </div>
+                <span class='agent-card__status' aria-label='当前状态：在线'>
+                  <span class='agent-card__status-dot' aria-hidden='true'></span>在线
+                </span>
+              </header>
+              <p class='agent-card__desc'>从评论、访谈、销售数据中识别用户圈层、需求与选装优先级，给出卖给谁、卖什么的答案。</p>
+              <ul class='agent-card__capabilities' aria-label='核心能力'>
+                <li><span aria-hidden='true'>·</span> 用户圈层识别与标签体系</li>
+                <li><span aria-hidden='true'>·</span> 配置与选装优先级排序</li>
+                <li><span aria-hidden='true'>·</span> 口碑情感与品牌力追踪</li>
+                <li><span aria-hidden='true'>·</span> 城市级偏好热力图</li>
+              </ul>
+              <div class='agent-card__meta'>
+                <span class='agent-card__meta-key'>已对接技能</span>
+                <span class='agent-card__meta-val'>user_insight_tagger · web-fetch</span>
+              </div>
+              <div class='agent-card__actions'>
+                <button class='btn btn--primary btn-call-agent' type='button' data-agent='user_insight_config' data-skill='user_insight_tagger' aria-label='调用用户洞察Agent开始一次任务'>
+                  <span>调用用户洞察Agent</span>
+                  <svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M5 12 h14 M13 6 l6 6-6 6'/></svg>
+                </button>
+                <button class='btn btn--ghost' type='button' aria-label='查看用户洞察Agent详情'>查看详情</button>
+              </div>
+            </article>
+          </div>
+        </section>
+
+      </div>
+      <!-- ============================================================
+           VIEW 2: 项目 projects — 项目历史 + 统计 + 时间线
+           ============================================================ -->
+      <div class='view' data-view='projects' hidden>
+
+        <section class='projects' aria-labelledby='projects-title'>
+          <header class='section-head'>
+            <div class='section-head__text'>
+              <h2 id='projects-title' class='section-head__title'>项目 · 已执行过的任务</h2>
+              <p class='section-head__desc'>每个项目都是一次智能体编排的完整轨迹，点击重入即可继续。</p>
+            </div>
+            <div class='section-head__actions'>
+              <button class='chip-btn' type='button' aria-label='查看全部项目历史'>查看全部</button>
+              <button class='btn btn--primary' type='button' aria-label='新建一个项目' style='margin-left: 8px'>
+                <svg viewBox='0 0 24 24' width='14' height='14' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M12 5 v14 M5 12 h14'/></svg>
+                <span>新建项目</span>
+              </button>
+            </div>
+          </header>
+
+          <div class='plugins__grid' style='grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 20px'>
+            <div class='plugin-card plugin-card--policy'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>本月完成</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>9月</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>已完成</dt><dd style='font-family: var(--ff-mono); font-weight: 700; color: var(--text-primary); font-size: 20px'>27 个</dd></div>
+                <div><dt>同比</dt><dd>+34%</dd></div>
+              </div>
+            </div>
+            <div class='plugin-card plugin-card--rights'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>累计处理</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>运行</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>数据条数</dt><dd style='font-family: var(--ff-mono); font-weight: 700; color: var(--text-primary); font-size: 20px'>48.6万</dd></div>
+                <div><dt>证据条目</dt><dd>1,238</dd></div>
+              </div>
+            </div>
+            <div class='plugin-card plugin-card--newcar'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>节省时长</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>9月</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>估算</dt><dd style='font-family: var(--ff-mono); font-weight: 700; color: var(--text-primary); font-size: 20px'>168 h</dd></div>
+                <div><dt>人均/月</dt><dd>21 h</dd></div>
+              </div>
+            </div>
+            <div class='plugin-card plugin-card--wom'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>平均完成时长</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>近 30 天</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>中位数</dt><dd style='font-family: var(--ff-mono); font-weight: 700; color: var(--text-primary); font-size: 20px'>4 分 18 秒</dd></div>
+                <div><dt>P90</dt><dd>11 分</dd></div>
+              </div>
+            </div>
+          </div>
+
+          <div class='section-head__actions' role='group' aria-label='项目筛选' style='margin-bottom: 16px'>
+            <button class='chip-btn' type='button' aria-pressed='true'>全部 · 8</button>
+            <button class='chip-btn' type='button' aria-pressed='false'>已完成 · 5</button>
+            <button class='chip-btn' type='button' aria-pressed='false'>执行中 · 2</button>
+            <button class='chip-btn' type='button' aria-pressed='false'>失败 · 1</button>
+            <button class='chip-btn' type='button' aria-pressed='false'>本会话</button>
+          </div>
+
+          <div class='agents__grid'>
+            <article class='project-card project-card--done' data-project-id='proj-001'>
+              <a href='#project-001' class='project-card__link' aria-label='重入项目：8 月乘用车月报'>
+                <header class='project-card__head'>
+                  <span class='project-card__agent'>市场战略Agent</span>
+                  <span class='project-card__status project-card__status--done' aria-label='已完成'>已完成</span>
+                </header>
+                <h3 class='project-card__title'>8 月乘用车月报 · 自动生成</h3>
+                <p class='project-card__desc'>汇总 142 条政策、38 款新车、38 页可交付 PPT 与 12 页深度解读。</p>
+                <div class='project-card__meta'>
+                  <span class='project-card__time'>2 小时前</span>
+                  <span class='project-card__sep' aria-hidden='true'>·</span>
+                  <span class='project-card__steps'>7 步</span>
+                  <span class='project-card__sep' aria-hidden='true'>·</span>
+                  <span class='project-card__dur'>4 分 22 秒</span>
+                </div>
+              </a>
+            </article>
+
+            <article class='project-card project-card--done' data-project-id='proj-002'>
+              <a href='#project-002' class='project-card__link' aria-label='重入项目：华东新能源用户洞察调研'>
+                <header class='project-card__head'>
+                  <span class='project-card__agent'>用户洞察Agent</span>
+                  <span class='project-card__status project-card__status--done' aria-label='已完成'>已完成</span>
+                </header>
+                <h3 class='project-card__title'>华东新能源用户洞察调研</h3>
+                <p class='project-card__desc'>基于 1.2 万条评论与 480 段访谈识别 6 类圈层与 12 项配置建议。</p>
+                <div class='project-card__meta'>
+                  <span class='project-card__time'>今早 09:14</span>
+                  <span class='project-card__sep' aria-hidden='true'>·</span>
+                  <span class='project-card__steps'>9 步</span>
+                  <span class='project-card__sep' aria-hidden='true'>·</span>
+                  <span class='project-card__dur'>6 分 47 秒</span>
+                </div>
+              </a>
+            </article>
+
+            <article class='project-card project-card--running' data-project-id='proj-003'>
+              <a href='#project-003' class='project-card__link' aria-label='重入项目：以旧换新政策影响测算'>
+                <header class='project-card__head'>
+                  <span class='project-card__agent'>市场战略Agent</span>
+                  <span class='project-card__status project-card__status--running' aria-label='执行中'>执行中 · 第 5 步</span>
+                </header>
+                <h3 class='project-card__title'>以旧换新政策影响测算 · Q3</h3>
+                <p class='project-card__desc'>交叉分析 14 个省份补贴梯度，预测销量新增区间 +6.8% ~ +11.2%。</p>
+                <div class='project-card__meta'>
+                  <span class='project-card__time'>5 分钟前</span>
+                  <span class='project-card__sep' aria-hidden='true'>·</span>
+                  <span class='project-card__steps'>5 / 9 步</span>
+                  <span class='project-card__sep' aria-hidden='true'>·</span>
+                  <span class='project-card__dur'>2 分 50 秒</span>
+                </div>
+              </a>
+            </article>
+
+            <article class='project-card project-card--done' data-project-id='proj-004'>
+              <a href='#project-004' class='project-card__link' aria-label='重入项目：B 级 SUV 口碑扫描'>
+                <header class='project-card__head'>
+                  <span class='project-card__agent'>市场战略Agent</span>
+                  <span class='project-card__status project-card__status--done' aria-label='已完成'>已完成</span>
+                </header>
+                <h3 class='project-card__title'>B 级 SUV 口碑扫描 · 8 月</h3>
+                <p class='project-card__desc'>扫描 14 款主流车型、聚合 38 万条评论，正负面焦点与对比表一键导出。</p>
+                <div class='project-card__meta'>
+                  <span class='project-card__time'>昨天 18:42</span>
+                  <span class='project-card__sep' aria-hidden='true'>·</span>
+                  <span class='project-card__steps'>6 步</span>
+                  <span class='project-card__sep' aria-hidden='true'>·</span>
+                  <span class='project-card__dur'>3 分 50 秒</span>
+                </div>
+              </a>
+            </article>
+
+            <article class='project-card project-card--failed' data-project-id='proj-005'>
+              <a href='#project-005' class='project-card__link' aria-label='重入项目：智驾硬件渗透率追踪'>
+                <header class='project-card__head'>
+                  <span class='project-card__agent'>市场战略Agent</span>
+                  <span class='project-card__status project-card__failed' aria-label='已失败'>已失败</span>
+                </header>
+                <h3 class='project-card__title'>智驾硬件渗透率追踪 · 周更</h3>
+                <p class='project-card__desc'>数据源 cookies 过期，已自动重试 2 次，建议手动刷新数据底座后重跑。</p>
+                <div class='project-card__meta'>
+                  <span class='project-card__time'>昨天 09:11</span>
+                  <span class='project-card__sep' aria-hidden='true'>·</span>
+                  <span class='project-card__steps'>3 / 6 步</span>
+                  <span class='project-card__sep' aria-hidden='true'>·</span>
+                  <span class='project-card__dur'>1 分 02 秒</span>
+                </div>
+              </a>
+            </article>
+
+            <article class='project-card project-card--done' data-project-id='proj-006'>
+              <a href='#project-006' class='project-card__link' aria-label='重入项目：上海车展竞品对标'>
+                <header class='project-card__head'>
+                  <span class='project-card__agent'>市场战略Agent</span>
+                  <span class='project-card__status project-card__status--done' aria-label='已完成'>已完成</span>
+                </header>
+                <h3 class='project-card__title'>上海车展竞品对标</h3>
+                <p class='project-card__desc'>收集 32 家车企 87 款展车参数与定价，识别差异化机会 5 项。</p>
+                <div class='project-card__meta'>
+                  <span class='project-card__time'>3 天前</span>
+                  <span class='project-card__sep' aria-hidden='true'>·</span>
+                  <span class='project-card__steps'>8 步</span>
+                  <span class='project-card__sep' aria-hidden='true'>·</span>
+                  <span class='project-card__dur'>5 分 33 秒</span>
+                </div>
+              </a>
+            </article>
+
+            <article class='project-card project-card--done' data-project-id='proj-007'>
+              <a href='#project-007' class='project-card__link' aria-label='重入项目：用户配置包生成 · 家庭用户'>
+                <header class='project-card__head'>
+                  <span class='project-card__agent'>用户洞察Agent</span>
+                  <span class='project-card__status project-card__status--done' aria-label='已完成'>已完成</span>
+                </header>
+                <h3 class='project-card__title'>用户配置包生成 · 家庭用户</h3>
+                <p class='project-card__desc'>基于家庭圈层 7 个真实访谈，输出 12 项标配 + 8 项选装建议。</p>
+                <div class='project-card__meta'>
+                  <span class='project-card__time'>4 天前</span>
+                  <span class='project-card__sep' aria-hidden='true'>·</span>
+                  <span class='project-card__steps'>7 步</span>
+                  <span class='project-card__sep' aria-hidden='true'>·</span>
+                  <span class='project-card__dur'>4 分 18 秒</span>
+                </div>
+              </a>
+            </article>
+
+            <article class='project-card project-card--running' data-project-id='proj-008'>
+              <a href='#project-008' class='project-card__link' aria-label='重入项目：置换补贴测算 2026 Q3'>
+                <header class='project-card__head'>
+                  <span class='project-card__agent'>市场战略Agent</span>
+                  <span class='project-card__status project-card__status--running' aria-label='执行中'>执行中 · 第 3 步</span>
+                </header>
+                <h3 class='project-card__title'>置换补贴测算 2026 Q3</h3>
+                <p class='project-card__desc'>等待口碑数据底座同步（每周一次），预计 4 小时内完成首轮测算。</p>
+                <div class='project-card__meta'>
+                  <span class='project-card__time'>刚刚开始</span>
+                  <span class='project-card__sep' aria-hidden='true'>·</span>
+                  <span class='project-card__steps'>3 / 8 步</span>
+                  <span class='project-card__sep' aria-hidden='true'>·</span>
+                  <span class='project-card__dur'>正在运行</span>
+                </div>
+              </a>
+            </article>
+          </div>
+        </section>
+
+      </div>
+      <!-- ============================================================
+           VIEW 3: 市场分析 analysis — 双智能体 + 报告模板 + 数据准备度 + 最近报告
+           ============================================================ -->
+      <div class='view' data-view='analysis' hidden>
+
+        <section class='analysis' aria-labelledby='analysis-title'>
+          <header class='section-head'>
+            <div class='section-head__text'>
+              <h2 id='analysis-title' class='section-head__title'>市场分析 · 月报与专题报告自动生成</h2>
+              <p class='section-head__desc'>基于已对接的四类数据底座，由市场战略Agent 自动编排拉数、解读、排版、交付。</p>
+            </div>
+            <div class='section-head__actions'>
+              <button class='chip-btn' type='button' aria-label='查看报告库'>报告库</button>
+              <button class='btn btn--primary' type='button' style='margin-left: 8px' aria-label='新建一次市场分析'>
+                <svg viewBox='0 0 24 24' width='14' height='14' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M12 5 v14 M5 12 h14'/></svg>
+                <span>新建分析</span>
+              </button>
+            </div>
+          </header>
+
+          <div class='agents__grid'>
+            <article class='agent-card agent-card--strategy'>
+              <header class='agent-card__head'>
+                <span class='agent-card__icon' aria-hidden='true'>
+                  <svg viewBox='0 0 32 32' width='36' height='36' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'>
+                    <rect x='3' y='3' width='26' height='26' rx='4'/>
+                    <path d='M7 10 h12 M7 15 h18 M7 20 h9 M22 22 l3 3 5-5'/>
+                  </svg>
+                </span>
+                <div class='agent-card__title-stack'>
+                  <h3 class='agent-card__title'>乘用车月报</h3>
+                  <p class='agent-card__role'>Monthly Report · 乘用车全口径</p>
+                </div>
+                <span class='agent-card__status' aria-label='当前状态：在线'>
+                  <span class='agent-card__status-dot' aria-hidden='true'></span>在线
+                </span>
+              </header>
+              <p class='agent-card__desc'>覆盖零售、批发、上险三口径，输出 PPT / PDF 一键交付。包含核心数据速览、车型类别、级别结构、轿车/SUV/MPV 分析、下月展望。</p>
+              <ul class='agent-card__capabilities' aria-label='核心能力'>
+                <li><span aria-hidden='true'>·</span> 自动拉数 + 解读 + 排版</li>
+                <li><span aria-hidden='true'>·</span> 七章报告 + 质量门禁</li>
+                <li><span aria-hidden='true'>·</span> 历史对比 + 异常标注</li>
+              </ul>
+              <div class='agent-card__meta'>
+                <span class='agent-card__meta-key'>本月已生成</span>
+                <span class='agent-card__meta-val'>8 月 / 9 月 · 共 2 份</span>
+              </div>
+              <div class='agent-card__actions'>
+                <button class='btn btn--primary btn-call-agent' type='button' data-agent='market_strategy' data-skill='market_monthly_report' aria-label='启动乘用车月报生成'>
+                  <span>启动生成</span>
+                  <svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M5 12 h14 M13 6 l6 6-6 6'/></svg>
+                </button>
+                <button class='btn btn--ghost' type='button' aria-label='查看月报样例'>查看样例</button>
+              </div>
+            </article>
+
+            <article class='agent-card agent-card--insight'>
+              <header class='agent-card__head'>
+                <span class='agent-card__icon' aria-hidden='true'>
+                  <svg viewBox='0 0 32 32' width='36' height='36' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'>
+                    <circle cx='16' cy='16' r='13'/>
+                    <path d='M16 3 v6 M16 23 v6 M3 16 h6 M23 16 h6'/>
+                    <circle cx='16' cy='16' r='5'/>
+                  </svg>
+                </span>
+                <div class='agent-card__title-stack'>
+                  <h3 class='agent-card__title'>新能源月报</h3>
+                  <p class='agent-card__role'>NEV Monthly · 渗透率与车型结构</p>
+                </div>
+                <span class='agent-card__status' aria-label='当前状态：在线'>
+                  <span class='agent-card__status-dot' aria-hidden='true'></span>在线
+                </span>
+              </header>
+              <p class='agent-card__desc'>聚焦新能源乘用车：渗透率拐点、品牌结构、价格带迁移、补能网络与政策窗口。</p>
+              <ul class='agent-card__capabilities' aria-label='核心能力'>
+                <li><span aria-hidden='true'>·</span> 渗透率 & 拐点识别</li>
+                <li><span aria-hidden='true'>·</span> 价格带 & 车型结构</li>
+                <li><span aria-hidden='true'>·</span> 品牌座次重排</li>
+              </ul>
+              <div class='agent-card__meta'>
+                <span class='agent-card__meta-key'>本月已生成</span>
+                <span class='agent-card__meta-val'>8 月 · 1 份</span>
+              </div>
+              <div class='agent-card__actions'>
+                <button class='btn btn--primary btn-call-agent' type='button' data-agent='market_strategy' data-skill='market_monthly_report' data-nev='true' aria-label='启动新能源月报生成'>
+                  <span>启动生成</span>
+                  <svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M5 12 h14 M13 6 l6 6-6 6'/></svg>
+                </button>
+                <button class='btn btn--ghost' type='button' aria-label='查看新能源月报样例'>查看样例</button>
+              </div>
+            </article>
+          </div>
+
+          <header class='section-head' style='margin-top: 32px'>
+            <div class='section-head__text'>
+              <h3 class='section-head__title' style='font-size: 18px'>报告模板库</h3>
+              <p class='section-head__desc'>8 套可复用模板，覆盖年度/月度/专题三类场景。</p>
+            </div>
+          </header>
+
+          <div class='skills__grid' style='grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 16px'>
+            <article class='skill-card skill-card__icon--report' data-skill='report-annual'>
+              <header class='skill-card__head'>
+                <span class='skill-card__icon' aria-hidden='true'>
+                  <svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><rect x='4' y='3' width='16' height='18' rx='2'/><path d='M8 8 h8 M8 12 h8 M8 16 h5'/></svg>
+                </span>
+                <span class='skill-card__status skill-card__status--ready'>就绪</span>
+              </header>
+              <h4 class='skill-card__name'>2025 乘用车年报</h4>
+              <p class='skill-card__desc'>全年复盘 + 2026 展望，含完整七章与质量门禁。</p>
+              <span class='skill-card__tag'>年度 · 战略</span>
+            </article>
+
+            <article class='skill-card skill-card__icon--report' data-skill='report-monthly-pv'>
+              <header class='skill-card__head'>
+                <span class='skill-card__icon' aria-hidden='true'>
+                  <svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><rect x='4' y='3' width='16' height='18' rx='2'/><path d='M8 8 h8 M8 12 h8 M8 16 h5'/></svg>
+                </span>
+                <span class='skill-card__status skill-card__status--ready'>就绪</span>
+              </header>
+              <h4 class='skill-card__name'>乘用车月度报告</h4>
+              <p class='skill-card__desc'>零售/批发/上险三口径，30+ 张数据可视化模板。</p>
+              <span class='skill-card__tag'>月度 · 通用</span>
+            </article>
+
+            <article class='skill-card skill-card__icon--report' data-skill='report-nev'>
+              <header class='skill-card__head'>
+                <span class='skill-card__icon' aria-hidden='true'>
+                  <svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><rect x='4' y='3' width='16' height='18' rx='2'/><path d='M8 8 h8 M8 12 h8 M8 16 h5'/></svg>
+                </span>
+                <span class='skill-card__status skill-card__status--ready'>就绪</span>
+              </header>
+              <h4 class='skill-card__name'>新能源月度报告</h4>
+              <p class='skill-card__desc'>渗透率与品牌座次，附补能网络与政策窗口。</p>
+              <span class='skill-card__tag'>月度 · 新能源</span>
+            </article>
+
+            <article class='skill-card skill-card__icon--report' data-skill='report-special'>
+              <header class='skill-card__head'>
+                <span class='skill-card__icon' aria-hidden='true'>
+                  <svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><rect x='4' y='3' width='16' height='18' rx='2'/><path d='M8 8 h8 M8 12 h8 M8 16 h5'/></svg>
+                </span>
+                <span class='skill-card__status skill-card__status--ready'>就绪</span>
+              </header>
+              <h4 class='skill-card__name'>专题报告</h4>
+              <p class='skill-card__desc'>针对单一议题（如价格战、智驾）的深度专题。</p>
+              <span class='skill-card__tag'>专题 · 灵活</span>
+            </article>
+          </div>
+
+          <header class='section-head' style='margin-top: 32px'>
+            <div class='section-head__text'>
+              <h3 class='section-head__title' style='font-size: 18px'>数据底座就绪度</h3>
+              <p class='section-head__desc'>月报自动生成依赖四类底座的最新数据，下方展示同步健康度。</p>
+            </div>
+          </header>
+
+          <div class='plugins__grid' style='grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 12px'>
+            <div class='plugin-card plugin-card--policy'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>政策数据</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>实时</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>同步进度</dt><dd><span style='font-family: var(--ff-mono); font-weight: 700; color: var(--c-growth-green); font-size: 18px'>100%</span></dd></div>
+                <div><dt>最近</dt><dd>3 分钟前</dd></div>
+              </div>
+            </div>
+            <div class='plugin-card plugin-card--rights'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>权益数据</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>同步</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>同步进度</dt><dd><span style='font-family: var(--ff-mono); font-weight: 700; color: var(--c-growth-green); font-size: 18px'>100%</span></dd></div>
+                <div><dt>最近</dt><dd>14 小时前</dd></div>
+              </div>
+            </div>
+            <div class='plugin-card plugin-card--newcar'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>新车数据</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>实时</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>同步进度</dt><dd><span style='font-family: var(--ff-mono); font-weight: 700; color: var(--c-growth-green); font-size: 18px'>100%</span></dd></div>
+                <div><dt>最近</dt><dd>22 分钟前</dd></div>
+              </div>
+            </div>
+            <div class='plugin-card plugin-card--wom'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>口碑数据</h3></div>
+                <span class='plugin-card__status'><span class='plugin-card__dot'></span>周更</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>同步进度</dt><dd><span style='font-family: var(--ff-mono); font-weight: 700; color: var(--c-warning-amber); font-size: 18px'>86%</span></dd></div>
+                <div><dt>最近</dt><dd>2 天前</dd></div>
+              </div>
+            </div>
+          </div>
+
+          <header class='section-head' style='margin-top: 32px'>
+            <div class='section-head__text'>
+              <h3 class='section-head__title' style='font-size: 18px'>最近生成的报告</h3>
+              <p class='section-head__desc'>已归档到 outputs/ppt/ 目录，可一键打开或下载。</p>
+            </div>
+          </header>
+
+          <div class='plugins__grid' style='grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 12px'>
+            <article class='plugin-card plugin-card--newcar'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>乘用车 8 月月报</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>已交付</span>
+              </header>
+              <p class='plugin-card__desc'>38 页可编辑 PPTX + 12 页深度解读 · 2 小时前生成</p>
+              <div class='plugin-card__foot'>
+                <span class='plugin-card__last'>38 页 · 16 MB</span>
+                <div style='display:flex; gap:8px'>
+                  <button class='btn btn--ghost' type='button' aria-label='在线预览 8 月月报'>预览</button>
+                  <button class='btn btn--primary' type='button' aria-label='下载 8 月月报'>下载</button>
+                </div>
+              </div>
+            </article>
+
+            <article class='plugin-card plugin-card--wom'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>新能源 8 月月报</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>已交付</span>
+              </header>
+              <p class='plugin-card__desc'>28 页可编辑 PPTX · 3 天前生成</p>
+              <div class='plugin-card__foot'>
+                <span class='plugin-card__last'>28 页 · 11 MB</span>
+                <div style='display:flex; gap:8px'>
+                  <button class='btn btn--ghost' type='button' aria-label='在线预览 8 月新能源月报'>预览</button>
+                  <button class='btn btn--primary' type='button' aria-label='下载 8 月新能源月报'>下载</button>
+                </div>
+              </div>
+            </article>
+
+            <article class='plugin-card plugin-card--policy'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>以旧换新政策影响测算专题</h3></div>
+                <span class='plugin-card__status'><span class='plugin-card__dot'></span>已交付</span>
+              </header>
+              <p class='plugin-card__desc'>14 省梯度测算 · 5 天前生成</p>
+              <div class='plugin-card__foot'>
+                <span class='plugin-card__last'>18 页 · 6 MB</span>
+                <div style='display:flex; gap:8px'>
+                  <button class='btn btn--ghost' type='button' aria-label='在线预览专题'>预览</button>
+                  <button class='btn btn--primary' type='button' aria-label='下载专题'>下载</button>
+                </div>
+              </div>
+            </article>
+
+            <article class='plugin-card plugin-card--rights'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>B 级 SUV 口碑扫描</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>已交付</span>
+              </header>
+              <p class='plugin-card__desc'>14 款车型、38 万条评论 · 昨天生成</p>
+              <div class='plugin-card__foot'>
+                <span class='plugin-card__last'>22 页 · 9 MB</span>
+                <div style='display:flex; gap:8px'>
+                  <button class='btn btn--ghost' type='button' aria-label='在线预览口碑扫描'>预览</button>
+                  <button class='btn btn--primary' type='button' aria-label='下载口碑扫描'>下载</button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+      </div>
+      <!-- ============================================================
+           VIEW 4: 市场预测 forecast — 4 大指标卡 + 大型趋势图 + 3 情景分析
+           ============================================================ -->
+      <div class='view' data-view='forecast' hidden>
+
+        <section class='forecast' aria-labelledby='forecast-title'>
+          <header class='section-head'>
+            <div class='section-head__text'>
+              <h2 id='forecast-title' class='section-head__title'>市场预测 · Demo 演示</h2>
+              <p class='section-head__desc'>基于销量弹性、渗透率拐点、价格带迁移三类模型给出的下一周期市场预测样例。</p>
+            </div>
+            <div class='section-head__actions'>
+              <span class='chip-btn' aria-label='demo 模式'>DEMO</span>
+            </div>
+          </header>
+
+          <div class='plugins__grid' style='grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 24px'>
+            <div class='plugin-card plugin-card--policy'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>2026 全年销量预期</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>基准</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>预测值</dt><dd style='font-family: var(--ff-mono); font-weight: 700; color: var(--text-primary); font-size: 22px'>2,320 万</dd></div>
+                <div><dt>同比</dt><dd><span style='color: var(--c-growth-green); font-weight: 700'>+5.8%</span></dd></div>
+              </div>
+            </div>
+            <div class='plugin-card plugin-card--rights'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>NEV 渗透率拐点</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>高置信</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>预计</dt><dd style='font-family: var(--ff-mono); font-weight: 700; color: var(--text-primary); font-size: 22px'>2026 Q4</dd></div>
+                <div><dt>临界值</dt><dd><span style='color: var(--c-cockpit-blue); font-weight: 700'>53%</span></dd></div>
+              </div>
+            </div>
+            <div class='plugin-card plugin-card--newcar'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>15-20 万 SUV 价格带</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>增量</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>净增</dt><dd style='font-family: var(--ff-mono); font-weight: 700; color: var(--text-primary); font-size: 22px'>+14 万辆</dd></div>
+                <div><dt>主力车型</dt><dd>新能源 SUV</dd></div>
+              </div>
+            </div>
+            <div class='plugin-card plugin-card--wom'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>L2+ 智驾渗透率</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>增长中</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>2026 末</dt><dd style='font-family: var(--ff-mono); font-weight: 700; color: var(--text-primary); font-size: 22px'>68%</dd></div>
+                <div><dt>同比</dt><dd><span style='color: var(--c-growth-green); font-weight: 700'>+21 pp</span></dd></div>
+              </div>
+            </div>
+          </div>
+
+          <header class='section-head'>
+            <div class='section-head__text'>
+              <h3 class='section-head__title' style='font-size: 18px'>销量趋势 · 历史回测 + 未来预测</h3>
+              <p class='section-head__desc'>基于 24 个月历史回测，结合宏观变量给出 6 个月预测样例。</p>
+            </div>
+            <div class='section-head__actions'>
+              <button class='chip-btn' type='button' aria-pressed='true'>乘用车</button>
+              <button class='chip-btn' type='button' aria-pressed='false'>新能源</button>
+              <button class='chip-btn' type='button' aria-pressed='false'>SUV</button>
+              <button class='chip-btn' type='button' aria-pressed='false'>轿车</button>
+            </div>
+          </header>
+
+          <div style='background: var(--bg-surface, #FFFFFF); border: 1px solid var(--border-subtle, #E2E8F0); border-radius: 14px; padding: 24px; margin-top: 12px'>
+            <svg viewBox='0 0 800 60' style='width: 100%; height: 220px' preserveAspectRatio='none' aria-hidden='true'>
+              <defs>
+                <linearGradient id='grad-forecast-area' x1='0' y1='0' x2='0' y2='1'>
+                  <stop offset='0%' stop-color='#0369A1' stop-opacity='0.30'/>
+                  <stop offset='100%' stop-color='#0369A1' stop-opacity='0'/>
+                </linearGradient>
+                <linearGradient id='grad-forecast-pred' x1='0' y1='0' x2='0' y2='1'>
+                  <stop offset='0%' stop-color='#F59E0B' stop-opacity='0.30'/>
+                  <stop offset='100%' stop-color='#F59E0B' stop-opacity='0'/>
+                </linearGradient>
+              </defs>
+              <line x1='0' y1='50' x2='800' y2='50' stroke='#E2E8F0' stroke-width='0.5' stroke-dasharray='4 4'/>
+              <line x1='540' y1='60' x2='540' y2='0' stroke='#F59E0B' stroke-width='1' stroke-dasharray='6 4'/>
+              <path d='M0,45 L60,42 L120,40 L180,38 L240,35 L300,36 L360,32 L420,30 L480,28 L540,26 L540,22 L600,18 L660,14 L720,10 L800,8 L800,60 L0,60 Z' fill='url(#grad-forecast-area)'/>
+              <path d='M0,45 L60,42 L120,40 L180,38 L240,35 L300,36 L360,32 L420,30 L480,28 L540,26' fill='none' stroke='#0369A1' stroke-width='1.8'/>
+              <path d='M540,22 L600,18 L660,14 L720,10 L800,8' fill='none' stroke='#F59E0B' stroke-width='1.8' stroke-dasharray='4 4'/>
+              <circle cx='540' cy='22' r='4' fill='#FFFFFF' stroke='#F59E0B' stroke-width='2'/>
+              <text x='544' y='14' font-size='10' fill='#F59E0B' font-family='monospace' font-weight='700'>预测起点 2026 Q3</text>
+              <circle cx='800' cy='8' r='3.5' fill='#F59E0B'/>
+            </svg>
+            <div style='display: flex; justify-content: space-between; font-family: monospace; font-size: 11px; color: var(--text-tertiary, #94A3B8); margin-top: 8px'>
+              <span>2024 Q3</span><span>2025 Q1</span><span>2025 Q3</span><span>2026 Q1</span><span>2026 Q3</span><span>2027 Q1</span>
+            </div>
+          </div>
+
+          <header class='section-head' style='margin-top: 32px'>
+            <div class='section-head__text'>
+              <h3 class='section-head__title' style='font-size: 18px'>情景分析</h3>
+              <p class='section-head__desc'>基于宏观与政策变量，给出三类典型情景的销量与渗透率预期。</p>
+            </div>
+          </header>
+
+          <div class='agents__grid'>
+            <article class='agent-card agent-card--strategy'>
+              <header class='agent-card__head'>
+                <span class='agent-card__icon' aria-hidden='true'>
+                  <svg viewBox='0 0 32 32' width='36' height='36' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'>
+                    <rect x='3' y='3' width='26' height='26' rx='4'/>
+                    <path d='M8 22 l4-4 4 4 8-12'/>
+                  </svg>
+                </span>
+                <div class='agent-card__title-stack'>
+                  <h3 class='agent-card__title'>基准情景</h3>
+                  <p class='agent-card__role'>Base Case · 60% 概率</p>
+                </div>
+                <span class='agent-card__status' aria-label='中性'>
+                  <span class='agent-card__status-dot' aria-hidden='true'></span>中性
+                </span>
+              </header>
+              <p class='agent-card__desc'>宏观温和增长，新能源渗透率 2026 Q4 突破 53%，价格带稳定。</p>
+              <ul class='agent-card__capabilities' aria-label='关键指标'>
+                <li><span aria-hidden='true'>·</span> 2026 全年销量 2,320 万 (+5.8%)</li>
+                <li><span aria-hidden='true'>·</span> NEV 渗透率 51% → 53%</li>
+                <li><span aria-hidden='true'>·</span> L2+ 智驾渗透率 47% → 68%</li>
+              </ul>
+            </article>
+
+            <article class='agent-card agent-card--insight'>
+              <header class='agent-card__head'>
+                <span class='agent-card__icon' aria-hidden='true'>
+                  <svg viewBox='0 0 32 32' width='36' height='36' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'>
+                    <path d='M16 4 l4 8 8 2-6 6 2 8-8-4-8 4 2-8-6-6 8-2 z'/>
+                  </svg>
+                </span>
+                <div class='agent-card__title-stack'>
+                  <h3 class='agent-card__title'>乐观情景</h3>
+                  <p class='agent-card__role'>Bull Case · 25% 概率</p>
+                </div>
+                <span class='agent-card__status' aria-label='上行'>
+                  <span class='agent-card__status-dot' aria-hidden='true'></span>上行
+                </span>
+              </header>
+              <p class='agent-card__desc'>刺激政策加码 + 智驾平权，新能源加速渗透，价格战收敛。</p>
+              <ul class='agent-card__capabilities' aria-label='关键指标'>
+                <li><span aria-hidden='true'>·</span> 2026 全年销量 2,460 万 (+12%)</li>
+                <li><span aria-hidden='true'>·</span> NEV 渗透率 53% → 58%</li>
+                <li><span aria-hidden='true'>·</span> L2+ 智驾渗透率 47% → 75%</li>
+              </ul>
+            </article>
+
+            <article class='agent-card agent-card--strategy'>
+              <header class='agent-card__head'>
+                <span class='agent-card__icon' aria-hidden='true'>
+                  <svg viewBox='0 0 32 32' width='36' height='36' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'>
+                    <path d='M16 4 v24 M4 16 h24'/>
+                    <circle cx='16' cy='16' r='10'/>
+                  </svg>
+                </span>
+                <div class='agent-card__title-stack'>
+                  <h3 class='agent-card__title'>谨慎情景</h3>
+                  <p class='agent-card__role'>Bear Case · 15% 概率</p>
+                </div>
+                <span class='agent-card__status' aria-label='下行'>
+                  <span class='agent-card__status-dot' aria-hidden='true'></span>下行
+                </span>
+              </header>
+              <p class='agent-card__desc'>宏观走弱 + 价格战延续，渗透率拐点延后，智驾硬件预算被压缩。</p>
+              <ul class='agent-card__capabilities' aria-label='关键指标'>
+                <li><span aria-hidden='true'>·</span> 2026 全年销量 2,180 万 (-0.5%)</li>
+                <li><span aria-hidden='true'>·</span> NEV 渗透率 50% → 51%</li>
+                <li><span aria-hidden='true'>·</span> L2+ 智驾渗透率 46% → 58%</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+
+      </div>
+      <!-- ============================================================
+           VIEW 5: 用户洞察 insight — 4 统计 + 3 圈层画像 + 需求匹配矩阵
+           ============================================================ -->
+      <div class='view' data-view='insight' hidden>
+
+        <section class='insight' aria-labelledby='insight-title'>
+          <header class='section-head'>
+            <div class='section-head__text'>
+              <h2 id='insight-title' class='section-head__title'>用户洞察 · Demo 演示</h2>
+              <p class='section-head__desc'>从评论、访谈、销售数据中识别用户圈层与配置优先级，样例展示。</p>
+            </div>
+            <div class='section-head__actions'>
+              <span class='chip-btn' aria-label='demo 模式'>DEMO</span>
+              <button class='btn btn--primary' type='button' style='margin-left: 8px' aria-label='运行一次用户洞察分析'>
+                <svg viewBox='0 0 24 24' width='14' height='14' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M5 12 h14 M13 6 l6 6-6 6'/></svg>
+                <span>运行分析</span>
+              </button>
+            </div>
+          </header>
+
+          <div class='plugins__grid' style='grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 24px'>
+            <div class='plugin-card plugin-card--policy'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>评论覆盖</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>近 30 天</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>采集</dt><dd style='font-family: var(--ff-mono); font-weight: 700; color: var(--text-primary); font-size: 22px'>1,260万</dd></div>
+                <div><dt>标注</dt><dd>87.4万</dd></div>
+              </div>
+            </div>
+            <div class='plugin-card plugin-card--rights'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>用户圈层</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>识别</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>圈层数</dt><dd style='font-family: var(--ff-mono); font-weight: 700; color: var(--text-primary); font-size: 22px'>6 类</dd></div>
+                <div><dt>覆盖人群</dt><dd>92%</dd></div>
+              </div>
+            </div>
+            <div class='plugin-card plugin-card--newcar'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>配置优先级</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>近 7 天</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>Top 5</dt><dd><span style='font-family: var(--ff-mono); font-weight: 700; color: var(--text-primary); font-size: 18px'>智驾/续航</span></dd></div>
+                <div><dt>置信度</dt><dd>88%</dd></div>
+              </div>
+            </div>
+            <div class='plugin-card plugin-card--wom'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>情感打分</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>本月</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>正向</dt><dd style='font-family: var(--ff-mono); font-weight: 700; color: var(--c-growth-green); font-size: 22px'>71%</dd></div>
+                <div><dt>负向</dt><dd style='color: var(--c-risk-red); font-weight: 700'>14%</dd></div>
+              </div>
+            </div>
+          </div>
+
+          <header class='section-head'>
+            <div class='section-head__text'>
+              <h3 class='section-head__title' style='font-size: 18px'>典型用户圈层画像</h3>
+              <p class='section-head__desc'>基于评论与访谈自动聚类得到的三大圈层，每圈层给出权重化的需求与配置建议。</p>
+            </div>
+            <div class='section-head__actions'>
+              <button class='chip-btn' type='button' aria-pressed='true'>3 类</button>
+              <button class='chip-btn' type='button' aria-pressed='false'>6 类</button>
+            </div>
+          </header>
+
+          <div class='agents__grid'>
+            <article class='agent-card agent-card--insight'>
+              <header class='agent-card__head'>
+                <span class='agent-card__icon' aria-hidden='true'>
+                  <svg viewBox='0 0 32 32' width='36' height='36' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'>
+                    <circle cx='11' cy='12' r='5'/>
+                    <path d='M3 27 c0-4 4-7 8-7 s8 3 8 7'/>
+                    <circle cx='22' cy='10' r='3'/>
+                    <path d='M19 16 c3 0 6 2 6 5'/>
+                  </svg>
+                </span>
+                <div class='agent-card__title-stack'>
+                  <h3 class='agent-card__title'>家庭品质用户</h3>
+                  <p class='agent-card__role'>Family Premium · 30-45 岁</p>
+                </div>
+                <span class='agent-card__status' aria-label='样本'>
+                  <span class='agent-card__status-dot' aria-hidden='true'></span>3.2万样本
+                </span>
+              </header>
+              <p class='agent-card__desc'>已婚有孩，关注后排空间、安全配置、续航真实性。购车预算 18-25 万。</p>
+              <ul class='agent-card__capabilities' aria-label='核心需求权重'>
+                <li><span aria-hidden='true'>·</span> 安全（碰撞成绩 + 主动安全）权重 28%</li>
+                <li><span aria-hidden='true'>·</span> 空间（后排腿部 + 行李厢）权重 22%</li>
+                <li><span aria-hidden='true'>·</span> 续航（真实达成率）权重 18%</li>
+                <li><span aria-hidden='true'>·</span> 智能座舱权重 14%</li>
+              </ul>
+              <div class='agent-card__meta'>
+                <span class='agent-card__meta-key'>推荐标配</span>
+                <span class='agent-card__meta-val'>主动安全套装 · 7 安全气囊 · 80kWh+ 电池</span>
+              </div>
+              <div class='agent-card__actions'>
+                <button class='btn btn--primary btn-call-agent' type='button' data-agent='user_insight_config' data-skill='user_insight_tagger' data-persona='family' aria-label='查看家庭品质用户配置建议'>
+                  <span>查看配置建议</span>
+                  <svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M5 12 h14 M13 6 l6 6-6 6'/></svg>
+                </button>
+                <button class='btn btn--ghost' type='button' aria-label='导出家庭圈层洞察'>导出洞察</button>
+              </div>
+            </article>
+
+            <article class='agent-card agent-card--insight'>
+              <header class='agent-card__head'>
+                <span class='agent-card__icon' aria-hidden='true'>
+                  <svg viewBox='0 0 32 32' width='36' height='36' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'>
+                    <circle cx='16' cy='12' r='5'/>
+                    <path d='M9 27 c0-4 3-7 7-7 s7 3 7 7'/>
+                  </svg>
+                </span>
+                <div class='agent-card__title-stack'>
+                  <h3 class='agent-card__title'>新锐首购青年</h3>
+                  <p class='agent-card__role'>Young First-buyer · 25-32 岁</p>
+                </div>
+                <span class='agent-card__status' aria-label='样本'>
+                  <span class='agent-card__status-dot' aria-hidden='true'></span>2.8万样本
+                </span>
+              </header>
+              <p class='agent-card__desc'>单身或情侣，注重新潮外观、智能驾驶、车机生态。购车预算 12-18 万。</p>
+              <ul class='agent-card__capabilities' aria-label='核心需求权重'>
+                <li><span aria-hidden='true'>·</span> 智驾（高速 NOA）权重 26%</li>
+                <li><span aria-hidden='true'>·</span> 车机 / 智能座舱权重 24%</li>
+                <li><span aria-hidden='true'>·</span> 外观设计权重 20%</li>
+                <li><span aria-hidden='true'>·</span> 价格敏感度权重 18%</li>
+              </ul>
+              <div class='agent-card__meta'>
+                <span class='agent-card__meta-key'>推荐标配</span>
+                <span class='agent-card__meta-val'>高速 NOA · 大屏车机 · 智能灯光</span>
+              </div>
+              <div class='agent-card__actions'>
+                <button class='btn btn--primary btn-call-agent' type='button' data-agent='user_insight_config' data-skill='user_insight_tagger' data-persona='young' aria-label='查看新锐首购青年配置建议'>
+                  <span>查看配置建议</span>
+                  <svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M5 12 h14 M13 6 l6 6-6 6'/></svg>
+                </button>
+                <button class='btn btn--ghost' type='button' aria-label='导出新锐首购洞察'>导出洞察</button>
+              </div>
+            </article>
+
+            <article class='agent-card agent-card--insight'>
+              <header class='agent-card__head'>
+                <span class='agent-card__icon' aria-hidden='true'>
+                  <svg viewBox='0 0 32 32' width='36' height='36' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'>
+                    <circle cx='11' cy='12' r='5'/>
+                    <circle cx='22' cy='12' r='4'/>
+                    <path d='M3 27 c0-4 4-7 8-7 s8 3 8 7'/>
+                    <path d='M18 27 c0-3 3-6 6-6'/>
+                  </svg>
+                </span>
+                <div class='agent-card__title-stack'>
+                  <h3 class='agent-card__title'>商务精英</h3>
+                  <p class='agent-card__role'>Business Elite · 35-50 岁</p>
+                </div>
+                <span class='agent-card__status' aria-label='样本'>
+                  <span class='agent-card__status-dot' aria-hidden='true'></span>1.6万样本
+                </span>
+              </header>
+              <p class='agent-card__desc'>高管或私营业主，关注品牌、调性、舒适后排、NVH 表现。购车预算 30-50 万。</p>
+              <ul class='agent-card__capabilities' aria-label='核心需求权重'>
+                <li><span aria-hidden='true'>·</span> 品牌调性权重 30%</li>
+                <li><span aria-hidden='true'>·</span> 舒适 / NVH 权重 24%</li>
+                <li><span aria-hidden='true'>·</span> 安全权重 18%</li>
+                <li><span aria-hidden='true'>·</span> 售后服务权重 16%</li>
+              </ul>
+              <div class='agent-card__meta'>
+                <span class='agent-card__meta-key'>推荐标配</span>
+                <span class='agent-card__meta-val'>后排独立空调 · 全车隔音玻璃 · 主动降噪</span>
+              </div>
+              <div class='agent-card__actions'>
+                <button class='btn btn--primary btn-call-agent' type='button' data-agent='user_insight_config' data-skill='user_insight_tagger' data-persona='business' aria-label='查看商务精英配置建议'>
+                  <span>查看配置建议</span>
+                  <svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M5 12 h14 M13 6 l6 6-6 6'/></svg>
+                </button>
+                <button class='btn btn--ghost' type='button' aria-label='导出商务精英洞察'>导出洞察</button>
+              </div>
+            </article>
+          </div>
+
+          <header class='section-head' style='margin-top: 32px'>
+            <div class='section-head__text'>
+              <h3 class='section-head__title' style='font-size: 18px'>需求 × 配置匹配矩阵</h3>
+              <p class='section-head__desc'>三类圈层 × 5 项核心配置项的优先级匹配。</p>
+            </div>
+          </header>
+
+          <div style='background: var(--bg-surface, #FFFFFF); border: 1px solid var(--border-subtle, #E2E8F0); border-radius: 14px; padding: 24px; margin-top: 12px; overflow-x: auto'>
+            <table style='width: 100%; border-collapse: collapse; font-size: 13px'>
+              <thead>
+                <tr style='border-bottom: 1px solid var(--border-subtle)'>
+                  <th style='text-align: left; padding: 10px 8px; color: var(--text-tertiary); font-weight: 600'>圈层 / 配置</th>
+                  <th style='text-align: center; padding: 10px 8px; color: var(--text-tertiary); font-weight: 600'>主动安全</th>
+                  <th style='text-align: center; padding: 10px 8px; color: var(--text-tertiary); font-weight: 600'>高速 NOA</th>
+                  <th style='text-align: center; padding: 10px 8px; color: var(--text-tertiary); font-weight: 600'>大屏车机</th>
+                  <th style='text-align: center; padding: 10px 8px; color: var(--text-tertiary); font-weight: 600'>NVH 隔音</th>
+                  <th style='text-align: center; padding: 10px 8px; color: var(--text-tertiary); font-weight: 600'>后排空调</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style='border-bottom: 1px dashed var(--border-subtle)'>
+                  <td style='padding: 10px 8px; font-weight: 600'>家庭品质</td>
+                  <td style='text-align: center; padding: 10px 8px'><span style='display:inline-block; min-width: 60px; padding: 4px 8px; border-radius: 6px; background: rgba(16,185,129,.15); color: var(--c-growth-green); font-weight: 700'>必需</span></td>
+                  <td style='text-align: center; padding: 10px 8px'><span style='display:inline-block; min-width: 60px; padding: 4px 8px; border-radius: 6px; background: rgba(245,158,11,.15); color: var(--c-warning-amber); font-weight: 700'>选配</span></td>
+                  <td style='text-align: center; padding: 10px 8px'><span style='display:inline-block; min-width: 60px; padding: 4px 8px; border-radius: 6px; background: rgba(245,158,11,.15); color: var(--c-warning-amber); font-weight: 700'>选配</span></td>
+                  <td style='text-align: center; padding: 10px 8px'><span style='display:inline-block; min-width: 60px; padding: 4px 8px; border-radius: 6px; background: rgba(100,116,139,.15); color: var(--text-tertiary); font-weight: 700'>不加</span></td>
+                  <td style='text-align: center; padding: 10px 8px'><span style='display:inline-block; min-width: 60px; padding: 4px 8px; border-radius: 6px; background: rgba(16,185,129,.15); color: var(--c-growth-green); font-weight: 700'>必需</span></td>
+                </tr>
+                <tr style='border-bottom: 1px dashed var(--border-subtle)'>
+                  <td style='padding: 10px 8px; font-weight: 600'>新锐首购</td>
+                  <td style='text-align: center; padding: 10px 8px'><span style='display:inline-block; min-width: 60px; padding: 4px 8px; border-radius: 6px; background: rgba(245,158,11,.15); color: var(--c-warning-amber); font-weight: 700'>选配</span></td>
+                  <td style='text-align: center; padding: 10px 8px'><span style='display:inline-block; min-width: 60px; padding: 4px 8px; border-radius: 6px; background: rgba(16,185,129,.15); color: var(--c-growth-green); font-weight: 700'>必需</span></td>
+                  <td style='text-align: center; padding: 10px 8px'><span style='display:inline-block; min-width: 60px; padding: 4px 8px; border-radius: 6px; background: rgba(16,185,129,.15); color: var(--c-growth-green); font-weight: 700'>必需</span></td>
+                  <td style='text-align: center; padding: 10px 8px'><span style='display:inline-block; min-width: 60px; padding: 4px 8px; border-radius: 6px; background: rgba(100,116,139,.15); color: var(--text-tertiary); font-weight: 700'>不加</span></td>
+                  <td style='text-align: center; padding: 10px 8px'><span style='display:inline-block; min-width: 60px; padding: 4px 8px; border-radius: 6px; background: rgba(245,158,11,.15); color: var(--c-warning-amber); font-weight: 700'>选配</span></td>
+                </tr>
+                <tr>
+                  <td style='padding: 10px 8px; font-weight: 600'>商务精英</td>
+                  <td style='text-align: center; padding: 10px 8px'><span style='display:inline-block; min-width: 60px; padding: 4px 8px; border-radius: 6px; background: rgba(16,185,129,.15); color: var(--c-growth-green); font-weight: 700'>必需</span></td>
+                  <td style='text-align: center; padding: 10px 8px'><span style='display:inline-block; min-width: 60px; padding: 4px 8px; border-radius: 6px; background: rgba(100,116,139,.15); color: var(--text-tertiary); font-weight: 700'>不加</span></td>
+                  <td style='text-align: center; padding: 10px 8px'><span style='display:inline-block; min-width: 60px; padding: 4px 8px; border-radius: 6px; background: rgba(245,158,11,.15); color: var(--c-warning-amber); font-weight: 700'>选配</span></td>
+                  <td style='text-align: center; padding: 10px 8px'><span style='display:inline-block; min-width: 60px; padding: 4px 8px; border-radius: 6px; background: rgba(16,185,129,.15); color: var(--c-growth-green); font-weight: 700'>必需</span></td>
+                  <td style='text-align: center; padding: 10px 8px'><span style='display:inline-block; min-width: 60px; padding: 4px 8px; border-radius: 6px; background: rgba(16,185,129,.15); color: var(--c-growth-green); font-weight: 700'>必需</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </div>
+      <!-- ============================================================
+           VIEW 6: 技能 skills — 4 统计 + 搜索 + 9 tabs + 8 技能 + 最近调用
+           ============================================================ -->
+      <div class='view' data-view='skills' hidden>
+
+        <section class='skills' aria-labelledby='skills-title'>
+          <header class='section-head'>
+            <div class='section-head__text'>
+              <h2 id='skills-title' class='section-head__title'>已封装的技能 / Skills</h2>
+              <p class='section-head__desc'>8 个原子技能，可以被智能体按需编排。点击卡片查看输入输出契约与最近调用记录。</p>
+            </div>
+            <div class='section-head__actions'>
+              <input type='search' class='chip-btn' placeholder='搜索技能名称或 Code...' style='width: 280px' aria-label='搜索技能'/>
+              <button class='btn btn--primary' type='button' style='margin-left: 8px' aria-label='上传自定义技能'>
+                <svg viewBox='0 0 24 24' width='14' height='14' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M12 5 v14 M5 12 h14'/></svg>
+                <span>上传技能</span>
+              </button>
+            </div>
+          </header>
+
+          <div class='plugins__grid' style='grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 20px'>
+            <div class='plugin-card plugin-card--policy'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>已就绪</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>运行中</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>数量</dt><dd style='font-family: var(--ff-mono); font-weight: 700; color: var(--c-growth-green); font-size: 22px'>5 / 9</dd></div>
+                <div><dt>本周调用</dt><dd>147</dd></div>
+              </div>
+            </div>
+            <div class='plugin-card plugin-card--rights'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>暂未开放</h3></div>
+                <span class='plugin-card__status'><span class='plugin-card__dot'></span>排期</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>数量</dt><dd style='font-family: var(--ff-mono); font-weight: 700; color: var(--text-primary); font-size: 22px'>3</dd></div>
+                <div><dt>预计开放</dt><dd>Q4 2026</dd></div>
+              </div>
+            </div>
+            <div class='plugin-card plugin-card--newcar'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>总调用次数</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>累计</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>累计</dt><dd style='font-family: var(--ff-mono); font-weight: 700; color: var(--text-primary); font-size: 22px'>3,286</dd></div>
+                <div><dt>成功率</dt><dd>96.2%</dd></div>
+              </div>
+            </div>
+            <div class='plugin-card plugin-card--wom'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>月新增</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>本月</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>新增</dt><dd style='font-family: var(--ff-mono); font-weight: 700; color: var(--c-growth-green); font-size: 22px'>+2</dd></div>
+                <div><dt>待审批</dt><dd>1</dd></div>
+              </div>
+            </div>
+          </div>
+
+          <div class='section-head__actions' role='group' aria-label='技能筛选' style='margin-bottom: 20px'>
+            <button class='chip-btn' type='button' aria-pressed='true'>全部技能 · 9</button>
+            <button class='chip-btn' type='button' aria-pressed='false'>战略企划 · 7</button>
+            <button class='chip-btn' type='button' aria-pressed='false'>前端研发 · 1</button>
+            <button class='chip-btn' type='button' aria-pressed='false'>采购供应</button>
+            <button class='chip-btn' type='button' aria-pressed='false'>制造质量</button>
+            <button class='chip-btn' type='button' aria-pressed='false'>营销交付 · 1</button>
+            <button class='chip-btn' type='button' aria-pressed='false'>用户服务</button>
+            <button class='chip-btn' type='button' aria-pressed='false'>组织效能</button>
+            <button class='chip-btn' type='button' aria-pressed='false'>自定义 / 已上传</button>
+          </div>
+
+          <div class='skills__grid'>
+            <article class='skill-card' data-skill='aippt'>
+              <header class='skill-card__head'>
+                <span class='skill-card__icon skill-card__icon--report' aria-hidden='true'>
+                  <svg viewBox='0 0 24 24' width='22' height='22' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='4' width='18' height='14' rx='2'/><path d='M8 21 h8 M12 18 v3'/><path d='M7 10 l3 3 4-4'/></svg>
+                </span>
+                <span class='skill-card__status skill-card__status--ready'>就绪</span>
+              </header>
+              <h3 class='skill-card__name'>AIPPT 演示文稿生成</h3>
+              <p class='skill-card__desc'>以对话方式制作演示文稿：先产出大纲，再逐页产出结构化内容策划，逐页渲染 1600×900 视觉页。</p>
+              <div style='display: flex; gap: 12px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-subtle); align-items: center; justify-content: space-between'>
+                <span class='chip chip--policy' style='font-size: 11px'>营销交付</span>
+                <span style='font-family: var(--ff-mono); font-size: 11px; color: var(--text-tertiary)'>Code: skill_aippt</span>
+              </div>
+              <div style='display: flex; gap: 12px; margin-top: 8px; font-family: var(--ff-mono); font-size: 11px; color: var(--text-tertiary); align-items: center'>
+                <svg viewBox='0 0 24 24' width='12' height='12' fill='none' stroke='currentColor' stroke-width='1.8'><path d='M12 5 v14 M5 12 l7 7 7-7'/></svg>
+                <span>128 人安装 · 调用 412 次</span>
+              </div>
+              <p style='font-size: 12px; color: var(--text-secondary); margin-top: 10px; line-height: 1.5'>
+                <strong style='color: var(--c-cockpit-blue)'>工作流：</strong>生成大纲 → 逐页策划 → 逐页渲染
+              </p>
+              <button class='btn btn--primary' style='width: 100%; margin-top: 14px' type='button' aria-label='应用 AIPPT 技能'>
+                <span>应用此技能</span>
+                <svg viewBox='0 0 24 24' width='14' height='14' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M5 12 h14 M13 6 l6 6-6 6'/></svg>
+              </button>
+            </article>
+
+            <article class='skill-card' data-skill='auto-insight'>
+              <header class='skill-card__head'>
+                <span class='skill-card__icon skill-card__icon--search' aria-hidden='true'>
+                  <svg viewBox='0 0 24 24' width='22' height='22' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='7'/><path d='M21 21 l-4.3-4.3'/><path d='M11 8 v6 M8 11 h6'/></svg>
+                </span>
+                <span class='skill-card__status skill-card__status--ready'>就绪</span>
+              </header>
+              <h3 class='skill-card__name'>汽车情报挖掘 Agent</h3>
+              <p class='skill-card__desc'>连接自建汽车情报知识库，像情报分析师一样理解提问、按复杂度智能分流。</p>
+              <div style='display: flex; gap: 12px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-subtle); align-items: center; justify-content: space-between'>
+                <span class='chip chip--policy' style='font-size: 11px'>战略企划</span>
+                <span style='font-family: var(--ff-mono); font-size: 11px; color: var(--text-tertiary)'>Code: skill_auto_insight</span>
+              </div>
+              <div style='display: flex; gap: 12px; margin-top: 8px; font-family: var(--ff-mono); font-size: 11px; color: var(--text-tertiary); align-items: center'>
+                <svg viewBox='0 0 24 24' width='12' height='12' fill='none' stroke='currentColor' stroke-width='1.8'><path d='M12 5 v14 M5 12 l7 7 7-7'/></svg>
+                <span>128 人安装 · 调用 856 次</span>
+              </div>
+              <p style='font-size: 12px; color: var(--text-secondary); margin-top: 10px; line-height: 1.5'>
+                <strong style='color: var(--c-cockpit-blue)'>工作流：</strong>复杂度分级 → 快问快答 / 任务规划
+              </p>
+              <button class='btn btn--primary' style='width: 100%; margin-top: 14px' type='button' aria-label='应用汽车情报挖掘技能'>
+                <span>应用此技能</span>
+                <svg viewBox='0 0 24 24' width='14' height='14' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M5 12 h14 M13 6 l6 6-6 6'/></svg>
+              </button>
+            </article>
+
+            <article class='skill-card' data-skill='brief-weekly'>
+              <header class='skill-card__head'>
+                <span class='skill-card__icon skill-card__icon--reach' aria-hidden='true'>
+                  <svg viewBox='0 0 24 24' width='22' height='22' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M4 6 h16 M4 12 h12 M4 18 h16'/><circle cx='19' cy='12' r='1.4' fill='currentColor'/></svg>
+                </span>
+                <span class='skill-card__status skill-card__status--ready'>就绪</span>
+              </header>
+              <h3 class='skill-card__name'>知识库订阅简报</h3>
+              <p class='skill-card__desc'>面向「按日/按周订阅情报」的轻量简报技能：用一句话描述你想要的品牌/主题/技术。</p>
+              <div style='display: flex; gap: 12px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-subtle); align-items: center; justify-content: space-between'>
+                <span class='chip chip--policy' style='font-size: 11px'>战略企划</span>
+                <span style='font-family: var(--ff-mono); font-size: 11px; color: var(--text-tertiary)'>Code: skill_kb_brief</span>
+              </div>
+              <div style='display: flex; gap: 12px; margin-top: 8px; font-family: var(--ff-mono); font-size: 11px; color: var(--text-tertiary); align-items: center'>
+                <svg viewBox='0 0 24 24' width='12' height='12' fill='none' stroke='currentColor' stroke-width='1.8'><path d='M12 5 v14 M5 12 l7 7 7-7'/></svg>
+                <span>128 人安装 · 调用 218 次</span>
+              </div>
+              <p style='font-size: 12px; color: var(--text-secondary); margin-top: 10px; line-height: 1.5'>
+                <strong style='color: var(--c-cockpit-blue)'>工作流：</strong>理解订阅 → 检索近期增量 → 生成简报
+              </p>
+              <button class='btn btn--primary' style='width: 100%; margin-top: 14px' type='button' aria-label='应用知识库订阅简报技能'>
+                <span>应用此技能</span>
+                <svg viewBox='0 0 24 24' width='14' height='14' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M5 12 h14 M13 6 l6 6-6 6'/></svg>
+              </button>
+            </article>
+
+            <article class='skill-card' data-skill='compare-bench'>
+              <header class='skill-card__head'>
+                <span class='skill-card__icon skill-card__icon--multi' aria-hidden='true'>
+                  <svg viewBox='0 0 24 24' width='22' height='22' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M8 4 v16 M16 4 v16 M4 8 h8 M4 16 h8 M12 8 h8 M12 16 h8'/></svg>
+                </span>
+                <span class='skill-card__status skill-card__status--ready'>就绪</span>
+              </header>
+              <h3 class='skill-card__name'>竞品对标分析</h3>
+              <p class='skill-card__desc'>针对发布/上市新车做专业竞品对标：识别目标车型、澄清分析意图（角色 / 汇报目的 / 关注面）。</p>
+              <div style='display: flex; gap: 12px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-subtle); align-items: center; justify-content: space-between'>
+                <span class='chip chip--policy' style='font-size: 11px'>战略企划</span>
+                <span style='font-family: var(--ff-mono); font-size: 11px; color: var(--text-tertiary)'>Code: skill_bench</span>
+              </div>
+              <div style='display: flex; gap: 12px; margin-top: 8px; font-family: var(--ff-mono); font-size: 11px; color: var(--text-tertiary); align-items: center'>
+                <svg viewBox='0 0 24 24' width='12' height='12' fill='none' stroke='currentColor' stroke-width='1.8'><path d='M12 5 v14 M5 12 l7 7 7-7'/></svg>
+                <span>128 人安装 · 调用 642 次</span>
+              </div>
+              <p style='font-size: 12px; color: var(--text-secondary); margin-top: 10px; line-height: 1.5'>
+                <strong style='color: var(--c-cockpit-blue)'>工作流：</strong>识别车型 → 竞品建议 → 竞品与分歧分析
+              </p>
+              <button class='btn btn--primary' style='width: 100%; margin-top: 14px' type='button' aria-label='应用竞品对标分析技能'>
+                <span>应用此技能</span>
+                <svg viewBox='0 0 24 24' width='14' height='14' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M5 12 h14 M13 6 l6 6-6 6'/></svg>
+              </button>
+            </article>
+
+            <article class='skill-card' data-skill='weekly-review'>
+              <header class='skill-card__head'>
+                <span class='skill-card__icon skill-card__icon--fetch' aria-hidden='true'>
+                  <svg viewBox='0 0 24 24' width='22' height='22' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='6' width='18' height='14' rx='2'/><path d='M3 10 h18 M7 4 v4 M17 4 v4'/></svg>
+                </span>
+                <span class='skill-card__status skill-card__status--ready'>暂未开放</span>
+              </header>
+              <h3 class='skill-card__name'>汽车情报周刊</h3>
+              <p class='skill-card__desc'>按岗位预设（战略/市场/竞品/政策/技术/供应商/BD/自媒体选题）订阅关注对象与栏目。</p>
+              <div style='display: flex; gap: 12px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-subtle); align-items: center; justify-content: space-between'>
+                <span class='chip chip--policy' style='font-size: 11px'>战略企划</span>
+                <span style='font-family: var(--ff-mono); font-size: 11px; color: var(--text-tertiary)'>Code: skill_weekly</span>
+              </div>
+              <p style='font-size: 12px; color: var(--text-secondary); margin-top: 10px; line-height: 1.5'>
+                <strong style='color: var(--c-cockpit-blue)'>工作流：</strong>选岗位预设 → 确认订阅档案
+              </p>
+              <button class='btn btn--ghost' style='width: 100%; margin-top: 14px' type='button' disabled aria-label='汽车情报周刊暂未开放'>
+                <span>暂未开放</span>
+              </button>
+            </article>
+
+            <article class='skill-card' data-skill='patent'>
+              <header class='skill-card__head'>
+                <span class='skill-card__icon skill-card__icon--playwright' aria-hidden='true'>
+                  <svg viewBox='0 0 24 24' width='22' height='22' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M9 4 h6 v4 l3 3 v9 a2 2 0 0 1-2 2 H8 a2 2 0 0 1-2-2 V11 l3-3 z'/><path d='M9 11 h6 M9 15 h4'/></svg>
+                </span>
+                <span class='skill-card__status skill-card__status--ready'>暂未开放</span>
+              </header>
+              <h3 class='skill-card__name'>专利撰写工坊</h3>
+              <p class='skill-card__desc'>汽车行业专利撰写全流程工坊。按提问自动切换角色视角——技术点挖掘（发明人工程师视角）。</p>
+              <div style='display: flex; gap: 12px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-subtle); align-items: center; justify-content: space-between'>
+                <span class='chip chip--rights' style='font-size: 11px'>前端研发</span>
+                <span style='font-family: var(--ff-mono); font-size: 11px; color: var(--text-tertiary)'>Code: skill_patent</span>
+              </div>
+              <p style='font-size: 12px; color: var(--text-secondary); margin-top: 10px; line-height: 1.5'>
+                <strong style='color: var(--c-cockpit-blue)'>工作流：</strong>技术点挖掘 → 相似性检索确认
+              </p>
+              <button class='btn btn--ghost' style='width: 100%; margin-top: 14px' type='button' disabled aria-label='专利撰写工坊暂未开放'>
+                <span>暂未开放</span>
+              </button>
+            </article>
+
+            <article class='skill-card' data-skill='market-data'>
+              <header class='skill-card__head'>
+                <span class='skill-card__icon skill-card__icon--tavily' aria-hidden='true'>
+                  <svg viewBox='0 0 24 24' width='22' height='22' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M12 3 a9 9 0 0 1 9 9 M12 21 a9 9 0 0 1-9-9'/><path d='M3 12 h18'/></svg>
+                </span>
+                <span class='skill-card__status skill-card__status--ready'>暂未开放</span>
+              </header>
+              <h3 class='skill-card__name'>车市数据分析引擎</h3>
+              <p class='skill-card__desc'>对话式车市量化分析引擎。Preference 范式：竞品拆解量化、配置搭载率、销量弹性、份额迁移。</p>
+              <div style='display: flex; gap: 12px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-subtle); align-items: center; justify-content: space-between'>
+                <span class='chip chip--policy' style='font-size: 11px'>战略企划</span>
+                <span style='font-family: var(--ff-mono); font-size: 11px; color: var(--text-tertiary)'>Code: skill_quant</span>
+              </div>
+              <p style='font-size: 12px; color: var(--text-secondary); margin-top: 10px; line-height: 1.5'>
+                <strong style='color: var(--c-cockpit-blue)'>工作流：</strong>锁定主体与意图 → 确定性拉数
+              </p>
+              <button class='btn btn--ghost' style='width: 100%; margin-top: 14px' type='button' disabled aria-label='车市数据分析引擎暂未开放'>
+                <span>暂未开放</span>
+              </button>
+            </article>
+
+            <article class='skill-card' data-skill='propagation'>
+              <header class='skill-card__head'>
+                <span class='skill-card__icon skill-card__icon--tag' aria-hidden='true'>
+                  <svg viewBox='0 0 24 24' width='22' height='22' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M3 12 c4-8 14-8 18 0 c-4 8-14 8-18 0 z'/><circle cx='12' cy='12' r='2.5'/></svg>
+                </span>
+                <span class='skill-card__status skill-card__status--ready'>就绪</span>
+              </header>
+              <h3 class='skill-card__name'>车型传播复盘</h3>
+              <p class='skill-card__desc'>针对汽车品牌/车型的传播事件做专业复盘：给定主体与事件（新车上传播/危机舆情/营销活动）。</p>
+              <div style='display: flex; gap: 12px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-subtle); align-items: center; justify-content: space-between'>
+                <span class='chip chip--policy' style='font-size: 11px'>战略企划</span>
+                <span style='font-family: var(--ff-mono); font-size: 11px; color: var(--text-tertiary)'>Code: skill_propagation</span>
+              </div>
+              <div style='display: flex; gap: 12px; margin-top: 8px; font-family: var(--ff-mono); font-size: 11px; color: var(--text-tertiary); align-items: center'>
+                <svg viewBox='0 0 24 24' width='12' height='12' fill='none' stroke='currentColor' stroke-width='1.8'><path d='M12 5 v14 M5 12 l7 7 7-7'/></svg>
+                <span>128 人安装 · 调用 287 次</span>
+              </div>
+              <p style='font-size: 12px; color: var(--text-secondary); margin-top: 10px; line-height: 1.5'>
+                <strong style='color: var(--c-cockpit-blue)'>工作流：</strong>主体核实与研究议题确认 → 数据拉取
+              </p>
+              <button class='btn btn--primary' style='width: 100%; margin-top: 14px' type='button' aria-label='应用车型传播复盘技能'>
+                <span>应用此技能</span>
+                <svg viewBox='0 0 24 24' width='14' height='14' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M5 12 h14 M13 6 l6 6-6 6'/></svg>
+              </button>
+            </article>
+          </div>
+        </section>
+
+      </div>
+      <!-- ============================================================
+           VIEW 7: 插件 plugins — 4 统计 + 接入 + 4 底座详情 + 同步活动时间线
+           ============================================================ -->
+      <div class='view' data-view='plugins' hidden>
+
+        <section class='plugins' aria-labelledby='plugins-title'>
+          <header class='section-head'>
+            <div class='section-head__text'>
+              <h2 id='plugins-title' class='section-head__title'>数据底座 / Plugins 管理</h2>
+              <p class='section-head__desc'>四类数据底座是所有上层情报与决策的源头，状态与更新频率实时可见。</p>
+            </div>
+            <div class='section-head__actions'>
+              <button class='chip-btn' type='button' aria-label='查看数据底座接入文档'>接入文档</button>
+              <button class='btn btn--primary' type='button' style='margin-left: 8px' aria-label='接入新数据源'>
+                <svg viewBox='0 0 24 24' width='14' height='14' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M12 5 v14 M5 12 h14'/></svg>
+                <span>接入新数据源</span>
+              </button>
+            </div>
+          </header>
+
+          <div class='plugins__grid' style='grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom: 24px'>
+            <div class='plugin-card plugin-card--policy'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>实时同步底座</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>活跃</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>数量</dt><dd style='font-family: var(--ff-mono); font-weight: 700; color: var(--c-growth-green); font-size: 22px'>2 / 4</dd></div>
+                <div><dt>平均时延</dt><dd>12 秒</dd></div>
+              </div>
+            </div>
+            <div class='plugin-card plugin-card--rights'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>每日同步</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>定时</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>数量</dt><dd style='font-family: var(--ff-mono); font-weight: 700; color: var(--text-primary); font-size: 22px'>1 / 4</dd></div>
+                <div><dt>下次同步</dt><dd>02:00</dd></div>
+              </div>
+            </div>
+            <div class='plugin-card plugin-card--newcar'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>每周同步</h3></div>
+                <span class='plugin-card__status'><span class='plugin-card__dot'></span>排程</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>数量</dt><dd style='font-family: var(--ff-mono); font-weight: 700; color: var(--text-primary); font-size: 22px'>1 / 4</dd></div>
+                <div><dt>下次同步</dt><dd>周一 03:00</dd></div>
+              </div>
+            </div>
+            <div class='plugin-card plugin-card--wom'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>字段总数</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>统计</span>
+              </header>
+              <div class='plugin-card__meta' style='grid-template-columns: 1fr 1fr'>
+                <div><dt>合计</dt><dd style='font-family: var(--ff-mono); font-weight: 700; color: var(--text-primary); font-size: 22px'>514</dd></div>
+                <div><dt>最近新增</dt><dd>+12 本周</dd></div>
+              </div>
+            </div>
+          </div>
+
+          <div class='plugins__grid'>
+            <article class='plugin-card plugin-card--policy' data-plugin='policy'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'>
+                  <h3 class='plugin-card__title'>政策数据底座</h3>
+                </div>
+                <span class='plugin-card__status plugin-card__status--live'>
+                  <span class='plugin-card__dot' aria-hidden='true'></span>实时同步
+                </span>
+              </header>
+              <p class='plugin-card__desc'>聚合国务院 / 部委 / 地方政策原文、摘要与关联文件。</p>
+              <dl class='plugin-card__meta'>
+                <div><dt>来源</dt><dd>国务院 · 各部委 · 地方政府公开门户</dd></div>
+                <div><dt>更新频率</dt><dd>事件触发 + 每 30 分钟轮询</dd></div>
+                <div><dt>覆盖范围</dt><dd>全国 31 省 / 重点城市</dd></div>
+                <div><dt>字段数</dt><dd>128</dd></div>
+              </dl>
+              <div class='plugin-card__foot'>
+                <span class='plugin-card__last'>最近更新 · 3 分钟前</span>
+                <div style='display:flex; gap:8px'>
+                  <button class='btn btn--ghost' type='button' aria-label='查看政策数据底座配置'>配置</button>
+                  <button class='btn btn--primary' type='button' aria-label='查看政策数据底座'>查看</button>
+                </div>
+              </div>
+            </article>
+
+            <article class='plugin-card plugin-card--rights' data-plugin='rights'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'>
+                  <h3 class='plugin-card__title'>权益数据底座</h3>
+                </div>
+                <span class='plugin-card__status'>
+                  <span class='plugin-card__dot' aria-hidden='true'></span>每日同步
+                </span>
+              </header>
+              <p class='plugin-card__desc'>厂商官方权益、金融方案、置换补贴、地区专项礼包。</p>
+              <dl class='plugin-card__meta'>
+                <div><dt>来源</dt><dd>厂家官网 · 经销商系统 · 公开新闻</dd></div>
+                <div><dt>更新频率</dt><dd>每日 02:00 全量同步</dd></div>
+                <div><dt>覆盖范围</dt><dd>主流品牌 80+ · 车型 1,200+</dd></div>
+                <div><dt>字段数</dt><dd>96</dd></div>
+              </dl>
+              <div class='plugin-card__foot'>
+                <span class='plugin-card__last'>最近更新 · 14 小时前</span>
+                <div style='display:flex; gap:8px'>
+                  <button class='btn btn--ghost' type='button' aria-label='查看权益数据底座配置'>配置</button>
+                  <button class='btn btn--primary' type='button' aria-label='查看权益数据底座'>查看</button>
+                </div>
+              </div>
+            </article>
+
+            <article class='plugin-card plugin-card--newcar' data-plugin='newcar'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'>
+                  <h3 class='plugin-card__title'>新车数据底座</h3>
+                </div>
+                <span class='plugin-card__status plugin-card__status--live'>
+                  <span class='plugin-card__dot' aria-hidden='true'></span>实时同步
+                </span>
+              </header>
+              <p class='plugin-card__desc'>上市公告、工信部公告、申报图、配置表、定价与权益。</p>
+              <dl class='plugin-card__meta'>
+                <div><dt>来源</dt><dd>工信部 · 企业官网 · 媒体首测</dd></div>
+                <div><dt>更新频率</dt><dd>事件触发 + 每小时轮询</dd></div>
+                <div><dt>覆盖范围</dt><dd>近 36 个月新车型 · 487 款</dd></div>
+                <div><dt>字段数</dt><dd>214</dd></div>
+              </dl>
+              <div class='plugin-card__foot'>
+                <span class='plugin-card__last'>最近更新 · 22 分钟前</span>
+                <div style='display:flex; gap:8px'>
+                  <button class='btn btn--ghost' type='button' aria-label='查看新车数据底座配置'>配置</button>
+                  <button class='btn btn--primary' type='button' aria-label='查看新车数据底座'>查看</button>
+                </div>
+              </div>
+            </article>
+
+            <article class='plugin-card plugin-card--wom' data-plugin='wom'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'>
+                  <h3 class='plugin-card__title'>口碑数据底座</h3>
+                </div>
+                <span class='plugin-card__status'>
+                  <span class='plugin-card__dot' aria-hidden='true'></span>每周同步
+                </span>
+              </header>
+              <p class='plugin-card__desc'>论坛、短视频、社交媒体的评论聚合与情感打分。</p>
+              <dl class='plugin-card__meta'>
+                <div><dt>来源</dt><dd>汽车之家 · 懂车帝 · 微博 · 抖音 · B站</dd></div>
+                <div><dt>更新频率</dt><dd>每周一全量重新评分</dd></div>
+                <div><dt>覆盖范围</dt><dd>1,260 万条/月 · 主流 220 款车型</dd></div>
+                <div><dt>字段数</dt><dd>76</dd></div>
+              </dl>
+              <div class='plugin-card__foot'>
+                <span class='plugin-card__last'>最近更新 · 2 天前</span>
+                <div style='display:flex; gap:8px'>
+                  <button class='btn btn--ghost' type='button' aria-label='查看口碑数据底座配置'>配置</button>
+                  <button class='btn btn--primary' type='button' aria-label='查看口碑数据底座'>查看</button>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <header class='section-head' style='margin-top: 32px'>
+            <div class='section-head__text'>
+              <h3 class='section-head__title' style='font-size: 18px'>同步活动时间线 · 近 7 天</h3>
+              <p class='section-head__desc'>数据底座的更新频率与状态一目了然。</p>
+            </div>
+          </header>
+
+          <div style='background: var(--bg-surface, #FFFFFF); border: 1px solid var(--border-subtle, #E2E8F0); border-radius: 14px; padding: 24px; margin-top: 12px'>
+            <div style='display: flex; flex-direction: column; gap: 12px'>
+              <div style='display: flex; align-items: center; gap: 12px'>
+                <span style='display:inline-block; width: 110px; color: var(--text-tertiary); font-family: monospace; font-size: 12px'>3 分钟前</span>
+                <span class='plugin-card__dot' style='display:inline-block; width:8px; height:8px; border-radius:50%; background: var(--c-growth-green)'></span>
+                <span style='font-weight: 600; color: var(--text-primary); width: 140px'>政策</span>
+                <span style='color: var(--text-secondary); font-size: 13px; flex: 1'>新增 6 条政策 · 工信部、商务部、以旧换新专项</span>
+              </div>
+              <div style='display: flex; align-items: center; gap: 12px'>
+                <span style='display:inline-block; width: 110px; color: var(--text-tertiary); font-family: monospace; font-size: 12px'>22 分钟前</span>
+                <span class='plugin-card__dot' style='display:inline-block; width:8px; height:8px; border-radius:50%; background: var(--c-growth-green)'></span>
+                <span style='font-weight: 600; color: var(--text-primary); width: 140px'>新车</span>
+                <span style='color: var(--text-secondary); font-size: 13px; flex: 1'>新增 2 款车型 · 申报图与配置表已入库</span>
+              </div>
+              <div style='display: flex; align-items: center; gap: 12px'>
+                <span style='display:inline-block; width: 110px; color: var(--text-tertiary); font-family: monospace; font-size: 12px'>14 小时前</span>
+                <span class='plugin-card__dot' style='display:inline-block; width:8px; height:8px; border-radius:50%; background: var(--c-info-cyan)'></span>
+                <span style='font-weight: 600; color: var(--text-primary); width: 140px'>权益</span>
+                <span style='color: var(--text-secondary); font-size: 13px; flex: 1'>每日 02:00 全量同步 · 共 312 项更新</span>
+              </div>
+              <div style='display: flex; align-items: center; gap: 12px'>
+                <span style='display:inline-block; width: 110px; color: var(--text-tertiary); font-family: monospace; font-size: 12px'>2 天前</span>
+                <span class='plugin-card__dot' style='display:inline-block; width:8px; height:8px; border-radius:50%; background: var(--c-warning-amber)'></span>
+                <span style='font-weight: 600; color: var(--text-primary); width: 140px'>口碑</span>
+                <span style='color: var(--text-secondary); font-size: 13px; flex: 1'>周一全量重新评分 · 86% 完成（增量进行中）</span>
+              </div>
+              <div style='display: flex; align-items: center; gap: 12px'>
+                <span style='display:inline-block; width: 110px; color: var(--text-tertiary); font-family: monospace; font-size: 12px'>3 天前</span>
+                <span class='plugin-card__dot' style='display:inline-block; width:8px; height:8px; border-radius:50%; background: var(--c-info-cyan)'></span>
+                <span style='font-weight: 600; color: var(--text-primary); width: 140px'>权益</span>
+                <span style='color: var(--text-secondary); font-size: 13px; flex: 1'>每日 02:00 全量同步 · 共 286 项更新</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <footer class='footer' role='contentinfo'>
+        <div class='footer__left'>
+          <span class='footer__copy'>© 2026 乘用车市场战略决策AI智能体系统</span>
+          <span class='footer__sep' aria-hidden='true'>·</span>
+          <span class='footer__usage'>仅限企业内部业务使用</span>
+          <span class='footer__sep' aria-hidden='true'>·</span>
+          <span class='footer__model'>当前模型：MiniMax-M3</span>
+        </div>
+        <div class='footer__right'>
+          <span class='footer__mode' aria-label='当前运行模式：实时'>
+            <span class='footer__mode-dot' aria-hidden='true'></span>MODE: LIVE
+          </span>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <div class='toast-container' id='toast-container' aria-live='polite' aria-atomic='true'></div>
+
+  <script src='/assets/home.js' defer></script>
+</body>
+</html>
