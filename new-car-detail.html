@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>新车明细 · 乘用车市场战略决策AI智能体系统</title>
+<style>
+  :root{
+    --bg:#eef4fc; --ink:#20293a; --ink-2:#5b6b7c; --ink-3:#94a3b8;
+    --line:#e6edf6; --brand:#2f6bff;
+    --grad:linear-gradient(135deg,#3f7bfa,#6aa2ff);
+    --teal:#12b8a6; --orange:#ff8a3c; --red:#ef4d56; --green:#18b566; --detail-accent:#f97316;
+    --radius:16px; --shadow:0 8px 28px rgba(47,107,255,.10);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;font-size:14px;line-height:1.55}
+  a{color:var(--brand);text-decoration:none}
+  .topbar{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:18px;padding:0 32px;height:60px}
+  .topbar__logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px}
+  .topbar__logo i{width:26px;height:26px;border-radius:8px;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:13px}
+  .topbar__back{color:var(--ink-2);font-weight:600}
+  .topbar__back:hover{color:var(--brand)}
+  .topbar__title{font-weight:700;font-size:15px}
+  .topbar__sub{color:var(--ink-3);font-size:12px}
+  .badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--teal);background:#e7fbf7;border-radius:20px;padding:2px 10px;font-weight:600}
+  .badge::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--teal)}
+  .badge--loading{color:var(--brand);background:#eef4ff}
+  .badge--loading::before{background:var(--brand);animation:pulse 1.2s ease-in-out infinite}
+  .badge--offline{color:#a65d20;background:#fff5e9}
+  .badge--offline::before{background:var(--orange)}
+  @keyframes pulse{50%{opacity:.35;transform:scale(.75)}}
+  .wrap{max-width:1280px;margin:0 auto;padding:10px 28px 56px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+
+  /* ── Hero band 威尔森式浅蓝渐变横幅 ── */
+  .band{background:linear-gradient(135deg,#e8f1ff 0%,#f5f9ff 45%,#eaf4ff 100%);border-bottom:1px solid #dbe7f7}
+  .band__inner{max-width:1280px;margin:0 auto;padding:34px 28px 40px}
+  .band__eyebrow{color:var(--brand);font-weight:700;font-size:13px;letter-spacing:2px}
+  .band__title{font-size:30px;font-weight:800;margin:6px 0 4px}
+  .band__title em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .band__desc{color:var(--ink-2);font-size:13px}
+
+  /* ── 大数字统计（参考站 300+/3000+/10年+ 风格） ── */
+  .stats{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;padding:20px;margin:-30px 0 16px;position:relative}
+  .stat{text-align:center;padding:18px 8px;border-radius:14px;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow);transition:.2s}
+  .stat:hover{transform:translateY(-3px)}
+  .stat__value{font-size:30px;font-weight:800;color:var(--brand);font-variant-numeric:tabular-nums}
+  .stat__value::after{content:"";display:block;width:22px;height:3px;border-radius:2px;background:var(--grad);margin:6px auto 0}
+  .stat__label{color:var(--ink-2);font-size:12px;margin-top:6px}
+  .stat__hint{color:var(--ink-3);font-size:11px;margin-top:1px}
+
+  /* ── 搜索区 ── */
+  .search{padding:18px 20px;margin-bottom:16px;display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px}
+  .chip-group{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .chip-group__label{color:var(--ink-2);font-size:12px}
+  .chip{border:1px solid var(--line);background:#fff;border-radius:20px;padding:5px 16px;cursor:pointer;font-size:13px;color:var(--ink-2);transition:.15s}
+  .chip:hover{border-color:var(--brand);color:var(--brand)}
+  button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid rgba(47,107,255,.22);outline-offset:2px}
+  .chip.is-on{background:var(--grad);border-color:transparent;color:#fff;font-weight:600;box-shadow:0 4px 12px rgba(47,107,255,.25)}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:#fff}
+  .seg button{border:0;background:transparent;padding:7px 18px;cursor:pointer;font-size:13px;color:var(--ink-2)}
+  .seg button.is-on{background:#eef4ff;color:var(--brand);font-weight:700}
+  .field{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:9px;padding:7px 11px;background:#fff}
+  .field label{color:var(--ink-3);font-size:12px}
+  .field input{border:0;outline:0;font:inherit;color:var(--ink);width:118px}
+  .btn{border:0;border-radius:9px;padding:9px 26px;cursor:pointer;font-weight:600;font-size:13px;background:var(--grad);color:#fff;transition:.15s;box-shadow:0 4px 14px rgba(47,107,255,.28)}
+  .btn:hover{filter:brightness(1.06)}
+  .btn--ghost{background:#fff;color:var(--ink-2);border:1px solid var(--line);box-shadow:none}
+
+  /* ── 明细表 ── */
+  .table-card{overflow:hidden}
+  .table-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line)}
+  .table-head h3{font-size:16px;position:relative;padding-left:12px}
+  .table-head h3::before{content:"";position:absolute;left:0;top:4px;bottom:4px;width:4px;border-radius:2px;background:var(--grad)}
+  .table-head .count{color:var(--ink-3);font-size:12px;margin-left:10px;font-weight:400}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  thead th{background:#f4f8fe;color:#3a4a5e;font-weight:600;text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+  tbody td{padding:12px 14px;border-bottom:1px solid #eef3fa;white-space:nowrap}
+  tbody tr:hover{background:#f4f8ff}
+  .tag{display:inline-block;border-radius:7px;padding:2px 11px;font-size:12px;font-weight:600}
+  .tag--全新{background:#e7f9ef;color:var(--green)}
+  .tag--换代{background:#fdeef2;color:var(--red)}
+  .tag--年型{background:#eef4ff;color:var(--brand)}
+  .tag--增补{background:#fff5e9;color:var(--orange)}
+  .link-btn{background:var(--grad);border:0;color:#fff;cursor:pointer;font-size:12px;font-weight:600;padding:5px 16px;border-radius:18px;transition:.15s}
+  .link-btn:hover{filter:brightness(1.08);box-shadow:0 4px 12px rgba(47,107,255,.3)}
+  .empty{padding:48px;text-align:center;color:var(--ink-3)}
+  .foot{display:flex;justify-content:space-between;padding:13px 20px;color:var(--ink-3);font-size:12px}
+  .pager{display:flex;align-items:center;gap:6px;color:var(--ink-2)}
+  .pager button{min-width:30px;height:28px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink-2);cursor:pointer}
+  .pager button:hover:not(:disabled){border-color:var(--brand);color:var(--brand)}
+  .pager button:disabled{opacity:.4;cursor:not-allowed}
+  .aggregate-list{max-width:240px;white-space:normal;line-height:1.5;color:var(--ink-2)}
+  .planned-card{margin-top:18px}
+  .planned-table td{vertical-align:top}
+  .planned-table .model-cell{font-weight:700;color:var(--ink);min-width:150px}
+  .planned-table .note-cell{min-width:210px;max-width:320px;white-space:normal;color:var(--ink-2);line-height:1.55}
+  .status-tag{display:inline-flex;border-radius:999px;padding:2px 9px;font-size:11px;font-weight:700;background:#eef4ff;color:var(--brand)}
+  .status-tag--预售,.status-tag--预售中,.status-tag--即将预售{background:#fff4e8;color:#d96b12}
+  .status-tag--上公告{background:#e9f8f3;color:#0c8c68}
+  .status-tag--概念车,.status-tag--车展首发{background:#f3efff;color:#7654c8}
+
+  /* ══ 二级页 ══ */
+  #modelPage{display:none}
+  .crumb{color:var(--ink-3);font-size:12px;margin-bottom:12px}
+  .hero{overflow:hidden;margin-bottom:16px}
+  .hero__img{height:230px;position:relative;overflow:hidden;background:linear-gradient(125deg,#164dca 0%,#3677f1 48%,#8ab6ff 100%)}
+  .hero__img::before{content:"";position:absolute;width:420px;height:420px;border:1px solid rgba(255,255,255,.2);border-radius:50%;right:-40px;top:-210px;box-shadow:0 0 0 52px rgba(255,255,255,.05),0 0 0 104px rgba(255,255,255,.04)}
+  .hero__img.has-photo::before{width:auto;height:auto;inset:0;border:0;border-radius:0;box-shadow:none;background:linear-gradient(90deg,rgba(18,30,52,.72) 0%,rgba(18,30,52,.34) 36%,rgba(18,30,52,0) 68%);z-index:1}
+  .hero__photo{display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 58%}
+  .hero__img.has-photo .hero__photo{display:block}
+  .hero__visual{position:absolute;inset:0;padding:34px 42px;display:flex;flex-direction:column;justify-content:flex-end;color:#fff}
+  .hero__img.has-photo .hero__visual{z-index:2;text-shadow:0 1px 12px rgba(0,0,0,.28)}
+  .hero__visual-kicker{font-size:12px;letter-spacing:2px;opacity:.72}
+  .hero__visual-name{font-size:34px;line-height:1.2;font-weight:800;margin-top:7px;max-width:720px}
+  .hero__visual-meta{font-size:13px;margin-top:9px;opacity:.78}
+  .hero__body{padding:18px 24px 16px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
+  .hero__title{font-size:24px;font-weight:800}
+  .hero__title small{font-size:13px;color:var(--ink-3);font-weight:400;margin-left:10px}
+  .hero__price{color:var(--detail-accent);font-size:20px;font-weight:800;margin:4px 0 0}
+  .hero__price span{font-size:12px;color:var(--ink-3);font-weight:400;margin-left:8px}
+  .hero__facts{display:flex;flex-wrap:wrap;gap:8px}
+  .fact{background:#f2f7ff;border:1px solid #dfe9fb;border-radius:9px;padding:7px 13px;font-size:12px;color:var(--ink-2)}
+  .fact b{color:var(--brand);font-weight:700}
+  thead .cfg-col{min-width:200px;white-space:normal;line-height:1.4;background:linear-gradient(180deg,#f2f7ff,#fff)}
+  .cfg-price{color:var(--detail-accent);font-weight:800}
+
+  .sales{padding:20px;margin-bottom:16px}
+  .sales h3,.koubei h3{font-size:16px;margin-bottom:4px;position:relative;padding-left:12px}
+  .sales h3::before,.koubei h3::before{content:"";position:absolute;left:0;top:5px;bottom:5px;width:4px;border-radius:2px;background:var(--grad)}
+  .sub{color:var(--ink-3);font-size:12px;margin-bottom:14px;padding-left:16px}
+  .chart{width:100%}
+  .bar{fill:#4f83f7;opacity:.95}
+  .axis{font-size:11px;fill:#94a3b8}
+
+  .koubei{padding:20px}
+  .kb-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px}
+  .kb-source{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+  .kb-source span{border:1px solid #dfe8f5;background:#f7faff;color:var(--ink-2);border-radius:999px;padding:3px 10px;font-size:11px}
+  .kb-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .kb-panel{border:1px solid var(--line);border-radius:13px;padding:16px;background:#fbfdff}
+  .kb-panel__title{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;font-weight:800}
+  .kb-panel__title small{font-weight:400;color:var(--ink-3);font-size:11px}
+  .kb-panel--positive .kb-panel__title{color:#0b8f70}
+  .kb-panel--negative .kb-panel__title{color:#d96812}
+  .kb-insight{padding:12px 0;border-top:1px solid #edf2f8}
+  .kb-insight:first-of-type{border-top:0;padding-top:0}
+  .kb-insight__top{display:grid;grid-template-columns:24px 1fr auto;align-items:center;gap:8px}
+  .kb-rank{width:22px;height:22px;display:grid;place-items:center;border-radius:7px;background:#edf3fb;color:var(--ink-2);font-size:11px;font-weight:800}
+  .kb-label{font-weight:700;color:var(--ink)}
+  .kb-share{font-weight:800;font-variant-numeric:tabular-nums}
+  .kb-panel--positive .kb-share{color:#0b8f70}
+  .kb-panel--negative .kb-share{color:#d96812}
+  .kb-track{height:6px;background:#edf2f7;border-radius:8px;overflow:hidden;margin:8px 0 9px 32px}
+  .kb-fill{height:100%;border-radius:8px}
+  .kb-panel--positive .kb-fill{background:linear-gradient(90deg,#2ac6a0,#0b9d78)}
+  .kb-panel--negative .kb-fill{background:linear-gradient(90deg,#ffb15e,#f97316)}
+  .kb-secondary{display:flex;gap:6px;flex-wrap:wrap;margin-left:32px}
+  .kb-secondary span{background:#fff;border:1px solid #e3eaf3;border-radius:6px;padding:2px 7px;color:var(--ink-2);font-size:11px}
+  .kb-method{margin-top:14px;padding-top:12px;border-top:1px dashed #dce5f1;color:var(--ink-3);font-size:11px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .module-state{min-height:150px;border:1px dashed #cddcf2;border-radius:12px;background:#f8fbff;display:grid;place-items:center;text-align:center;padding:24px;color:var(--ink-2)}
+  .module-state strong{display:block;color:var(--ink);font-size:15px;margin-bottom:5px}
+  .module-state span{display:block;max-width:620px;color:var(--ink-3);font-size:12px}
+
+  @media (max-width:960px){
+    .stats{grid-template-columns:repeat(3,1fr)}
+    .hero__img{height:170px}
+    .kb-grid{grid-template-columns:1fr}
+  }
+  @media (max-width:640px){
+    .topbar{height:auto;min-height:56px;padding:10px 16px;gap:10px;flex-wrap:wrap}
+    .topbar__sub{display:none}
+    .band__inner{padding:26px 18px 42px}
+    .band__title{font-size:25px}
+    .wrap{padding:10px 12px 36px}
+    .stats{grid-template-columns:repeat(2,1fr);padding:12px;gap:8px}
+    .stat{padding:13px 6px}.stat__value{font-size:24px}
+    .search{padding:14px;gap:10px}
+    .field{width:100%}.field input{flex:1;width:auto}
+    .foot{align-items:flex-start;gap:10px;flex-direction:column}
+    .hero__visual{padding:24px}.hero__visual-name{font-size:25px}
+    .hero__body{align-items:flex-start;flex-direction:column}
+    .kb-head{flex-direction:column}.kb-source{justify-content:flex-start}
+    .planned-table .note-cell{min-width:180px}
+  }
+</style>
+
+</head>
+<body>
+
+<!-- ══════════ 一级页：新车明细 ══════════ -->
+<div id="listPage">
+  <header class="topbar">
+    <span class="topbar__logo"><i>N</i>新车明细 DaaS</span>
+    <span class="topbar__sub">乘用车新车监测 · 上市公告 / 工信部 / 申报图 / 配置</span>
+    <span style="flex:1"></span>
+    <span class="badge badge--loading" id="dataBadge"><span id="dataBadgeText">连接数据</span></span>
+    <a class="topbar__back" href="/">返回主页</a>
+  </header>
+  <div class="band"><div class="band__inner">
+    <div class="band__eyebrow">NEW VEHICLE INTELLIGENCE</div>
+    <div class="band__title">新车一览 <em>· 款型级情报</em></div>
+    <div class="band__desc">覆盖上市年型 / 全新 / 换代 / 增补 / 改款款型，支持按车型、款型与上市时间多维检索</div>
+  </div></div>
+
+  <main class="wrap">
+    <!-- 统计 -->
+    <section class="card stats" id="statsBar"></section>
+
+    <!-- 搜索 -->
+    <section class="card search">
+      <div class="chip-group">
+        <span class="chip-group__label">属性</span>
+        <button class="chip is-on" data-attr="">全部</button>
+        <button class="chip" data-attr="年型">年型</button>
+        <button class="chip" data-attr="增补">增补</button>
+        <button class="chip" data-attr="换代">换代</button>
+        <button class="chip" data-attr="全新">全新</button>
+        <button class="chip" data-attr="改款">改款</button>
+      </div>
+      <div class="seg" id="kwSeg">
+        <button class="is-on" data-kw="车型">按车型</button>
+        <button data-kw="款型">按款型</button>
+      </div>
+      <div class="field">
+        <label id="kwLabel">车型</label>
+        <input id="kwInput" type="text" placeholder="输入关键字">
+      </div>
+      <div class="field"><label>开始</label><input id="dateFrom" type="date" value="2026-01-01"></div>
+      <div class="field"><label>结束</label><input id="dateTo" type="date" value="2026-12-31"></div>
+      <button class="btn" id="searchBtn">查询</button>
+      <button class="btn btn--ghost" id="resetBtn">重置</button>
+    </section>
+
+    <!-- 明细 -->
+    <section class="card table-card">
+      <div class="table-head">
+        <h3>新车一览<span class="count" id="rowCnt"></span></h3>
+        <span style="color:var(--ink-3);font-size:12px">按上市时间倒序</span>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr>
+            <th>#</th><th>上市时间</th><th>属性</th><th>品牌</th><th>车型</th>
+            <th>款型ID</th><th>类别</th><th>级别</th><th>车系</th><th>企业</th><th>能源</th><th style="text-align:right">操作</th>
+          </tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="foot"><span id="footNote">正在连接真实数据，当前显示 16 条本地示例</span><div class="pager" id="pager"></div></div>
+    </section>
+
+    <!-- 规划新车 -->
+    <section class="card table-card planned-card" id="plannedSection">
+      <div class="table-head">
+        <h3>规划新车<span class="count" id="plannedCnt">（加载中）</span></h3>
+        <span style="color:var(--ink-3);font-size:12px">含规划 / 上公告 / 预售 / 概念车</span>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="planned-table">
+          <thead><tr>
+            <th>#</th><th>预计上市</th><th>属性</th><th>品牌</th><th>车型 / 代号</th>
+            <th>状态</th><th>类别</th><th>级别</th><th>能源</th><th>价格段</th><th>企业</th><th>核心卖点 / 备注</th>
+          </tr></thead>
+          <tbody id="plannedTbody"><tr><td colspan="12" class="empty">正在加载规划新车数据…</td></tr></tbody>
+        </table>
+      </div>
+      <div class="foot"><span id="plannedFoot">数据加载中</span><div class="pager" id="plannedPager"></div></div>
+    </section>
+  </main>
+</div>
+
+<!-- ══════════ 二级页：单车详情 ══════════ -->
+<div id="modelPage">
+  <header class="topbar">
+    <span class="topbar__logo"><i>N</i>车型详情</span>
+    <span class="topbar__sub" id="crumbTitle">车型详情</span>
+    <span style="flex:1"></span>
+    <span class="badge">真实档案</span>
+    <a class="topbar__back" href="javascript:closeModel()">返回新车一览</a>
+  </header>
+
+  <main class="wrap">
+    <div class="crumb" id="crumbPath">新车明细 / 问界M9 2026款 增程 Max+版</div>
+
+    <!-- 头部：横向大图 + 款型列式配置（每一列是一个款型） -->
+    <section class="card hero">
+      <div class="hero__img">
+        <img class="hero__photo" id="modelHeroImage" alt="">
+        <div class="hero__visual">
+          <div class="hero__visual-kicker">VEHICLE PROFILE · 真实款型档案</div>
+          <div class="hero__visual-name" id="modelVisualName">车型名称</div>
+          <div class="hero__visual-meta" id="modelVisualMeta">品牌 · 类别 · 级别</div>
+        </div>
+      </div>
+      <div class="hero__body">
+        <div class="hero__title" id="modelTitle">车型名称<small id="modelMeta"></small></div>
+        <div class="hero__price"><span>当前档案</span><b>基础款型信息</b><span>价格与详细配置待接入</span></div>
+        <div class="hero__facts" id="modelFacts"></div>
+      </div>
+      <!-- 款型列式配置：每一列一个款型，列头含 ＋竞品对比 -->
+      <div style="overflow-x:auto;border-top:1px solid var(--line)">
+        <table>
+          <thead><tr id="cfgHead"><th style="min-width:130px;color:var(--ink-2)">配置项</th></tr></thead>
+          <tbody id="cfgBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 上市后逐月销量 -->
+    <section class="card sales">
+      <h3>上市后逐月销量</h3>
+      <div class="sub">数据模块状态</div>
+      <div class="module-state"><div><strong>销量数据待接入</strong><span>当前 PostgreSQL 表仅包含新车款型档案，暂不展示虚构销量。后续接入月度销量表后可按上市月份自动生成趋势。</span></div></div>
+    </section>
+
+    <!-- 口碑 -->
+    <section class="card koubei">
+      <h3>口碑</h3>
+      <div class="sub">车型级一级标签声量 TOP3 · 二级标签为 POC 文本归纳</div>
+      <div id="reputationContent" class="module-state"><div><strong>正在加载车型口碑</strong><span>正在关联懂车帝与汽车之家口碑明细。</span></div></div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ── demo 数据（兜底，demo.xlsx） ── */
+  const DEMO_ROWS = [
+    [70962,2026,1,'现代','胜达','年型','SUV','B','韩系','北京现代','传统燃料',7],
+    [70963,2026,1,'现代','胜达','年型','SUV','B','韩系','北京现代','传统燃料',12],
+    [70964,2026,1,'现代','胜达','年型','SUV','B','韩系','北京现代','传统燃料',19],
+    [72647,2026,1,'本田','飞度','增补','轿车','A0','日系','广汽本田','传统燃料',21],
+    [72704,2026,1,'奥迪','奥迪Q5L','换代','SUV','B','德系','一汽-大众','常规混合动力',23],
+    [73741,2026,1,'猛士','猛士917','年型','SUV','D','自主','猛士科技','增程式',26],
+    [73859,2026,1,'五菱','星光560','全新','SUV','A','自主','上汽通用五菱','传统燃料',8],
+    [73861,2026,1,'五菱','星光560新能源','全新','SUV','A','自主','上汽通用五菱','纯电动',14],
+    [73862,2026,1,'五菱','星光560新能源','全新','SUV','A','自主','上汽通用五菱','插电式',17],
+    [74686,2026,1,'小鹏','小鹏G7','增补','SUV','B','自主','小鹏汽车','增程式',22],
+    [75159,2026,1,'小鹏','小鹏P7+','增补','轿车','C','自主','小鹏汽车','增程式',25],
+    [75164,2026,1,'奥迪','奥迪Q5L','换代','SUV','B','德系','一汽-大众','常规混合动力',28],
+    [75170,2026,1,'小鹏','小鹏G9','年型','SUV','C','自主','小鹏汽车','纯电动',6],
+    [75693,2026,1,'北京','北京越野BJ40增程','增补','SUV','A','自主','北京越野','增程式',11],
+    [75725,2026,1,'银河','银河V900','全新','MPV','C','自主','吉利汽车','增程式',16],
+    [75735,2026,1,'银河','银河V900','全新','MPV','C','自主','吉利汽车','增程式',27],
+  ].map(function(r){
+    const day = r[11];
+    const pad = function(n){return String(n).padStart(2,'0')};
+    return {id:r[0], time:r[1]+'-'+pad(r[2])+'-'+pad(day), attr:r[5], brand:r[3], model:r[4],
+            cat:r[6], level:r[7], series:r[8], corp:r[9], energy:r[10]};
+  });
+
+  const $ = function(s){return document.querySelector(s)};
+  const fmt = function(n){return n.toLocaleString('en-US')};
+  const esc = function(value){
+    return String(value == null ? '' : value).replace(/[&<>"']/g,function(ch){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+    });
+  };
+  const display = function(value){return value == null || value === '' ? '—' : value};
+  const uniqueText = function(values){
+    return Array.from(new Set(values.filter(function(value){return value != null && String(value).trim()!==''})))
+      .join(' / ');
+  };
+  const MODEL_IMAGES={
+    '问界M9':'/assets/newcar/wenjie-m9-profile.jpg'
+  };
+
+  /* 真实数据（3.146 PostgreSQL），失败回退 demo 数据 */
+  let ROWS = DEMO_ROWS;
+  let DATA_SOURCE = 'demo';
+  let DATA_BATCH = '';
+  function mapDbRow(r){
+    const m = r.month ? String(r.month).padStart(2,'0') : '01';
+    const time = r.launch_date || (r.year ? r.year+'-'+m+'-01' : '0000-01-01');
+    return {id:r.id, time:time, attr:r.attr, brand:r.brand, model:r.model, region:r.region,
+            cat:r.cat, level:r.level, series:r.series, corp:r.corp, energy:r.energy, batch:r.batch};
+  }
+  function setDataBadge(mode,text){
+    const badge=$('#dataBadge');
+    badge.classList.toggle('badge--loading',mode==='loading');
+    badge.classList.toggle('badge--offline',mode==='offline');
+    $('#dataBadgeText').textContent=text;
+  }
+  (async function loadReal(){
+    try{
+      const res=await fetch('/api/new-car/list',{headers:{'Accept':'application/json'}});
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const d=await res.json();
+      if(d.source!=='postgresql' || !Array.isArray(d.rows) || !d.rows.length){
+        throw new Error(d.error || '真实数据为空');
+      }
+      ROWS=d.rows.map(mapDbRow);
+      DATA_SOURCE='postgresql';
+      DATA_BATCH=d.batch || (d.rows[0] && d.rows[0].batch) || '';
+      setDataBadge('online','真实数据');
+      $('#footNote').textContent='共 '+fmt(ROWS.length)+' 条真实数据 · PostgreSQL · 批次 '+(DATA_BATCH || '未标注');
+      renderTable(true);
+    }catch(err){
+      DATA_SOURCE='demo';
+      setDataBadge('offline','示例兜底');
+      $('#footNote').textContent='真实数据暂不可用，当前显示 '+ROWS.length+' 条本地示例数据';
+      renderTable(true);
+    }
+  })();
+
+  /* ── 统计区 ── */
+  function renderStats(rows){
+    const cnt = function(a){return rows.filter(function(r){return r.attr===a}).length};
+    const items = [
+      ['新车款型数', rows.length, '全部属性'],
+      ['全新款型数', cnt('全新'), '新开发车型'],
+      ['换代款型数', cnt('换代'), '平台换代'],
+      ['年型款型数', cnt('年型'), '年度改款'],
+      ['增补款型数', cnt('增补'), '补充款型'],
+      ['改款款型数', cnt('改款'), '中期改款'],
+    ];
+    $('#statsBar').innerHTML = items.map(function(it){
+      return '<div class="stat"><div class="stat__value">'+fmt(it[1])+'</div>'+
+             '<div class="stat__label">'+it[0]+'</div>'+
+             '<div class="stat__hint">'+it[2]+'</div></div>';
+    }).join('');
+  }
+
+  /* ── 列表 ── */
+  const PAGE_SIZE=50;
+  let page=1;
+  let state = {attr:'', kwType:'车型', kw:'', from:'2026-01-01', to:'2026-12-31'};
+  function filtered(){
+    return ROWS.filter(function(r){
+      if(state.attr && r.attr!==state.attr) return false;
+      if(r.time<state.from || r.time>state.to) return false;
+      if(state.kw){
+        const target = state.kwType==='车型' ? [r.brand,r.model].join(' ') : String(r.id);
+        if(target.indexOf(state.kw)<0) return false;
+      }
+      return true;
+    }).sort(function(a,b){return String(b.time).localeCompare(String(a.time)) || Number(b.id)-Number(a.id)});
+  }
+  function groupByModel(rows){
+    const groups=new Map();
+    rows.forEach(function(row){
+      const key=[row.brand,row.model].join('\u0001');
+      if(!groups.has(key)) groups.set(key,[]);
+      groups.get(key).push(row);
+    });
+    return Array.from(groups.values()).map(function(items){
+      const first=items[0];
+      return {
+        detailId:first.id,
+        time:first.time,
+        attr:uniqueText(items.map(function(item){return item.attr})),
+        attrClass:first.attr,
+        brand:first.brand,
+        model:first.model,
+        id:uniqueText(items.map(function(item){return String(item.id)})),
+        cat:uniqueText(items.map(function(item){return item.cat})),
+        level:uniqueText(items.map(function(item){return item.level})),
+        series:uniqueText(items.map(function(item){return item.series})),
+        corp:uniqueText(items.map(function(item){return item.corp})),
+        energy:uniqueText(items.map(function(item){return item.energy})),
+        count:items.length,
+      };
+    });
+  }
+  function renderTable(resetPage){
+    if(resetPage) page=1;
+    const rawRows = filtered();
+    const rows = state.kwType==='车型' ? groupByModel(rawRows) : rawRows;
+    renderStats(rawRows);
+    const totalPages=Math.max(1,Math.ceil(rows.length/PAGE_SIZE));
+    page=Math.min(page,totalPages);
+    const visibleRows=rows.slice((page-1)*PAGE_SIZE,page*PAGE_SIZE);
+    $('#rowCnt').textContent = state.kwType==='车型'
+      ? '（'+fmt(rows.length)+' 个车型 / '+fmt(rawRows.length)+' 个款型）'
+      : '（'+fmt(rawRows.length)+' 个款型）';
+    if(!rows.length){
+      $('#tbody').innerHTML = '<tr><td colspan="12" class="empty">暂无符合条件的款型，请调整筛选条件</td></tr>';
+      $('#pager').innerHTML='';
+      return;
+    }
+    $('#tbody').innerHTML = visibleRows.map(function(r,i){
+      return '<tr><td>'+((page-1)*PAGE_SIZE+i+1)+'</td><td>'+esc(display(r.time))+'</td>'+
+        '<td><span class="tag tag--'+esc(r.attrClass || r.attr)+'">'+esc(display(r.attr))+'</span></td>'+
+        '<td>'+esc(display(r.brand))+'</td><td>'+esc(display(r.model))+'</td><td class="aggregate-list">'+esc(display(r.id))+'</td>'+
+        '<td>'+esc(display(r.cat))+'</td><td>'+esc(display(r.level))+'</td><td>'+esc(display(r.series))+'</td>'+
+        '<td class="aggregate-list">'+esc(display(r.corp))+'</td><td class="aggregate-list">'+esc(display(r.energy))+'</td>'+
+        '<td style="text-align:right"><button class="link-btn" data-id="'+esc(r.detailId || r.id)+'">详情</button></td></tr>';
+    }).join('');
+    $('#pager').innerHTML='<button type="button" data-page="prev" aria-label="上一页" '+(page===1?'disabled':'')+'>‹</button>'+
+      '<span>第 '+page+' / '+totalPages+' 页</span>'+
+      '<button type="button" data-page="next" aria-label="下一页" '+(page===totalPages?'disabled':'')+'>›</button>';
+  }
+
+  $('#pager').addEventListener('click',function(e){
+    const b=e.target.closest('button[data-page]'); if(!b || b.disabled) return;
+    page += b.dataset.page==='next' ? 1 : -1;
+    renderTable(false);
+    document.querySelector('.table-card').scrollIntoView({behavior:'smooth',block:'start'});
+  });
+
+  // chips
+  document.querySelectorAll('.chip').forEach(function(c){
+    c.addEventListener('click', function(){
+      document.querySelectorAll('.chip').forEach(function(x){x.classList.remove('is-on')});
+      c.classList.add('is-on');
+      state.attr = c.dataset.attr;
+      renderTable(true);
+    });
+  });
+  // 车型/款型 二选一
+  $('#kwSeg').addEventListener('click', function(e){
+    const b = e.target.closest('button'); if(!b) return;
+    $('#kwSeg').querySelectorAll('button').forEach(function(x){x.classList.remove('is-on')});
+    b.classList.add('is-on');
+    state.kwType = b.dataset.kw;
+    $('#kwLabel').textContent = state.kwType;
+    $('#kwInput').placeholder = state.kwType==='车型' ? '如：小鹏 / 星光' : '如：73741';
+    renderTable(true);
+  });
+  $('#searchBtn').addEventListener('click', function(){
+    state.kw = $('#kwInput').value.trim();
+    state.from = $('#dateFrom').value || '0000-01-01';
+    state.to   = $('#dateTo').value   || '9999-12-31';
+    renderTable(true);
+  });
+  $('#resetBtn').addEventListener('click', function(){
+    state = {attr:'', kwType:state.kwType, kw:'', from:'2026-01-01', to:'2026-12-31'};
+    $('#kwInput').value=''; $('#dateFrom').value='2026-01-01'; $('#dateTo').value='2026-12-31';
+    document.querySelectorAll('.chip').forEach(function(x){x.classList.toggle('is-on', x.dataset.attr==='')});
+    renderTable(true);
+  });
+  $('#kwInput').addEventListener('keydown',function(e){if(e.key==='Enter') $('#searchBtn').click()});
+  $('#tbody').addEventListener('click', function(e){
+    const b = e.target.closest('button[data-id]'); if(!b) return;
+    openModel(ROWS.find(function(r){return String(r.id)===b.dataset.id}));
+  });
+
+  /* ── 二级页：按真实车型聚合其款型档案 ── */
+  function openModel(row){
+    if(!row) return;
+    const sameModelRows=ROWS.filter(function(item){return item.model===row.model && item.brand===row.brand})
+      .sort(function(a,b){return String(b.time).localeCompare(String(a.time)) || Number(b.id)-Number(a.id)});
+    $('#crumbPath').textContent = '新车明细 / '+display(row.brand)+' / '+display(row.model)+' / 款型档案';
+    $('#crumbTitle').textContent = row.model + ' · 车型详情';
+    $('#modelVisualName').textContent=display(row.model);
+    $('#modelVisualMeta').textContent=[row.brand,row.cat,row.level,row.energy].filter(Boolean).join(' · ');
+    const heroImage=MODEL_IMAGES[row.model];
+    const hero=$('.hero__img');
+    const image=$('#modelHeroImage');
+    hero.classList.toggle('has-photo',Boolean(heroImage));
+    if(heroImage){
+      image.src=heroImage;
+      image.alt=display(row.model)+' 车型图片';
+    }else{
+      image.removeAttribute('src');
+      image.alt='';
+    }
+    $('#modelTitle').childNodes[0].nodeValue=display(row.model);
+    $('#modelMeta').textContent=' '+[row.brand,row.cat,row.level,row.attr,'上市 '+row.time.slice(0,7)].filter(Boolean).join(' · ');
+    $('#modelFacts').innerHTML=[
+      ['能源',row.energy],['属性',row.attr],['企业',row.corp],['同车型款型',sameModelRows.length+' 款']
+    ].map(function(item){return '<span class="fact">'+esc(item[0])+' <b>'+esc(display(item[1]))+'</b></span>'}).join('');
+
+    $('#cfgHead').innerHTML = '<th class="cfg-col--first">基础字段 · 共 '+sameModelRows.length+' 个款型</th>' +
+      sameModelRows.map(function(item){
+        return '<th class="cfg-col">'+esc(display(item.model))+'<br><span class="cfg-price">款型ID '+esc(item.id)+'</span>'+
+          '<div style="margin-top:8px"><button class="link-btn" type="button" data-compare-id="'+esc(item.id)+'">＋ 对比</button></div></th>';
+      }).join('');
+    const fields=[
+      ['款型ID',function(item){return item.id}],
+      ['上市时间',function(item){return item.time}],
+      ['新车属性',function(item){return item.attr}],
+      ['品牌',function(item){return item.brand}],
+      ['类别',function(item){return item.cat}],
+      ['级别',function(item){return item.level}],
+      ['车系',function(item){return item.series}],
+      ['企业',function(item){return item.corp}],
+      ['能源类型',function(item){return item.energy}],
+      ['区域',function(item){return item.region}],
+      ['数据批次',function(item){return item.batch || DATA_BATCH}],
+    ];
+    $('#cfgBody').innerHTML = fields.map(function(field){
+      return '<tr><td style="color:var(--ink-2)">'+esc(field[0])+'</td>'+
+        sameModelRows.map(function(item){return '<td style="font-weight:600">'+esc(display(field[1](item)))+'</td>'}).join('')+
+        '</tr>';
+    }).join('');
+    loadReputation(row.model);
+    $('#listPage').style.display='none';
+    $('#modelPage').style.display='block';
+    window.scrollTo(0,0);
+  }
+
+  async function loadReputation(model){
+    const box=$('#reputationContent');
+    box.className='module-state';
+    box.innerHTML='<div><strong>正在加载 '+esc(model)+' 口碑</strong><span>正在关联懂车帝与汽车之家口碑明细。</span></div>';
+    try{
+      const res=await fetch('/api/new-car/reputation?model='+encodeURIComponent(model),{headers:{'Accept':'application/json'}});
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const data=await res.json();
+      if(!data.available){
+        box.innerHTML='<div><strong>该车型暂无可用口碑</strong><span>POC 当前仅展示与两份口碑明细成功匹配的车型。</span></div>';
+        return;
+      }
+      const renderPanel=function(direction,title,hint){
+        const groups=(data.groups && data.groups[direction]) || [];
+        return '<div class="kb-panel kb-panel--'+direction+'"><div class="kb-panel__title"><span>'+title+'</span><small>'+hint+'</small></div>'+
+          groups.map(function(item){
+            const pct=(Number(item.share)*100).toFixed(1);
+            const secondary=(item.secondary||[]).map(function(sub){return '<span>'+esc(sub.name)+'</span>'}).join('');
+            return '<div class="kb-insight"><div class="kb-insight__top"><span class="kb-rank">'+item.rank+'</span><span class="kb-label">'+esc(item.label)+'</span><span class="kb-share">'+pct+'%</span></div>'+
+              '<div class="kb-track"><div class="kb-fill" style="width:'+Math.max(4,Number(pct))+'%"></div></div><div class="kb-secondary">'+secondary+'</div></div>';
+          }).join('')+'</div>';
+      };
+      box.className='';
+      box.innerHTML='<div class="kb-head"><div><strong>'+esc(model)+' 口碑洞察 POC</strong><div style="color:var(--ink-3);font-size:12px;margin-top:3px">共 '+fmt(data.total_reviews)+' 条原始口碑，展示正、负方向声量最高的一级标签</div></div>'+
+        '<div class="kb-source"><span>懂车帝 '+fmt(data.sources.dongchedi)+' 条</span><span>汽车之家 '+fmt(data.sources.autohome)+' 条</span></div></div>'+
+        '<div class="kb-grid">'+renderPanel('positive','正向关注 TOP3','用户认可点')+renderPanel('negative','负向关注 TOP3','用户改善诉求')+'</div>'+
+        '<div class="kb-method"><span>比例口径：该方向已识别一级标签的提及声量占比</span><span>一级标签：业务口径映射 · 二级标签：关键词归纳 · 批次 '+esc(data.batch)+'</span></div>';
+    }catch(err){
+      box.className='module-state';
+      box.innerHTML='<div><strong>口碑数据暂不可用</strong><span>请稍后重试，当前页面其他真实款型信息不受影响。</span></div>';
+    }
+  }
+  $('#cfgHead').addEventListener('click',function(e){
+    const b=e.target.closest('button[data-compare-id]'); if(!b) return;
+    alert('已选择款型 '+b.dataset.compareId+'。竞品对比数据接口将在下一阶段接入。');
+  });
+  window.closeModel = function(){
+    $('#modelPage').style.display='none';
+    $('#listPage').style.display='block';
+    window.scrollTo(0,0);
+  };
+
+  /* ── 规划新车 ── */
+  const PLANNED_PAGE_SIZE=30;
+  const ENERGY_LABELS={BEV:'纯电动',PHEV:'插电式',REEV:'增程式',ICE:'传统燃料',HEV:'混合动力',FCV:'氢燃料'};
+  let PLANNED_ROWS=[];
+  let plannedPage=1;
+  let plannedBatch='';
+
+  function plannedSchedule(row){
+    const parts=[row.year,row.month,row.quarter].filter(function(value){return value && value!=='——'});
+    return parts.length ? parts.join(' · ') : '待定';
+  }
+  function plannedNote(row){
+    return uniqueText([row.selling_points,row.notes]);
+  }
+  function renderPlanned(resetPage){
+    if(resetPage) plannedPage=1;
+    const totalPages=Math.max(1,Math.ceil(PLANNED_ROWS.length/PLANNED_PAGE_SIZE));
+    plannedPage=Math.min(plannedPage,totalPages);
+    const visible=PLANNED_ROWS.slice((plannedPage-1)*PLANNED_PAGE_SIZE,plannedPage*PLANNED_PAGE_SIZE);
+    $('#plannedCnt').textContent='（'+fmt(PLANNED_ROWS.length)+' 条）';
+    if(!visible.length){
+      $('#plannedTbody').innerHTML='<tr><td colspan="12" class="empty">规划新车数据暂不可用</td></tr>';
+      $('#plannedPager').innerHTML='';
+      return;
+    }
+    $('#plannedTbody').innerHTML=visible.map(function(row,index){
+      const note=plannedNote(row);
+      return '<tr><td>'+((plannedPage-1)*PLANNED_PAGE_SIZE+index+1)+'</td>'+
+        '<td>'+esc(plannedSchedule(row))+'</td>'+
+        '<td><span class="tag tag--'+esc(row.attr)+'">'+esc(display(row.attr))+'</span></td>'+
+        '<td>'+esc(display(row.brand))+'</td><td class="model-cell">'+esc(display(row.model))+'</td>'+
+        '<td><span class="status-tag status-tag--'+esc(row.status)+'">'+esc(display(row.status))+'</span></td>'+
+        '<td>'+esc(display(row.cat))+'</td><td>'+esc(display(row.level))+'</td>'+
+        '<td>'+esc(display(ENERGY_LABELS[row.energy] || row.energy))+'</td><td>'+esc(display(row.price_band))+'</td>'+
+        '<td>'+esc(display(row.enterprise))+'</td><td class="note-cell">'+esc(display(note))+'</td></tr>';
+    }).join('');
+    $('#plannedPager').innerHTML='<button type="button" data-planned-page="prev" aria-label="规划新车上一页" '+(plannedPage===1?'disabled':'')+'>‹</button>'+
+      '<span>第 '+plannedPage+' / '+totalPages+' 页</span>'+
+      '<button type="button" data-planned-page="next" aria-label="规划新车下一页" '+(plannedPage===totalPages?'disabled':'')+'>›</button>';
+  }
+  $('#plannedPager').addEventListener('click',function(event){
+    const button=event.target.closest('button[data-planned-page]');
+    if(!button || button.disabled) return;
+    plannedPage += button.dataset.plannedPage==='next' ? 1 : -1;
+    renderPlanned(false);
+    $('#plannedSection').scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  (async function loadPlanned(){
+    try{
+      const response=await fetch('/api/new-car/planned',{headers:{'Accept':'application/json'}});
+      if(!response.ok) throw new Error('HTTP '+response.status);
+      const data=await response.json();
+      if(data.source!=='postgresql' || !Array.isArray(data.rows)) throw new Error(data.error || '规划数据不可用');
+      PLANNED_ROWS=data.rows;
+      plannedBatch=data.batch || '';
+      $('#plannedFoot').textContent='共 '+fmt(PLANNED_ROWS.length)+' 条规划数据 · PostgreSQL · 批次 '+(plannedBatch || '未标注');
+      renderPlanned(true);
+    }catch(error){
+      $('#plannedCnt').textContent='（暂不可用）';
+      $('#plannedFoot').textContent='规划新车数据加载失败';
+      renderPlanned(true);
+    }
+  })();
+
+  renderTable();
+})();
+</script>
+</body>
+</html>

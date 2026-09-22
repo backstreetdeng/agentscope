@@ -1032,6 +1032,74 @@ dl, dd { margin: 0; }
 }
 .data-card__sparkline svg { width: 100%; height: 100%; display: block; }
 
+/* ----- New Car registry strip: source stats stay scannable at a glance ----- */
+.newcar-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  background: var(--border-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+}
+
+.newcar-stat {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 14px;
+  background: var(--bg-surface);
+  transition: background var(--t-base);
+}
+
+.newcar-stat:hover { background: var(--bg-surface-soft); }
+
+.newcar-stat--hero {
+  background:
+    linear-gradient(135deg, rgba(16, 185, 129, 0.10), transparent 58%),
+    var(--bg-surface);
+}
+
+.newcar-stat__label {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+}
+
+.newcar-stat--hero .newcar-stat__label { color: var(--c-growth-green); }
+
+.newcar-stat__value {
+  font-family: var(--ff-mono);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.newcar-stat--hero .newcar-stat__value {
+  font-size: 30px;
+  color: var(--c-growth-green);
+}
+
+.newcar-stat__note {
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--text-tertiary);
+}
+
+@media (max-width: 520px) {
+  .newcar-stats { grid-template-columns: 1fr; }
+  .newcar-stat { padding: 13px 14px; }
+  .newcar-stat__value,
+  .newcar-stat--hero .newcar-stat__value { font-size: 26px; }
+}
+
 .data-card__actions {
   display: flex;
   gap: 8px;
@@ -3014,3 +3082,232 @@ dl, dd { margin: 0; }
   }
   body { background: #fff; color: #000; }
 }
+
+/* ===== 权益板块 · 入库统计 & 降价跟踪 ===== */
+.rights-board { margin-top: 32px; }
+
+.rights-panel {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-top: 16px;
+  box-shadow: 0 1px 2px rgba(29, 33, 41, 0.04);
+}
+
+.rights-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.rights-panel__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.rights-panel__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+.rights-panel__status--ok { color: var(--c-growth-green); font-weight: 600; }
+
+.rights-panel__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--c-growth-green);
+  flex-shrink: 0;
+}
+
+.rights-panel__dot--live {
+  background: var(--c-cockpit-blue);
+  animation: rightsPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes rightsPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.rights-metrics {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.metric-tile {
+  background: var(--bg-surface-soft);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.metric-tile:hover {
+  border-color: var(--c-ai-blue-100);
+  box-shadow: 0 4px 12px rgba(22, 119, 255, 0.10);
+  transform: translateY(-1px);
+}
+
+.metric-tile--wide { grid-column: span 1; }
+
+.metric-tile__value {
+  font-family: var(--ff-mono, ui-monospace, monospace);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.metric-tile__value--blue { color: var(--c-cockpit-blue); }
+.metric-tile__value--cyan { color: var(--c-growth-green); }
+.metric-tile__value--amber { color: var(--c-warning-amber); }
+.metric-tile__value--muted { color: var(--text-tertiary); }
+
+.metric-tile__value--time {
+  color: var(--c-cockpit-blue);
+  font-size: 16px;
+  letter-spacing: -0.01em;
+}
+
+.metric-tile__label {
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+}
+
+@media (max-width: 1100px) {
+  .rights-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+  .rights-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .metric-tile--wide { grid-column: span 2; }
+}
+
+/* ===== 权益卡片 · 内嵌采集统计 ===== */
+.data-card__stats {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 12px 0;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border-subtle);
+}
+
+.data-card__stats-group { display: flex; flex-direction: column; gap: 8px; }
+
+.data-card__stats-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.data-card__stats-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.data-card__stats-dot--blue { background: var(--c-cockpit-blue); }
+.data-card__stats-dot--green { background: var(--c-growth-green); }
+
+.data-card__stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.data-card__stat {
+  background: var(--bg-surface-soft);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transition: border-color 0.2s ease;
+}
+
+.data-card__stat:hover { border-color: var(--c-ai-blue-100); }
+
+.data-card__stat-value {
+  font-family: var(--ff-mono, ui-monospace, monospace);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.data-card__stat-value--amber { color: var(--c-warning-amber); }
+.data-card__stat-value--cyan { color: var(--c-growth-green); }
+
+.data-card__stat-label {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 900px) {
+  .data-card__stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* =====================================================================
+   APPEND-ONLY OVERRIDE LAYER — way-s 威尔森风格 v2（2026-09-22）
+   设计语言来源：new-car-detail.html（新车一览），参考 way-s.cn/productPlatform
+   ===================================================================== */
+:root {
+  --c-ai-blue:      #2F6BFF;
+  --c-ai-blue-h:    #4F83F7;
+  --c-ai-blue-d:    #3F7BFA;
+  --c-ai-blue-50:   #EEF4FF;
+  --c-ai-blue-100:  #D8E6FF;
+  --c-bg-page:      #EEF4FC;
+  --c-bg-section:   #F4F8FE;
+  --c-bg-hover:     #F4F8FF;
+  --c-border:       #E6EDF6;
+  --c-border-strong:#D5E1F2;
+  --c-divider:      #EBF1F9;
+  --shadow-sm: 0 2px 8px rgba(47,107,255,.06);
+  --shadow-md: 0 8px 28px rgba(47,107,255,.10);
+  --shadow-lg: 0 16px 44px rgba(47,107,255,.14);
+  --grad-brand: linear-gradient(135deg,#3F7BFA,#6AA2FF);
+  --r-md: 12px; --r-lg: 16px; --r-xl: 20px;
+}
+body {
+  background:
+    radial-gradient(1200px 500px at 85% -100px, rgba(106,162,255,.14), transparent 60%),
+    radial-gradient(900px 420px at -80px 30%, rgba(63,123,250,.08), transparent 55%),
+    var(--c-bg-page);
+}
+.topbar { background: rgba(255,255,255,.9); backdrop-filter: blur(10px); border-bottom: 1px solid var(--c-border); }
+.topbar__logo { background: var(--grad-brand); border-radius: 9px; box-shadow: 0 4px 12px rgba(47,107,255,.30); }
+.sidebar { background: rgba(255,255,255,.94); border-right: 1px solid var(--c-border); backdrop-filter: blur(8px); }
+.sidebar__nav a[aria-current='page'], .sidebar__nav a.is-active {
+  background: var(--grad-brand); color: #fff; box-shadow: 0 6px 16px rgba(47,107,255,.28);
+}
+.btn--primary { background: var(--grad-brand); border: 0; box-shadow: 0 4px 14px rgba(47,107,255,.28); }
+.btn--primary:hover { background: var(--grad-brand); filter: brightness(1.06); }
+.btn--secondary { border-color: var(--c-border-strong); background: #fff; }
+.data-card { border-radius: var(--r-lg); border-color: var(--c-border); box-shadow: var(--shadow-sm); transition: transform .2s ease, box-shadow .2s ease; }
+.data-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+.data-card__btn--primary { background: var(--grad-brand); border: 0; color: #fff; border-radius: 20px; box-shadow: 0 4px 12px rgba(47,107,255,.26); }
+.data-card__btn--primary:hover { filter: brightness(1.07); }
+.section-head__title { position: relative; }
+.section-head__title::before { content:""; position:absolute; left:0; top:.18em; bottom:.18em; width:5px; border-radius:3px; background: var(--grad-brand); margin-left:-16px; }
+.status-pill { border-radius: 20px; }
+::-webkit-scrollbar-thumb { background: #C4D6F7; border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: #A9C4F0; }

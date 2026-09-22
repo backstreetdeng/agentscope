@@ -92,7 +92,7 @@
         <a class='nav-item' data-view='skills' href='#skills' aria-label='技能，已封装好的技能卡片'>
             <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='8' height='8' rx='1'/><rect x='13' y='3' width='8' height='8' rx='1'/><rect x='3' y='13' width='8' height='8' rx='1'/><path d='M13 17 h8 M17 13 v8'/></svg></span>
             <span class='nav-label'>技能</span>
-            <span class='nav-badge'>9</span>
+            <span class='nav-badge'>10</span>
           </a>
           <a class='nav-item' data-view='plugins' href='#plugins' aria-label='插件，数据底座：政策、权益、新车、口碑'>
             <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5 v6 c0 1.7 4 3 9 3 s9-1.3 9-3 V5'/><path d='M3 11 v6 c0 1.7 4 3 9 3 s9-1.3 9-3 v-6'/></svg></span>
@@ -226,7 +226,26 @@
                 <span class='data-card__metric-unit'>项权益</span>
                 <span class='data-card__trend data-card__trend--down' aria-label='本周环比下降 5.4 个百分点'>-5.4%</span>
               </div>
-              <p class='data-card__desc'>本周新增 312 项权益套餐，0 利率与置换补贴仍是主流，本月调整以收紧为主。</p>
+              <div class='data-card__stats'>
+                <div class='data-card__stats-group'>
+                  <p class='data-card__stats-title'><span class='data-card__stats-dot data-card__stats-dot--blue'></span>入库统计</p>
+                  <div class='data-card__stats-grid'>
+                    <div class='data-card__stat'><span class='data-card__stat-value'>1,569</span><span class='data-card__stat-label'>文章总量</span></div>
+                    <div class='data-card__stat'><span class='data-card__stat-value'>1,348</span><span class='data-card__stat-label'>正文已采集</span></div>
+                    <div class='data-card__stat'><span class='data-card__stat-value'>231</span><span class='data-card__stat-label'>命中关键词</span></div>
+                    <div class='data-card__stat'><span class='data-card__stat-value'>53</span><span class='data-card__stat-label'>公众号账户</span></div>
+                  </div>
+                </div>
+                <div class='data-card__stats-group'>
+                  <p class='data-card__stats-title'><span class='data-card__stats-dot data-card__stats-dot--green'></span>降价跟踪</p>
+                  <div class='data-card__stats-grid'>
+                    <div class='data-card__stat'><span class='data-card__stat-value'>85</span><span class='data-card__stat-label'>汽车之家降价</span></div>
+                    <div class='data-card__stat'><span class='data-card__stat-value data-card__stat-value--amber'>192</span><span class='data-card__stat-label'>待审核</span></div>
+                    <div class='data-card__stat'><span class='data-card__stat-value data-card__stat-value--cyan'>11</span><span class='data-card__stat-label'>本次候选</span></div>
+                    <div class='data-card__stat'><span class='data-card__stat-value'>9</span><span class='data-card__stat-label'>本次写入</span></div>
+                  </div>
+                </div>
+              </div>
               <svg class='data-card__sparkline' viewBox='0 0 200 60' preserveAspectRatio='none' aria-hidden='true'>
                 <defs>
                   <linearGradient id='grad-rights' x1='0' y1='0' x2='0' y2='1'>
@@ -239,7 +258,7 @@
                 <circle cx='200' cy='44' r='2.5' fill='#06B6D4'/>
               </svg>
               <div class='data-card__actions'>
-                <a class='data-card__btn data-card__btn--primary' href='#rights-detail' aria-label='查看权益明细'>查看明细</a>
+                <a class='data-card__btn data-card__btn--primary' href='http://127.0.0.1:7861/' target='_blank' rel='noopener' aria-label='打开汽车资讯采集入库系统查看权益明细'>查看明细</a>
                 <button class='data-card__btn btn-download' type='button' data-download='rights' aria-label='下载权益情报'>下载情报</button>
               </div>
             </article>
@@ -254,25 +273,30 @@
                   <span aria-hidden='true'></span>实时
                 </span>
               </header>
-              <div class='data-card__metric'>
-                <span class='data-card__metric-value' data-target='487' data-counter>0</span>
-                <span class='data-card__metric-unit'>款新车</span>
-                <span class='data-card__trend data-card__trend--up' aria-label='本月新增 38 款，环比上升 8.1 个百分点'>+8.1%</span>
+              <div class='newcar-stats' role='group' aria-label='新车库核心统计'>
+                <div class='newcar-stat newcar-stat--hero'>
+                  <span class='newcar-stat__label'>2026+ 款型</span>
+                  <span class='newcar-stat__value' id='newcar-spec-total'>2,111</span>
+                  <span class='newcar-stat__note'>已存 PostgreSQL</span>
+                </div>
+                <div class='newcar-stat'>
+                  <span class='newcar-stat__label'>覆盖车系</span>
+                  <span class='newcar-stat__value' id='newcar-series-total'>553</span>
+                  <span class='newcar-stat__note'>含至少一个 2026+ 款型</span>
+                </div>
+                <div class='newcar-stat'>
+                  <span class='newcar-stat__label'>待下发款型</span>
+                  <span class='newcar-stat__value' id='newcar-pending-total'>356</span>
+                  <span class='newcar-stat__note'>上市时间 ≥ 2026-08-01</span>
+                </div>
+                <div class='newcar-stat'>
+                  <span class='newcar-stat__label'>最新上市日期</span>
+                  <span class='newcar-stat__value' id='newcar-latest-date'>2026-09-12</span>
+                  <span class='newcar-stat__note'>数据范围截至日期</span>
+                </div>
               </div>
-              <p class='data-card__desc'>本月上市 38 款新车，新能源占比 71%，智能驾驶硬件（激光雷达 + 高算力芯片）成为标配。</p>
-              <svg class='data-card__sparkline' viewBox='0 0 200 60' preserveAspectRatio='none' aria-hidden='true'>
-                <defs>
-                  <linearGradient id='grad-newcar' x1='0' y1='0' x2='0' y2='1'>
-                    <stop offset='0%' stop-color='#10B981' stop-opacity='0.30'/>
-                    <stop offset='100%' stop-color='#10B981' stop-opacity='0'/>
-                  </linearGradient>
-                </defs>
-                <path d='M0,45 L20,42 L40,38 L60,36 L80,30 L100,28 L120,24 L140,22 L160,18 L180,16 L200,14 L200,60 L0,60 Z' fill='url(#grad-newcar)'/>
-                <path d='M0,45 L20,42 L40,38 L60,36 L80,30 L100,28 L120,24 L140,22 L160,18 L180,16 L200,14' fill='none' stroke='#10B981' stroke-width='1.8'/>
-                <circle cx='200' cy='14' r='2.5' fill='#10B981'/>
-              </svg>
               <div class='data-card__actions'>
-                <a class='data-card__btn data-card__btn--primary' href='#newcar-detail' aria-label='查看新车明细'>查看明细</a>
+                <a class='data-card__btn data-card__btn--primary' href='/new-car-detail' rel='noopener noreferrer' aria-label='在新窗口查看新车监测台明细'>查看明细</a>
                 <button class='data-card__btn btn-download' type='button' data-download='newcar' aria-label='下载新车情报'>下载情报</button>
               </div>
             </article>
@@ -394,6 +418,8 @@
             </div>
           </div>
         </section>
+
+        
 
         <section class='agents' aria-labelledby='agents-title'>
           <header class='section-head'>
@@ -1452,7 +1478,7 @@
           <header class='section-head'>
             <div class='section-head__text'>
               <h2 id='skills-title' class='section-head__title section-head__title--ai'>已封装的技能 / Skills</h2>
-              <p class='section-head__desc'>8 个原子技能，可以被智能体按需编排。点击卡片查看输入输出契约与最近调用记录。</p>
+              <p class='section-head__desc'>9 个原子技能，可以被智能体按需编排。点击卡片查看输入输出契约与最近调用记录。</p>
             </div>
             <div class='section-head__actions'>
               <input type='search' class='chip-btn' placeholder='搜索技能名称或 Code...' style='width: 280px' aria-label='搜索技能'/>
@@ -1507,8 +1533,8 @@
           </div>
 
           <div class='section-head__actions' role='group' aria-label='技能筛选' style='margin-bottom: 20px'>
-            <button class='chip-btn' type='button' aria-pressed='true'>全部技能 · 9</button>
-            <button class='chip-btn' type='button' aria-pressed='false'>战略企划 · 7</button>
+            <button class='chip-btn' type='button' aria-pressed='true'>全部技能 · 10</button>
+            <button class='chip-btn' type='button' aria-pressed='false'>战略企划 · 8</button>
             <button class='chip-btn' type='button' aria-pressed='false'>前端研发 · 1</button>
             <button class='chip-btn' type='button' aria-pressed='false'>采购供应</button>
             <button class='chip-btn' type='button' aria-pressed='false'>制造质量</button>
@@ -1519,6 +1545,32 @@
           </div>
 
           <div class='skills__grid'>
+            <article class='skill-card' data-skill='market_monthly_report'>
+              <header class='skill-card__head'>
+                <span class='skill-card__icon skill-card__icon--report' aria-hidden='true'>
+                  <svg viewBox='0 0 24 24' width='22' height='22' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M4 19 V5 a1 1 0 0 1 1-1 h9 l5 5 v10 a1 1 0 0 1-1 1 H5 a1 1 0 0 1-1-1 z'/><path d='M14 4 v5 h5'/><path d='M8 13 h8 M8 16 h5'/></svg>
+                </span>
+                <span class='skill-card__status skill-card__status--ready'>内测中</span>
+              </header>
+              <h3 class='skill-card__name'>行业市场分析（月报）</h3>
+              <p class='skill-card__desc'>基于四大数据底座的月度监测数据，自动生成乘用车 / 新能源市场月报：总量与结构拆解、原因识别、竞争格局与预测研判。</p>
+              <div style='display: flex; gap: 12px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-subtle); align-items: center; justify-content: space-between'>
+                <span class='chip chip--policy' style='font-size: 11px'>战略企划</span>
+                <span style='font-family: var(--ff-mono); font-size: 11px; color: var(--text-tertiary)'>Code: skill_market_monthly_report</span>
+              </div>
+              <div style='display: flex; gap: 12px; margin-top: 8px; font-family: var(--ff-mono); font-size: 11px; color: var(--text-tertiary); align-items: center'>
+                <svg viewBox='0 0 24 24' width='12' height='12' fill='none' stroke='currentColor' stroke-width='1.8'><path d='M12 5 v14 M5 12 l7 7 7-7'/></svg>
+                <span>内置 2 场景 · 乘用车月报 / 新能源月报</span>
+              </div>
+              <p style='font-size: 12px; color: var(--text-secondary); margin-top: 10px; line-height: 1.5'>
+                <strong style='color: var(--c-cockpit-blue)'>工作流：</strong>数据验数 → 月度结构拆解 → 原因识别 → 竞争格局 → 结论与预测
+              </p>
+              <button class='btn btn--primary' style='width: 100%; margin-top: 14px' type='button' aria-label='应用行业市场分析技能'>
+                <span>应用此技能</span>
+                <svg viewBox='0 0 24 24' width='14' height='14' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M5 12 h14 M13 6 l6 6-6 6'/></svg>
+              </button>
+            </article>
+
             <article class='skill-card' data-skill='aippt'>
               <header class='skill-card__head'>
                 <span class='skill-card__icon skill-card__icon--report' aria-hidden='true'>
@@ -1881,6 +1933,56 @@
           </div>
 
           <header class='section-head' style='margin-top: 32px'>
+          <header class='section-head' style='margin-top: 32px'>
+            <div class='section-head__text'>
+              <h3 class='section-head__title' style='font-size: 18px'>联网检索 MCP 服务 · 4 源搜索 + 精读调度</h3>
+              <p class='section-head__desc'>搜索优先级：SearXNG → Exa → Tavily；精读优先级：本地 web-reader → Firecrawl 兜底。服务端 82.157.138.187。</p>
+            </div>
+          </header>
+
+          <div class='plugins__grid' style='grid-template-columns: repeat(5, minmax(0, 1fr)); margin-top: 12px'>
+            <article class='plugin-card plugin-card--policy'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title' style='font-size: 14px'>web_search_local</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>主搜索</span>
+              </header>
+              <p class='plugin-card__desc'>SearXNG 本地元搜索，免费优先调用。</p>
+              <dl class='plugin-card__meta'><div><dt>端点</dt><dd>/mcp/search-local</dd></div><div><dt>状态</dt><dd>在线</dd></div></dl>
+            </article>
+            <article class='plugin-card plugin-card--rights'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title' style='font-size: 14px'>web_search_exa</h3></div>
+                <span class='plugin-card__status'><span class='plugin-card__dot'></span>备用 1</span>
+              </header>
+              <p class='plugin-card__desc'>Exa 深度检索，适合研报 / 政策 / 市场情报。</p>
+              <dl class='plugin-card__meta'><div><dt>端点</dt><dd>/mcp/search-exa</dd></div><div><dt>状态</dt><dd>在线</dd></div></dl>
+            </article>
+            <article class='plugin-card plugin-card--newcar'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title' style='font-size: 14px'>web_search_tavily</h3></div>
+                <span class='plugin-card__status'><span class='plugin-card__dot'></span>备用 2</span>
+              </header>
+              <p class='plugin-card__desc'>Tavily 轻量搜索，简单事实与快讯兜底。</p>
+              <dl class='plugin-card__meta'><div><dt>端点</dt><dd>/mcp/search-tavily</dd></div><div><dt>状态</dt><dd>在线</dd></div></dl>
+            </article>
+            <article class='plugin-card plugin-card--wom'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title' style='font-size: 14px'>web_reader_local</h3></div>
+                <span class='plugin-card__status plugin-card__status--live'><span class='plugin-card__dot'></span>主精读</span>
+              </header>
+              <p class='plugin-card__desc'>本地网页正文提取，URL 转 Markdown。</p>
+              <dl class='plugin-card__meta'><div><dt>端点</dt><dd>/mcp/reader-local</dd></div><div><dt>状态</dt><dd>在线</dd></div></dl>
+            </article>
+            <article class='plugin-card plugin-card--policy'>
+              <header class='plugin-card__head'>
+                <div class='plugin-card__title-stack'><h3 class='plugin-card__title' style='font-size: 14px'>web_reader_firecrawl</h3></div>
+                <span class='plugin-card__status'><span class='plugin-card__dot'></span>精读兜底</span>
+              </header>
+              <p class='plugin-card__desc'>Firecrawl 抓取兜底，本地精读失败时调用。</p>
+              <dl class='plugin-card__meta'><div><dt>端点</dt><dd>/mcp/reader-firecrawl</dd></div><div><dt>状态</dt><dd>在线</dd></div></dl>
+            </article>
+          </div>
+
             <div class='section-head__text'>
               <h3 class='section-head__title' style='font-size: 18px'>同步活动时间线 · 近 7 天</h3>
               <p class='section-head__desc'>数据底座的更新频率与状态一目了然。</p>

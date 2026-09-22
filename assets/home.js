@@ -175,6 +175,71 @@
     return { init };
   })();
 
+  // ────────────────────────────────────────────────────────────────────
+  //  New Car Monitor Integration — 汽车之家新车库统计接入
+  //  Uses the local cockpit proxy first, then falls back to 8776.
+  //  The HTML values stay visible if the monitor station is offline.
+  // ────────────────────────────────────────────────────────────────────
+  const NewCarMonitor = (() => {
+    const ENDPOINTS = [
+      '/api/new-car/dashboard',
+      'http://127.0.0.1:8776/api/dashboard',
+    ];
+    const TIMEOUT_MS = 5000;
+
+    function setText(id, value) {
+      const el = utils.qs('#' + id);
+      if (el && value != null) el.textContent = value;
+    }
+
+    function formatNumber(value) {
+      const n = Number(value);
+      return Number.isFinite(n) ? n.toLocaleString('en-US') : String(value || '—');
+    }
+
+    function formatDate(value) {
+      return value ? String(value).slice(0, 10) : '—';
+    }
+
+    function updateCard(stats) {
+      if (!stats) return;
+      setText('newcar-spec-total', formatNumber(stats.spec_total));
+      setText('newcar-series-total', formatNumber(stats.series_total));
+      setText('newcar-pending-total', formatNumber(stats.recent_total));
+      setText('newcar-latest-date', formatDate(stats.latest_launch_date));
+    }
+
+    async function fetchDashboard() {
+      for (const endpoint of ENDPOINTS) {
+        try {
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+          const response = await fetch(endpoint, {
+            signal: controller.signal,
+            cache: 'no-store',
+          });
+          clearTimeout(timer);
+          if (!response.ok) continue;
+          const payload = await response.json();
+          if (payload && payload.stats) return payload.stats;
+        } catch (e) {
+          // Try the next source; static snapshot values remain usable.
+        }
+      }
+      return null;
+    }
+
+    function init() {
+      if (typeof requestIdleCallback === 'function') {
+        requestIdleCallback(async () => updateCard(await fetchDashboard()));
+      } else {
+        setTimeout(async () => updateCard(await fetchDashboard()), 1200);
+      }
+    }
+
+    return { init };
+  })();
+
   // ────────────────────────────────────────────────────────────────────────
 
   function init() {
@@ -794,6 +859,7 @@
     Pulse.init();
     Health.init();
     KouBei.init();
+    NewCarMonitor.init();
 
     window.Home = Object.freeze({
       version: '1.0.0',

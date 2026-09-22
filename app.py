@@ -14,6 +14,7 @@ from __future__ import annotations
 import asyncio
 from copy import deepcopy
 import json
+import os
 import re
 import subprocess
 import sys
@@ -24,9 +25,12 @@ from pathlib import Path
 from threading import Event, Lock, Thread
 from typing import Any
 from urllib.parse import parse_qs, quote, unquote, urlparse
+import urllib.error
+import urllib.request
 
 HOST = "127.0.0.1"
 PORT = 7860
+NEW_CAR_MONITOR_URL = "http://127.0.0.1:8776/api/dashboard"
 AGENT_RUN_LOCK = Lock()
 LATEST_AGENT_RUN: dict[str, Any] = {}
 LATEST_AGENT_RUN_LOCK = Lock()
@@ -169,6 +173,8 @@ REPORT_FILE_TYPES = {
 }
 
 HTML = (PROJECT_DIR / 'home.html').read_text(encoding='utf-8')
+LEGACY_WORKBENCH_HTML = (PROJECT_DIR / 'legacy_workbench.html').read_text(encoding='utf-8')
+NEW_CAR_DETAIL_HTML = (PROJECT_DIR / 'new-car-detail.html').read_text(encoding='utf-8')
 
 
 class AgentDemoHandler(BaseHTTPRequestHandler):
@@ -182,6 +188,14 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
 
         if request_path == "/":
             self._send_html(HTML)
+            return
+
+        if request_path in ('/legacy/workbench.html', '/legacy/workbench'):
+            self._send_html(LEGACY_WORKBENCH_HTML)
+            return
+
+        if request_path in ('/new-car-detail', '/new-car-detail.html'):
+            self._send_html(NEW_CAR_DETAIL_HTML)
             return
 
         if request_path.startswith("/outputs/") or request_path.startswith("/skills/html-ppt-skill/assets/"):
@@ -225,6 +239,33 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
 
         if request_path == "/api/market-skill/status":
             self._send_json(MarketAnalysisSkill(load_json_config()).status())
+            return
+
+        if request_path == "/api/new-car/dashboard":
+            try:
+                request = urllib.request.Request(
+                    NEW_CAR_MONITOR_URL,
+                    headers={"Accept": "application/json", "User-Agent": "strategy-cockpit/1.0"},
+                )
+                with urllib.request.urlopen(request, timeout=3) as response:
+                    payload = json.loads(response.read().decode("utf-8"))
+                self._send_json(payload)
+            except (OSError, ValueError, urllib.error.URLError) as exc:
+                self._send_json({"error": "新车监测台暂不可用", "detail": str(exc)}, HTTPStatus.BAD_GATEWAY)
+            return
+
+        if request_path == "/api/new-car/list":
+            self._send_json(load_new_car_rows())
+            return
+
+        if request_path == "/api/new-car/planned":
+            self._send_json(load_planned_new_car_rows())
+            return
+
+        if request_path == "/api/new-car/reputation":
+            params = parse_qs(parsed.query)
+            model = params.get("model", [""])[0].strip()
+            self._send_json(load_new_car_reputation(model))
             return
 
         if request_path == "/api/agent-run/latest":
@@ -586,6 +627,134 @@ def generate_ppt_from_markdown(
     result["file_size"] = html_path.stat().st_size
     result["engine"] = "html-report-generator-fallback"
     return result
+
+
+def load_new_car_rows() -> dict[str, Any]:
+    """新车款型真实数据（3.146 vectordb.new_car_model），失败时返回空列表由前端兜底。"""
+    try:
+        import psycopg2
+        load_dotenv(ENV_PATH, override=False)
+        load_dotenv(PROJECT_DIR / ".env.new-car", override=False)
+        conn = psycopg2.connect(
+            host=os.getenv("NEW_CAR_PG_HOST", "192.168.3.146"),
+            port=int(os.getenv("NEW_CAR_PG_PORT", "5432")),
+            dbname=os.getenv("NEW_CAR_PG_DATABASE", "vectordb"),
+            user=os.getenv("NEW_CAR_PG_USER", "vectordb"),
+            password=os.getenv("NEW_CAR_PG_PASSWORD", ""),
+            connect_timeout=4,
+        )
+        with conn, conn.cursor() as cur:
+            cur.execute(
+                "SELECT model_style_id, launch_year, launch_month, launch_date, region, brand, model,"
+                " attr, vehicle_type, vehicle_level, series, enterprise, energy_type,"
+                " import_batch"
+                " FROM new_car_model ORDER BY launch_date DESC NULLS LAST, model_style_id"
+            )
+            rows = [
+                {
+                    "id": r[0], "year": r[1], "month": r[2],
+                    "launch_date": r[3].isoformat() if r[3] else None,
+                    "region": r[4], "brand": r[5], "model": r[6], "attr": r[7],
+                    "cat": r[8], "level": r[9], "series": r[10], "corp": r[11],
+                    "energy": r[12], "batch": r[13],
+                }
+                for r in cur.fetchall()
+            ]
+        batches = sorted({str(row["batch"]) for row in rows if row.get("batch")}, reverse=True)
+        return {
+            "source": "postgresql",
+            "total": len(rows),
+            "batch": batches[0] if batches else "",
+            "rows": rows,
+        }
+    except Exception as exc:  # noqa: BLE001 — 数据库不可用时前端回退 demo 数据
+        return {"source": "unavailable", "error": str(exc), "rows": []}
+
+
+def load_planned_new_car_rows() -> dict[str, Any]:
+    """读取规划新车数据，失败时返回空列表供前端显示明确的空状态。"""
+    try:
+        import psycopg2
+        load_dotenv(ENV_PATH, override=False)
+        load_dotenv(PROJECT_DIR / ".env.new-car", override=False)
+        connection = psycopg2.connect(
+            host=os.getenv("NEW_CAR_PG_HOST", "192.168.3.146"),
+            port=int(os.getenv("NEW_CAR_PG_PORT", "5432")),
+            dbname=os.getenv("NEW_CAR_PG_DATABASE", "vectordb"),
+            user=os.getenv("NEW_CAR_PG_USER", "vectordb"),
+            password=os.getenv("NEW_CAR_PG_PASSWORD", ""),
+            connect_timeout=4,
+        )
+        with connection, connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT source_batch, source_row, origin_series, enterprise, brand, model_code,"
+                " attr, vehicle_level, vehicle_type, energy_type, msrp, price_band, market_status,"
+                " launch_year, launch_month, launch_quarter, selling_points, competitor, notes"
+                " FROM planned_new_car ORDER BY source_batch DESC, source_row"
+            )
+            rows = [
+                {
+                    "batch": row[0], "source_row": row[1], "series": row[2],
+                    "enterprise": row[3], "brand": row[4], "model": row[5],
+                    "attr": row[6], "level": row[7], "cat": row[8], "energy": row[9],
+                    "msrp": row[10], "price_band": row[11], "status": row[12],
+                    "year": row[13], "month": row[14], "quarter": row[15],
+                    "selling_points": row[16], "competitor": row[17], "notes": row[18],
+                }
+                for row in cursor.fetchall()
+            ]
+        batches = sorted({row["batch"] for row in rows if row["batch"]}, reverse=True)
+        return {
+            "source": "postgresql",
+            "total": len(rows),
+            "batch": batches[0] if batches else "",
+            "rows": rows,
+        }
+    except Exception as exc:  # noqa: BLE001 — 规划数据不可用时前端展示空状态
+        return {"source": "unavailable", "error": str(exc), "rows": []}
+
+
+def load_new_car_reputation(model: str) -> dict[str, Any]:
+    """读取车型级正负口碑 TOP3；数据由两份业务口碑明细离线聚合生成。"""
+    if not model:
+        return {"source": "unavailable", "error": "缺少车型名称", "model": model, "groups": {}}
+    try:
+        import psycopg2
+        load_dotenv(ENV_PATH, override=False)
+        load_dotenv(PROJECT_DIR / ".env.new-car", override=False)
+        connection = psycopg2.connect(
+            host=os.getenv("NEW_CAR_PG_HOST", "192.168.3.146"),
+            port=int(os.getenv("NEW_CAR_PG_PORT", "5432")),
+            dbname=os.getenv("NEW_CAR_PG_DATABASE", "vectordb"),
+            user=os.getenv("NEW_CAR_PG_USER", "vectordb"),
+            password=os.getenv("NEW_CAR_PG_PASSWORD", ""),
+            connect_timeout=4,
+        )
+        with connection, connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT direction, rank, primary_label, secondary_labels, mention_count, mention_share,"
+                " dongchedi_count, autohome_count, source_mentions, import_batch"
+                " FROM new_car_reputation_summary WHERE model=%s ORDER BY direction, rank",
+                (model,),
+            )
+            records = cursor.fetchall()
+        groups: dict[str, list[dict[str, Any]]] = {"positive": [], "negative": []}
+        for row in records:
+            groups[row[0]].append({
+                "rank": row[1], "label": row[2], "secondary": row[3],
+                "mentions": row[4], "share": float(row[5]), "source_mentions": row[8],
+            })
+        if not records:
+            return {"source": "postgresql", "model": model, "available": False, "groups": groups}
+        return {
+            "source": "postgresql", "model": model, "available": True,
+            "total_reviews": records[0][6] + records[0][7],
+            "sources": {"dongchedi": records[0][6], "autohome": records[0][7]},
+            "batch": records[0][9], "groups": groups,
+            "method": "一级标签声量占比；懂车帝评分维度 + 汽车之家满意/不满意文本",
+        }
+    except Exception as exc:  # noqa: BLE001 — 口碑不可用时前端展示空状态
+        return {"source": "unavailable", "error": str(exc), "model": model, "groups": {}}
 
 
 def monthly_report_check_score(checks: list[Any]) -> tuple[int, int, int]:
