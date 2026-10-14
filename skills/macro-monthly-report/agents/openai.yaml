@@ -1,0 +1,13 @@
+interface:
+  display_name: "宏观经济月报"
+  short_description: "延续历史图表、补入新月实际、提炼主题句并单独展望下月，生成可编辑宏观月报"
+  icon_large: "./assets/preview.png"
+  default_prompt: "使用 $macro-monthly-report 为指定月份更新历史宏观月报，补入本月实际数据、提炼主题句并展望下月，完成独立数据与Office验收后交付可编辑PPT。"
+policy:
+  allow_implicit_invocation: true
+  allow_package_scripts: true
+  required_artifact_validators:
+    - "macro_business"
+    - "pptx_structure"
+    - "powerpoint_render"
+    - "macro_layout"

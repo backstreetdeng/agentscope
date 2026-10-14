@@ -23,6 +23,7 @@ from agentscope.message import UserMsg
 
 from agents.market_strategy_agent import build_market_strategy_agent
 from agents.user_insight_agent import build_user_insight_agent
+from integrations.market_mcp_plugins import load_market_mcp_plugins
 from skills.market_analysis_skill import MarketAnalysisSkill
 from utils.config import ENV_PATH, PROJECT_DIR, expand_env, load_json_config
 from utils.text import strip_thinking
@@ -91,6 +92,12 @@ async def run_independent_agents() -> None:
         for event in market_skill_context.events:
             print(f"  [{event.status}] {event.stage}: {event.detail}")
 
+    market_plugins = await load_market_mcp_plugins(config, agent_key="market_strategy")
+    user_plugins = await load_market_mcp_plugins(config, agent_key="user_insight_config")
+    for bundle_name, bundle in (("市场 Agent", market_plugins), ("用户 Agent", user_plugins)):
+        ready = [item.display_name for item in bundle.statuses if item.status == "ready"]
+        print(f"{bundle_name} MCP 插件：{len(ready)}/4 就绪（{'、'.join(ready) or '未连接'}）")
+
     market_agent = build_market_strategy_agent(
         config,
         skill_instruction=market_skill_context.prompt_context,
@@ -100,8 +107,9 @@ async def run_independent_agents() -> None:
             if market_skill_context.active and config["agents"]["market_strategy"].get("monthly_report_max_tokens")
             else None
         ),
+        market_mcp_tools=market_plugins.tools,
     )
-    user_agent = build_user_insight_agent(config)
+    user_agent = build_user_insight_agent(config, market_mcp_tools=user_plugins.tools)
 
     market_report = await run_agent(market_agent, market_task)
     if market_skill_context.active:

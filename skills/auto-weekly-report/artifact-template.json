@@ -1,0 +1,10 @@
+{
+  "kind": "document",
+  "reference": "assets/weekly-template.docx",
+  "description": "中国汽车产业周度资讯快报克隆模板；两节、原生自动编号、九章十四板块",
+  "deliverables": [
+    "html",
+    "docx",
+    "sources"
+  ]
+}

@@ -32,6 +32,11 @@ def build_model(config: dict[str, Any], max_tokens_override: int | None = None):
 
     provider_name = config["active_provider"]
     provider = dict(config["providers"][provider_name])
+    if provider.get("enabled") is False:
+        raise RuntimeError(
+            str(provider.get("availability_note"))
+            or f"模型提供方 {provider_name} 当前不可用。"
+        )
     provider_type = provider["type"]
     provider["model"] = expand_env(provider.get("model", ""))
     # 月报等长文本任务可通过公开的 ``max_tokens`` 参数单独提高输出额度，

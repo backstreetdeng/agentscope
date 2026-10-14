@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>战略决策分析｜乘用车市场战略决策AI智能体</title>
+  <meta name="description" content="面向中国乘用车月报的智能分析、质量门禁与报告交付工作台。">
+  <link rel="stylesheet" href="/assets/strategy-analysis.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <a class="back-link" href="/" aria-label="返回新主页">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+      </a>
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M5 15.5 8.5 12l3 2 6-7 1.5 1.5-7 9-3-2L6.5 18z"/><path d="M5 5v14h14"/></svg>
+      </span>
+      <div>
+        <strong>战略决策分析</strong>
+        <span>智能分析工作台</span>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span class="connection-pill" id="connectionPill"><i></i><span id="connectionText">正在连接后端</span></span>
+      <a class="home-link" href="/#projects">返回项目</a>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <section class="workspace-head" aria-labelledby="pageTitle">
+      <div>
+        <p class="eyebrow">MARKET INTELLIGENCE / 01</p>
+        <h1 id="pageTitle">把月报问题，交给一条可追踪的分析链路</h1>
+        <p>选择模型、技能与插件，系统会从已登录的数据源执行数据采集、映射验数、业务推理与报告生成。每一步都留下可核对记录。</p>
+      </div>
+      <div class="head-meta" aria-label="当前任务信息">
+        <span>当前Agent</span>
+        <strong>市场战略Agent</strong>
+      </div>
+    </section>
+
+    <div class="analysis-grid">
+      <section class="conversation-panel" aria-labelledby="conversationTitle">
+        <header class="panel-heading conversation-heading">
+          <div>
+            <span class="panel-kicker">任务会话</span>
+            <h2 id="conversationTitle">输入与执行</h2>
+          </div>
+          <button class="icon-button" id="resetBtn" type="button" title="清空本轮状态" aria-label="清空本轮状态">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.6"/><path d="M4 4v4.6h4.6"/></svg>
+          </button>
+        </header>
+
+        <div class="conversation-stream" id="conversationStream" aria-live="polite">
+          <div class="assistant-line">
+            <div class="agent-avatar" aria-hidden="true">AI</div>
+            <div class="assistant-intro">
+              <div><strong>市场战略Agent</strong><span>已就绪</span></div>
+              <p id="assistantStatus">请选择所需技能与插件，输入分析问题后开始执行。</p>
+            </div>
+          </div>
+
+          <section class="execution-card" aria-labelledby="executionTitle">
+            <header class="execution-head">
+              <div>
+                <span class="execution-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M9 3h6l1 3 3 1v6l-3 1-1 3H9l-1-3-3-1V7l3-1z"/><path d="m9 10 2 2 4-4"/></svg>
+                </span>
+                <div><h3 id="executionTitle">智能体执行过程</h3><p>所有阶段均可追踪</p></div>
+              </div>
+              <span class="execution-state" id="executionState">等待执行</span>
+            </header>
+            <div class="progress-track" aria-hidden="true"><span id="progressFill"></span></div>
+            <p id="passengerRunSummary" class="passenger-run-summary" hidden aria-live="polite"></p>
+            <div class="steps" id="steps"></div>
+          </section>
+
+          <section class="event-console" aria-labelledby="eventTitle">
+            <header><span id="eventTitle">执行过程</span><button id="copyLogBtn" type="button">复制日志</button></header>
+            <pre id="eventLog">等待执行...
+请选择所需技能与插件，输入分析问题后开始执行。</pre>
+          </section>
+        </div>
+
+        <div class="composer" id="composer">
+          <section class="macro-run-config" id="passengerRunConfig" hidden>
+            <label class="macro-month-field" for="passengerReportMonth"><span>乘用车月报月份</span>
+              <input id="passengerReportMonth" type="month" aria-label="选择乘用车月报月份">
+            </label>
+            <p>留空时自动核对；部分卡片更新滞后可继续，对应PPT内容保留原样。同月已验收数据直接复用。</p>
+          </section>
+          <section class="macro-run-config" id="macroRunConfig" aria-label="宏观经济月报执行设置" hidden>
+            <div class="macro-run-config__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z"/><path d="m9 15 2 2 4-5"/></svg>
+            </div>
+            <div class="macro-run-config__copy">
+              <span>宏观经济月报 · 执行设置</span>
+              <strong>无需上传数据台账</strong>
+              <p>延续历史图表，补入新月份数据，提炼主题句并单独展望下月。</p>
+            </div>
+            <label class="macro-month-field" for="macroReportMonth">
+              <span>报告月份</span>
+              <input id="macroReportMonth" type="month" aria-label="选择宏观经济月报月份">
+            </label>
+          </section>
+          <label class="sr-only" for="questionInput">分析任务</label>
+          <textarea id="questionInput" rows="4">请根据当前问题开展汽车市场分析，只调用我已勾选的技能与插件，并说明实际使用了哪些能力。</textarea>
+          <div class="composer-footer">
+            <div class="composer-tools">
+              <div class="select-wrap">
+                <label class="sr-only" for="modelSelect">大模型</label>
+                <select id="modelSelect" aria-label="选择大模型">
+                  <option value="minimax">MiniMax M3</option>
+                  <option value="bailian_token_plan">百炼 Qwen3.7 Plus</option>
+                  <option value="zhipu" disabled>智谱 GLM-5.3（Coding Plan 暂不可用）</option>
+                </select>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 10 4 4 4-4"/></svg>
+              </div>
+
+              <div class="capability-picker">
+                <button class="capability-trigger" id="capabilityTrigger" type="button" aria-haspopup="dialog" aria-expanded="false">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M17.5 14v7M14 17.5h7"/></svg>
+                  <span>插件 + 技能</span>
+                  <b id="capabilityCount">4</b>
+                </button>
+                <div class="capability-popover" id="capabilityPopover" role="dialog" aria-label="选择插件与技能" hidden>
+                  <header>
+                    <div><strong>可用能力</strong><span>来自新主页的“技能”与“插件”</span></div>
+                    <button id="selectAllCapabilities" type="button">全部勾选</button>
+                  </header>
+                  <div class="capability-scroll" id="capabilityList"></div>
+                  <footer><span id="capabilityHint">默认开启四项数据底座</span><button id="closeCapabilities" type="button">完成</button></footer>
+                </div>
+              </div>
+            </div>
+            <div class="run-actions">
+              <button class="cancel-run-button" id="cancelRunBtn" type="button" hidden>取消任务</button>
+              <button class="run-button" id="runBtn" type="button">
+                <span>开始分析</span>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+              </button>
+            </div>
+          </div>
+          <p class="composer-note">Ctrl / ⌘ + Enter 开始分析 · 报告生成后自动执行质量门禁</p>
+        </div>
+      </section>
+
+      <section class="result-panel" aria-labelledby="resultTitle">
+        <header class="panel-heading result-heading">
+          <div>
+            <span class="panel-kicker">交付工作区</span>
+            <h2 id="resultTitle">分析结果</h2>
+          </div>
+          <div class="result-actions">
+            <button class="secondary-button" id="copyBtn" type="button" disabled>复制报告</button>
+            <button class="secondary-button" id="pptBtn" type="button" disabled>生成PPT版</button>
+            <button class="primary-outline-button" id="downloadBtn" type="button" disabled>下载MD</button>
+          </div>
+        </header>
+
+        <div class="result-body">
+          <div class="metrics" aria-label="分析状态指标">
+            <article><span>当前Agent</span><strong>市场</strong></article>
+            <article><span>质量门禁</span><strong id="qualityMetric">-</strong></article>
+            <article><span>工具状态</span><strong id="toolMetric">6</strong></article>
+            <article><span>输出长度</span><strong id="lengthMetric">-</strong></article>
+          </div>
+
+          <section class="quality-panel" id="qualityPanel" aria-labelledby="qualityTitle">
+            <div>
+              <span class="quality-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.3c0 4.6 3.2 8.2 7.5 9.7 4.3-1.5 7.5-5.1 7.5-9.7V6z"/><path d="m9 12 2 2 4-4"/></svg></span>
+              <div><h3 id="qualityTitle">数据质量门禁</h3><p>报告返回后自动审查；状态会影响 PPT 生成提醒。</p></div>
+            </div>
+            <span class="quality-status" id="qualityStatus">待报告生成</span>
+          </section>
+
+          <article class="report" id="reportArea" aria-live="polite">
+            <div class="empty-state">
+              <span class="empty-visual" aria-hidden="true">
+                <svg viewBox="0 0 64 64"><path d="M18 8h22l10 10v38H18z"/><path d="M40 8v12h12M25 30h18M25 38h18M25 46h11"/></svg>
+              </span>
+              <strong>还没有分析结果</strong>
+              <p>选择模型、技能与插件并点击“开始分析”后，这里会展示完整报告。</p>
+              <button id="emptyStartBtn" type="button">开始第一次分析</button>
+            </div>
+          </article>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <script src="/assets/strategy-analysis.js"></script>
+</body>
+</html>

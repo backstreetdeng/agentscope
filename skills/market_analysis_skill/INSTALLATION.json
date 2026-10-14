@@ -1,0 +1,39 @@
+{
+  "skill": "china-passenger-vehicle-monthly-report",
+  "version": "2.0.0",
+  "installed_at": "2026-09-13T18:53:26",
+  "source_package": "E:\\AI\\data\\envs\\helloagent\\myproject\\skills\\market-analysis-skill\\month-skill",
+  "installed_files": [
+    "skills/market_analysis_skill/profiles/passenger_vehicle_monthly/assets/demo_monthly_data.xlsx",
+    "skills/market_analysis_skill/profiles/passenger_vehicle_monthly/assets/demo_monthly_data_v1.xlsx",
+    "skills/market_analysis_skill/profiles/passenger_vehicle_monthly/assets/monthly_report_template.pptx",
+    "skills/market_analysis_skill/profiles/passenger_vehicle_monthly/assets/monthly_report_template_v1.pptx",
+    "skills/market_analysis_skill/profiles/passenger_vehicle_monthly/data_contract.md",
+    "skills/market_analysis_skill/profiles/passenger_vehicle_monthly/examples/expert_narrative_patterns.md",
+    "skills/market_analysis_skill/profiles/passenger_vehicle_monthly/examples/README.md",
+    "skills/market_analysis_skill/profiles/passenger_vehicle_monthly/excel_v2_mapping.yaml",
+    "skills/market_analysis_skill/profiles/passenger_vehicle_monthly/narrative_rules.md",
+    "skills/market_analysis_skill/profiles/passenger_vehicle_monthly/page_specs.yaml",
+    "skills/market_analysis_skill/profiles/passenger_vehicle_monthly/profile.yaml",
+    "skills/market_analysis_skill/profiles/passenger_vehicle_monthly/quality_rules.yaml",
+    "skills/market_analysis_skill/runtime.py",
+    "utils/monthly_report_pptx.py",
+    "utils/monthly_report_pptx_v2.py"
+  ],
+  "backed_up_files": [
+    ".market_monthly_skill_backups/20260913_185326/skills/market_analysis_skill/runtime.py",
+    ".market_monthly_skill_backups/20260913_185326/utils/monthly_report_pptx.py"
+  ],
+  "host_integration": {
+    "date": "2026-09-13",
+    "status": "integrated",
+    "agent": "agents/market_strategy_agent.py",
+    "analysis_type": "market_monthly_report",
+    "default_dataset": "skills/market_analysis_skill/profiles/passenger_vehicle_monthly/assets/demo_monthly_data.xlsx",
+    "host_runtime_changes": "Legacy prompt and template compatibility, strict dataset/month/year selection, complete page-block checks, and analysis-to-PPT dataset binding.",
+    "verification": "52 offline host tests passed; editable PPT smoke produced 23 slides, 47 charts and 37 tables; skill validation and JavaScript syntax passed.",
+    "live_service": "Restarted the verified local project app.py; GET /api/market-skill/status reports 2.0.0.",
+    "model_call": "Mocked during integration testing; no new-month AI report has been generated."
+  },
+  "next_step": "Provide the new-month Excel and human-authored PPT; follow references/new_month_comparison.md to generate an independent AI first draft, then compare."
+}

@@ -1,0 +1,10 @@
+{
+  "name": "passenger-car-market-agent",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local browser MCP runtime dependencies for the AgentScope market agent.",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@playwright/mcp": "0.0.82"
+  }
+}

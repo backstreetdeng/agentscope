@@ -74,7 +74,9 @@ def main(xlsx_path: Path, batch: str):
     cur = conn.cursor()
     cur.execute(DDL)
     cur.executemany("""
-        INSERT INTO new_car_model VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+        INSERT INTO new_car_model (model_style_id, launch_year, launch_month, launch_date,
+            region, brand, model, attr, vehicle_type, vehicle_level, series, enterprise,
+            energy_type, import_batch) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
         ON CONFLICT (model_style_id) DO UPDATE SET
             launch_year=EXCLUDED.launch_year, launch_month=EXCLUDED.launch_month,
             launch_date=EXCLUDED.launch_date, region=EXCLUDED.region, brand=EXCLUDED.brand,

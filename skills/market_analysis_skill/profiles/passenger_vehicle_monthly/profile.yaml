@@ -1,0 +1,63 @@
+schema_version: 2
+id: passenger_vehicle_monthly
+display_name: 中国乘用车行业月报
+version: 2.0.0
+locale: zh-CN
+
+business_scope:
+  geography: 中国
+  industry: 乘用车
+  frequency: monthly
+  default_statistical_scope: 终端零售
+  content_pages: 18
+  total_pages: 23
+  supported_dimensions:
+    - 市场总量
+    - 新品与库存
+    - 车型类别
+    - 车型级别
+    - 车型系别
+    - 价格段
+    - 省份与城市线级
+    - 企业竞争
+    - 新能源及能源形式
+    - TOP车型
+
+inputs:
+  primary: xlsx_single_sheet_page_blocks_v2
+  contract: data_contract.md
+  mapping: excel_v2_mapping.yaml
+  demo_dataset: assets/demo_monthly_data.xlsx
+  page_markers: [3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+  legacy:
+    format: xlsx_cross_tab_v1
+    dataset: assets/demo_monthly_data_v1.xlsx
+    template: assets/monthly_report_template_v1.pptx
+
+outputs:
+  report: markdown
+  presentation: editable_pptx
+  audit: json
+  template: assets/monthly_report_template.pptx
+  default_page_count: 23
+  expected_content_page_count: 18
+  expected_chart_count: 47
+  expected_table_count: 37
+
+evidence_policy:
+  priority:
+    - internal_structured_data
+    - internal_research_content
+    - official_external_source
+    - professional_industry_source
+    - media_lead
+  strong_causality_requires:
+    - data_change
+    - traceable_event
+    - time_alignment
+  public_report_hides_internal_evidence_ids: true
+
+compatibility:
+  agentscope: "2.0.3"
+  model_protocol: openai-compatible
+  tested_model: MiniMax-M3

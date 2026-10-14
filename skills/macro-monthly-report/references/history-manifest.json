@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "workflow_status": "historical_adapter_implemented_acceptance_per_run",
+  "entries": [
+    {
+      "report_month": "2026-05",
+      "path": "assets/history/2026-05.pptx",
+      "original_filename": "2026年5月宏观经济分析报告.pptx",
+      "sha256": "29bb76ebd76eba869fdbc3f300bc3954eb4eb51f5fac354378344510bf0748bc",
+      "slide_count": 33,
+      "native_chart_count": 37,
+      "embedded_workbook_count": 69,
+      "role": "user_provided_history",
+      "official_actual_verification": "not_performed"
+    },
+    {
+      "report_month": "2026-06",
+      "path": "assets/history/2026-06.pptx",
+      "original_filename": "2026年6月宏观经济分析报告.pptx",
+      "sha256": "8505147c6340da66644d92486491dbccea5645f2c8cdc4859a3c3f530f9c290e",
+      "slide_count": 33,
+      "native_chart_count": 37,
+      "embedded_workbook_count": 70,
+      "role": "user_provided_history",
+      "official_actual_verification": "not_performed"
+    },
+    {
+      "report_month": "2026-07",
+      "path": "assets/history/2026-07.pptx",
+      "original_filename": "2026年7月宏观经济分析报告.pptx",
+      "sha256": "3f8451e640b9d22becc1fedf49eccd3c8daafbbcebc0b2b4db7ed4b8586bc5e6",
+      "slide_count": 33,
+      "native_chart_count": 36,
+      "embedded_workbook_count": 61,
+      "role": "user_provided_history",
+      "official_actual_verification": "not_performed"
+    }
+  ],
+  "active_reference": {
+    "path": "assets/reference.pptx",
+    "sha256": "aa5e447e40833887ef9d84be16fcd5e10c5cc5db5d6203ffbbf075c9a4f46199",
+    "unchanged": true
+  },
+  "inspection_command": "python scripts/study_reference_decks.py --inputs assets/history/2026-05.pptx assets/history/2026-06.pptx assets/history/2026-07.pptx --output-dir working/reference-study"
+}

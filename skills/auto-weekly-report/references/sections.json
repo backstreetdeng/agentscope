@@ -1,0 +1,148 @@
+[
+  {
+    "id": "policy",
+    "section": "政策法规",
+    "subsection": "",
+    "keywords": "促消费 购车补贴 以旧换新 新能源汽车政策",
+    "target_max": 8,
+    "preserve_title": false,
+    "entry_urls": []
+  },
+  {
+    "id": "macro",
+    "section": "宏观动态",
+    "subsection": "",
+    "keywords": "统计局 央行 商务部 货币政策 促消费 PMI",
+    "target_max": 6,
+    "preserve_title": false,
+    "entry_urls": []
+  },
+  {
+    "id": "industry",
+    "section": "行业动态",
+    "subsection": "",
+    "keywords": "汽车 行业协会 标准 工信部 联合通知 安全 测试验证",
+    "target_max": 5,
+    "preserve_title": false,
+    "entry_urls": []
+  },
+  {
+    "id": "luxury",
+    "section": "企业要闻",
+    "subsection": "豪华品牌车企",
+    "keywords": "宝马 奔驰 奥迪 特斯拉 中国 投产 投资 合作",
+    "target_max": 6,
+    "preserve_title": true,
+    "entry_urls": [
+      "https://auto.gasgoo.com/automaker/C-109"
+    ]
+  },
+  {
+    "id": "joint",
+    "section": "企业要闻",
+    "subsection": "合资品牌车企",
+    "keywords": "大众 丰田 本田 通用 日产 在华 合作 投产",
+    "target_max": 6,
+    "preserve_title": false,
+    "entry_urls": [
+      "https://auto.gasgoo.com/automaker/C-109"
+    ]
+  },
+  {
+    "id": "domestic",
+    "section": "企业要闻",
+    "subsection": "自主品牌车企",
+    "keywords": "比亚迪 吉利 奇瑞 长安 长城 中国 投资 合作 技术平台",
+    "target_max": 10,
+    "preserve_title": true,
+    "entry_urls": [
+      "https://auto.gasgoo.com/automaker/C-109"
+    ]
+  },
+  {
+    "id": "startup",
+    "section": "企业要闻",
+    "subsection": "造车新势力及其他车企",
+    "keywords": "蔚来 小鹏 理想 零跑 小米 极氪 合作 投资 技术平台",
+    "target_max": 10,
+    "preserve_title": true,
+    "entry_urls": [
+      "https://auto.gasgoo.com/automaker/C-109"
+    ]
+  },
+  {
+    "id": "executive",
+    "section": "高层动态",
+    "subsection": "",
+    "keywords": "汽车 董事长 总裁 高管 任命 公告 生效",
+    "target_max": 5,
+    "preserve_title": false,
+    "entry_urls": []
+  },
+  {
+    "id": "parts",
+    "section": "零部件",
+    "subsection": "",
+    "keywords": "汽车 零部件 定点 量产 投产 产品 参数",
+    "target_max": 8,
+    "preserve_title": true,
+    "entry_urls": [
+      "https://auto.gasgoo.com/parts-news/C-103"
+    ]
+  },
+  {
+    "id": "strategy",
+    "section": "战略规划",
+    "subsection": "",
+    "keywords": "汽车 中国 企业 战略 规划 正式发布",
+    "target_max": 6,
+    "preserve_title": true,
+    "entry_urls": [
+      "https://auto.gasgoo.com/automaker/C-109"
+    ]
+  },
+  {
+    "id": "energy",
+    "section": "新技术/新趋势",
+    "subsection": "新能源技术",
+    "keywords": "电池 充电 钠电 固态 技术 量产 参数",
+    "target_max": 6,
+    "preserve_title": true,
+    "entry_urls": [
+      "https://auto.gasgoo.com/new-tech/C-409"
+    ]
+  },
+  {
+    "id": "intelligent",
+    "section": "新技术/新趋势",
+    "subsection": "智能网联技术",
+    "keywords": "智能驾驶 激光雷达 芯片 人工智能 技术 量产 参数",
+    "target_max": 6,
+    "preserve_title": true,
+    "entry_urls": [
+      "https://auto.gasgoo.com/new-tech/C-409"
+    ]
+  },
+  {
+    "id": "othertech",
+    "section": "新技术/新趋势",
+    "subsection": "其他关键技术",
+    "keywords": "汽车 底盘 热管理 轻量化 座舱 技术 量产 参数",
+    "target_max": 3,
+    "preserve_title": true,
+    "entry_urls": [
+      "https://auto.gasgoo.com/new-tech/C-409"
+    ]
+  },
+  {
+    "id": "newcar",
+    "section": "新车上市",
+    "subsection": "",
+    "keywords": "汽车 全新车系 正式上市 首次上市 售价",
+    "target_max": 5,
+    "preserve_title": false,
+    "entry_urls": [
+      "https://price.pcauto.com.cn/cars/6/"
+    ]
+  }
+]

@@ -1,0 +1,4 @@
+interface:
+  display_name: "乘用车月报智能生成"
+  short_description: "读取月报数据源，更新可编辑PPT并生成有证据的主旨句"
+  default_prompt: "使用 $passenger-car-monthly-report 生成指定月份月报；先复用同月已验收数据包，无需浏览器登录，缺失数据或明确刷新时才补采，调用四个插件和互联网动态研究后生成可追溯主旨句，并按同一run_id更新PPT。"

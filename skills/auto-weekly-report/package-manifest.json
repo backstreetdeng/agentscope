@@ -1,0 +1,47 @@
+{
+  "skill_id": "auto-weekly-report",
+  "display_name": "周度资讯快报自动生成",
+  "version": "1.0.0",
+  "source_package": "E:\\AI\\data\\envs\\helloagent\\share\\auto-weekly-report",
+  "template": "assets/weekly-template.docx",
+  "template_reference_period": [
+    "2026-09-26",
+    "2026-10-10"
+  ],
+  "knowledge": [
+    "SKILL.md",
+    "references/runtime-contract.md",
+    "references/search_prompts.md",
+    "references/report_rules.md",
+    "references/coverage_log.md",
+    "references/周报提示词-原文.md",
+    "references/autohome-series-identity.md"
+  ],
+  "scripts": [
+    "scripts/gen_report.py",
+    "scripts/gen_visual_html.py",
+    "scripts/gen_sources.py",
+    "scripts/validate_weekly.py",
+    "scripts/render_word.ps1"
+  ],
+  "deliverables": [
+    "html",
+    "docx",
+    "sources"
+  ],
+  "dependencies": {
+    "python": [
+      "python-docx>=1.1,<2",
+      "lxml",
+      "agentscope==2.0.3"
+    ],
+    "search": "agent-reach/exa",
+    "fetch": "web_fetch",
+    "series_identity": "autohome public suggest + exact-name catalog"
+  },
+  "read_only_package": true,
+  "web_runtime": [
+    "scripts/web_runtime/weekly_report_jobs.py",
+    "scripts/web_runtime/weekly_report_research.py"
+  ]
+}

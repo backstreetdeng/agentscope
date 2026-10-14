@@ -1,0 +1,89 @@
+{
+  "version": 3,
+  "purpose": "Macro monthly report authoritative-source retrieval plan",
+  "public_source_policy": "public-source-policy.json",
+  "queries": [
+    {
+      "id": "nbs_macro",
+      "tool": "agent_reach_search",
+      "query_template": "site:stats.gov.cn {year}年{month}月份 国民经济运行情况",
+      "source_domains": ["stats.gov.cn"],
+      "covers": ["PMI", "工业增加值", "社零", "固定资产投资", "房地产投资", "CPI", "PPI", "进出口"]
+    },
+    {
+      "id": "pboc_finance",
+      "tool": "agent_reach_search",
+      "query_template": "site:pbc.gov.cn {year}年{month}月 金融统计数据报告 社会融资规模 M2",
+      "source_domains": ["pbc.gov.cn"],
+      "covers": ["社会融资规模", "人民币贷款", "M1", "M2", "LPR"]
+    },
+    {
+      "id": "caam_auto",
+      "tool": "agent_reach_search",
+      "query_template": "site:caam.org.cn {year}年{month}月 汽车工业产销情况 新能源汽车",
+      "source_domains": ["caam.org.cn"],
+      "definition_boundary": "仅限明确要求中汽协汽车产销、出口、新能源汽车定义的序列；不得替换乘联分会乘用车零售序列。",
+      "covers": ["汽车销量", "乘用车销量", "新能源汽车销量", "出口"]
+    },
+    {
+      "id": "global_pmi",
+      "tool": "agent_reach_search",
+      "query_template": "{year} {month} manufacturing PMI China US Japan Eurozone S&P Global HCOB",
+      "source_domains": ["spglobal.com", "pmi.spglobal.com", "ismworld.org", "stats.gov.cn"],
+      "covers": ["全球PMI", "美国PMI", "日本PMI", "欧元区PMI"]
+    },
+    {
+      "id": "nbs_gdp",
+      "tool": "agent_reach_search",
+      "query_template": "site:stats.gov.cn {year}年 国内生产总值 GDP 季度 初步核算",
+      "source_domains": ["stats.gov.cn"],
+      "covers": ["季度GDP", "季度GDP同比"],
+      "definition_boundary": "季度与年初累计口径分别取证，不将季度数值复制为月度实际。"
+    },
+    {
+      "id": "customs_trade",
+      "tool": "agent_reach_search",
+      "query_template": "site:customs.gov.cn {year}年{month}月 进出口 总值 美元 人民币",
+      "source_domains": ["customs.gov.cn"],
+      "covers": ["出口", "进口", "进出口差额"],
+      "definition_boundary": "美元/人民币、当月/累计、总值/同比必须精确区分。"
+    },
+    {
+      "id": "mof_fiscal",
+      "tool": "agent_reach_search",
+      "query_template": "site:mof.gov.cn {year}年{month}月 财政收支情况",
+      "source_domains": ["mof.gov.cn"],
+      "covers": ["一般公共预算收入", "一般公共预算支出", "政府性基金收入", "土地出让收入"]
+    },
+    {
+      "id": "cpca_passenger_retail",
+      "tool": "agent_reach_search",
+      "query_template": "site:cpcaauto.com {year}年{month}月 全国乘用车市场分析 零售",
+      "source_domains": ["cpcaauto.com"],
+      "covers": ["乘联分会乘用车零售", "乘用车零售同比"],
+      "definition_boundary": "仅提取乘联分会原始发布的乘用车零售；无原始页面则报告缺口，不使用中汽协销量代替。"
+    },
+    {
+      "id": "pboc_lpr",
+      "tool": "agent_reach_search",
+      "query_template": "{year}年{month}月 贷款市场报价利率 LPR 中国人民银行 全国银行间同业拆借中心",
+      "source_domains": ["pbc.gov.cn", "chinamoney.com.cn"],
+      "covers": ["1年期LPR", "5年期以上LPR"]
+    },
+    {
+      "id": "continuous_futures_oil",
+      "tool": "agent_reach_search",
+      "query_template": "{year}年{month}月 WTI Brent 连续期货 结算价 Wind CME ICE",
+      "source_domains": ["wind.com.cn", "cmegroup.com", "theice.com"],
+      "covers": ["布伦特原油连续期货结算价", "WTI原油连续期货结算价"],
+      "definition_boundary": "保留期货连续合约定义和实际交易日。EIA/FRED现货不能替换；单合约结算价只有经公开换月规则核验才能形成同口径派生数列。"
+    }
+  ],
+  "rules": [
+    "先从原发布机构目录发现当期及历史发布，再按年月/季度/周/交易日定向检索；查询与原文保存检查点。来源计划必须真正被执行，不得只列在说明中。补充历史以契约训练窗口为界、有界停止；发现URL不是数值证据。",
+    "目标月已发布则记录实际值；尚未发布则以最新实际值和历史序列形成预测，并标注预测。",
+    "不得将搜索摘要未经核验地伪装成官方原始数据。原始正文必须有逐字数值引文、观测期、口径、单位、可核验发布日期和抓取时间/正文哈希。",
+    "任何晚于信息截止日的发布均排除。最新官方观测可能早于报告月，必须保留原观测月份，不得改成目标月实际。",
+    "Wind、Mysteel等名称是来源归属，不是用户必需提供账号的前置条件；优先原始公开来源，必要时使用已登记的券商/期货公开原文并核对上游归属，最新值需第二独立发布机构互证。不能把同一报告的镜像算成双源。确实未取得同口径可验证观测时才逐指标列缺口，不用名称相近的公开序列替换。"
+  ]
+}

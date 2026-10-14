@@ -1,0 +1,186 @@
+/* Compact intelligence workspace. Presentation only; live data IDs stay intact. */
+.workspace-page {
+  --sidebar-w: 208px;
+  --topbar-h: 60px;
+  --max-w: 1680px;
+  --c-bg-page: #f8fafc;
+  --c-text-secondary: #64748b;
+  --c-text-primary: #17243a;
+  --c-border: #e5eaf1;
+  --ff-display: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  --ff-body: 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  background: #f8fafc;
+}
+.workspace-page .topbar { padding: 0 22px; background: #fff; backdrop-filter: none; }
+.workspace-page .topbar__logo { width: 34px; height: 34px; background: none; box-shadow: none; }
+.workspace-page .topbar__logo img { width: 34px; height: 34px; }
+.workspace-page .topbar__brand-name { font-size: 13px; }
+.workspace-page .topbar__brand-subtitle { font-size: 9px; letter-spacing: .09em; color: #71839e; }
+.workspace-page .model-info { font-size: 10px; gap: 12px; }
+.workspace-page .status-pill { height: 28px; padding: 0 10px; font-size: 11px; }
+.workspace-page .sidebar { padding: 20px 12px; background: #fff; backdrop-filter: none; }
+.workspace-page .nav-section__title { font-size: 10px; letter-spacing: .1em; margin-bottom: 10px; }
+.workspace-page .nav-item { min-height: 42px; padding: 8px 10px; gap: 10px; border-radius: 9px; }
+.workspace-page .nav-label { font-size: 13px; font-weight: 500; }
+.workspace-page .nav-item__icon { width: 28px; height: 28px; border-radius: 7px; box-shadow: none; }
+.workspace-page .nav-item__icon svg { width: 18px; height: 18px; }
+.workspace-page .nav-badge { font-size: 10px; min-width: 24px; padding: 2px 6px; }
+.workspace-page .sidebar__nav a[aria-current='page'],
+.workspace-page .sidebar__nav a.is-active { background: #edf3ff; color: #2860d7; box-shadow: none; }
+.workspace-page .sidebar__nav a:hover { background: #f4f7fb; }
+.workspace-page .sidebar__divider { margin: 18px 8px 10px; padding-top: 14px; border-top: 1px solid #e8edf4; }
+.workspace-page .sidebar__divider-label { font-size: 10px; }
+.workspace-page .legacy-nav__link { font-size: 12px; padding: 8px 12px; }
+.workspace-page .nav-item--external { font-size: 11px; white-space: normal; line-height: 1.5; }
+.workspace-page .sidebar__foot { font-size: 10px; background: none; padding: 8px; }
+.workspace-page .main-content { padding: 16px 28px 40px; }
+
+.intel-ribbon { display: flex; align-items: center; gap: 22px; padding: 10px 16px; background: #fff; border: 1px solid #e5eaf1; border-radius: 10px; }
+.intel-ribbon__label { font-size: 12px; font-weight: 650; color: #314563; white-space: nowrap; }
+.intel-ribbon__links { display: flex; flex: 1; gap: 26px; align-items: center; }
+.intel-ribbon__links a { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; white-space: nowrap; }
+.intel-ribbon__links a:hover { color: #2860d7; }
+.intel-ribbon__hint { color: #8491a4; font-size: 11px; margin-left: 3px; }
+.intel-ribbon__dot { width: 6px; height: 6px; border-radius: 50%; background: #3776ed; }
+.intel-ribbon__dot--rights { background: #8073c8; }
+.intel-ribbon__dot--newcar { background: #1e9d94; }
+.intel-ribbon__dot--wom { background: #d6903b; }
+.workspace-page .hero { max-width: none; flex-direction: row; align-items: center; justify-content: space-between; text-align: left; padding: 12px 0; gap: 12px; }
+.workspace-page .hero__eyebrow { align-self: center; background: none; border: none; padding: 0; font-family: var(--ff-body); font-size: 11px; letter-spacing: .07em; color: #7c8ca4; }
+.workspace-page .hero__eyebrow-dot { width: 5px; height: 5px; animation: none; }
+.workspace-page .hero__title { font-size: clamp(20px, 1.6vw, 26px); line-height: 1.4; letter-spacing: -.025em; font-weight: 700; }
+.workspace-page .hero__title > span { color: #2e64d6; }
+.workspace-page .hero__subtitle { font-size: 13px; line-height: 1.8; color: #718099; }
+.workspace-page .hero__cta { justify-content: flex-end; gap: 8px; margin-top: 0; }
+.workspace-page .hero__cta .btn { min-height: 36px; padding: 0 14px; font-size: 12px; border-radius: 8px; }
+.workspace-page .hero__cta .btn--primary { background: #21334f; box-shadow: 0 3px 8px #21334f16; }
+.workspace-page .hero__cta .btn--primary:hover { background: #2d466b; }
+.workspace-page .hero__cta .btn--ghost { background: #fff; border: 1px solid #dce4f0; color: #4266aa; }
+.workspace-page .intelligence { margin-top: 2px; }
+.workspace-page [data-view='intel'] .section-head { align-items: center; margin-bottom: 12px; }
+.workspace-page [data-view='intel'] .section-head__title { font-size: 19px; margin-bottom: 5px; }
+.workspace-page [data-view='intel'] .section-head__title::before { display: none; }
+.workspace-page [data-view='intel'] .section-head__desc { font-size: 12px; color: #7b899e; }
+.workspace-page [data-view='intel'] .chip-btn { min-height: 32px; font-size: 11px; border-radius: 8px; }
+.workspace-page .intelligence__grid { gap: 14px; }
+.workspace-page .intelligence .data-card { padding: 14px; gap: 8px; border-radius: 12px; box-shadow: 0 2px 4px #17243a03; }
+.workspace-page .intelligence .data-card:hover { transform: none; border-color: #cddaf0; box-shadow: 0 5px 15px #17243a08; }
+.workspace-page .intelligence .data-card::before { height: 2px; }
+.workspace-page .intelligence .data-card__title { font-size: 15px; }
+.workspace-page .intelligence .data-card__sub { font-size: 11px; line-height: 1.6; }
+.workspace-page .intelligence .data-card__status { font-size: 10px; padding: 4px 8px; white-space: nowrap; }
+.workspace-page .intelligence .data-card__metric { gap: 7px; flex-wrap: wrap; }
+.workspace-page .intelligence .data-card__metric-value { font-size: 32px; letter-spacing: -.04em; }
+.workspace-page .intelligence .data-card__metric-unit { font-size: 11px; }
+.workspace-page .intelligence .data-card__trend { font-size: 10px; padding: 3px 7px; }
+.workspace-page .intelligence .intel-kpi { padding: 9px 10px; background: #f6f8fc; }
+.workspace-page .intelligence .intel-kpi dd { font-size: 17px; }
+.workspace-page .intelligence .intel-kpi dt { font-size: 10px; }
+.workspace-page .intelligence .data-card__desc { font-size: 11px; line-height: 1.65; }
+.workspace-page .intelligence .data-card__desc--highlight { padding: 8px 10px; }
+.workspace-page .intelligence .data-card__actions { margin-top: auto; padding-top: 9px; }
+.workspace-page .intelligence .data-card__btn { font-size: 11px; min-height: 34px; border-radius: 7px; padding: 7px 12px; }
+.workspace-page .intelligence .data-card__btn--primary { color: #3565bd; background: #eef4ff; box-shadow: none; }
+.workspace-page .intelligence .data-card__btn--primary:hover { background: #e0eaff; }
+.workspace-page .intelligence .newcar-stat__value {
+  font-family: var(--ff-mono, ui-monospace, monospace);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.55;
+  letter-spacing: normal;
+}
+.workspace-page .intelligence .newcar-stat--hero .newcar-stat__value {
+  font-size: 32px;
+  line-height: 1;
+  letter-spacing: -.04em;
+}
+.workspace-page .intelligence .newcar-stat__note { font-family: var(--ff-body); font-size: 11px; line-height: 1.6; }
+.workspace-page .intelligence #newcar-latest-date { font-size: 17px; white-space: nowrap; }
+.workspace-page .intelligence .koubei-metrics { grid-template-columns: 1.35fr 1fr 1fr; }
+.workspace-page .intelligence .koubei-metric { min-width: 0; padding: 10px; }
+.workspace-page .intelligence .koubei-metric__value {
+  font-family: var(--ff-mono, ui-monospace, monospace);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.55;
+  letter-spacing: normal;
+}
+.workspace-page .intelligence .koubei-metric__value--primary { font-size: 32px; line-height: 1; letter-spacing: -.04em; white-space: nowrap; }
+.workspace-page .intelligence .newcar-stat__label,
+.workspace-page .intelligence .koubei-metric__label {
+  font-family: var(--ff-body);
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: normal;
+  text-transform: none;
+}
+.workspace-page .intelligence .koubei-sub-info__item,
+.workspace-page .intelligence .koubei-sub-info__label,
+.workspace-page .intelligence .koubei-sub-info__value {
+  font-family: var(--ff-body);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.65;
+}
+.workspace-page .intelligence .data-card__title-row { display: flex; align-items: center; gap: 6px; }
+.workspace-page .intelligence .data-card__sparkline { height: 36px; }
+.workspace-page .agents { margin-top: 32px; }
+
+@media (min-width: 1500px) {
+  .workspace-page .intelligence__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .workspace-page .intelligence .intel-breakdown__list { grid-template-columns: 1fr; gap: 3px; }
+  .workspace-page .intelligence .intel-breakdown__item { font-size: 10px; line-height: 1.5; }
+  .workspace-page .intelligence .intel-breakdown__item strong { font-size: 10px; }
+  .workspace-page .intelligence .intel-breakdown { padding-top: 9px; }
+  .workspace-page .intelligence .intel-breakdown__head { margin-bottom: 6px; font-size: 11px; }
+  .workspace-page .intelligence .data-card__sub { font-size: 10px; }
+  .workspace-page .intelligence .data-card__title-stack { min-width: 0; }
+  .workspace-page .intelligence .data-card__head .data-card__sub { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .workspace-page .intelligence #rights-multi-badge { display: none; }
+  .workspace-page .intelligence #rights-provenance,
+  .workspace-page .intelligence #policy-provenance { font-size: 10px; line-height: 1.5; }
+  .workspace-page .intelligence .intel-kpi { padding: 8px; }
+  .workspace-page [data-view='intel'] .intelligence .section-head__desc { display: none; }
+  .workspace-page [data-view='intel'] .intelligence .section-head__title { margin-bottom: 0; font-size: 17px; }
+  .workspace-page .intelligence .data-card__desc--highlight { padding: 6px 8px; }
+  .workspace-page .intelligence .data-card__trend { margin-left: 0; }
+  .workspace-page .intelligence .newcar-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .workspace-page .intelligence .koubei-metrics { gap: 8px; }
+}
+@media (max-width: 1100px) {
+  .workspace-page { --sidebar-w: 190px; }
+  .workspace-page .model-info__item:last-child { display: none; }
+  .workspace-page .main-content { padding: 16px 20px 40px; }
+  .workspace-page .hero { flex-wrap: wrap; }
+  .intel-ribbon__hint { display: none; }
+  .intel-ribbon__links { justify-content: space-between; gap: 16px; }
+}
+@media (max-width: 768px) {
+  .workspace-page .app-shell { grid-template-columns: 1fr; }
+  .workspace-page .sidebar { display: block; position: static; transform: none; box-shadow: none; width: 100%; height: auto; padding: 8px 12px; border-right: 0; border-bottom: 1px solid #e5eaf1; }
+  .workspace-page .sidebar__nav { display: block; }
+  .workspace-page .nav-section { display: flex; overflow-x: auto; gap: 5px; }
+  .workspace-page .nav-section + .nav-section { margin-top: 5px; }
+  .workspace-page .nav-item { flex: 0 0 auto; min-height: 36px; padding: 5px 8px; }
+  .workspace-page .nav-section__title, .workspace-page .nav-badge,
+  .workspace-page .sidebar__divider, .workspace-page .legacy-nav__link,
+  .workspace-page .nav-item--external, .workspace-page .sidebar__foot { display: none; }
+  .workspace-page .nav-item__icon { width: 22px; height: 22px; }
+  .workspace-page .topbar { padding: 0 14px; }
+  .workspace-page .topbar__brand-name { font-size: 11px; max-width: 215px; }
+  .workspace-page .model-info { display: none; }
+  .workspace-page .main-content { padding: 16px; }
+  .intel-ribbon { padding: 10px 12px; gap: 12px; flex-wrap: wrap; }
+  .intel-ribbon__links { width: 100%; }
+  .workspace-page .hero { padding: 16px 0; gap: 10px; }
+  .workspace-page .hero__title { font-size: 22px; }
+  .workspace-page .hero__cta { justify-content: flex-start; }
+  .workspace-page [data-view='intel'] .section-head { align-items: flex-start; gap: 10px; }
+  .workspace-page [data-view='intel'] .section-head__actions { width: 100%; }
+  .workspace-page .intelligence__grid { grid-template-columns: 1fr; }
+  .workspace-page .intelligence .intel-breakdown__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .workspace-page *, .workspace-page *::before, .workspace-page *::after { animation: none !important; transition: none !important; scroll-behavior: auto; }
+}

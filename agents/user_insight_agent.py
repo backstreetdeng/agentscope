@@ -33,6 +33,8 @@ USER_INSIGHT_CONFIG_PROMPT = """
 - 决策维度：标配/选装/高配专属/暂缓，结合成本、感知价值、竞品差异。
 
 工具使用规则：
+- 涉及购车权益、竞品新车或真实车型口碑时，优先调用 rights_*、new_car_*、reputation_*；涉及地方购车政策时调用 policy_*。
+- 四类内部数据插件可组合使用，但只调用与当前问题相关的插件，不做无目的全量查询。
 - 需要实时公开信息、竞品口碑、用户评论时，优先调用 any_search。
 - 需要读取公开网页或竞品信息时，调用 web_fetch、tavily_search、playwright_scraper 或 agent_reach_search。
 - 需要处理访谈转写稿、群访谈纪要、深访文本、车主评论时，调用 user_insight_tagger 自动生成用户标签。
@@ -54,14 +56,20 @@ USER_INSIGHT_CONFIG_PROMPT = """
 """.strip()
 
 
-def build_user_insight_agent(config: dict[str, Any]) -> Agent:
+def build_user_insight_agent(
+    config: dict[str, Any],
+    market_mcp_tools: list[Any] | None = None,
+) -> Agent:
     """创建用户洞察与配置定义决策智能体。"""
 
     agent_cfg = config["agents"]["user_insight_config"]
+    tools = build_business_toolkit()
+    if market_mcp_tools:
+        tools.extend(market_mcp_tools)
     return Agent(
         name=agent_cfg["name"],
         system_prompt=USER_INSIGHT_CONFIG_PROMPT,
         model=build_model(config),
-        toolkit=Toolkit(tools=build_business_toolkit()),
+        toolkit=Toolkit(tools=tools),
         react_config=ReActConfig(max_iters=int(agent_cfg.get("max_iters", 6))),
     )

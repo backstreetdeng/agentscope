@@ -1,0 +1,113 @@
+schema_version: 2
+profile: passenger_vehicle_monthly
+layout: single_sheet_vertical_page_blocks
+sheet_selector: explicit_or_latest_month
+page_marker_pattern: "^P(?P<page>\\d+)\\s*[-—]\\s*(?P<title>.+)$"
+report_period:
+  month: sheet_name
+  year: cells_starting_with_20xx
+formula_error_policy: display_dash_and_warn
+
+blocks:
+  - page: 3
+    marker: P3-整体市场
+    sample_range: A1:M22
+    handler: update_slide3
+    sections: [月度销量, 同比增速, 年累计, 累计同比]
+  - page: 4
+    marker: P4-新车
+    sample_range: A25:M46
+    handler: update_slide4
+    sections: [新车增量贡献, 新车数量, 车均销量, 同比贡献度]
+    optional_missing: [右侧典型新车子图明细]
+    missing_policy: preserve_template_and_warn
+  - page: 5
+    marker: P5-库存
+    sample_range: A55:M83
+    handler: update_slide5
+    sections: [库存量, 存销比, 传统车, 新能源]
+  - page: 7
+    marker: P7-车型类别
+    sample_range: A85:M101
+    handler: update_standard_comparison_slide
+  - page: 8
+    marker: P8-车型级别
+    sample_range: A103:M121
+    handler: update_standard_comparison_slide
+    special_header: 右图下一行行标签
+  - page: 9
+    marker: P9-轿车
+    sample_range: A124:I157
+    handler: update_segment_slide
+    top_models: 15
+  - page: 10
+    marker: P10-SUV
+    sample_range: A159:I192
+    handler: update_segment_slide
+    top_models: 15
+  - page: 11
+    marker: P11-MPV
+    sample_range: A194:I227
+    handler: update_segment_slide
+    top_models: 15
+  - page: 12
+    marker: P12-车型系别
+    sample_range: A230:M248
+    handler: update_standard_comparison_slide
+  - page: 13
+    marker: P13-车型价格段
+    sample_range: A251:M270
+    handler: update_standard_comparison_slide
+  - page: 14
+    marker: P14-区域市场
+    sample_range: A272:M311
+    handler: update_slide14
+    sections: [省份销量与同比, 东中西部汇总]
+  - page: 15
+    marker: P15-城市线级
+    sample_range: A314:M333
+    handler: update_standard_comparison_slide
+  - page: 16
+    marker: P16-车企
+    sample_range: A335:P350
+    handler: update_slide16
+    top_companies: 15
+  - page: 17
+    marker: P17-新能源
+    sample_range: A353:M395
+    handler: update_slide17
+    sections: [新能源销量, 渗透率, 月度与累计]
+  - page: 18
+    marker: P18-新能源形式
+    sample_range: A398:M432
+    handler: update_slide18
+    sections: [BEV, PHEV, HEV, ICE]
+  - page: 19
+    marker: P19-新能源级别
+    sample_range: A434:M464
+    handler: update_slide19
+    sections: [BEV级别, PHEV级别]
+  - page: 20
+    marker: P20-新能源企业
+    sample_range: A466:M485
+    handler: update_slide20
+    top_companies: 10
+  - page: 21
+    marker: P21-TOP20车型
+    sample_range: A487:G539
+    handler: update_slide21
+    sections: [当月TOP20, 当月累计份额, 累计TOP20, 累计份额]
+    cross_column_labels:
+      - label: 累计份额
+        occurrence: 1
+        sample_cell: F512
+      - label: 累计份额
+        occurrence: 2
+        sample_cell: E538
+
+fixed_slides:
+  - {page: 1, type: cover}
+  - {page: 2, type: chapter_directory}
+  - {page: 6, type: chapter_directory}
+  - {page: 22, type: chapter_directory}
+  - {page: 23, type: closing}

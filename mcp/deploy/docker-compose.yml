@@ -1,0 +1,57 @@
+x-mcp-common: &mcp-common
+  build:
+    context: ..
+    dockerfile: deploy/Dockerfile
+    args:
+      PIP_INDEX_URL: ${PIP_INDEX_URL:-https://mirrors.aliyun.com/pypi/simple/}
+  restart: unless-stopped
+  env_file: .env
+  volumes:
+    - ../../assets/data:/app/mcp/assets-data:ro
+    - mcp-exports:/srv/mcp-exports
+  networks: [market-mcp]
+
+services:
+  policy-mcp:
+    <<: *mcp-common
+    command: python -m market_data.policy_server
+    environment:
+      MCP_PORT: 8811
+  rights-mcp:
+    <<: *mcp-common
+    command: python -m market_data.rights_server
+    environment:
+      MCP_PORT: 8812
+  new-car-mcp:
+    <<: *mcp-common
+    command: python -m market_data.new_car_server
+    environment:
+      MCP_PORT: 8813
+  reputation-mcp:
+    <<: *mcp-common
+    command: python -m market_data.reputation_server
+    environment:
+      MCP_PORT: 8814
+  data-api:
+    <<: *mcp-common
+    command: python -m market_data.api_server
+    environment:
+      DATA_API_PORT: 8815
+  gateway:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    depends_on: [policy-mcp, rights-mcp, new-car-mcp, reputation-mcp, data-api]
+    environment:
+      MCP_API_TOKEN: ${MCP_API_TOKEN}
+    ports:
+      - "${MCP_GATEWAY_PORT:-8788}:80"
+    volumes:
+      - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - mcp-exports:/srv/mcp-exports:ro
+    networks: [market-mcp]
+
+networks:
+  market-mcp:
+
+volumes:
+  mcp-exports:

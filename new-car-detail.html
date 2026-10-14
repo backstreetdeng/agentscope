@@ -29,6 +29,13 @@
   .badge--offline{color:#a65d20;background:#fff5e9}
   .badge--offline::before{background:var(--orange)}
   @keyframes pulse{50%{opacity:.35;transform:scale(.75)}}
+  .detail-loading{margin:auto;width:min(360px,calc(100vw - 40px));border:1px solid var(--line);border-radius:16px;padding:28px;text-align:center;color:var(--ink);background:white;box-shadow:var(--shadow)}
+  .detail-loading::backdrop{background:rgba(20,35,60,.32)}
+  .detail-loading p{color:var(--ink-2);font-size:13px;margin-top:8px}
+  .detail-spinner{width:30px;height:30px;border:3px solid var(--line);border-top-color:var(--brand);border-radius:50%;margin:0 auto 14px;animation:detail-spin .8s linear infinite}
+  @keyframes detail-spin{to{transform:rotate(360deg)}}
+  @media(prefers-reduced-motion:reduce){.detail-spinner{animation:none}}
+  .detail-error{position:fixed;top:74px;left:50%;transform:translateX(-50%);z-index:30;width:min(540px,calc(100vw - 32px));padding:14px 18px;border:1px solid #f4c7ae;background:#fff5ee;border-radius:10px;color:#9a4319;box-shadow:var(--shadow)}
   .wrap{max-width:1280px;margin:0 auto;padding:10px 28px 56px}
   .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
 
@@ -109,6 +116,7 @@
   .hero__img.has-photo::before{width:auto;height:auto;inset:0;border:0;border-radius:0;box-shadow:none;background:linear-gradient(90deg,rgba(18,30,52,.72) 0%,rgba(18,30,52,.34) 36%,rgba(18,30,52,0) 68%);z-index:1}
   .hero__photo{display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 58%}
   .hero__img.has-photo .hero__photo{display:block}
+  .hero__img.has-photo.is-cutout .hero__photo{left:auto;right:18px;width:64%;object-fit:contain;object-position:right center;padding:8px 0 2px}
   .hero__visual{position:absolute;inset:0;padding:34px 42px;display:flex;flex-direction:column;justify-content:flex-end;color:#fff}
   .hero__img.has-photo .hero__visual{z-index:2;text-shadow:0 1px 12px rgba(0,0,0,.28)}
   .hero__visual-kicker{font-size:12px;letter-spacing:2px;opacity:.72}
@@ -129,9 +137,21 @@
   .sales h3,.koubei h3{font-size:16px;margin-bottom:4px;position:relative;padding-left:12px}
   .sales h3::before,.koubei h3::before{content:"";position:absolute;left:0;top:5px;bottom:5px;width:4px;border-radius:2px;background:var(--grad)}
   .sub{color:var(--ink-3);font-size:12px;margin-bottom:14px;padding-left:16px}
-  .chart{width:100%}
-  .bar{fill:#4f83f7;opacity:.95}
-  .axis{font-size:11px;fill:#94a3b8}
+  .sales-head{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:16px}
+  .sales-summary{display:grid;grid-template-columns:repeat(4,minmax(96px,1fr));gap:10px;min-width:min(100%,520px)}
+  .sales-kpi{border-left:1px solid var(--line);padding-left:14px}
+  .sales-kpi:first-child{border-left:0}
+  .sales-kpi span{display:block;color:var(--ink-3);font-size:11px;margin-bottom:4px}
+  .sales-kpi strong{font-size:18px;font-variant-numeric:tabular-nums}
+  .sales-chart{border:1px solid var(--line);border-radius:13px;background:linear-gradient(180deg,#f8fbff 0%,#fff 72%);padding:14px 14px 8px;overflow:hidden}
+  .sales-chart svg{display:block;width:100%;height:auto;min-height:220px}
+  .sales-grid{stroke:#e8eef7;stroke-width:1}
+  .sales-axis{fill:#8c9bb0;font-size:11px}
+  .sales-area{fill:url(#salesAreaGradient)}
+  .sales-line{fill:none;stroke:#3978f6;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+  .sales-point{fill:#fff;stroke:#3978f6;stroke-width:2}
+  .sales-point--latest{fill:#f97316;stroke:#fff;stroke-width:3}
+  .sales-note{display:flex;justify-content:space-between;gap:12px;color:var(--ink-3);font-size:11px;margin-top:8px;flex-wrap:wrap}
 
   .koubei{padding:20px}
   .kb-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px}
@@ -156,8 +176,58 @@
   .kb-panel--positive .kb-fill{background:linear-gradient(90deg,#2ac6a0,#0b9d78)}
   .kb-panel--negative .kb-fill{background:linear-gradient(90deg,#ffb15e,#f97316)}
   .kb-secondary{display:flex;gap:6px;flex-wrap:wrap;margin-left:32px}
-  .kb-secondary span{background:#fff;border:1px solid #e3eaf3;border-radius:6px;padding:2px 7px;color:var(--ink-2);font-size:11px}
+  .kb-secondary span{background:#fff;border:1px solid #e3eaf3;border-radius:6px;padding:3px 7px;color:var(--ink-2);font-size:11px}
+  .kb-secondary b{color:var(--ink-3);font-weight:500;margin-right:4px}
+  .kb-secondary em{font-style:normal;color:#c45b09;background:#fff3e9;border-radius:4px;padding:1px 4px;margin-left:4px;font-size:9px}
+  .kb-mentions{font-size:10px;color:var(--ink-3);margin-left:32px;margin-top:7px}
   .kb-method{margin-top:14px;padding-top:12px;border-top:1px dashed #dce5f1;color:var(--ink-3);font-size:11px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .kb-explorer{margin-top:18px;padding-top:18px;border-top:1px solid var(--line)}
+  .kb-explorer__head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:12px}
+  .kb-explorer__head strong{display:block;font-size:15px;color:var(--ink)}
+  .kb-explorer__head span{display:block;color:var(--ink-3);font-size:11px;margin-top:4px}
+  .kb-explorer__layout{display:grid;grid-template-columns:minmax(280px,32%) 1fr;min-height:490px;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:#fff}
+  .kb-tree{background:#f8fbff;border-right:1px solid var(--line);max-height:620px;overflow:auto;padding:12px}
+  .kb-tree-filter{position:sticky;top:-12px;z-index:2;background:#f8fbff;padding:0 0 10px}
+  .kb-tree-filter input{width:100%;height:36px;border:1px solid #dce6f4;border-radius:8px;background:#fff;padding:0 11px;color:var(--ink);outline:0}
+  .kb-tree-filter input:focus{border-color:#8eb3ff;box-shadow:0 0 0 3px rgba(63,124,255,.11)}
+  .kb-tree details{margin:2px 0}
+  .kb-tree summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:7px;min-height:34px;border-radius:7px;padding:5px 7px;color:var(--ink-2);font-size:12px;font-weight:650;user-select:none}
+  .kb-tree summary::-webkit-details-marker{display:none}
+  .kb-tree summary::before{content:'›';width:15px;color:#7f91aa;font-size:17px;line-height:1;transition:transform .18s ease}
+  .kb-tree details[open]>summary::before{transform:rotate(90deg)}
+  .kb-tree summary:hover{background:#edf4ff;color:var(--brand)}
+  .kb-tree summary b{margin-left:auto;font-size:10px;color:var(--ink-3);font-weight:600}
+  .kb-tree-direction>summary{background:#eef5ff;color:var(--brand);font-weight:800;margin-bottom:4px}
+  .kb-tree-direction--positive>summary{color:#087c63;background:#eafaf5}
+  .kb-tree-direction--negative>summary{color:#c45b09;background:#fff3e9}
+  .kb-tree-level2{margin-left:14px!important}
+  .kb-tree-leaves{margin-left:31px;display:grid;gap:2px;padding:2px 0 5px}
+  .kb-tree-tag{width:100%;border:0;background:transparent;border-radius:7px;min-height:31px;text-align:left;padding:6px 8px;color:var(--ink-2);font-size:11px;cursor:pointer;display:flex;align-items:center;gap:6px}
+  .kb-tree-tag:hover{background:#edf4ff;color:var(--brand)}
+  .kb-tree-tag.is-active{background:#e5efff;color:#235fd0;font-weight:750;box-shadow:inset 3px 0 0 #4f83f7}
+  .kb-tree-tag b{margin-left:auto;color:var(--ink-3);font-size:10px}
+  .kb-tree-tag em{font-style:normal;color:#c45b09;background:#fff0e2;border-radius:4px;padding:1px 4px;font-size:9px}
+  .kb-review-pane{padding:18px 20px;max-height:620px;overflow:auto}
+  .kb-review-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-bottom:13px;border-bottom:1px solid var(--line);margin-bottom:12px}
+  .kb-review-head strong{display:block;font-size:15px}
+  .kb-review-head span{display:block;color:var(--ink-3);font-size:11px;margin-top:4px}
+  .kb-review-total{white-space:nowrap;background:#f1f6ff;color:#42628f;border-radius:999px;padding:4px 9px;font-size:10px}
+  .kb-review-card{border-bottom:1px solid #edf1f6;padding:13px 0}
+  .kb-review-card:first-of-type{padding-top:2px}
+  .kb-review-meta{display:flex;align-items:center;gap:8px;color:var(--ink-3);font-size:10px;margin-bottom:8px}
+  .kb-review-source{border-radius:5px;padding:2px 6px;background:#eef5ff;color:#2f6bda;font-weight:700}
+  .kb-review-source--autohome{background:#fff3e8;color:#cf650e}
+  .kb-review-excerpt{border-left:3px solid #8fb4ff;background:#f7faff;border-radius:0 7px 7px 0;padding:8px 10px;color:var(--ink-2);font-size:12px;line-height:1.65;margin-bottom:8px}
+  .kb-review-card--negative .kb-review-excerpt{border-left-color:#f6a252;background:#fff9f4}
+  .kb-review-full summary{cursor:pointer;color:#58708f;font-size:11px;list-style:none}
+  .kb-review-full summary::-webkit-details-marker{display:none}
+  .kb-review-full summary::after{content:' 展开'}
+  .kb-review-full[open] summary::after{content:' 收起'}
+  .kb-review-text{white-space:pre-wrap;color:var(--ink-2);font-size:12px;line-height:1.75;margin:9px 0 0;max-width:900px}
+  .kb-review-pager{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px;color:var(--ink-3);font-size:11px}
+  .kb-review-pager button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 10px;color:var(--ink-2);cursor:pointer}
+  .kb-review-pager button:disabled{opacity:.4;cursor:not-allowed}
+  .kb-review-empty{min-height:330px;display:grid;place-items:center;text-align:center;color:var(--ink-3);font-size:12px;padding:30px}
   .module-state{min-height:150px;border:1px dashed #cddcf2;border-radius:12px;background:#f8fbff;display:grid;place-items:center;text-align:center;padding:24px;color:var(--ink-2)}
   .module-state strong{display:block;color:var(--ink);font-size:15px;margin-bottom:5px}
   .module-state span{display:block;max-width:620px;color:var(--ink-3);font-size:12px}
@@ -166,6 +236,7 @@
     .stats{grid-template-columns:repeat(3,1fr)}
     .hero__img{height:170px}
     .kb-grid{grid-template-columns:1fr}
+    .kb-explorer__layout{grid-template-columns:1fr}.kb-tree{border-right:0;border-bottom:1px solid var(--line);max-height:360px}.kb-review-pane{max-height:none}
   }
   @media (max-width:640px){
     .topbar{height:auto;min-height:56px;padding:10px 16px;gap:10px;flex-wrap:wrap}
@@ -181,6 +252,8 @@
     .hero__visual{padding:24px}.hero__visual-name{font-size:25px}
     .hero__body{align-items:flex-start;flex-direction:column}
     .kb-head{flex-direction:column}.kb-source{justify-content:flex-start}
+    .sales-head{flex-direction:column}.sales-summary{width:100%;grid-template-columns:repeat(2,1fr)}
+    .sales-kpi:nth-child(3){border-left:0}.sales-chart{padding:8px 6px 4px}
     .planned-table .note-cell{min-width:180px}
   }
 </style>
@@ -192,7 +265,7 @@
 <div id="listPage">
   <header class="topbar">
     <span class="topbar__logo"><i>N</i>新车明细 DaaS</span>
-    <span class="topbar__sub">乘用车新车监测 · 上市公告 / 工信部 / 申报图 / 配置</span>
+    <span class="topbar__sub">正式发布库 · 新车 数据服务 · 基础款型 / 规划车型</span>
     <span style="flex:1"></span>
     <span class="badge badge--loading" id="dataBadge"><span id="dataBadgeText">连接数据</span></span>
     <a class="topbar__back" href="/">返回主页</a>
@@ -200,7 +273,7 @@
   <div class="band"><div class="band__inner">
     <div class="band__eyebrow">NEW VEHICLE INTELLIGENCE</div>
     <div class="band__title">新车一览 <em>· 款型级情报</em></div>
-    <div class="band__desc">覆盖上市年型 / 全新 / 换代 / 增补 / 改款款型，支持按车型、款型与上市时间多维检索</div>
+    <div class="band__desc">同源新车 数据服务 · 正式库基础款型；按品牌、车型、属性和上市月份检索，全量配置尚未接入</div>
   </div></div>
 
   <main class="wrap">
@@ -223,8 +296,8 @@
         <button data-kw="款型">按款型</button>
       </div>
       <div class="field">
-        <label id="kwLabel">车型</label>
-        <input id="kwInput" type="text" placeholder="输入关键字">
+        <label id="kwLabel">品牌 / 车型</label>
+        <input id="kwInput" type="text" autocomplete="off" placeholder="如：理想 / 理想i8">
       </div>
       <div class="field"><label>开始</label><input id="dateFrom" type="date" value="2026-01-01"></div>
       <div class="field"><label>结束</label><input id="dateTo" type="date" value="2026-12-31"></div>
@@ -236,13 +309,13 @@
     <section class="card table-card">
       <div class="table-head">
         <h3>新车一览<span class="count" id="rowCnt"></span></h3>
-        <span style="color:var(--ink-3);font-size:12px">按上市时间倒序</span>
+        <span style="color:var(--ink-3);font-size:12px">理想i8 优先展示 · 其余按上市时间倒序</span>
       </div>
       <div style="overflow-x:auto">
         <table>
           <thead><tr>
             <th>#</th><th>上市时间</th><th>属性</th><th>品牌</th><th>车型</th>
-            <th>款型ID</th><th>类别</th><th>级别</th><th>车系</th><th>企业</th><th>能源</th><th style="text-align:right">操作</th>
+            <th>款型名称</th><th>类别</th><th>级别</th><th>车系</th><th>企业</th><th>能源</th><th style="text-align:right">操作</th>
           </tr></thead>
           <tbody id="tbody"></tbody>
         </table>
@@ -310,47 +383,27 @@
     <!-- 上市后逐月销量 -->
     <section class="card sales">
       <h3>上市后逐月销量</h3>
-      <div class="sub">数据模块状态</div>
-      <div class="module-state"><div><strong>销量数据待接入</strong><span>当前 PostgreSQL 表仅包含新车款型档案，暂不展示虚构销量。后续接入月度销量表后可按上市月份自动生成趋势。</span></div></div>
+      <div class="sub">按自然月追踪 · 仅展示业务提供的真实销量</div>
+      <div id="salesContent" class="module-state"><div><strong>正在加载销量趋势</strong><span>正在读取该车型上市后的逐月销量。</span></div></div>
     </section>
 
     <!-- 口碑 -->
     <section class="card koubei">
       <h3>口碑</h3>
-      <div class="sub">车型级一级标签声量 TOP3 · 二级标签为 POC 文本归纳</div>
+      <div class="sub">车型级正负向一级标签 TOP3 · 下钻至业务 V1.0 三级标签</div>
       <div id="reputationContent" class="module-state"><div><strong>正在加载车型口碑</strong><span>正在关联懂车帝与汽车之家口碑明细。</span></div></div>
     </section>
   </main>
 </div>
 
+<dialog id="detailLoading" class="detail-loading" aria-labelledby="detailLoadingTitle" aria-describedby="detailLoadingText">
+  <div class="detail-spinner" aria-hidden="true"></div>
+  <div role="status" aria-live="polite"><strong id="detailLoadingTitle">查询中</strong><p id="detailLoadingText">正在通过新车 数据服务 获取车型详情，请稍候…</p></div>
+</dialog>
+<div id="detailError" class="detail-error" role="alert" hidden></div>
 <script>
 (function(){
   'use strict';
-
-  /* ── demo 数据（兜底，demo.xlsx） ── */
-  const DEMO_ROWS = [
-    [70962,2026,1,'现代','胜达','年型','SUV','B','韩系','北京现代','传统燃料',7],
-    [70963,2026,1,'现代','胜达','年型','SUV','B','韩系','北京现代','传统燃料',12],
-    [70964,2026,1,'现代','胜达','年型','SUV','B','韩系','北京现代','传统燃料',19],
-    [72647,2026,1,'本田','飞度','增补','轿车','A0','日系','广汽本田','传统燃料',21],
-    [72704,2026,1,'奥迪','奥迪Q5L','换代','SUV','B','德系','一汽-大众','常规混合动力',23],
-    [73741,2026,1,'猛士','猛士917','年型','SUV','D','自主','猛士科技','增程式',26],
-    [73859,2026,1,'五菱','星光560','全新','SUV','A','自主','上汽通用五菱','传统燃料',8],
-    [73861,2026,1,'五菱','星光560新能源','全新','SUV','A','自主','上汽通用五菱','纯电动',14],
-    [73862,2026,1,'五菱','星光560新能源','全新','SUV','A','自主','上汽通用五菱','插电式',17],
-    [74686,2026,1,'小鹏','小鹏G7','增补','SUV','B','自主','小鹏汽车','增程式',22],
-    [75159,2026,1,'小鹏','小鹏P7+','增补','轿车','C','自主','小鹏汽车','增程式',25],
-    [75164,2026,1,'奥迪','奥迪Q5L','换代','SUV','B','德系','一汽-大众','常规混合动力',28],
-    [75170,2026,1,'小鹏','小鹏G9','年型','SUV','C','自主','小鹏汽车','纯电动',6],
-    [75693,2026,1,'北京','北京越野BJ40增程','增补','SUV','A','自主','北京越野','增程式',11],
-    [75725,2026,1,'银河','银河V900','全新','MPV','C','自主','吉利汽车','增程式',16],
-    [75735,2026,1,'银河','银河V900','全新','MPV','C','自主','吉利汽车','增程式',27],
-  ].map(function(r){
-    const day = r[11];
-    const pad = function(n){return String(n).padStart(2,'0')};
-    return {id:r[0], time:r[1]+'-'+pad(r[2])+'-'+pad(day), attr:r[5], brand:r[3], model:r[4],
-            cat:r[6], level:r[7], series:r[8], corp:r[9], energy:r[10]};
-  });
 
   const $ = function(s){return document.querySelector(s)};
   const fmt = function(n){return n.toLocaleString('en-US')};
@@ -365,17 +418,18 @@
       .join(' / ');
   };
   const MODEL_IMAGES={
-    '问界M9':'/assets/newcar/wenjie-m9-profile.jpg'
+    '问界M9':'/assets/newcar/wenjie-m9-profile.jpg',
+    '理想i8':'/assets/newcar/li-auto-i8-cutout.png'
   };
 
-  /* 真实数据（3.146 PostgreSQL），失败回退 demo 数据 */
-  let ROWS = DEMO_ROWS;
-  let DATA_SOURCE = 'demo';
+  /* 正式发布库通过新车 数据服务 读取，不回退本地快照。 */
+  let ROWS = [];
+  let DATA_SOURCE = 'loading';
   let DATA_BATCH = '';
   function mapDbRow(r){
     const m = r.month ? String(r.month).padStart(2,'0') : '01';
     const time = r.launch_date || (r.year ? r.year+'-'+m+'-01' : '0000-01-01');
-    return {id:r.id, time:time, attr:r.attr, brand:r.brand, model:r.model, region:r.region,
+    return {id:r.id, styleName:r.style_name || r.model_style_name || '', time:time, attr:r.attr, brand:r.brand, model:r.model, region:r.region,
             cat:r.cat, level:r.level, series:r.series, corp:r.corp, energy:r.energy, batch:r.batch};
   }
   function setDataBadge(mode,text){
@@ -384,27 +438,33 @@
     badge.classList.toggle('badge--offline',mode==='offline');
     $('#dataBadgeText').textContent=text;
   }
-  (async function loadReal(){
+  async function loadReal(){
+    ROWS=[];
+    DATA_SOURCE='loading';
+    setDataBadge('loading','业务 API 查询中');
+    $('#footNote').textContent='正在通过新车业务 API 读取正式发布库';
+    renderTable(true);
     try{
-      const res=await fetch('/api/new-car/list',{headers:{'Accept':'application/json'}});
+      const res=await fetch('/api/new-car/list',{cache:'no-store',headers:{'Accept':'application/json'}});
       if(!res.ok) throw new Error('HTTP '+res.status);
       const d=await res.json();
-      if(d.source!=='postgresql' || !Array.isArray(d.rows) || !d.rows.length){
+      if(d.source!=='api' || !d.success || !Array.isArray(d.rows)){
         throw new Error(d.error || '真实数据为空');
       }
       ROWS=d.rows.map(mapDbRow);
-      DATA_SOURCE='postgresql';
+      DATA_SOURCE='api';
       DATA_BATCH=d.batch || (d.rows[0] && d.rows[0].batch) || '';
-      setDataBadge('online','真实数据');
-      $('#footNote').textContent='共 '+fmt(ROWS.length)+' 条真实数据 · PostgreSQL · 批次 '+(DATA_BATCH || '未标注');
+      setDataBadge('online','正式库 · API');
+      $('#footNote').textContent='共 '+fmt(ROWS.length)+' 条正式库数据 · 新车业务 API · 批次 '+(DATA_BATCH || '未标注');
       renderTable(true);
     }catch(err){
-      DATA_SOURCE='demo';
-      setDataBadge('offline','示例兜底');
-      $('#footNote').textContent='真实数据暂不可用，当前显示 '+ROWS.length+' 条本地示例数据';
+      ROWS=[];
+      DATA_SOURCE='unavailable';
+      setDataBadge('offline','查询异常');
+      $('#footNote').textContent='新车 数据服务 暂不可用；未使用本地监测台或演示数据回退';
       renderTable(true);
     }
-  })();
+  }
 
   /* ── 统计区 ── */
   function renderStats(rows){
@@ -418,7 +478,7 @@
       ['改款款型数', cnt('改款'), '中期改款'],
     ];
     $('#statsBar').innerHTML = items.map(function(it){
-      return '<div class="stat"><div class="stat__value">'+fmt(it[1])+'</div>'+
+      return '<div class="stat"><div class="stat__value">'+(DATA_SOURCE==='api' ? fmt(it[1]) : '—')+'</div>'+
              '<div class="stat__label">'+it[0]+'</div>'+
              '<div class="stat__hint">'+it[2]+'</div></div>';
     }).join('');
@@ -431,13 +491,17 @@
   function filtered(){
     return ROWS.filter(function(r){
       if(state.attr && r.attr!==state.attr) return false;
-      if(r.time<state.from || r.time>state.to) return false;
+      // The business baseline has month precision, not verified day precision.
+      if(r.time.slice(0,7)<state.from.slice(0,7) || r.time.slice(0,7)>state.to.slice(0,7)) return false;
       if(state.kw){
-        const target = state.kwType==='车型' ? [r.brand,r.model].join(' ') : String(r.id);
+        const target = [r.brand,r.model,state.kwType==='款型'?r.styleName:''].join(' ');
         if(target.indexOf(state.kw)<0) return false;
       }
       return true;
-    }).sort(function(a,b){return String(b.time).localeCompare(String(a.time)) || Number(b.id)-Number(a.id)});
+    }).sort(function(a,b){
+      const priority=Number(b.model==='理想i8')-Number(a.model==='理想i8');
+      return priority || String(b.time).localeCompare(String(a.time)) || Number(b.id)-Number(a.id);
+    });
   }
   function groupByModel(rows){
     const groups=new Map();
@@ -456,6 +520,7 @@
         brand:first.brand,
         model:first.model,
         id:uniqueText(items.map(function(item){return String(item.id)})),
+        styleName:uniqueText(items.map(function(item){return item.styleName}))+(items.some(function(item){return !item.styleName})?'（'+items.filter(function(item){return !item.styleName}).length+' 个款型名称待补充）':''),
         cat:uniqueText(items.map(function(item){return item.cat})),
         level:uniqueText(items.map(function(item){return item.level})),
         series:uniqueText(items.map(function(item){return item.series})),
@@ -477,14 +542,15 @@
       ? '（'+fmt(rows.length)+' 个车型 / '+fmt(rawRows.length)+' 个款型）'
       : '（'+fmt(rawRows.length)+' 个款型）';
     if(!rows.length){
-      $('#tbody').innerHTML = '<tr><td colspan="12" class="empty">暂无符合条件的款型，请调整筛选条件</td></tr>';
+      const message=DATA_SOURCE==='loading' ? '正在读取正式库' : DATA_SOURCE==='unavailable' ? '新车 数据服务 查询失败，请点击查询重试' : '暂无符合条件的款型，请调整筛选条件';
+      $('#tbody').innerHTML = '<tr><td colspan="12" class="empty">'+message+'</td></tr>';
       $('#pager').innerHTML='';
       return;
     }
     $('#tbody').innerHTML = visibleRows.map(function(r,i){
-      return '<tr><td>'+((page-1)*PAGE_SIZE+i+1)+'</td><td>'+esc(display(r.time))+'</td>'+
+      return '<tr><td>'+((page-1)*PAGE_SIZE+i+1)+'</td><td>'+esc(display(r.time.slice(0,7)))+'</td>'+
         '<td><span class="tag tag--'+esc(r.attrClass || r.attr)+'">'+esc(display(r.attr))+'</span></td>'+
-        '<td>'+esc(display(r.brand))+'</td><td>'+esc(display(r.model))+'</td><td class="aggregate-list">'+esc(display(r.id))+'</td>'+
+        '<td>'+esc(display(r.brand))+'</td><td>'+esc(display(r.model))+'</td><td class="aggregate-list">'+esc(r.styleName || '名称待补充')+'</td>'+
         '<td>'+esc(display(r.cat))+'</td><td>'+esc(display(r.level))+'</td><td>'+esc(display(r.series))+'</td>'+
         '<td class="aggregate-list">'+esc(display(r.corp))+'</td><td class="aggregate-list">'+esc(display(r.energy))+'</td>'+
         '<td style="text-align:right"><button class="link-btn" data-id="'+esc(r.detailId || r.id)+'">详情</button></td></tr>';
@@ -516,21 +582,25 @@
     $('#kwSeg').querySelectorAll('button').forEach(function(x){x.classList.remove('is-on')});
     b.classList.add('is-on');
     state.kwType = b.dataset.kw;
-    $('#kwLabel').textContent = state.kwType;
-    $('#kwInput').placeholder = state.kwType==='车型' ? '如：小鹏 / 星光' : '如：73741';
+    $('#kwLabel').textContent = state.kwType==='车型'?'品牌 / 车型':'品牌 / 款型';
+    $('#kwInput').placeholder = state.kwType==='车型'
+      ? '如：理想 / 理想i8'
+      : '输入品牌或款型名称，逐款展示';
     renderTable(true);
   });
   $('#searchBtn').addEventListener('click', function(){
     state.kw = $('#kwInput').value.trim();
     state.from = $('#dateFrom').value || '0000-01-01';
     state.to   = $('#dateTo').value   || '9999-12-31';
-    renderTable(true);
+    loadReal();
+    loadPlanned();
   });
   $('#resetBtn').addEventListener('click', function(){
     state = {attr:'', kwType:state.kwType, kw:'', from:'2026-01-01', to:'2026-12-31'};
     $('#kwInput').value=''; $('#dateFrom').value='2026-01-01'; $('#dateTo').value='2026-12-31';
     document.querySelectorAll('.chip').forEach(function(x){x.classList.toggle('is-on', x.dataset.attr==='')});
-    renderTable(true);
+    loadReal();
+    loadPlanned();
   });
   $('#kwInput').addEventListener('keydown',function(e){if(e.key==='Enter') $('#searchBtn').click()});
   $('#tbody').addEventListener('click', function(e){
@@ -539,9 +609,35 @@
   });
 
   /* ── 二级页：按真实车型聚合其款型档案 ── */
-  function openModel(row){
-    if(!row) return;
-    const sameModelRows=ROWS.filter(function(item){return item.model===row.model && item.brand===row.brand})
+  let detailBusy=false;
+  const detailLoading=$('#detailLoading');
+  detailLoading.addEventListener('cancel',function(e){e.preventDefault()});
+  document.addEventListener('click',function(e){if(detailBusy){e.preventDefault();e.stopImmediatePropagation()}},true);
+  async function openModel(row){
+    if(!row || detailBusy) return;
+    detailBusy=true;
+    const previousFocus=document.activeElement;
+    const controller=new AbortController();
+    const timer=setTimeout(function(){controller.abort()},90000);
+    $('#detailError').hidden=true;
+    $('#detailLoadingText').textContent='正在通过新车 数据服务 获取 '+display(row.model)+' 详情，请稍候…';
+    detailLoading.showModal();
+    $('#listPage').setAttribute('aria-busy','true');
+    let detailRows;
+    try {
+    try {
+      const response=await fetch('/api/new-car/detail?'+new URLSearchParams({model:row.model,brand:row.brand}),{cache:'no-store',signal:controller.signal});
+      const data=await response.json();
+      if(!response.ok || !data.success || data.source!=='api' || !data.rows.length) throw new Error('查询失败');
+      detailRows=data.rows.map(mapDbRow);
+      row=detailRows.find(function(item){return String(item.id)===String(row.id)}) || detailRows[0];
+    } catch(error) {
+      $('#footNote').textContent='车型基础详情 数据服务 查询失败，请重新查询；不使用旧缓存回退';
+      $('#detailError').textContent=error.name==='AbortError'?'查询超时，请稍后重新点击详情。':'车型详情查询失败，请稍后重试。未使用旧缓存回退。';
+      $('#detailError').hidden=false;
+      return;
+    }
+    const sameModelRows=detailRows
       .sort(function(a,b){return String(b.time).localeCompare(String(a.time)) || Number(b.id)-Number(a.id)});
     $('#crumbPath').textContent = '新车明细 / '+display(row.brand)+' / '+display(row.model)+' / 款型档案';
     $('#crumbTitle').textContent = row.model + ' · 车型详情';
@@ -551,6 +647,7 @@
     const hero=$('.hero__img');
     const image=$('#modelHeroImage');
     hero.classList.toggle('has-photo',Boolean(heroImage));
+    hero.classList.toggle('is-cutout',row.model==='理想i8');
     if(heroImage){
       image.src=heroImage;
       image.alt=display(row.model)+' 车型图片';
@@ -566,12 +663,12 @@
 
     $('#cfgHead').innerHTML = '<th class="cfg-col--first">基础字段 · 共 '+sameModelRows.length+' 个款型</th>' +
       sameModelRows.map(function(item){
-        return '<th class="cfg-col">'+esc(display(item.model))+'<br><span class="cfg-price">款型ID '+esc(item.id)+'</span>'+
+        return '<th class="cfg-col">'+esc(item.styleName || '款型名称待补充')+'<br><span class="cfg-price">'+esc(display(item.model))+'</span>'+
           '<div style="margin-top:8px"><button class="link-btn" type="button" data-compare-id="'+esc(item.id)+'">＋ 对比</button></div></th>';
       }).join('');
     const fields=[
-      ['款型ID',function(item){return item.id}],
-      ['上市时间',function(item){return item.time}],
+      ['款型名称',function(item){return item.styleName || '名称待补充'}],
+      ['上市月份',function(item){return item.time.slice(0,7)}],
       ['新车属性',function(item){return item.attr}],
       ['品牌',function(item){return item.brand}],
       ['类别',function(item){return item.cat}],
@@ -587,22 +684,111 @@
         sameModelRows.map(function(item){return '<td style="font-weight:600">'+esc(display(field[1](item)))+'</td>'}).join('')+
         '</tr>';
     }).join('');
+    loadSales(row.model,row.energy,row.brand);
     loadReputation(row.model);
     $('#listPage').style.display='none';
     $('#modelPage').style.display='block';
     window.scrollTo(0,0);
+    } finally {
+      clearTimeout(timer);
+      detailBusy=false;
+      detailLoading.close();
+      $('#listPage').removeAttribute('aria-busy');
+      if($('#listPage').style.display!=='none' && previousFocus) previousFocus.focus();
+    }
   }
 
+  let activeSalesScope='';
+  async function loadSales(model,energy,brand){
+    const scope=[model,energy,brand].join('|');activeSalesScope=scope;
+    const box=$('#salesContent');
+    box.className='module-state';
+    box.innerHTML='<div><strong>正在加载 '+esc(model)+' 销量</strong><span>正在读取上市后的逐月销量。</span></div>';
+    try{
+      const res=await fetch('/api/new-car/sales?'+new URLSearchParams({model:model,energy_type:energy||'',brand:brand||''}),{cache:'no-store',headers:{'Accept':'application/json'}});
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const data=await res.json();
+      if(activeSalesScope!==scope)return;
+      if(!data.available || !Array.isArray(data.rows) || !data.rows.length){
+        box.innerHTML='<div><strong>该车型暂无逐月销量</strong></div>';
+        return;
+      }
+      const rows=data.rows;
+      const width=1000, height=286, left=58, right=22, top=22, bottom=48;
+      const chartW=width-left-right, chartH=height-top-bottom;
+      const series=Array.isArray(data.series)&&data.series.length?data.series:[{energy_type:energy||'销量',items:rows}];
+      const ordinal=function(month){return Number(month.slice(0,4))*12+Number(month.slice(5,7))-1};
+      const first=ordinal(rows[0].month),last=ordinal(rows[rows.length-1].month);
+      const months=Array.from({length:last-first+1},function(_,i){const n=first+i;return Math.floor(n/12)+'-'+String(n%12+1).padStart(2,'0')});
+      const maxValue=Math.max.apply(null,series.flatMap(function(group){return group.items.map(function(row){return Number(row.sales)})}));
+      const magnitude=Math.pow(10,Math.floor(Math.log10(Math.max(1,maxValue))));
+      const niceMax=Math.max(1,Math.ceil(maxValue/magnitude)*magnitude);
+      const x=function(index){return left+(months.length===1?chartW/2:index*chartW/(months.length-1))};
+      const y=function(value){return top+chartH-(Number(value)/niceMax)*chartH};
+      const colors=['#4f83f7','#12b8a6','#ff8a3c','#7f64cf','#cf607a'];
+      const traces=series.map(function(group,groupIndex){
+        const byMonth=new Map(group.items.map(function(row){return [row.month.slice(0,7),Number(row.sales)]}));
+        const segments=[];let current=[];
+        months.forEach(function(month,index){if(byMonth.has(month)){current.push({index:index,sales:byMonth.get(month),month:month})}else if(current.length){segments.push(current);current=[]}});
+        if(current.length)segments.push(current);
+        return segments.map(function(segment){
+          const points=segment.map(function(row){return x(row.index).toFixed(1)+','+y(row.sales).toFixed(1)}).join(' ');
+          const area=x(segment[0].index)+','+(top+chartH)+' '+points+' '+x(segment[segment.length-1].index)+','+(top+chartH);
+          return (series.length===1?'<polygon class="sales-area" points="'+area+'"></polygon>':'')+
+            '<polyline class="sales-line" style="stroke:'+colors[groupIndex%colors.length]+'" points="'+points+'"></polyline>'+
+            segment.map(function(row){return '<circle class="sales-point" style="stroke:'+colors[groupIndex%colors.length]+'" cx="'+x(row.index)+'" cy="'+y(row.sales)+'" r="3.5"><title>'+esc(group.energy_type)+' · '+esc(row.month)+' · '+fmt(row.sales)+' 辆</title></circle>'}).join('');
+        }).join('');
+      }).join('');
+      const grid=[0,.25,.5,.75,1].map(function(step){
+        const yy=top+chartH-step*chartH;
+        return '<line class="sales-grid" x1="'+left+'" y1="'+yy+'" x2="'+(width-right)+'" y2="'+yy+'"></line>'+ 
+          '<text class="sales-axis" x="'+(left-10)+'" y="'+(yy+4)+'" text-anchor="end">'+fmt(Math.round(niceMax*step))+'</text>';
+      }).join('');
+      const labelEvery=Math.max(1,Math.ceil(months.length/8));
+      const labels=months.map(function(month,index){
+        if(index%labelEvery!==0 && index!==months.length-1) return '';
+        return '<text class="sales-axis" x="'+x(index)+'" y="'+(height-17)+'" text-anchor="middle">'+esc(month.slice(2,7).replace('-','/'))+'</text>';
+      }).join('');
+      const latest=rows[rows.length-1];
+      const peakRow=rows.reduce(function(best,row){return Number(row.sales)>Number(best.sales)?row:best},rows[0]);
+      box.className='';
+      const aggregate=series.length>1?'（合计）':'';
+      box.innerHTML='<div class="sales-head"><div><strong>'+esc(model)+' 销量走势</strong><div style="color:var(--ink-3);font-size:12px;margin-top:4px">自 '+esc(rows[0].month.slice(0,7))+' 起已记录 '+fmt(rows.length)+' 个月 · '+esc((data.energy_types||[]).join(' / '))+'</div></div>'+ 
+        '<div class="sales-summary"><div class="sales-kpi"><span>累计销量'+aggregate+'</span><strong>'+fmt(Number(data.total))+'</strong></div>'+ 
+        '<div class="sales-kpi"><span>单月峰值'+aggregate+'</span><strong>'+fmt(Number(data.peak))+'</strong></div>'+ 
+        '<div class="sales-kpi"><span>最新月份</span><strong>'+esc(latest.month.slice(2,7).replace('-','/'))+'</strong></div>'+ 
+        '<div class="sales-kpi"><span>最新销量</span><strong>'+fmt(Number(latest.sales))+'</strong></div></div></div>'+ 
+        (series.length>1?'<div style="display:flex;gap:18px;flex-wrap:wrap;margin-bottom:12px">'+series.map(function(group,i){return '<span style="color:'+colors[i%colors.length]+'">● '+esc(group.energy_type)+'</span>'}).join('')+'</div>':'')+
+        '<div class="sales-chart"><svg viewBox="0 0 '+width+' '+height+'" role="img" aria-label="'+esc(model)+'上市后逐月销量趋势">'+ 
+        '<defs><linearGradient id="salesAreaGradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4f83f7" stop-opacity=".30"></stop><stop offset="100%" stop-color="#4f83f7" stop-opacity=".03"></stop></linearGradient></defs>'+ 
+        grid+traces+labels+'</svg></div>'+ 
+        '<div class="sales-note"><span>峰值：'+esc(peakRow.month.slice(0,7))+' · '+fmt(Number(peakRow.sales))+' 辆</span><span>单位：辆 · 数据批次 '+esc(data.batch)+'</span></div>';
+    }catch(err){
+      if(activeSalesScope!==scope)return;
+      box.className='module-state';
+      box.innerHTML='<div><strong>销量数据暂不可用</strong><span>请稍后重试，车型档案与口碑信息不受影响。</span></div>';
+    }
+  }
+
+  let activeReputationModel='';
   async function loadReputation(model){
+    activeReputationModel=model;
     const box=$('#reputationContent');
     box.className='module-state';
     box.innerHTML='<div><strong>正在加载 '+esc(model)+' 口碑</strong><span>正在关联懂车帝与汽车之家口碑明细。</span></div>';
     try{
-      const res=await fetch('/api/new-car/reputation?model='+encodeURIComponent(model),{headers:{'Accept':'application/json'}});
+      const res=await fetch('/api/new-car/reputation?model='+encodeURIComponent(model),{cache:'no-store',headers:{'Accept':'application/json'}});
       if(!res.ok) throw new Error('HTTP '+res.status);
       const data=await res.json();
+      if(activeReputationModel!==model) return;
+      if(!data.success || data.source!=='api') throw new Error('口碑业务 API 查询失败');
       if(!data.available){
-        box.innerHTML='<div><strong>该车型暂无可用口碑</strong><span>POC 当前仅展示与两份口碑明细成功匹配的车型。</span></div>';
+        box.innerHTML='<div><strong>该车型暂无直接口碑样本</strong><span>正式库两平台原始口碑及标签结果中暂无精确关联记录；不按竞品正文提及归属。</span></div>';
+        return;
+      }
+      if(!data.analysis_available){
+        box.className='';
+        box.innerHTML='<div class="kb-head"><div><strong>'+esc(model)+' 口碑洞察</strong></div></div><div class="module-state"><div><strong>'+(data.analysis_processed?'本批已扫描，未形成明确正负标签':'当前未生成标签分析结果')+'</strong><span>没有明确观点或无法可靠落入标签字典，不硬凑 TOP5。</span></div></div>';
         return;
       }
       const renderPanel=function(direction,title,hint){
@@ -610,19 +796,123 @@
         return '<div class="kb-panel kb-panel--'+direction+'"><div class="kb-panel__title"><span>'+title+'</span><small>'+hint+'</small></div>'+
           groups.map(function(item){
             const pct=(Number(item.share)*100).toFixed(1);
-            const secondary=(item.secondary||[]).map(function(sub){return '<span>'+esc(sub.name)+'</span>'}).join('');
-            return '<div class="kb-insight"><div class="kb-insight__top"><span class="kb-rank">'+item.rank+'</span><span class="kb-label">'+esc(item.label)+'</span><span class="kb-share">'+pct+'%</span></div>'+
-              '<div class="kb-track"><div class="kb-fill" style="width:'+Math.max(4,Number(pct))+'%"></div></div><div class="kb-secondary">'+secondary+'</div></div>';
+            const tertiary=(item.tertiary||[]).map(function(tag){
+              return '<span><b>'+esc(tag.level2)+'</b>'+esc(tag.name)+(tag.custom?'<em>待标准化</em>':'')+'</span>';
+            }).join('');
+            return '<div class="kb-insight"><div class="kb-insight__top"><span class="kb-rank">'+item.rank+'</span><span class="kb-label">'+esc(item.label)+'</span><span class="kb-share">'+pct+'%</span></div>'+ 
+              '<div class="kb-track"><div class="kb-fill" style="width:'+Math.max(4,Math.min(100,Number(pct)))+'%"></div></div><div class="kb-secondary">'+tertiary+'</div>'+ 
+              '<div class="kb-mentions">'+fmt(Number(item.mentions))+' 条有效口碑提及</div></div>';
           }).join('')+'</div>';
       };
       box.className='';
-      box.innerHTML='<div class="kb-head"><div><strong>'+esc(model)+' 口碑洞察 POC</strong><div style="color:var(--ink-3);font-size:12px;margin-top:3px">共 '+fmt(data.total_reviews)+' 条原始口碑，展示正、负方向声量最高的一级标签</div></div>'+
+      box.innerHTML='<div class="kb-head"><div><strong>'+esc(model)+' 口碑洞察</strong><div style="color:var(--ink-3);font-size:12px;margin-top:3px">本批扫描 '+fmt(data.total_reviews)+' 条口碑；'+(data.analysis_current?'与当前原文版本一致':'当前原文已更新，标签结果需维护端增量更新')+' · 批次 '+esc(data.batch)+'</div></div>'+
         '<div class="kb-source"><span>懂车帝 '+fmt(data.sources.dongchedi)+' 条</span><span>汽车之家 '+fmt(data.sources.autohome)+' 条</span></div></div>'+
-        '<div class="kb-grid">'+renderPanel('positive','正向关注 TOP3','用户认可点')+renderPanel('negative','负向关注 TOP3','用户改善诉求')+'</div>'+
-        '<div class="kb-method"><span>比例口径：该方向已识别一级标签的提及声量占比</span><span>一级标签：业务口径映射 · 二级标签：关键词归纳 · 批次 '+esc(data.batch)+'</span></div>';
+        '<div class="kb-grid">'+renderPanel('positive','正向关注 TOP5','用户认可点')+renderPanel('negative','负向关注 TOP5','用户改善诉求')+'</div>'+ 
+        '<div class="kb-method"><span>比例：该标签明确观点的去重口碑数 ÷ 本批扫描的原始口碑数；标签可重叠，TOP5 不补足空位</span><span>业务 V1.0 字典 · '+esc(data.analysis_method==='explicit_evidence_rules'?'保守原文证据规则':'历史分析')+' · 批次 '+esc(data.batch)+'</span></div>'+ 
+        '<section class="kb-explorer"><div class="kb-explorer__head"><div><strong>口碑标签下钻</strong><span>按正负方向逐级展开一级、二级、三级标签，点击三级标签查看真实口碑原文</span></div></div>'+ 
+        '<div class="kb-explorer__layout"><aside class="kb-tree" id="kbTree"><div class="kb-review-empty">正在加载标签树…</div></aside>'+ 
+        '<div class="kb-review-pane" id="kbReviewPane"><div class="kb-review-empty">请从左侧选择三级标签</div></div></div></section>';
+      loadReputationTree(model);
     }catch(err){
       box.className='module-state';
-      box.innerHTML='<div><strong>口碑数据暂不可用</strong><span>请稍后重试，当前页面其他真实款型信息不受影响。</span></div>';
+      if(activeReputationModel!==model) return;
+      box.innerHTML='<div><strong>口碑数据暂不可用</strong><span>数据服务 查询失败，请稍后重试；不能将服务异常当成没有口碑。</span></div>';
+    }
+  }
+
+  function renderReputationDirection(direction,items){
+    const title=direction==='positive'?'正向口碑':'负向口碑';
+    const total=items.length;
+    return '<details class="kb-tree-direction kb-tree-direction--'+direction+'" '+(direction==='positive'?'open':'')+'><summary>'+title+'<b>'+fmt(total)+' 个一级标签</b></summary>'+ 
+      items.map(function(primary,primaryIndex){
+        return '<details class="kb-tree-level1" '+(direction==='positive'&&primaryIndex===0?'open':'')+'><summary>'+esc(primary.name)+'<b>'+(primary.count==null?'—':fmt(primary.count))+'</b></summary>'+ 
+          (primary.children||[]).map(function(secondary,secondaryIndex){
+            return '<details class="kb-tree-level2" '+(direction==='positive'&&primaryIndex===0&&secondaryIndex===0?'open':'')+'><summary>'+esc(secondary.name)+'<b>'+(secondary.count==null?'—':fmt(secondary.count))+'</b></summary>'+ 
+              '<div class="kb-tree-leaves">'+(secondary.children||[]).map(function(tag){
+                return '<button type="button" class="kb-tree-tag" data-direction="'+direction+'" data-primary="'+esc(primary.name)+'" data-secondary="'+esc(secondary.name)+'" data-tag="'+esc(tag.name)+'">'+ 
+                  '<span>'+esc(tag.name)+'</span>'+(tag.custom?'<em>待标准化</em>':'')+'<b>'+fmt(tag.count)+'</b></button>';
+              }).join('')+'</div></details>';
+          }).join('')+'</details>';
+      }).join('')+'</details>';
+  }
+
+  async function loadReputationTree(model){
+    const tree=$('#kbTree');
+    const pane=$('#kbReviewPane');
+    if(!tree || !pane) return;
+    try{
+      const res=await fetch('/api/new-car/reputation-tree?model='+encodeURIComponent(model),{cache:'no-store',headers:{'Accept':'application/json'}});
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const data=await res.json();
+      if(activeReputationModel!==model) return;
+      if(!data.success || !data.available) throw new Error(data.error || '标签明细为空');
+      tree.innerHTML='<div class="kb-tree-filter"><input id="kbTreeFilter" type="search" placeholder="筛选一级 / 二级 / 三级标签"></div>'+ 
+        renderReputationDirection('positive',(data.directions&&data.directions.positive)||[])+ 
+        renderReputationDirection('negative',(data.directions&&data.directions.negative)||[]);
+      const root=$('#reputationContent');
+      root.onclick=function(event){
+        const tagButton=event.target.closest('.kb-tree-tag');
+        if(tagButton){
+          root.querySelectorAll('.kb-tree-tag').forEach(function(button){button.classList.remove('is-active')});
+          tagButton.classList.add('is-active');
+          loadReputationReviews(model,tagButton.dataset.direction,tagButton.dataset.tag,1,tagButton.dataset.primary,tagButton.dataset.secondary);
+          return;
+        }
+        const pageButton=event.target.closest('button[data-review-page]');
+        if(pageButton && !pageButton.disabled){
+          loadReputationReviews(model,pageButton.dataset.direction,pageButton.dataset.tag,Number(pageButton.dataset.reviewPage),pageButton.dataset.primary,pageButton.dataset.secondary);
+        }
+      };
+      root.oninput=function(event){
+        if(event.target.id!=='kbTreeFilter') return;
+        const keyword=event.target.value.trim().toLowerCase();
+        tree.querySelectorAll('.kb-tree-tag').forEach(function(button){
+          const matched=!keyword || button.textContent.toLowerCase().indexOf(keyword)>=0 || button.dataset.primary.toLowerCase().indexOf(keyword)>=0 || button.dataset.secondary.toLowerCase().indexOf(keyword)>=0;
+          button.style.display=matched?'flex':'none';
+          if(matched && keyword){
+            let parent=button.parentElement;
+            while(parent && parent!==tree){if(parent.tagName==='DETAILS') parent.open=true;parent=parent.parentElement;}
+          }
+        });
+      };
+      const firstTag=tree.querySelector('.kb-tree-tag');
+      if(firstTag) firstTag.click();
+    }catch(err){
+      tree.innerHTML='<div class="kb-review-empty">标签树暂不可用，请稍后重试</div>';
+      pane.innerHTML='<div class="kb-review-empty">原始口碑未加载</div>';
+    }
+  }
+
+  async function loadReputationReviews(model,direction,tag,page,primary,secondary){
+    const pane=$('#kbReviewPane');
+    if(!pane) return;
+    pane.innerHTML='<div class="kb-review-empty">正在读取真实口碑原文…</div>';
+    try{
+      const url='/api/new-car/reputation-reviews?model='+encodeURIComponent(model)+'&direction='+encodeURIComponent(direction)+'&tag='+encodeURIComponent(tag)+'&page='+page;
+      const res=await fetch(url,{cache:'no-store',headers:{'Accept':'application/json'}});
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const data=await res.json();
+      if(!data.available || !data.rows.length){
+        pane.innerHTML='<div class="kb-review-empty">该三级标签暂无可展示的口碑原文</div>';
+        return;
+      }
+      const totalPages=Math.max(1,Math.ceil(Number(data.total)/Number(data.page_size)));
+      pane.innerHTML='<div class="kb-review-head"><div><strong>'+esc(tag)+'</strong><span>'+esc(primary)+' / '+esc(secondary)+' / '+esc(tag)+'</span></div><div class="kb-review-total">'+fmt(Number(data.total))+' 条原文</div></div>'+ 
+        data.rows.map(function(row){
+          const sourceName=row.source==='autohome'?'汽车之家':'懂车帝';
+          const fullText=String(row.text||'').trim();
+          const excerpt=String(row.excerpt||'').trim();
+          const full=fullText && fullText!==excerpt
+            ? '<details class="kb-review-full"><summary>查看完整口碑原文</summary><div class="kb-review-text">'+esc(fullText)+'</div></details>'
+            : '<div class="kb-review-text">'+esc(fullText||excerpt)+'</div>';
+          return '<article class="kb-review-card kb-review-card--'+direction+'"><div class="kb-review-meta"><span class="kb-review-source kb-review-source--'+row.source+'">'+sourceName+'</span><span>'+esc(row.review_key)+'</span></div>'+ 
+            '<div class="kb-review-excerpt">'+esc(excerpt||fullText)+'</div>'+full+'</article>';
+        }).join('')+ 
+        '<div class="kb-review-pager"><button type="button" data-review-page="'+(page-1)+'" data-direction="'+direction+'" data-tag="'+esc(tag)+'" data-primary="'+esc(primary)+'" data-secondary="'+esc(secondary)+'" '+(page<=1?'disabled':'')+'>上一页</button>'+ 
+        '<span>第 '+page+' / '+totalPages+' 页</span><button type="button" data-review-page="'+(page+1)+'" data-direction="'+direction+'" data-tag="'+esc(tag)+'" data-primary="'+esc(primary)+'" data-secondary="'+esc(secondary)+'" '+(page>=totalPages?'disabled':'')+'>下一页</button></div>';
+      pane.scrollTop=0;
+    }catch(err){
+      pane.innerHTML='<div class="kb-review-empty">口碑原文暂不可用，请稍后重试</div>';
     }
   }
   $('#cfgHead').addEventListener('click',function(e){
@@ -682,24 +972,29 @@
     renderPlanned(false);
     $('#plannedSection').scrollIntoView({behavior:'smooth',block:'start'});
   });
-  (async function loadPlanned(){
+  async function loadPlanned(){
     try{
-      const response=await fetch('/api/new-car/planned',{headers:{'Accept':'application/json'}});
+      const response=await fetch('/api/new-car/planned',{cache:'no-store',headers:{'Accept':'application/json'}});
       if(!response.ok) throw new Error('HTTP '+response.status);
       const data=await response.json();
-      if(data.source!=='postgresql' || !Array.isArray(data.rows)) throw new Error(data.error || '规划数据不可用');
+      if(data.source!=='api' || !data.success || !Array.isArray(data.rows)) throw new Error(data.error || '规划数据不可用');
       PLANNED_ROWS=data.rows;
       plannedBatch=data.batch || '';
-      $('#plannedFoot').textContent='共 '+fmt(PLANNED_ROWS.length)+' 条规划数据 · PostgreSQL · 批次 '+(plannedBatch || '未标注');
+      $('#plannedFoot').textContent='共 '+fmt(PLANNED_ROWS.length)+' 条规划数据 · 新车 数据服务 · 批次 '+(plannedBatch || '未标注');
       renderPlanned(true);
     }catch(error){
       $('#plannedCnt').textContent='（暂不可用）';
       $('#plannedFoot').textContent='规划新车数据加载失败';
       renderPlanned(true);
     }
-  })();
+  }
 
+  $('#kwInput').value='';
+  $('#dateFrom').value=state.from;
+  $('#dateTo').value=state.to;
   renderTable();
+  loadReal();
+  loadPlanned();
 })();
 </script>
 </body>

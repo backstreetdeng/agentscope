@@ -1,0 +1,11 @@
+{
+  "browser": {
+    "browserName": "chromium",
+    "userDataDir": "E:\\AI\\data\\envs\\helloagent\\myproject\\runtime\\playwright-mcp-probe-profile-nosandbox",
+    "launchOptions": {
+      "channel": "chrome",
+      "headless": true
+    }
+  },
+  "outputDir": "E:\\AI\\data\\envs\\helloagent\\myproject\\runtime\\playwright-mcp-probe-output-config"
+}

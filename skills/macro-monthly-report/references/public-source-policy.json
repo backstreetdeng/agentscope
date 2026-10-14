@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "purpose": "Reviewed public discovery routes, never numeric observations or commercial-account requirements",
+  "source_hierarchy": "Original statistical producer first. Public broker/futures reports may preserve proprietary upstream attribution without the user owning a Wind account. Corroborate the latest secondary observation with a distinct original report publisher.",
+  "high_frequency_charts": ["s8-shape20", "s8-shape21", "s8-shape25", "s8-shape11", "s17-shape20", "hf-land"],
+  "additional_original_domains": {
+    "s8-shape20": ["umetal.com"]
+  },
+  "secondary_source_domains": ["finance.sina.com.cn", "news.10jqka.com.cn", "pdf.dfcfw.com", "cesfutures.com"],
+  "publishers": [
+    {"publisher_id": "guojin-securities", "names": ["国金证券"], "domains": ["gjzq.com.cn"]},
+    {"publisher_id": "guoxin-state-securities", "names": ["国新证券"], "domains": ["crsec.com.cn"]},
+    {"publisher_id": "eastern-air-futures", "names": ["东航期货"], "domains": ["cesfutures.com"]},
+    {"publisher_id": "changan-futures", "names": ["长安期货"], "domains": []},
+    {"publisher_id": "galaxy-securities", "names": ["中国银河证券股份有限公司", "中国银河证券", "银河证券"], "domains": []},
+    {"publisher_id": "ifind", "names": ["同花顺iFinD", "同花顺金融研究中心"], "domains": ["news.10jqka.com.cn"]}
+  ],
+  "mirror_domains": ["finance.sina.com.cn", "pdf.dfcfw.com", "news.10jqka.com.cn"],
+  "origin_attribution_by_chart": {
+    "hf-land": ["Wind", "WIND", "同花顺iFinD"],
+    "s8-shape20": ["Wind", "WIND", "Custeel", "中联钢", "中国联合钢铁网"],
+    "s8-shape21": ["Wind", "WIND", "同花顺iFinD"],
+    "s8-shape25": ["Wind", "WIND", "Mysteel", "我的钢铁", "钢联", "隆众资讯"],
+    "s8-shape11": ["Wind", "WIND", "CME", "NYMEX", "ICE"],
+    "s17-shape20": ["Wind", "WIND", "同花顺iFinD"]
+  },
+  "boundaries": [
+    "Public storage host is not the original report issuer; broker identity must be literal in the report itself.",
+    "Mirror copies of one broker report cannot serve as two independent publishers.",
+    "A national 247-steel-plant rate does not replace the Tangshan sample.",
+    "30-city daily area is not a weekly area. Land occupation and planned construction areas differ.",
+    "WTI/Brent spot or one specific expiring contract cannot silently replace Wind continuous futures settlement.",
+    "No login/paywall bypass, synthetic values, or date/period inference from fetch time."
+  ]
+}

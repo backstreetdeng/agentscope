@@ -1,5 +1,7 @@
 # 密钥与本地环境
 .env
+runtime/rights-cloud-before.env
+runtime/rights-tunnel-venv/
 .env.*
 !.env.example
 
@@ -26,7 +28,12 @@ dist/
 .playwright/
 node_modules/
 temp/
+runtime/monthly-report-browser-profile/
+runtime/monthly-report-browser-output/
+runtime/playwright-mcp-probe-profile/
+runtime/playwright-mcp-probe-output/
 
 # 备份中的二进制缓存文件，不影响源码恢复
 backup/*.pyc
 backup/__pycache__/
+runtime/rights-ssh-env/

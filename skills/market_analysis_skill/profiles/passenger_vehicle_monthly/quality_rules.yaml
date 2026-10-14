@@ -1,0 +1,89 @@
+schema_version: 2
+profile: passenger_vehicle_monthly
+
+status_order: [通过, 待补充, 风险, 阻断]
+
+input_gate:
+  - id: dataset_readable
+    severity: blocking
+    rule: 输入必须是未加密、可读取的 xlsx 文件
+  - id: reporting_period
+    severity: blocking
+    rule: 必须从目标Sheet名称和表头识别报告月份与年份
+  - id: page_blocks
+    severity: blocking
+    rule: 必须识别P3、P4、P5、P7-P21共18个内容页块
+  - id: statistical_scope
+    severity: blocking
+    rule: 必须确认批发、零售、上险或交付口径，默认不得混用
+  - id: trend_metrics
+    severity: warning
+    rule: 销量、同比、环比、份额和累计指标应满足逐页映射
+  - id: top15_detail
+    severity: warning
+    rule: P9-P11各15名车型应包含车型、销量、同比、环比、级别、份额、排名变化和累计销量
+  - id: p4_typical_models
+    severity: warning
+    rule: P4右侧典型新车子图缺数时保留已验收母版并明确警告，后续月份不得静默沿用
+  - id: formula_errors
+    severity: warning
+    rule: 无同期导致的公式错误显示为短横线并计入警告，不得使整份报告失败
+  - id: source_lineage
+    severity: warning
+    rule: 数据版本、生成时间、提供部门和修订记录应可追溯
+
+output_gate:
+  - id: report_structure
+    severity: blocking
+    rule: 必须覆盖P3-P21的18个内容章节和固定23页结构
+  - id: headline_quality
+    severity: warning
+    rule: P3-P20标题必须表达结构特征或原因结果
+  - id: overall_judgement_first
+    severity: blocking
+    rule: P3-P20每页市场深度分析第一句先给总体判断
+  - id: representative_models
+    severity: blocking
+    rule: P9-P11必须结合2到3个代表车型解释变化，其他页不强行编造车型
+  - id: causal_evidence
+    severity: blocking
+    rule: 强因果必须同时具备数据变化、可追溯事件和时间一致性
+  - id: data_consistency
+    severity: blocking
+    rule: 正文、图表、表格的销量同比环比份额及方向必须与输入一致
+  - id: confidence_boundary
+    severity: warning
+    rule: 未核验原因必须写为待核验假设或观察项
+  - id: forbidden_internal_terms
+    severity: blocking
+    forbidden_terms: [TOP15样本, 样本内, 候选车型, 估算增减量, 汇总为领导演示口径]
+  - id: hidden_evidence_ids
+    severity: blocking
+    rule: 业务正文和PPTX不得展示内部R/E证据编号
+  - id: positive_sign
+    severity: blocking
+    rule: 普通表格正增长不带加号；排名变化、强调气泡和份额变化遵循母版
+  - id: editable_delivery
+    severity: blocking
+    rule: 图表表格和文本必须是可编辑PowerPoint原生对象，不以截图替代
+  - id: exact_page_count
+    severity: blocking
+    rule: 成品必须恰好23页
+  - id: object_inventory
+    severity: blocking
+    rule: 6月基准应含47个图表和37个表格，未来母版变更需版本化
+  - id: slide_overflow
+    severity: blocking
+    rule: 标题、正文、表格、图表不得溢出、重叠或出界
+
+release_gate:
+  allow_pptx_when:
+    - no_blocking_failures
+    - dataset_and_period_confirmed
+    - all_18_content_blocks_mapped
+    - exact_23_pages
+    - editable_objects_preserved
+  downgrade_to_draft_when:
+    - causal_evidence_incomplete
+    - source_lineage_incomplete
+    - p4_typical_models_missing_for_nonbaseline_month

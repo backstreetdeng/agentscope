@@ -1535,6 +1535,10 @@
   <script>
     const $ = (id) => document.getElementById(id);
     let activeAgent = "market_strategy";
+    const workbenchParams = new URLSearchParams(window.location.search);
+    const selectedMcpPlugins = workbenchParams.has("plugins")
+      ? workbenchParams.get("plugins").split(",").map(item => item.trim()).filter(Boolean)
+      : null;
     let running = false;
     let lastReport = "";
     let lastReportMeta = null;
@@ -2316,7 +2320,12 @@
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ agent, question, analysis_type: $("analysisType").value })
+          body: JSON.stringify({
+            agent,
+            question,
+            analysis_type: $("analysisType").value,
+            mcp_plugins: selectedMcpPlugins
+          })
         });
         const data = await res.json();
         if (!res.ok || data.error) throw new Error(data.error || `HTTP ${res.status}`);
@@ -2338,6 +2347,10 @@
           data.tool_events.forEach(item => appendLog(`tool-call: ${item.name} / ${item.status} / ${item.detail}`));
         } else {
           appendLog("audit: 后端本轮未捕获到真实工具调用");
+        }
+        if (data.mcp_plugins && Array.isArray(data.mcp_plugins.plugins)) {
+          appendLog(`mcp: ${data.mcp_plugins.ready}/${data.mcp_plugins.total} 个数据插件就绪，${data.mcp_plugins.tool_count} 个工具已挂载`);
+          data.mcp_plugins.plugins.forEach(item => appendLog(`mcp-plugin: ${item.display_name} / ${item.status} / ${item.tool_count} tools`));
         }
 
         lastReport = data.answer || "";

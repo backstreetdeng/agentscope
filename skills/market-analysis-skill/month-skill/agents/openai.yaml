@@ -1,0 +1,4 @@
+interface:
+  display_name: "中国乘用车月报 2.0"
+  short_description: "从新版验数Excel生成完整23页可编辑月报PPTX"
+  default_prompt: "使用 $china-passenger-vehicle-monthly-report 基于本月验数Excel生成完整23页中国乘用车市场月报，并执行逐页数据与版式校验。"

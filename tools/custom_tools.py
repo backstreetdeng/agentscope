@@ -21,7 +21,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse
 from urllib.request import Request, urlopen
 from zoneinfo import ZoneInfo
 
@@ -206,6 +206,77 @@ class WebFetchTool(ReadOnlyBusinessTool):
         except Exception as exc:
             record_tool_call(self.name, "error", f"url={url}; error={type(exc).__name__}: {exc}")
             raise
+
+
+class WeatherLookupTool(ReadOnlyBusinessTool):
+    """无需额外密钥的公开天气查询工具，仅用于联网能力验证。"""
+
+    name = "weather_lookup"
+    description = (
+        "查询指定城市当前天气（温度、体感温度、天气状况和风速）。"
+        "仅用于用户明确提出的联网能力验证或天气问题，不用于替代市场数据。"
+    )
+    input_schema = {
+        "type": "object",
+        "properties": {
+            "city": {"type": "string", "description": "城市名称，例如：北京。"},
+        },
+        "required": ["city"],
+    }
+
+    async def call(self, city: str) -> ToolChunk:
+        city_name = str(city).strip()
+        if not city_name:
+            return ToolChunk(content=[TextBlock(text="请提供需要查询的城市名称。")])
+        try:
+            payload = await asyncio.to_thread(_lookup_weather, city_name)
+            record_tool_call(self.name, "success", f"city={city_name}")
+            return ToolChunk(content=[TextBlock(text=payload)])
+        except Exception as exc:
+            record_tool_call(self.name, "error", f"city={city_name}; error={type(exc).__name__}: {exc}")
+            return ToolChunk(content=[TextBlock(text=f"天气查询暂不可用：{type(exc).__name__}。")])
+
+
+def _lookup_weather(city: str) -> str:
+    """通过 Open-Meteo 公共接口获取天气；不记录用户请求外的任何信息。"""
+
+    encoded_city = quote(city)
+    geo_url = (
+        "https://geocoding-api.open-meteo.com/v1/search?name="
+        f"{encoded_city}&count=1&language=zh&format=json"
+    )
+    geo_request = Request(geo_url, headers={"User-Agent": "MarketStrategyAgent/1.0"})
+    with urlopen(geo_request, timeout=12) as response:
+        geo = json.loads(response.read().decode("utf-8"))
+    results = geo.get("results") or []
+    if not results:
+        return f"未找到“{city}”对应的天气地点。"
+    location = results[0]
+    weather_url = (
+        "https://api.open-meteo.com/v1/forecast?latitude="
+        f"{location['latitude']}&longitude={location['longitude']}"
+        "&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m"
+        "&timezone=Asia%2FShanghai"
+    )
+    weather_request = Request(weather_url, headers={"User-Agent": "MarketStrategyAgent/1.0"})
+    with urlopen(weather_request, timeout=12) as response:
+        weather = json.loads(response.read().decode("utf-8"))
+    current = weather.get("current") or {}
+    weather_labels = {
+        0: "晴", 1: "大部晴朗", 2: "多云", 3: "阴", 45: "雾", 48: "雾凇",
+        51: "毛毛雨", 53: "毛毛雨", 55: "毛毛雨", 61: "小雨", 63: "中雨",
+        65: "大雨", 71: "小雪", 73: "中雪", 75: "大雪", 80: "阵雨",
+        81: "阵雨", 82: "强阵雨", 95: "雷雨", 96: "雷雨伴冰雹", 99: "强雷雨伴冰雹",
+    }
+    code = current.get("weather_code")
+    label = weather_labels.get(code, f"天气代码 {code}")
+    return (
+        f"{location.get('name', city)}当前天气：{label}，"
+        f"气温 {current.get('temperature_2m', '—')}°C，"
+        f"体感 {current.get('apparent_temperature', '—')}°C，"
+        f"风速 {current.get('wind_speed_10m', '—')} km/h；"
+        f"观测时间 {current.get('time', '—')}（Asia/Shanghai）。"
+    )
 
 
 class TavilySearchTool(ReadOnlyBusinessTool):
@@ -489,17 +560,23 @@ class UserInsightTaggerTool(ReadOnlyBusinessTool):
         return [part.strip() for part in parts if len(part.strip()) >= 8][:5]
 
 
-def build_business_toolkit() -> list[ToolBase]:
+def build_business_toolkit(include_monthly_report_tools: bool = False) -> list[ToolBase]:
     """统一生成两个业务 Agent 可复用的工具列表。"""
 
-    return [
+    tools: list[ToolBase] = [
         AnySearchTool(),
         WebFetchTool(),
+        WeatherLookupTool(),
         TavilySearchTool(),
         PlaywrightScraperTool(),
         AgentReachDecoratedTool(),
         UserInsightTaggerTool(),
     ]
+    if include_monthly_report_tools:
+        from tools.monthly_report_browser import build_monthly_report_browser_tools
+
+        tools.extend(build_monthly_report_browser_tools())
+    return tools
 
 
 def fetch_url_text(url: str, max_chars: int) -> str:
@@ -521,12 +598,20 @@ def fetch_url_text(url: str, max_chars: int) -> str:
         with urlopen(request, timeout=15) as response:
             raw = response.read(1024 * 1024)
             content_type = response.headers.get("Content-Type", "")
+            content_encoding = response.headers.get("Content-Encoding", "").lower()
             charset = response.headers.get_content_charset() or "utf-8"
     except HTTPError as error:
         raise RuntimeError(f"HTTP {error.code}: {error.reason}") from error
     except URLError as error:
         raise RuntimeError(f"网络访问失败：{error.reason}") from error
 
+    if content_encoding == 'gzip' or raw.startswith(b'\x1f\x8b'):
+        import gzip
+        from io import BytesIO
+        raw = gzip.GzipFile(fileobj=BytesIO(raw)).read(1024 * 1024)
+    elif content_encoding == 'deflate':
+        import zlib
+        raw = zlib.decompress(raw)
     decoded = raw.decode(charset, errors="replace")
     if "text/html" in content_type or "<html" in decoded[:500].lower():
         decoded = html_to_text(decoded)

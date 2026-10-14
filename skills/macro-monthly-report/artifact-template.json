@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "kind": "presentation",
+  "reference": "assets/reference.pptx",
+  "preview": "assets/preview.png",
+  "profiles": {
+    "historical_update": {
+      "reference": "assets/history/2026-07.pptx",
+      "history_manifest": "references/history-manifest.json",
+      "inventory_script": "scripts/macro_history.py",
+      "build_script": "scripts/build_macro_historical.py",
+      "validator_script": "scripts/validate_macro_historical.py",
+      "runtime_dependencies": ["python-pptx", "openpyxl", "lxml", "Microsoft PowerPoint"],
+      "slide_count": 33,
+      "chart_count": 36,
+      "business_periods": "report_month actuals; next month outlook"
+    }
+  }
+}

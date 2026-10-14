@@ -1,0 +1,30 @@
+schema_version: 2
+profile: passenger_vehicle_monthly
+
+pages:
+  - {id: cover, order: 1, title: 封面, template_slide_index: 0, data_block: report_period, renderer_handler: update_cover, analysis_lens: [报告期间], required_output: [年月, 发布月]}
+  - {id: directory_market, order: 2, title: 当月市场走势目录, template_slide_index: 1, data_block: fixed, renderer_handler: preserve_slide, analysis_lens: [章节导航], required_output: [固定版式]}
+  - {id: retail_market, order: 3, title: 零售量, template_slide_index: 2, data_block: P3, renderer_handler: update_slide3, analysis_lens: [月度销量, 累计销量, 同比环比], required_output: [判断式标题, 深度分析, 原生图表, 原生表格]}
+  - {id: new_products, order: 4, title: 新品驱动, template_slide_index: 3, data_block: P4, renderer_handler: update_slide4, analysis_lens: [新车增量, 新车数量, 车均销量], required_output: [判断式标题, 深度分析, 缺数警告]}
+  - {id: inventory, order: 5, title: 库存, template_slide_index: 4, data_block: P5, renderer_handler: update_slide5, analysis_lens: [库存量, 存销比, 能源结构], required_output: [判断式标题, 深度分析, 原生图表]}
+  - {id: directory_structure, order: 6, title: 市场结构目录, template_slide_index: 5, data_block: fixed, renderer_handler: preserve_slide, analysis_lens: [章节导航], required_output: [固定版式]}
+  - {id: vehicle_category, order: 7, title: 车型类别, template_slide_index: 6, data_block: P7, renderer_handler: update_standard_comparison_slide, analysis_lens: [类别分化, 份额迁移], required_output: [判断式标题, 深度分析, 图表表格]}
+  - {id: vehicle_level, order: 8, title: 车型级别, template_slide_index: 7, data_block: P8, renderer_handler: update_standard_comparison_slide, analysis_lens: [级别分化, 份额迁移], required_output: [判断式标题, 深度分析, 图表表格]}
+  - {id: sedan_level, order: 9, title: 轿车级别, template_slide_index: 8, data_block: P9, renderer_handler: update_segment_slide, analysis_lens: [级别结构, 代表车型], required_output: [判断式标题, 深度分析, TOP15]}
+  - {id: suv_level, order: 10, title: SUV级别, template_slide_index: 9, data_block: P10, renderer_handler: update_segment_slide, analysis_lens: [级别结构, 代表车型], required_output: [判断式标题, 深度分析, TOP15]}
+  - {id: mpv_level, order: 11, title: MPV级别, template_slide_index: 10, data_block: P11, renderer_handler: update_segment_slide, analysis_lens: [级别结构, 代表车型], required_output: [判断式标题, 深度分析, TOP15]}
+  - {id: origin_structure, order: 12, title: 车型系别, template_slide_index: 11, data_block: P12, renderer_handler: update_standard_comparison_slide, analysis_lens: [系别竞争, 份额变化], required_output: [判断式标题, 深度分析]}
+  - {id: price_band, order: 13, title: 车型价格段, template_slide_index: 12, data_block: P13, renderer_handler: update_standard_comparison_slide, analysis_lens: [价格带迁移, 高低端分化], required_output: [判断式标题, 深度分析]}
+  - {id: province_region, order: 14, title: 省份与区域市场, template_slide_index: 13, data_block: P14, renderer_handler: update_slide14, analysis_lens: [省份排名, 东中西部], required_output: [判断式标题, 深度分析]}
+  - {id: city_tier, order: 15, title: 城市线级, template_slide_index: 14, data_block: P15, renderer_handler: update_standard_comparison_slide, analysis_lens: [线级分化, 份额迁移], required_output: [判断式标题, 深度分析]}
+  - {id: company_competition, order: 16, title: 企业竞争, template_slide_index: 15, data_block: P16, renderer_handler: update_slide16, analysis_lens: [TOP15企业, 当月累计], required_output: [判断式标题, 深度分析]}
+  - {id: nev_market, order: 17, title: 新能源市场, template_slide_index: 16, data_block: P17, renderer_handler: update_slide17, analysis_lens: [销量, 渗透率, 累计], required_output: [判断式标题, 深度分析]}
+  - {id: energy_form, order: 18, title: 新能源形式, template_slide_index: 17, data_block: P18, renderer_handler: update_slide18, analysis_lens: [BEV, PHEV, HEV, ICE], required_output: [判断式标题, 深度分析]}
+  - {id: nev_level, order: 19, title: 新能源级别, template_slide_index: 18, data_block: P19, renderer_handler: update_slide19, analysis_lens: [BEV级别, PHEV级别], required_output: [判断式标题, 深度分析]}
+  - {id: nev_company, order: 20, title: 新能源企业, template_slide_index: 19, data_block: P20, renderer_handler: update_slide20, analysis_lens: [TOP10企业, 当月累计], required_output: [判断式标题, 深度分析]}
+  - {id: top20_models, order: 21, title: TOP20车型附表, template_slide_index: 20, data_block: P21, renderer_handler: update_slide21, analysis_lens: [当月TOP20, 累计TOP20], required_output: [双榜单, 累计份额]}
+  - {id: directory_outlook, order: 22, title: 下月展望目录, template_slide_index: 21, data_block: fixed, renderer_handler: preserve_slide, analysis_lens: [章节导航], required_output: [固定版式]}
+  - {id: closing, order: 23, title: 结束与联系方式, template_slide_index: 22, data_block: fixed, renderer_handler: preserve_slide, analysis_lens: [联系方式], required_output: [固定版式]}
+
+extension_contract:
+  required_for_new_page: [page_spec, input_data_fields, editable_template_slide, parser_handler, renderer_handler, narrative_rule, quality_rule, regression_test, accepted_business_example]

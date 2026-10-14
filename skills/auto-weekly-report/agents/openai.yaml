@@ -1,0 +1,13 @@
+interface:
+  display_name: "周度资讯快报自动生成"
+  short_description: "逐板块检索核验，生成HTML、Word正报及来源文档"
+  default_prompt: "请选择日期范围，使用完整周报技能包生成中国汽车产业周度资讯快报。"
+policy:
+  allow_package_scripts: true
+  required_artifact_validators: [weekly_content, weekly_artifacts]
+  required_artifact_kinds: [html, docx, sources]
+dependencies:
+  python: [python-docx, lxml, agentscope, PyYAML]
+  tools: [weekly_search, weekly_fetch, skill_package_inspect, skill_read_resource, skill_run_script]
+  network: [agent-reach/exa, web_fetch]
+  office: "Word可用时更新目录并渲染；模板克隆和结构校验始终执行"

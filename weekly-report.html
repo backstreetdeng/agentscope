@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>周度资讯快报自动生成</title><link rel="stylesheet" href="/assets/weekly-report.css"></head>
+<body><header class="top"><a href="/#skills">← 返回技能</a><span>乘用车市场战略决策AI智能体</span><span id="connection">正在连接</span></header>
+<main><section class="intro"><p class="eyebrow">汽车产业 · 周度资讯</p><h1>把一周资讯，编成一份快报。</h1><p>逐板块检索、核验事件日期和来源，统一交付阅读版、Word正报和来源清单。</p></section>
+<div class="workspace"><section class="compose"><h2>周报日期</h2><p class="hint">默认最近一个完整的周六至周五，也可选择合并日期范围。</p>
+<form id="weekly-form"><div class="dates"><label>开始日期<input id="start-date" type="date" required></label><label>结束日期<input id="end-date" type="date" required></label></div>
+<label class="field">模型<select id="model-provider"><option value="minimax">MiniMax</option><option value="bailian_token_plan">百炼</option></select></label>
+<label class="field">本期说明（选填）<textarea id="weekly-note" rows="4" placeholder="例如：重点关注促消费政策、在华合作与技术量产，合并两周资讯。"></textarea></label>
+<p class="method">九大章节固定编排 · 旧闻与重复事件自动核对</p><button class="primary" id="start-button" type="submit" disabled>生成周报三件套</button></form>
+<div class="task-actions"><button id="resume-button" hidden>继续未完成任务</button><button id="cancel-button" hidden>暂停本轮执行</button></div>
+<p id="form-message" class="notice" aria-live="polite"></p><details><summary>已装载的操作知识与资源</summary><p id="package-note">正在检查完整技能包。</p><p>包括原始周报提示词、逐板块规则、历史去重台账、模板与样例、生成程序和独立验收器。</p></details></section>
+<section class="progress"><div class="progress-head"><h2>执行与交付</h2><span id="task-status">等待开始</span></div><p id="period-display">尚未选择周报日期</p><p id="task-message" aria-live="polite">选择日期后开始；已完成的检索和来源会保存。</p><progress id="progress" max="100" value="0"></progress><ol id="steps" class="steps"><li>装载操作知识与模板</li><li>十四板块逐项检索与事实核验</li><li>生成并验收阅读版、正报、来源文档</li></ol>
+<div id="downloads" class="downloads" hidden></div><details id="events-detail"><summary>查看本轮执行记录</summary><pre id="events"></pre></details><p id="run-label" class="hint"></p></section></div>
+<section id="reading" class="reading" hidden><div class="progress-head"><h2>本期阅读版</h2><a id="reading-open" target="_blank" rel="noopener noreferrer">在新窗口阅读 ↗</a></div><iframe id="reading-frame" title="周报HTML阅读版" sandbox="allow-scripts"></iframe></section>
+</main><script src="/assets/weekly-report.js" defer></script></body></html>
