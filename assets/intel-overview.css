@@ -1,0 +1,82 @@
+/* Reference-led intelligence overview; scoped to the overview only. */
+.workspace-page .intel-overview { color:#202733; }
+.workspace-page .intel-overview [hidden] { display:none !important; }
+.workspace-page .intel-overview .hero { padding:8px 0 22px; align-items:center; gap:20px; }
+.workspace-page .intel-overview .hero__title { font-size:28px; line-height:1.35; font-weight:750; letter-spacing:-.025em; }
+.overview-heading p { margin:8px 0 0; color:#687487; font-size:14px; }
+.workspace-page .intel-overview .hero__cta { gap:8px; flex-wrap:wrap; }
+.workspace-page .intel-overview .hero__cta .btn, .workspace-page .intel-overview .hero__cta .chip-btn { min-height:38px; font-size:12px; border-radius:9px; }
+.workspace-page .intel-overview .hero__cta .btn--primary { background:#25487c; }
+.workspace-page .intel-overview .hero__cta .chip-btn--static { background:#f0fbf8; color:#23877a; border-color:#d7ebe5; font-family:var(--ff-body); }
+.overview-summary { display:flex; align-items:center; gap:18px; padding:17px 20px; margin:0 0 20px; border:1px solid #e2e9f3; border-radius:14px; background:#fff; box-shadow:0 3px 12px #23467906; }
+.overview-summary strong { padding:7px 12px; border-radius:9px; background:#eaf2ff; color:#305f9f; white-space:nowrap; font-size:16px; }
+.overview-summary p { margin:0; font-size:13px; line-height:1.8; color:#465166; }
+.workspace-page .intel-overview .intelligence__grid { gap:16px; grid-template-columns:repeat(4,minmax(0,1fr)); }
+.workspace-page .intel-overview .intelligence .data-card { padding:0 16px 16px; gap:14px; border:1px solid #dce5f0; border-radius:15px; overflow:hidden; box-shadow:0 4px 14px #25487c08; }
+.workspace-page .intel-overview .data-card::before { height:3px; background:#507fc5; }
+.workspace-page .intel-overview .data-card--newcar::before { background:#39b7bd; }
+.workspace-page .intel-overview .data-card--wom::before { background:#e9b366; }
+.workspace-page .intel-overview .intelligence .data-card__head { margin:0 -16px; padding:16px 16px 13px; gap:8px; align-items:center; background:#f1f6fd; border-bottom:1px solid #e5ecf6; }
+.workspace-page .intel-overview .data-card--newcar .data-card__head { background:#edfafa; }
+.workspace-page .intel-overview .data-card--wom .data-card__head { background:#fcf8f0; }
+.workspace-page .intel-overview .intelligence .data-card__title { font-size:20px; white-space:nowrap; }
+.overview-card-hint { margin-left:auto; font-size:11px; line-height:1.6; color:#68778a; text-align:right; }
+.overview-card-meta { display:flex; flex-wrap:wrap; align-items:center; gap:5px 8px; min-height:35px; }
+.workspace-page .intel-overview .intelligence .data-card__sub { font-size:11px; line-height:1.6; margin:0; white-space:normal; }
+.workspace-page .intel-overview .intelligence .data-card__status { padding:0; border:0; background:none; color:#3567a9; font-size:11px; font-family:var(--ff-body); }
+.workspace-page .intel-overview .intelligence .data-card__metric { min-height:48px; gap:7px; align-items:baseline; }
+.workspace-page .intel-overview .intelligence .data-card__metric-value { font-family:'Segoe UI','Microsoft YaHei',sans-serif; font-size:40px; line-height:1.1; font-weight:700; letter-spacing:-.03em; color:#202733; }
+.workspace-page .intel-overview .intelligence .data-card__metric-unit { font-size:12px; color:#748095; }
+.workspace-page .intel-overview .intelligence .data-card__trend { margin:0; font-size:10px; }
+.workspace-page .intel-overview .intel-kpis { gap:0; border:1px solid #e4eaf3; border-radius:10px; overflow:hidden; background:#f7f9fd; }
+.workspace-page .intel-overview .intelligence .intel-kpi { padding:10px 8px; border:0; background:transparent; }
+.workspace-page .intel-overview .intel-kpi + .intel-kpi { border-left:1px solid #e4eaf3; }
+.workspace-page .intel-overview .intelligence .intel-kpi dt { font-size:11px; }
+.workspace-page .intel-overview .intelligence .intel-kpi dd { font-family:'Segoe UI',sans-serif; font-size:20px; color:#202733; }
+.workspace-page .intel-overview .intelligence .intel-breakdown { padding-top:12px; border-top:1px dashed #e6ebf3; }
+.workspace-page .intel-overview .intelligence .intel-breakdown__head { font-size:12px; margin-bottom:10px; }
+.workspace-page .intel-overview .intel-breakdown__head span:last-child { font-size:10px; }
+.workspace-page .intel-overview .intelligence .intel-breakdown__list { display:grid; grid-template-columns:1fr; gap:7px; }
+.workspace-page .intel-overview .intelligence .intel-breakdown__item { font-size:11px; line-height:1.5; }
+.workspace-page .intel-overview .intelligence .intel-breakdown__item strong { font-size:11px; }
+.workspace-page .intel-overview .intelligence .data-card__desc { font-size:11px; line-height:1.8; margin:0; overflow-wrap:anywhere; }
+.workspace-page .intel-overview .intelligence .data-card__desc--highlight { background:#f0f5fe; padding:9px; border-radius:8px; }
+.workspace-page .intel-overview .intelligence .data-card__actions { margin-top:auto; padding-top:8px; border:0; }
+.workspace-page .intel-overview .intelligence .data-card__btn--primary { display:flex; justify-content:center; align-items:center; width:100%; min-height:42px; font-size:14px; color:#fff; background:linear-gradient(110deg,#254c94,#367ad7); border:0; border-radius:9px; box-shadow:0 3px 8px #3065ab22; }
+.workspace-page .intel-overview .intelligence .data-card__btn--primary:hover { background:#24599d; }
+.workspace-page .intel-overview a:focus-visible, .workspace-page .intel-overview button:focus-visible { outline:3px solid #7cafed; outline-offset:3px; }
+.workspace-page .intel-overview .newcar-stats { grid-template-columns:repeat(3,minmax(0,1fr)); border-radius:10px; background:#f8fbfd; }
+.workspace-page .intel-overview .newcar-stat { padding:11px 8px; border:0; min-width:0; }
+.workspace-page .intel-overview .newcar-stat + .newcar-stat { border-left:1px solid #e3ebf1; }
+.workspace-page .intel-overview .intelligence .newcar-stat__value { font-family:'Segoe UI',sans-serif; font-size:20px; }
+.workspace-page .intel-overview .intelligence #newcar-latest-date { font-size:15px; }
+.workspace-page .intel-overview .newcar-stat__note { display:none; }
+.workspace-page .intel-overview .newcar-stat__label { font-size:10px; }
+.workspace-page .intel-overview .koubei-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); border:1px solid #e4eaf3; border-radius:10px; gap:0; overflow:hidden; }
+.workspace-page .intel-overview .koubei-metric { background:#f7f9fd; border:0; border-radius:0; padding:11px; }
+.workspace-page .intel-overview .koubei-metric + .koubei-metric { border-left:1px solid #e4eaf3; }
+.workspace-page .intel-overview .intelligence .koubei-metric__value { font-family:'Segoe UI',sans-serif; font-size:20px; }
+.workspace-page .intel-overview .koubei-sub-info { border-top:1px dashed #e3eaf2; padding-top:10px; }
+.workspace-page .intel-overview #koubei-provenance { display:none; }
+.overview-source-list { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.overview-source-list span { padding:13px 10px; border:1px solid #e5eaf2; background:#f9fbff; border-radius:9px; font-size:12px; line-height:1.8; }
+.overview-new-list { margin:3px 0 0; border:1px solid #e3ebf6; border-radius:10px; overflow:hidden; }
+.overview-new-list h4 { font-size:12px; background:#f3f7fe; margin:0; padding:11px; color:#465b79; }
+.overview-model-row { display:flex; justify-content:space-between; gap:8px; padding:11px; border-top:1px solid #e9eef6; font-size:12px; }
+.overview-model-row span:last-child { color:#6480a2; }
+@media(max-width:1500px) { .workspace-page .intel-overview .intelligence__grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:768px) {
+ .workspace-page .intel-overview .intelligence__grid { grid-template-columns:1fr; }
+ .workspace-page .intel-overview .hero { align-items:flex-start; }
+ .workspace-page .intel-overview .hero__title { font-size:25px; }
+ .overview-summary { align-items:flex-start; flex-direction:column; gap:9px; padding:15px; }
+ .workspace-page .intel-overview .intelligence .data-card__metric-value { font-size:38px; }
+ .workspace-page .intel-overview .hero__cta { justify-content:flex-start; }
+}
+
+.workspace-page .intel-overview .intelligence #newcar-spec-total,
+.workspace-page .intel-overview .intelligence #koubei-total { font-family:'Segoe UI','Microsoft YaHei',sans-serif; font-size:40px; line-height:1.1; letter-spacing:-.03em; color:#202733; }
+@media(max-width:768px) {
+ .workspace-page .intel-overview .intelligence #newcar-spec-total,
+ .workspace-page .intel-overview .intelligence #koubei-total { font-size:38px; }
+}
