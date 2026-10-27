@@ -9,7 +9,7 @@ if errorlevel 1 (
   exit /b 1
 )
 echo.
-echo 服务已启动；本机地址：http://127.0.0.1:7860/；局域网地址：http://10.11.2.43:7860/
+echo 服务已启动；本机地址：http://127.0.0.1:7860/；局域网地址请使用本机当前 IP
 echo 按任意键关闭本窗口；关闭后服务会继续在后台运行。
 pause >nul
 endlocal

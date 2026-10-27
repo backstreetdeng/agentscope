@@ -37,3 +37,19 @@ runtime/playwright-mcp-probe-output/
 backup/*.pyc
 backup/__pycache__/
 runtime/rights-ssh-env/
+
+# Machine-local search endpoints may contain authentication settings.
+/runtime/search-cli/mcporter.json
+/runtime/migration-recovery-20261016/
+
+# Keep development graph cache/snapshots out of source control.
+/.codebase-memory/
+
+# Local task workspaces and reversible cleanup archives.
+/.work/
+/backup/root-cleanup-*/
+*.bak-*
+*.bak_*
+
+# 本地模型权重（不随 Git 提交）
+forecast-engine/_models/

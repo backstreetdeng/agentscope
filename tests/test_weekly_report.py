@@ -85,6 +85,48 @@ class WeeklyPackageTests(unittest.TestCase):
         with patch.object(self.manager,'_execute_owned') as execute:
             self.manager._execute(job['run_id']);execute.assert_called_once()
 
+    def test_empty_tool_submission_is_authoritative_and_keeps_gap(self):
+        import asyncio
+        from agentscope.message import UserMsg
+        from utils.weekly_report_research import run_section,WeeklySubmitTool
+        from skill_runtime import SkillRunContext
+        job=self.start();ctx=SkillRunContext(self.manager._package(self.manager._run_path(job['run_id'])),self.manager.root,job['run_id'])
+        spec=read(ctx.package.resolve('references/sections.json'))[1];request=read(ctx.inputs_dir/'request.json')
+        class EmptyAgent:
+            def __init__(self,**kwargs):pass
+            async def reply(self,*args):
+                # Exercise real submission tool: final prose is intentionally not JSON.
+                await submit[0].call([],gap='已检索本期官方来源，尚无可核验的本期事实。')
+                return UserMsg(name='agent',content='已提交空结果及原因。')
+        submit=[]
+        original=WeeklySubmitTool.__init__
+        def capture(tool,store):original(tool,store);submit.append(tool)
+        with patch('utils.weekly_report_research.EvidenceStore.search',return_value={'results':[{'url':'https://example.com'}]}),patch('utils.weekly_report_research.Agent',EmptyAgent),patch('utils.weekly_report_research.build_model'),patch.object(WeeklySubmitTool,'__init__',capture):
+            result=run_section(ctx,spec,request,[],lambda:None,{})
+        self.assertEqual(result['items'],[])
+        self.assertIn('已检索本期官方来源',result['gap'])
+        self.assertNotIn('JSON',result['gap'])
+        self.assertTrue((ctx.working_dir/'submission-macro-001.json').exists())
+        self.assertFalse((ctx.working_dir/'model-check-macro-attempt-2.json').exists())
+
+    def test_resume_executor_upgrade_creates_replacement_without_mutating_snapshot(self):
+        job=self.start();root=self.manager._run_path(job['run_id']);original=(root/'working/skill-package/auto-weekly-report/SKILL.md').read_bytes()
+        state=read(root/'run-state.json');state['status']='cancelled';write(root/'run-state.json',state)
+        with patch.object(self.manager,'_package',side_effect=ValueError('执行器版本与本轮锁定版本不一致；已保留原任务与全部证据。')),patch.object(self.manager,'_launch'):
+            replacement=self.manager.resume(job['run_id'])
+        self.assertNotEqual(replacement['run_id'],job['run_id'])
+        new=read(self.manager._run_path(replacement['run_id'])/'run-state.json')
+        self.assertEqual(new['supersedes_run_id'],job['run_id'])
+        self.assertEqual((root/'working/skill-package/auto-weekly-report/SKILL.md').read_bytes(),original)
+
+    def test_fetched_literal_macro_event_is_exposed_without_using_article_timestamp(self):
+        from utils.weekly_report_research import event_excerpts
+        rules=validator(SkillRegistry([self.skill.parent]).get('auto-weekly-report'))
+        source={'published':'2026-10-09','title':'汇率政策立场','text':'发布日期：2026年10月9日\n10月8日，中国人民银行对外发布政策立场，明确中国没有必要，也无意通过汇率贬值获取贸易竞争优势。'}
+        result=event_excerpts(source,{'start_date':'2026-10-03','end_date':'2026-10-09'},rules)
+        self.assertEqual([r['event_date'] for r in result],['2026-10-08'])
+        self.assertIn(result[0]['event_quote'],source['text'])
+
     def test_model_prose_and_scaffolding_do_not_replace_the_final_json(self):
         from utils.weekly_report_research import extract_weekly_output
         text='I will build JSON. {"items":[{"title":"example"}]}\nFinal result: {"items":[{"title":"actual","event_date":"2025-04-23"}]}'
@@ -99,7 +141,7 @@ class WeeklyPackageTests(unittest.TestCase):
         job=self.start();root=self.manager._run_path(job['run_id']);package=self.manager._package(root)
         ctx=SkillRunContext(package,self.manager.root,job['run_id']);spec=read(package.resolve('references/sections.json'))[0];request=read(ctx.inputs_dir/'request.json')
         section=fixture(ctx,spec,request,[],lambda:None);items=deepcopy(section['items']);items[1]['body']+=' 未经来源支持的金额999999元。'
-        store=SimpleNamespace(ctx=ctx,spec=spec,request=request,sources=read(ctx.working_dir/'sources.json'),check_cancel=lambda:None,submission={'items':[],'gap':''},stagnant_submissions=0)
+        store=SimpleNamespace(ctx=ctx,spec=spec,request=request,sources=read(ctx.working_dir/'sources.json'),check_cancel=lambda:None,submission={'items':[],'gap':''},stagnant_submissions=0,submission_count=0,rejections=[])
         reply=asyncio.run(WeeklySubmitTool(store).call(items=items))
         self.assertEqual(len(store.submission['items']),1)
         self.assertEqual(read(ctx.working_dir/'section-partial-policy.json')['items'],store.submission['items'])
@@ -219,5 +261,18 @@ class WeeklyPackageTests(unittest.TestCase):
         for start,end in [('2099-01-01','2099-01-07'),('2025-09-12','2025-09-06')]:
             with self.assertRaises(ValueError):self.manager.start(dict(start_date=start,end_date=end))
         self.assertFalse(self.manager.root.exists())
+
+    def test_authorized_historical_recompile_keeps_persistent_ledger(self):
+        self.manager.data_dir.mkdir(parents=True,exist_ok=True)
+        ledger=self.manager.data_dir/'coverage_log.md'
+        text='| 2025.0906-0910 | 政策法规 | 窗口内已报 | 09.08 | https://example.com/inside |\n| 2025.0830-0905 | 政策法规 | 窗口外旧闻 | 09.01 | https://example.com/outside |\n'
+        ledger.write_text(text,encoding='utf-8')
+        with patch.object(self.manager,'_launch'):
+            job=self.manager.start(dict(start_date='2025-09-06',end_date='2025-09-12',model_provider='test',historical_recompile=True))
+        inputs=self.manager._run_path(job['run_id'])/'inputs'
+        self.assertEqual(ledger.read_text(encoding='utf-8'),text)
+        self.assertEqual((inputs/'coverage_log-before-recompile.md').read_text(encoding='utf-8'),text)
+        self.assertNotIn('窗口内已报',(inputs/'coverage_log.md').read_text(encoding='utf-8'))
+        self.assertIn('窗口外旧闻',(inputs/'coverage_log.md').read_text(encoding='utf-8'))
 
 if __name__=='__main__':unittest.main()

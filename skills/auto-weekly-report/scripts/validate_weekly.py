@@ -12,7 +12,7 @@ from lxml import etree
 W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
 SECTION_ROWS = json.loads((Path(__file__).resolve().parents[1] / 'references/sections.json').read_text(encoding='utf-8'))
 NUM_RE = re.compile(r'\d+(?:\.\d+)?')
-ACTION_RE = r'发布|印发|公布|签署|签订|签约|达成|成立|投产|量产|下线|交付|定点|送样|上市|预售|开工|启用|任命|出任|履新|上任|接任|离任|卸任|辞任|辞职|当选|生效|通过|召开|举行|举办|开幕|启动|获批|实施|完成|推出'
+ACTION_RE = r'开展|阐明|发布|印发|公布|签署|签订|签约|达成|成立|投产|量产|下线|交付|定点|送样|上市|预售|开工|启用|任命|出任|履新|上任|接任|离任|卸任|辞任|辞职|当选|生效|通过|召开|举行|举办|开幕|启动|获批|实施|完成|推出'
 
 def normalize(value):
     return re.sub(r'[^\w\u4e00-\u9fff]', '', html.unescape(str(value))).lower()

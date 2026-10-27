@@ -33,12 +33,16 @@ from uuid import uuid4
 import urllib.error
 import urllib.request
 
+from dotenv import load_dotenv
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 from utils.passenger_forecast_jobs import PassengerForecastJobs
 from utils.weekly_report_jobs import WeeklyReportJobs
 from utils.weekly_report_research import run_section as run_weekly_section
+
+# Load machine paths before constructing module-level Skill/job objects.
+load_dotenv(Path(__file__).resolve().parent / ".env", override=False)
 
 HOST = os.getenv("AGENT_SERVER_NAME", "0.0.0.0")
 PORT = 7860
@@ -51,7 +55,7 @@ PROJECT_RUNS_LOCK = Lock()
 MONTHLY_JOB_DIR = Path(__file__).resolve().parent / "runtime" / "monthly-report-jobs"
 PASSENGER_FORECAST_SKILL_DIR = Path(os.getenv(
     "PASSENGER_FORECAST_SKILL_DIR",
-    r"D:\2024年度工作日志和备忘录\数字化转型产品\4.0 同事组\5.4 晓亚\乘用车市场预测-0922\passenger-car-market-forecast",
+    r"E:/AI/migration-backup/5.4 晓亚\乘用车市场预测-0922\passenger-car-market-forecast",
 ))
 PASSENGER_FORECAST_REFERENCES = (
     "SKILL.md",
@@ -238,7 +242,6 @@ def save_macro_ledger(filename: str, data: bytes) -> dict[str, Any]:
         temp_meta.replace(MACRO_LEDGER_META_FILE)
     return metadata
 
-from dotenv import load_dotenv
 from openai import AuthenticationError
 from agentscope.message import UserMsg
 
@@ -986,6 +989,18 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         request_path = parsed.path
 
+        if request_path == '/forecast-engine-view':
+            self._send_html((PROJECT_DIR / 'pages/forecast-engine.html').read_text(encoding='utf-8'))
+            return
+        if request_path.startswith('/api/forecast-engine/'):
+            from integrations.forecast_engine_web import FORECAST_WEB_JOBS, status as forecast_status
+            try:
+                if request_path == '/api/forecast-engine/status': self._send_json(forecast_status())
+                elif request_path == '/api/forecast-engine/jobs': self._send_json(FORECAST_WEB_JOBS.get(parse_qs(parsed.query).get('run_id',[''])[0]))
+                else: self._send_json({'error':'未找到新版预测接口。'},status=404)
+            except (ValueError,OSError) as exc: self._send_json({'error':str(exc)},status=400)
+            return
+
         if request_path == '/weekly-report.html':
             self._send_html((PROJECT_DIR / 'weekly-report.html').read_text(encoding='utf-8'))
             return
@@ -1048,6 +1063,10 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
 
         if request_path in ('/reputation-detail', '/reputation-detail.html'):
             self._send_html((PROJECT_DIR / 'reputation-detail.html').read_text(encoding='utf-8'))
+            return
+
+        if request_path in ('/reputation-insight', '/reputation-insight.html'):
+            self._send_html((PROJECT_DIR / 'reputation-insight.html').read_text(encoding='utf-8'))
             return
 
         if request_path.startswith("/outputs/") or request_path.startswith("/skills/html-ppt-skill/assets/"):
@@ -1294,6 +1313,16 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         parsed = urlparse(self.path)
+        if parsed.path == '/api/forecast-engine/jobs':
+            from integrations.forecast_engine_web import FORECAST_WEB_JOBS
+            try:
+                length=int(self.headers.get('Content-Length','0'))
+                if not 0 < length <= 16000: raise ValueError('预测请求为空或过大。')
+                payload=json.loads(self.rfile.read(length).decode('utf-8'))
+                if not isinstance(payload,dict): raise ValueError('预测请求必须为对象。')
+                self._send_json(FORECAST_WEB_JOBS.start(payload,AGENT_LOOP_RUNNER.run),status=202)
+            except (ValueError,OSError) as exc: self._send_json({'error':str(exc)},status=400)
+            return
         if parsed.path.startswith('/api/weekly-report/'):
             try:
                 length = int(self.headers.get('Content-Length', '0'))
@@ -1342,11 +1371,14 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
             except Exception as exc:
                 self._send_json({'error': type(exc).__name__ + ': ' + str(exc)}, status=500)
             return
-        if self.path not in {"/api/chat", "/api/ppt", "/api/audio-tags/run", "/api/quality-gate", "/api/market-skill/validate", "/api/intelligence/export", "/api/projects/update", "/api/macro-ledger", "/api/monthly-report/jobs", "/api/monthly-report/jobs/cancel", "/api/monthly-report/jobs/resume", "/api/macro-report/jobs", "/api/macro-report/jobs/cancel", "/api/macro-report/jobs/resume"}:
+        if self.path not in {"/api/assistant/chat", "/api/chat", "/api/ppt", "/api/audio-tags/run", "/api/quality-gate", "/api/market-skill/validate", "/api/intelligence/export", "/api/projects/update", "/api/macro-ledger", "/api/monthly-report/jobs", "/api/monthly-report/jobs/cancel", "/api/monthly-report/jobs/resume", "/api/macro-report/jobs", "/api/macro-report/jobs/cancel", "/api/macro-report/jobs/resume"}:
             self.send_error(HTTPStatus.NOT_FOUND)
             return
 
         length = int(self.headers.get("Content-Length", "0"))
+        if self.path == "/api/assistant/chat" and (length <= 0 or length > 300000):
+            self._send_json({"error": "会话请求为空或过长，请新建会话。"}, status=400)
+            return
         if self.path == "/api/macro-ledger":
             if length <= 0:
                 self._send_json({"error": "请选择需要上传的标准台账。"}, status=400)
@@ -1368,6 +1400,35 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
         payload = json.loads(body or "{}")
 
         try:
+            if self.path == "/api/assistant/chat":
+                messages = payload.get("messages")
+                if not isinstance(messages, list) or not 1 <= len(messages) <= 20:
+                    raise ValueError("会话应包含 1—20 条消息，请新建会话后继续。")
+                history = []
+                for message in messages:
+                    if not isinstance(message, dict) or message.get("role") not in {"user", "assistant"}:
+                        raise ValueError("会话消息格式不正确。")
+                    content = message.get("content")
+                    if not isinstance(content, str) or not content.strip() or len(content) > 12000:
+                        raise ValueError("单条消息不能为空或超过 12000 字。")
+                    history.append({"role": message["role"], "content": content.strip()})
+                if history[-1]["role"] != "user" or sum(len(item["content"]) for item in history) > 60000:
+                    raise ValueError("会话过长或缺少当前问题，请新建会话。")
+                from integrations.home_assistant import answer_home_question
+                load_dotenv(ENV_PATH, override=True)
+                # No AGENT_RUN_LOCK here: the home assistant is just an LLM
+                # call with optional MCP discovery, and it must stay responsive
+                # while weekly/monthly jobs run their own agents in parallel.
+                try:
+                    result = AGENT_LOOP_RUNNER.run(answer_home_question(load_json_config(), history))
+                except AuthenticationError:
+                    self._send_json({"error": "MiniMax 服务鉴权失败，请检查服务端模型配置。"}, status=401)
+                    return
+                except Exception:
+                    self._send_json({"error": "AI 服务暂时无法完成回答，请稍后重试或缩小问题范围。"}, status=502)
+                    return
+                self._send_json(result)
+                return
             if self.path == "/api/macro-report/jobs":
                 job = start_macro_background_job(payload)
                 self._send_json(job, status=202)
@@ -1534,6 +1595,9 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
                     str(payload.get("analysis_type", "")).strip(),
                     [str(item) for item in capabilities],
                 )
+                if analysis_type in {"forecast", "market_forecast", "forecast_engine"}:
+                    self._send_json({"error": "新版市场预测尚未完成真实数据回测和业务审核，不允许作为正式PPT交付。", "code": "forecast_real_data_acceptance_pending"}, status=409)
+                    return
                 if analysis_type == "macro_monthly_report":
                     run_id = str(payload.get("run_id", "")).strip()
                     try:
@@ -1920,7 +1984,7 @@ def store_project_run(
         "agent_label": "用户洞察Agent" if agent == "user_insight_config" else "市场战略Agent",
         "analysis_type": analysis_type or "自动识别",
         "model_provider": model_provider or str(result.get("model_provider", "")) or "默认模型",
-        "status": "部分完成" if result.get("report_completion")=="partial_completed" else "草稿就绪" if public_draft_ready else "部分完成" if business_incomplete else "已完成" if not skill_run or runtime_passed else "待修复",
+        "status": "执行中" if runtime_status in {"created", "running"} else "已暂停" if runtime_status == "cancelled" else "失败" if runtime_status == "failed" else "需要核对" if runtime_status == "needs_review" else "部分完成" if result.get("report_completion")=="partial_completed" else "草稿就绪" if public_draft_ready else "部分完成" if business_incomplete else "已完成" if not skill_run or runtime_passed else "待修复",
         "quality_status": (
             "草稿验收通过" if public_draft_ready else str(quality.get("overall_status") or "待补充") if business_incomplete else "Skill验收通过"
             if runtime_passed
@@ -3218,7 +3282,7 @@ async def run_agent_once(
     skill_run_context: SkillRunContext | None = None
     skill_runtime_tools: list[Any] = []
     if model_provider:
-        allowed_providers = {"minimax", "zhipu", "bailian_token_plan"}
+        allowed_providers = {"deepseek_flash", "deepseek_pro", "zhipu", "bailian_token_plan"}
         if model_provider not in allowed_providers or model_provider not in config.get("providers", {}):
             raise ValueError("不支持的模型选项。")
         selected_provider = config["providers"][model_provider]
@@ -3228,6 +3292,12 @@ async def run_agent_once(
                 or "当前模型暂不可由独立 AgentScope 任务调用。"
             )
         config["active_provider"] = model_provider
+        config['_requested_provider'] = model_provider
+
+    from integrations.forecast_engine_runtime import is_forecast_question
+    if forecast_task or analysis_type == "forecast_engine" or (agent_key == "market_strategy" and analysis_type not in {PASSENGER_MONTHLY_CAPABILITY_ID, MACRO_MONTHLY_CAPABILITY_ID, "market_monthly_report"} and is_forecast_question(question)):
+        from integrations.forecast_engine_runtime import run_forecast_engine_agent
+        return await run_forecast_engine_agent(config, question)
 
     # 新版乘用车月报是确定性编排任务，不允许落入旧 MarketAnalysisSkill 的
     # 关键词自动触发逻辑。旧逻辑会注入历史 Excel 摘要，造成跨年份、跨口径混用。
@@ -3577,7 +3647,7 @@ def _macro_execution_config(model_provider: str) -> dict[str, Any]:
         load_dotenv(ZHIPU_ENV_PATH, override=True)
     load_dotenv(PROJECT_DIR / ".env.bailian", override=True)
     config = load_json_config()
-    provider = model_provider or config.get("active_provider", "minimax")
+    provider = model_provider or config.get("active_provider", "deepseek_flash")
     selected = (config.get("providers") or {}).get(provider)
     if not isinstance(selected, dict):
         raise ValueError("不支持的模型选项。")

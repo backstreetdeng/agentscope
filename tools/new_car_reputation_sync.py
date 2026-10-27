@@ -15,8 +15,8 @@ from openpyxl import load_workbook
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 load_dotenv(PROJECT_DIR / ".env.new-car", override=False)
 
-DCD_XLSX = Path(r"D:\2024年度工作日志和备忘录\数字化转型产品\4.0 同事组\5.4 晓亚\乘用车新车监测板块-0921\懂车帝口碑明细导出.xlsx")
-AH_XLSX = Path(r"D:\2024年度工作日志和备忘录\数字化转型产品\4.0 同事组\5.4 晓亚\乘用车新车监测板块-0921\汽车之家口碑明细_20260921.xlsx")
+DCD_XLSX = Path(r"E:/AI/migration-backup/5.4 晓亚\乘用车新车监测板块-0921\懂车帝口碑明细导出.xlsx")
+AH_XLSX = Path(r"E:/AI/migration-backup/5.4 晓亚\乘用车新车监测板块-0921\汽车之家口碑明细_20260921.xlsx")
 
 PG = {
     "host": os.getenv("NEW_CAR_PG_HOST", "192.168.3.146"),

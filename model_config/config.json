@@ -1,6 +1,17 @@
 {
-  "active_provider": "minimax",
+  "active_provider": "deepseek_flash",
   "providers": {
+    "bailian_token_plan": {
+      "type": "openai_compatible",
+      "base_url": "https://token-plan.cn-beijing.maas.aliyuncs.com/compatible-mode/v1",
+      "model": "qwen3.7-plus",
+      "api_key_env": "BAILIAN_TOKEN_PLAN_API_KEY",
+      "enabled": true,
+      "stream": true,
+      "temperature": 0.3,
+      "max_tokens": 8192,
+      "context_size": 128000
+    },
     "minimax": {
       "type": "openai_compatible",
       "base_url": "https://api.minimaxi.com/v1",
@@ -13,7 +24,22 @@
       "context_size": 128000,
       "extra_body": {
         "reasoning_split": true
-      }
+      },
+      "enabled": false,
+      "availability_note": "用户已停用 MiniMax。"
+    },
+    "zhipu": {
+      "type": "openai_compatible",
+      "base_url": "https://open.bigmodel.cn/api/paas/v4/",
+      "model": "glm-5.3",
+      "api_key_env": "ZHIPU_API_KEY",
+      "enabled": false,
+      "availability_note": "当前配置的是智谱 Coding Plan 凭证，不能由独立 AgentScope 脚本调用开放平台 API；需更换开放平台 API Key 后再启用。",
+      "stream": true,
+      "temperature": 0.3,
+      "top_p": 0.9,
+      "max_tokens": 8192,
+      "context_size": 128000
     },
     "local_ollama": {
       "type": "ollama",
@@ -48,6 +74,42 @@
       "context_size": 128000,
       "extra_body": {
         "reasoning_split": true
+      },
+      "enabled": false,
+      "availability_note": "用户已停用 MiniMax。"
+    },
+    "deepseek_flash": {
+      "type": "openai_compatible",
+      "display_name": "DeepSeek V4 Flash",
+      "base_url": "https://api.deepseek.com",
+      "model": "deepseek-v4-flash",
+      "api_key_env": "DASHSCOPE_API_KEY",
+      "enabled": true,
+      "stream": true,
+      "temperature": 0.3,
+      "max_tokens": 4096,
+      "context_size": 128000,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
+      }
+    },
+    "deepseek_pro": {
+      "type": "openai_compatible",
+      "display_name": "DeepSeek V4 Pro",
+      "base_url": "https://api.deepseek.com",
+      "model": "deepseek-v4-pro",
+      "api_key_env": "DASHSCOPE_API_KEY",
+      "enabled": true,
+      "stream": true,
+      "temperature": 0.3,
+      "max_tokens": 8192,
+      "context_size": 128000,
+      "extra_body": {
+        "thinking": {
+          "type": "disabled"
+        }
       }
     }
   },
@@ -83,6 +145,54 @@
       }
     }
   },
+  "mcp_plugins": {
+    "enabled": true,
+    "base_url_env": "MARKET_MCP_BASE_URL",
+    "token_env": "MARKET_MCP_API_TOKEN",
+    "default_base_url": "http://192.168.3.146:8790",
+    "plugins": {
+      "policy": {
+        "display_name": "政策数据插件",
+        "path": "/mcp/policy",
+        "timeout": 30,
+        "enabled": true,
+        "agents": [
+          "market_strategy",
+          "user_insight_config"
+        ]
+      },
+      "rights": {
+        "display_name": "权益数据插件",
+        "path": "/mcp/rights",
+        "timeout": 30,
+        "enabled": true,
+        "agents": [
+          "market_strategy",
+          "user_insight_config"
+        ]
+      },
+      "new-car": {
+        "display_name": "新车数据插件",
+        "path": "/mcp/new-car",
+        "timeout": 30,
+        "enabled": true,
+        "agents": [
+          "market_strategy",
+          "user_insight_config"
+        ]
+      },
+      "reputation": {
+        "display_name": "口碑数据插件",
+        "path": "/mcp/reputation",
+        "timeout": 60,
+        "enabled": true,
+        "agents": [
+          "market_strategy",
+          "user_insight_config"
+        ]
+      }
+    }
+  },
   "demo_tasks": {
     "market_strategy": "请输出精简版业务报告：针对2026年15-20万元新能源SUV乘用车市场，识别2个高潜力增量机会市场和2个高风险衰退预警市场，输出市场分级、区域产能调配建议、进入/暂缓决策意见。每章最多3条要点，必须覆盖全部章节。",
     "user_insight_config": "请输出精简版业务报告：针对15-20万元新能源SUV，锁定3类目标用户圈层，完成需求-配置匹配测算，并给出不超过8项整车选装配置优先级排序和可执行产品配置方案。每章最多3条要点，必须覆盖全部章节。"
@@ -91,5 +201,9 @@
     "web_fetch_max_chars": 6000,
     "tavily_max_results": 5,
     "playwright_timeout_ms": 15000
+  },
+  "model_routing": {
+    "default_provider": "deepseek_flash",
+    "complex_provider": "deepseek_pro"
   }
 }

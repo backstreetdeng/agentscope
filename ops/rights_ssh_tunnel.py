@@ -45,7 +45,7 @@ def release_instance() -> None:
         pass
 
 def connect():
-    text=Path(os.getenv('RIGHTS_SSH_CREDENTIALS_PATH','C:/Users/11489/.codex/skills/tencent-cloud-price-monitor-ssh/.env')).read_text(encoding='utf-8-sig')
+    text=Path(os.getenv('RIGHTS_SSH_CREDENTIALS_PATH',str(Path.home()/'.codex/skills/tencent-cloud-price-monitor-ssh/.env'))).read_text(encoding='utf-8-sig')
     lines=text.splitlines(); password=None
     for index,line in enumerate(lines):
         m=re.match(r'^\s*(?:[-*]\s*)?(?:\*\*)?(?:密码|登录密码|服务器密码|SSH_PASSWORD|PASSWORD)(?:\*\*)?\s*[:：=]\s*(.*?)\s*$',line,re.I)

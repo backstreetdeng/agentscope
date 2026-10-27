@@ -4,7 +4,7 @@ import json
 from pptx import Presentation
 
 ROOT = Path(__file__).resolve().parents[1]
-REFERENCES = Path(r'D:\2024年度工作日志和备忘录\数字化转型产品\4.0 同事组\5.4 晓亚\提供邓skill-0915')
+REFERENCES = Path(r'E:/AI/migration-backup/5.4 晓亚\提供邓skill-0915')
 NAMES = [f'2026年{m}月中国乘用车市场月度分析报告{suffix}.pptx'
          for m, suffix in [(3,''),(4,''),(5,''),(6,'0715'),(7,'0814'),(8,'0915')]]
 TEMPLATE = ROOT/'skills/market-analysis-skill/passenger-car-monthly-report/assets/乘用车月报PPT兼容模板.pptx'

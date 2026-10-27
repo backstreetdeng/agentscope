@@ -6,7 +6,7 @@ from dotenv import dotenv_values
 import psycopg2
 from psycopg2.extras import RealDictCursor
 root=Path(__file__).resolve().parents[1]
-source=Path(r"D:\2024年度工作日志和备忘录\数字化转型产品\4.0 同事组\5.8 常凯迪\产品用户数据内部小组\10.08\1009.xlsx")
+source=Path(r"E:/AI/migration-backup/files/1009.xlsx")
 sha=hashlib.sha256(source.read_bytes()).hexdigest()
 w=load_workbook(source,read_only=True,data_only=True)
 raw=[r for r in list(w['data'].values)[2:] if isinstance(r[1],datetime) and (r[1].year,r[1].month)==(2026,10)]

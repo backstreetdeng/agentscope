@@ -5,7 +5,7 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = Path('D:/document/WXWork/1688852089355778/Cache/File/2026-10/2012起分月PC+NEV销量.xlsx')
+SOURCE = Path('E:/AI/migration-backup/files/2012起分月PC+NEV销量.xlsx')
 OUTPUT = ROOT / 'outputs/forecast-browser-selftest-20261010'
 
 

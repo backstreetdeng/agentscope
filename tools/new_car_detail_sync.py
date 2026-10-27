@@ -16,7 +16,7 @@ from openpyxl import load_workbook
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 load_dotenv(PROJECT_DIR / ".env.new-car", override=False)
 
-SOURCE_DIR = Path(r"D:\2024年度工作日志和备忘录\数字化转型产品\4.0 同事组\5.4 晓亚\乘用车-新车明细板块-0927")
+SOURCE_DIR = Path(r"E:/AI/migration-backup/5.4 晓亚\乘用车-新车明细板块-0927")
 SALES_XLSX = SOURCE_DIR / "典型车型上市后销量.xlsx"
 AH_XLSX = SOURCE_DIR / "汽车之家口碑明细_20260924.xlsx"
 DCD_XLSX = SOURCE_DIR / "懂车帝口碑明细导出.xlsx"

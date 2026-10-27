@@ -129,6 +129,16 @@ if ($listener) {
     throw "Port $port is still occupied after stopping the verified Python listeners."
 }
 
+# Prefer installed Node; otherwise use this account's existing desktop runtime.
+$toolBin = Join-Path $projectRoot 'runtime\tool-bin'
+$env:Path = "$toolBin;$(Join-Path $venvRoot 'Scripts');$env:Path"
+if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
+    $bundledNode = Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin'
+    if (Test-Path -LiteralPath (Join-Path $bundledNode 'node.exe')) {
+        $env:Path = "$bundledNode;$env:Path"
+    }
+}
+
 $env:PYTHONUTF8 = '1'
 $env:AGENT_SERVER_NAME = $ServerName
 # app.py 首次导入 AgentScope、PPTX 与前端资源可能接近一分钟。直接启动 Python 能避开某些

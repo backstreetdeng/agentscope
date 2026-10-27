@@ -9,7 +9,7 @@ from openpyxl import Workbook
 from utils.passenger_forecast import ForecastInputError, parse_history, build_forecast, validate_forecast
 
 
-BUSINESS_FILE = Path('D:/document/WXWork/1688852089355778/Cache/File/2026-10/2012起分月PC+NEV销量.xlsx')
+BUSINESS_FILE = Path('E:/AI/migration-backup/files/2012起分月PC+NEV销量.xlsx')
 TARGETS = {2026: 1960, 2027: 2060}
 
 

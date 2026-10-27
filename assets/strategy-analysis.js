@@ -1184,7 +1184,7 @@
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const requestedProvider = new URLSearchParams(window.location.search).get("model_provider");
       const selectedProvider = requestedProvider || data.active_provider;
-      if (["minimax", "zhipu", "bailian_token_plan"].includes(selectedProvider)) $("modelSelect").value = selectedProvider;
+      if (["deepseek_flash", "deepseek_pro"].includes(selectedProvider)) $("modelSelect").value = selectedProvider;
       setConnection("", "后端已连接");
     } catch (_) {
       setConnection("error", "后端未连接");
@@ -1213,8 +1213,8 @@
       const payload = job.payload || {};
       const selected = Array.isArray(payload.capabilities) ? payload.capabilities : [macroEnabled ? "macro_monthly_report" : "passenger_car_monthly_report"];
       const mcpPlugins = Array.isArray(payload.mcp_plugins) ? payload.mcp_plugins : [];
-      const modelProvider = payload.model_provider || "minimax";
-      if (["minimax", "zhipu"].includes(modelProvider)) $("modelSelect").value = modelProvider;
+      const modelProvider = payload.model_provider || "deepseek_flash";
+      if (["deepseek_flash", "deepseek_pro"].includes(modelProvider)) $("modelSelect").value = modelProvider;
       const modelLabel = $("modelSelect").selectedOptions[0].textContent;
       const question = payload.question === LEGACY_MONTHLY_QUESTION
         ? DEFAULT_QUESTION
@@ -1280,7 +1280,7 @@
         if (!data || data.id !== demoId) throw new Error("演示任务回放数据已过期。");
       }
 
-      const modelProvider = ["minimax", "zhipu"].includes(data.model_provider) ? data.model_provider : "minimax";
+      const modelProvider = ["deepseek_flash", "deepseek_pro"].includes(data.model_provider) ? data.model_provider : "deepseek_flash";
       $("modelSelect").value = modelProvider;
       const archivedSkillRun = data.skill_run || {};
       const archivedMode = data.delivery_mode || archivedSkillRun.delivery_mode || (archivedSkillRun.state && archivedSkillRun.state.delivery_mode);
@@ -1330,6 +1330,13 @@
         $("macroReportMonth").disabled = true;
         $("runBtn").disabled = true;
         $("runBtn").textContent = "历史任务";
+        // 当归档项目指向的运行仍在跑/排队时，沿用该 run_id 暴露取消按钮，
+        // 让用户在历史任务视图里也能安全停掉背后那个 worker。
+        if (runId && (job.status === "running" || job.status === "queued")) {
+          state.activeRunId = runId;
+          $("cancelRunBtn").hidden = false;
+          $("cancelRunBtn").disabled = false;
+        }
         showToast(delivery.ready ? "已回放原宏观任务及已验收产物" : "历史任务已加载，原PPT下载核验未通过");
         return;
       }
@@ -1394,6 +1401,18 @@
       $("questionInput").readOnly = true;
       $("runBtn").disabled = true;
       $("runBtn").textContent = "历史任务";
+      // 乘用车月报归档项目：探测背后 job 是否还活着以决定是否暴露取消按钮
+      const liveMonthlyRunId = data.run_id || archivedSkillRun.run_id || null;
+      if (liveMonthlyRunId && /^month-\d{8}-\d{6}-[a-f0-9]{8}$/.test(liveMonthlyRunId)) {
+        try {
+          const liveJob = await requestJson(`${backgroundJobApi(liveMonthlyRunId)}/${encodeURIComponent(liveMonthlyRunId)}`, { cache: "no-store" }, true);
+          if (liveJob && (liveJob.status === "running" || liveJob.status === "queued")) {
+            state.activeRunId = liveMonthlyRunId;
+            $("cancelRunBtn").hidden = false;
+            $("cancelRunBtn").disabled = false;
+          }
+        } catch (_) { /* 静默：拉不到 job 时不显示取消按钮即可 */ }
+      }
       enableResultActions(Boolean(state.lastReport));
       if (data.formal_delivery_allowed === false || (data.quality && data.quality.formal_delivery_allowed === false)) $("pptBtn").disabled = true;
       showToast("已进入历史任务回放");

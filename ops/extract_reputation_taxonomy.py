@@ -10,7 +10,7 @@ parser=argparse.ArgumentParser()
 parser.add_argument('--output',required=True,type=Path)
 args=parser.parse_args()
 root=Path(__file__).resolve().parents[1]
-path=Path(r'D:\2024年度工作日志和备忘录\数字化转型产品\4.0 同事组\5.4 晓亚\乘用车-新车明细板块-0927\汽车口碑标签字典_V1.0.xlsx')
+path=Path(r'E:/AI/migration-backup/5.4 晓亚\乘用车-新车明细板块-0927\汽车口碑标签字典_V1.0.xlsx')
 wb=load_workbook(path,read_only=True,data_only=True)
 taxonomy={}
 rows=iter(wb['三级标签字典'].values)

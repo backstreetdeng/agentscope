@@ -1,6 +1,6 @@
 {
   "artifact-template.json": "45dc45279f17c33a0f3defda2d6cedd155ceeb72abd65ac36953cd6996d06920",
-  "package-manifest.json": "1567c28b801bae0d0e6c10f8355adce9d5d697315584092bb25852fd08cdc044",
+  "package-manifest.json": "f430cd3a675f84d4dfa3191178db36a9309c25d440943ed81b512bb4372493c2",
   "README.md": "e34f440ab81b00f02ef2f08bec18acedd611bbec326c6cab9611a1c47feef730",
   "SKILL.md": "25557e8f1123a14567fe4492282e892a0a93ad8caec3f98ced6c504005177dde",
   "agents/openai.yaml": "f8bc2dfa0476d6f22375662200a471967e70d514c1759649db1446d5abf4e92e",
@@ -22,7 +22,7 @@
   "scripts/gen_sources.py": "9974f6bf18fc428ffa369f335be2f3eac454328b3ee6d93688590fd314ed1197",
   "scripts/gen_visual_html.py": "c707b2549da410761a39040efa141a159a6e3060d437ea206d52d2d91b9a283d",
   "scripts/render_word.ps1": "0fd37d56abad7aa4a8a7115ebccefd99e3bdcaaff0c45c33858fb4daff1ab102",
-  "scripts/validate_weekly.py": "786363be281952b680bf8c4cd30e05c7b259d3a55302dc44a919c88d2608ff57",
-  "scripts/web_runtime/weekly_report_jobs.py": "511b205bdf06329f3cd16beba002ac95e044576422edece767d5ceb71ced2d36",
-  "scripts/web_runtime/weekly_report_research.py": "db9c3b4a55f53243fdbc99a8e4e2d81b53d599f42524cd9b1616e86e309b0b1f"
+  "scripts/validate_weekly.py": "c607ecc862a2fbb8e4470f518f31ad8126c9541bd58da0c588a562e12be7c9b7",
+  "scripts/web_runtime/weekly_report_jobs.py": "ff077032650748461284754e7740856cc40bcb4dca8581db9ef458f5bfd74f4e",
+  "scripts/web_runtime/weekly_report_research.py": "fa4dc5a2100f829bfd92159609f032f760faa6d9ce274846fb696c9ef117965c"
 }

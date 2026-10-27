@@ -1,7 +1,7 @@
 {
   "skill_id": "auto-weekly-report",
   "display_name": "周度资讯快报自动生成",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "source_package": "E:\\AI\\data\\envs\\helloagent\\share\\auto-weekly-report",
   "template": "assets/weekly-template.docx",
   "template_reference_period": [
@@ -43,5 +43,12 @@
   "web_runtime": [
     "scripts/web_runtime/weekly_report_jobs.py",
     "scripts/web_runtime/weekly_report_research.py"
-  ]
+  ],
+  "execution_policy": {
+    "research_seconds_per_section": 180,
+    "cached_source_repair_seconds": 90,
+    "search_budget": 6,
+    "max_iterations": 8,
+    "stagnant_submissions": 2
+  }
 }

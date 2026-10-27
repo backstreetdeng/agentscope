@@ -131,6 +131,14 @@ def doctor(timeout_seconds: int = 120) -> SearchResponse:
     return SearchResponse(True, "doctor", raw_text=completed.stdout.strip())
 
 
+def _mcporter_executable() -> str | None:
+    executable = shutil.which("mcporter")
+    if executable:
+        return executable
+    local = PROJECT_DIR / "runtime" / "tool-bin" / "mcporter.cmd"
+    return str(local) if local.is_file() else None
+
+
 def search(query: str, max_results: int = 5, timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS) -> SearchResponse:
     """通过 Agent Reach 推荐的 Exa MCP 搜索公开专业资料。"""
 
@@ -138,7 +146,7 @@ def search(query: str, max_results: int = 5, timeout_seconds: int = DEFAULT_TIME
     if not normalized_query:
         return SearchResponse(False, "search", error="查询词不能为空。")
 
-    executable = shutil.which("mcporter")
+    executable = _mcporter_executable()
     if not executable:
         return SearchResponse(False, "search", query=normalized_query, error="未找到 mcporter，无法调用 Agent Reach 的 Exa 路由。")
 
@@ -150,6 +158,8 @@ def search(query: str, max_results: int = 5, timeout_seconds: int = DEFAULT_TIME
             "exa.web_search_exa",
             f"query={normalized_query}",
             f"numResults={result_count}",
+            "objective=Find relevant authoritative sources answering the query; preserve "
+            "source URLs, publication dates, and factual context. Query: " + normalized_query[:3000],
             "--output",
             "json",
             "--timeout",
@@ -183,7 +193,7 @@ def fetch_pages(urls: Iterable[str], max_characters: int = 3000, timeout_seconds
     clean_urls = [url for url in dict.fromkeys(str(item).strip() for item in urls) if is_http_url(url)]
     if not clean_urls:
         return SearchResponse(False, "fetch", error="没有可抓取的 http/https URL。")
-    executable = shutil.which("mcporter")
+    executable = _mcporter_executable()
     if not executable:
         return SearchResponse(False, "fetch", error="未找到 mcporter，无法调用 Agent Reach 的 Exa 路由。")
 

@@ -18,7 +18,7 @@
     TOAST_TTL_MS: 3000,
     MOBILE_BREAKPOINT: 960,
     VIEW_TRANSITION_MS: 150,
-    MAIN_NAV_KEYS: ['intel', 'projects', 'analysis', 'forecast', 'insight', 'skills', 'plugins'],
+    MAIN_NAV_KEYS: ['intel', 'projects', 'analysis', 'forecast', 'forecast-engine', 'insight', 'skills', 'plugins'],
     DETAIL_VIEW_KEYS: ['policy-detail', 'rights-detail'],
     LEGACY_WORKBENCH: '/legacy/workbench.html',
   });
@@ -1157,7 +1157,7 @@
         const provider = utils.qs('#provider-name');
         const model = utils.qs('#model-name');
         const endpoint = utils.qs('#endpoint-text');
-        if (provider && payload.provider) provider.textContent = String(payload.provider);
+        if (provider && (payload.provider || payload.active_provider)) provider.textContent = String(payload.active_provider?.startsWith('deepseek') ? 'DeepSeek' : payload.provider || payload.active_provider);
         if (model && payload.model) model.textContent = String(payload.model);
         if (endpoint && payload.endpoint) endpoint.textContent = String(payload.endpoint);
       }
@@ -1228,7 +1228,7 @@
   const Projects = (() => {
     const state = {
       items: [], query: '', type: 'all', status: 'all', page: 1, pageSize: 10,
-      selected: new Set(), deleting: false
+      selected: new Set(), deleting: false, details: new Map(), detailPending: new Set()
     };
 
     function escapeHtml(value) {
@@ -1243,15 +1243,18 @@
     }
 
     function formatTime(item) {
-      if (!item.created_at) return item.time_label || '—';
-      const date = new Date(item.created_at);
+      const value = state.details.get(item.id)?.updatedAt || item.updated_at || item.created_at;
+      if (!value) return item.time_label || '—';
+      const date = new Date(value);
       if (Number.isNaN(date.getTime())) return item.created_at;
       return new Intl.DateTimeFormat('zh-CN', {
-        year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false
+        timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false
       }).format(date).replace(/\//g, '-');
     }
 
     function modelName(provider) {
+      if (provider === 'deepseek_flash') return 'DeepSeek V4 Flash';
+      if (provider === 'deepseek_pro') return 'DeepSeek V4 Pro';
       if (provider === 'zhipu') return '智谱 GLM-5.3';
       if (provider === 'minimax') return 'MiniMax M3';
       return provider || '默认模型';
@@ -1265,17 +1268,68 @@
 
     function statusClass(status) {
       if (status === '执行中') return ' project-status--running';
-      if (status === '已失败') return ' project-status--failed';
+      if (['已失败', '失败'].includes(status)) return ' project-status--failed';
+      if (['部分完成', '草稿就绪', '需要核对'].includes(status)) return ' project-status--partial';
+      if (['已暂停', '已取消'].includes(status)) return ' project-status--paused';
       return '';
+    }
+
+    function projectTitle(item) {
+      if (item.analysis_type === 'macro_monthly_report') {
+        const month = String(item.title || item.question || '').match(/20\d{2}年\d{1,2}月/);
+        if (month) return month[0] + '宏观经济月报';
+      }
+      return item.title || '未命名任务';
+    }
+
+    function skillName(item) {
+      return state.details.get(item.id)?.skillName || ({macro_monthly_report:'宏观经济月报',auto_weekly_report:'周度资讯快报',passenger_car_monthly_report:'乘用车月报',market_forecast:'乘用车市场预测'})[item.analysis_type] || item.agent_label || '市场战略Agent';
+    }
+
+    function safeProjectUrl(value) {
+      if (!value) return '';
+      try { const url = new URL(value, location.origin); return url.origin === location.origin && ['http:','https:'].includes(url.protocol) ? url.pathname + url.search + url.hash : ''; }
+      catch (_) { return ''; }
+    }
+
+    const fileIcon = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M14 3H6v18h12V7zM14 3v5h5M9 12h6M9 16h6"/></svg>';
+    const playIcon = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="15" rx="2"/><path d="m3 5 4-3m3 3 4-3m3 3 4-3M10 10l5 3-5 3z"/></svg>';
+
+    function deliveries(item) {
+      if (item.retained_delivery_allowed && safeProjectUrl(item.retained_delivery_url)) return [{label:'PPT · 历史数据保留版',url:item.retained_delivery_url}];
+      if (item.draft_delivery_allowed && safeProjectUrl(item.draft_delivery_url)) return [{label:'PPT · 草稿版',url:item.draft_delivery_url}];
+      return item.formal_delivery_allowed ? state.details.get(item.id)?.artifacts || [] : [];
+    }
+
+    async function loadVisibleDetails(items) {
+      const pending = items.filter(item => item.formal_delivery_allowed && !state.details.has(item.id) && !state.detailPending.has(item.id));
+      pending.forEach(item => state.detailPending.add(item.id));
+      let cursor = 0;
+      async function worker() {
+        while (cursor < pending.length) {
+          const item = pending[cursor++];
+          try {
+            const response = await fetch('/api/projects?id=' + encodeURIComponent(item.id), {cache:'no-store'});
+            if (!response.ok) throw new Error('交付信息读取失败');
+            const detail = await response.json(); const run = detail.skill_run || {};
+            let artifacts = Array.isArray(run.artifacts) ? run.artifacts.filter(a => safeProjectUrl(a.url)) : [];
+            if (!artifacts.length && safeProjectUrl(run.delivery_url)) artifacts = [{label:item.analysis_type === 'market_forecast' ? '预测结果文件' : '汇报文件',url:run.delivery_url}];
+            state.details.set(item.id,{artifacts,skillName:detail.skill?.display_name,updatedAt:run.state?.updated_at});
+          } catch (_) { state.details.set(item.id,{artifacts:[]}); }
+          finally { state.detailPending.delete(item.id); }
+        }
+      }
+      if (pending.length) { await Promise.all([worker(),worker()]); render(); }
     }
 
     function filteredItems() {
       const query = state.query.toLowerCase();
       return state.items.filter((item) => {
         if (state.type !== 'all' && item.category !== state.type) return false;
-        if (state.status !== 'all' && item.status !== state.status) return false;
+        if (state.status === '部分完成' && !['部分完成','草稿就绪','需要核对'].includes(item.status)) return false;
+        if (!['all','部分完成'].includes(state.status) && item.status !== state.status) return false;
         if (!query) return true;
-        return [item.title, item.question, item.summary, item.category, item.agent_label, item.model_provider]
+        return [item.title, item.question, item.summary, item.category, item.agent_label, item.model_provider, skillName(item)]
           .some((value) => String(value || '').toLowerCase().includes(query));
       });
     }
@@ -1322,8 +1376,8 @@
         body.innerHTML = pageItems.map((item) => {
           const detailUrl = item.detail_url || '';
           const openAction = detailUrl
-            ? `<a class="project-open" href="${escapeHtml(detailUrl)}" target="_blank" rel="noopener">查看任务</a>`
-            : `<button class="project-open" type="button" data-demo-project="${escapeHtml(item.id)}">查看任务</button>`;
+            ? `<a class="project-open" href="${escapeHtml(detailUrl)}" target="_blank" rel="noopener">${playIcon}查看任务</a>`
+            : `<button class="project-open" type="button" data-demo-project="${escapeHtml(item.id)}">${playIcon}查看任务</button>`;
           const canDelete = !item.is_demo && item.status !== '执行中';
           const deleteAction = item.is_demo
             ? ''
@@ -1334,15 +1388,19 @@
             <input type="checkbox" data-select-project="${escapeHtml(item.id)}"${state.selected.has(item.id) ? ' checked' : ''}${selectable ? '' : ' disabled'} aria-label="选择项目：${escapeHtml(compact(item.title, 36))}">
             <span aria-hidden="true"></span>
           </label>`;
-          return `<tr>
+          const files = deliveries(item);
+          const links = files.map(file => `<a class="project-artifact" href="${escapeHtml(safeProjectUrl(file.url))}" title="${escapeHtml(file.filename || file.label)}" download>${fileIcon}<span>${escapeHtml(file.label || '交付文件')}</span></a>`).join('');
+          const preview = links || `<a class="project-result-link" href="${escapeHtml(safeProjectUrl(detailUrl) || '#projects')}"${detailUrl ? ' target="_blank" rel="noopener"' : ''}>${fileIcon}${item.formal_delivery_allowed && !state.details.has(item.id) ? '正在读取交付信息…' : '查看归档结果'}</a>`;
+          const time = formatTime(item); const parts = time.split(' ');
+          return `<tr class="${state.selected.has(item.id) ? 'is-selected' : ''}">
             <td class="project-select-cell">${selection}</td>
-            <td><div class="project-task"><span class="project-task__dot"></span><div><strong>${escapeHtml(compact(item.title, 42))}</strong><span>诉求：${escapeHtml(compact(item.question || item.summary, 58))}</span></div></div></td>
-            <td><span class="project-type${typeClass(item.category)}">${escapeHtml(item.category || '市场分析')}</span></td>
-            <td><div class="project-agent"><strong>${escapeHtml(item.agent_label || '市场战略Agent')}</strong><span>${escapeHtml(modelName(item.model_provider))}</span></div></td>
-            <td><div class="project-summary">${escapeHtml(compact(item.summary || item.question, 70))}</div></td>
-            <td><span class="project-status${statusClass(item.status)}"><i></i>${escapeHtml(item.status || '已完成')}</span></td>
-            <td><time class="project-time">${escapeHtml(formatTime(item))}</time></td>
-            <td>${action}</td>
+            <td class="project-topic-cell"><div class="project-task"><span class="project-task__icon${typeClass(item.category)}">${fileIcon}</span><div class="project-task__content"><strong title="${escapeHtml(item.title)}">${escapeHtml(projectTitle(item))}</strong><div class="project-task__meta"><span class="project-type${typeClass(item.category)}">${escapeHtml(item.category || '市场分析')}</span><span title="${escapeHtml(item.question || item.summary)}">${escapeHtml(compact(item.question || item.summary, 100))}</span></div></div></div></td>
+            <td class="project-delivery-cell" data-label="交付成果"><div class="project-artifacts">${preview}</div><div class="project-summary" title="${escapeHtml(item.summary || item.question)}">${escapeHtml(compact(item.summary || item.question, 160))}</div></td>
+            <td class="project-agent-cell" data-label="执行技能"><div class="project-agent"><strong title="${escapeHtml(skillName(item))}">${escapeHtml(skillName(item))}</strong><span>${escapeHtml(modelName(item.model_provider))}</span></div></td>
+            <td class="project-record-column"><span class="project-record"><strong>${Number(item.tool_count) || 0}</strong> 次工具调用</span><span class="project-quality" title="${escapeHtml(item.quality_status || '')}">${escapeHtml(compact(item.quality_status || '已保存执行记录', 18))}</span></td>
+            <td class="project-state-cell"><span class="project-status${statusClass(item.status)}"><i></i>${escapeHtml(item.status || '状态待确认')}</span>${item.pending_pages?.length ? `<span class="project-state-note">${item.pending_pages.length} 页待补齐</span>` : ''}</td>
+            <td class="project-time-cell"><time class="project-time" datetime="${escapeHtml(item.created_at || '')}">${escapeHtml(parts[0])}<span>${escapeHtml(parts.slice(1).join(' '))}</span></time></td>
+            <td class="project-action-cell">${action}</td>
           </tr>`;
         }).join('');
       }
@@ -1351,11 +1409,12 @@
       const indicator = document.getElementById('projectPageIndicator');
       const prev = document.getElementById('projectPrevPage');
       const next = document.getElementById('projectNextPage');
-      if (count) count.textContent = `共 ${items.length} 条任务`;
+      if (count) count.textContent = `共 ${state.items.length} 条任务 · 当前显示 ${items.length} 条`;
       if (indicator) indicator.textContent = `${state.page} / ${pages}`;
       if (prev) prev.disabled = state.page <= 1;
       if (next) next.disabled = state.page >= pages;
       syncBatchControls(pageItems);
+      loadVisibleDetails(pageItems);
     }
 
     async function fetchProjects() {
@@ -1365,12 +1424,22 @@
         if (!response.ok) throw new Error('项目读取失败');
         const payload = await response.json();
         const saved = Array.isArray(payload.items) ? payload.items : [];
+        await Promise.allSettled(saved.filter(item => item.analysis_type === 'auto_weekly_report' && item.run_id && item.status !== '已完成').map(async item => {
+          const response = await fetch('/api/weekly-report/jobs?run_id=' + encodeURIComponent(item.run_id), {cache:'no-store'});
+          if (!response.ok) return;
+          const job = await response.json();
+          if (!job.available) return;
+          item.status = ({created:'执行中',running:'执行中',failed:'失败',cancelled:'已暂停',needs_review:'需要核对',completed:'已完成'})[job.status] || item.status;
+          item.summary = job.message || item.summary;
+          item.quality_status = job.status === 'completed' ? '三件套验收通过' : '验收尚未完成';
+          item.updated_at = job.events?.slice(-1)[0]?.at || item.updated_at;
+        }));
         state.items = saved;
       } catch (error) {
         console.warn('[Strategy Cockpit] Project archive unavailable:', error);
         state.items = [];
         if (!state.items.length && body) {
-          body.innerHTML = '<tr><td colspan="7"><div class="project-error">项目记录暂时无法加载</div></td></tr>';
+          body.innerHTML = '<tr><td colspan="8"><div class="project-error">项目记录暂时无法加载</div></td></tr>';
           return;
         }
       }
@@ -1451,6 +1520,32 @@
     }
 
     function bind() {
+      // The backend caches home markup while task workers run. Mount this view's
+      // labels here as well so updating the ledger never interrupts a live task.
+      const heading = document.getElementById('projects-title');
+      if (heading) heading.innerHTML = '项目 <span class="project-heading-sep">/</span> 任务与交付';
+      const desc = document.querySelector('.projects .section-head__desc');
+      if (desc) desc.textContent = '查看已执行任务、获取交付成果，或从保存的进度继续。';
+      const columns = document.querySelectorAll('.project-table thead th');
+      ['任务主题 / 核心诉求','交付成果 / 结果摘要','执行技能 / Agent','执行记录','状态','更新时间','操作'].forEach((label,index) => {
+        if (columns[index+1]) columns[index+1].textContent = label;
+      });
+      columns[4]?.classList.add('project-record-column');
+      const typeFilter = document.getElementById('projectTypeFilter');
+      if (typeFilter && !typeFilter.querySelector('[value="资讯快报"]')) typeFilter.add(new Option('资讯快报','资讯快报'));
+      const tabs = document.getElementById('projectStatusFilters');
+      if (tabs && !tabs.querySelector('[data-project-status="部分完成"]')) {
+        const partial = document.createElement('button'); partial.type='button'; partial.dataset.projectStatus='部分完成';
+        partial.textContent='部分完成'; partial.setAttribute('aria-pressed','false');
+        tabs.insertBefore(partial,tabs.querySelector('[data-project-status="执行中"]'));
+      }
+      const search = document.getElementById('projectSearchInput');
+      if (search) search.placeholder = '搜索任务、技能或报告内容';
+      const count = document.getElementById('projectResultCount');
+      if (count?.parentElement?.childNodes.length > 1 && count.tagName === 'STRONG') {
+        count.parentElement.replaceChildren(count);
+      }
+
       let searchTimer = null;
       document.getElementById('projectSearchInput')?.addEventListener('input', (event) => {
         clearTimeout(searchTimer);
@@ -1466,6 +1561,7 @@
         const button = event.target.closest('[data-project-status]');
         if (!button) return;
         utils.qsa('[data-project-status]', event.currentTarget).forEach((item) => item.classList.toggle('is-active', item === button));
+        utils.qsa('[data-project-status]', event.currentTarget).forEach(item => item.setAttribute('aria-pressed', String(item === button)));
         state.status = button.dataset.projectStatus; state.page = 1; render();
       });
       document.getElementById('projectPrevPage')?.addEventListener('click', () => { if (state.page > 1) { state.page -= 1; render(); } });
@@ -1486,6 +1582,7 @@
         if (!checkbox) return;
         if (checkbox.checked) state.selected.add(checkbox.dataset.selectProject);
         else state.selected.delete(checkbox.dataset.selectProject);
+        checkbox.closest('tr')?.classList.toggle('is-selected', checkbox.checked);
         syncBatchControls(currentPageItems(filteredItems()));
       });
       document.getElementById('projectTableBody')?.addEventListener('click', (event) => {
@@ -1545,7 +1642,7 @@
           const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
           const params = new URLSearchParams({
             skills: 'macro_monthly_report',
-            model_provider: 'bailian_token_plan',
+            model_provider: 'deepseek_pro',
             month: currentMonth,
           });
           window.open(`/strategy-analysis.html?${params.toString()}`, '_blank', 'noopener,noreferrer');
@@ -2469,6 +2566,16 @@
   //  Bootstrap
   // ────────────────────────────────────────────────────────────────────────
   function initializeNewAnalysisLinks() {
+    const projectsNav = document.querySelector('.sidebar .nav-item[data-view="projects"]');
+    const insightNav = document.querySelector('.sidebar .nav-item[data-view="insight"]');
+    if (projectsNav && insightNav) insightNav.after(projectsNav);
+    utils.qsa('.view[data-view="plugins"] .plugin-card').forEach((card) => {
+      if (card.querySelector('.plugin-card__title')?.textContent.trim() === '月度销量查询') card.remove();
+    });
+    const availableSkills = document.querySelectorAll('.view[data-view="skills"] .skill-catalog-card:not(.skill-catalog-card--pending)').length;
+    const skillsBadge = document.querySelector('.sidebar [data-view="skills"] .nav-badge');
+    if (skillsBadge) skillsBadge.textContent = String(availableSkills);
+    utils.qsa('.sidebar [data-section="history"], .sidebar .legacy-nav__link, .sidebar [data-view="legacy-workbench"]').forEach(el => el.remove());
     // app.py retains HTML in memory. Normalize older served markup without
     // restarting the backend or interrupting another page's running job.
     utils.qsa('a[aria-label="在新窗口新建一次市场分析"]').forEach((link) => {
@@ -2477,9 +2584,7 @@
     // Repair older HTML cached by the running service as well as fresh markup.
     const intelView = document.querySelector('.view[data-view="intel"]');
     const agents = document.querySelector('section.agents');
-    if (intelView && agents && !intelView.contains(agents)) {
-      intelView.appendChild(agents);
-    }
+    if (agents) agents.remove();
     utils.qsa('a.skill-catalog-card__action[href*="strategy-analysis.html"]').forEach((link) => {
       const destination = new URL(link.getAttribute('href'), window.location.origin);
       destination.searchParams.set('new', '1');
@@ -2488,6 +2593,12 @@
   }
 
   function init() {
+    if (!document.querySelector('script[data-home-assistant]')) {
+      const assistantScript = document.createElement('script');
+      assistantScript.src = '/assets/home-assistant.js';
+      assistantScript.dataset.homeAssistant = 'true';
+      document.body.appendChild(assistantScript);
+    }
     initializeNewAnalysisLinks();
     ReducedMotion.init();
     Navigation.init();

@@ -21,7 +21,7 @@ PG = dict(
     password=os.getenv("NEW_CAR_PG_PASSWORD", ""),
 )
 DEFAULT_XLSX = Path(
-    r"D:/2024年度工作日志和备忘录/数字化转型产品/4.0 同事组/5.4 晓亚/"
+    r"E:/AI/migration-backup/5.4 晓亚/"
     r"乘用车新车监测板块-0921/！0716结果更新版本-2026新车跟踪（含已上市+未上市）.xlsx"
 )
 

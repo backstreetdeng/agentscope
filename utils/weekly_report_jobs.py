@@ -133,12 +133,28 @@ class WeeklyReportJobs:
         package=SkillRegistry([snapshot.parent]).get(package.skill_id)
         if package.package_hash!=ctx.load_state()['package_hash']:raise ValueError('建立任务时技能包已变化，请重试。')
         request=dict(start_date=start,end_date=end,model_provider=provider,question=str(payload.get('question',''))[:6000])
+        if payload.get('historical_recompile'):request['historical_recompile']=True
         write(ctx.inputs_dir/'request.json',request)
         with self.lock:
             self.data_dir.mkdir(parents=True,exist_ok=True)
             ledger=self.data_dir/'coverage_log.md'
             if not ledger.exists():shutil.copy2(package.resolve('references/coverage_log.md'),ledger)
             shutil.copy2(ledger,ctx.inputs_dir/'coverage_log.md')
+        if request.get('historical_recompile'):
+            # Explicit historical recompilation keeps the persistent ledger intact.
+            snapshot=ctx.inputs_dir/'coverage_log.md'
+            shutil.copy2(snapshot,ctx.inputs_dir/'coverage_log-before-recompile.md')
+            retained=[];removed=0
+            for line in snapshot.read_text(encoding='utf-8').splitlines():
+                columns=[value.strip() for value in line.strip().strip('|').split('|')]
+                event=''
+                if len(columns)>=5 and re.fullmatch(r'\d{4}\.\d{4}-(?:\d{4}\.)?\d{4}',columns[0]):
+                    match=re.fullmatch(r'(\d{1,2})\.(\d{1,2})',columns[3])
+                    if match:event=f'{columns[0][:4]}-{int(match[1]):02d}-{int(match[2]):02d}'
+                if event and start<=event<=end:removed+=1
+                else:retained.append(line)
+            snapshot.write_text('\n'.join(retained)+'\n',encoding='utf-8')
+            ctx.checkpoint('按用户授权重编指定历史窗口',dict(removed_in_window_ledger_rows=removed,persistent_ledger_unchanged=True,source_and_date_validation_unchanged=True))
         write(ctx.working_dir/'package-manifest.json',dict(package_hash=package.package_hash,resources=package.resources(),
             tools={'research':['skill_package_inspect','skill_read_resource','weekly_search','weekly_fetch','weekly_series_lookup','weekly_submit_section'],
                    'production':['skill_run_script','weekly_content_validate','weekly_artifact_validate','coverage_commit']}))
@@ -146,7 +162,9 @@ class WeeklyReportJobs:
         rows=read(package.resolve('references/sections.json'))
         titles=[('package','装载完整技能包与历史台账')]+[(r['id'],r['section']+(' · '+r['subsection'] if r['subsection'] else '')) for r in rows]+[('content','摘要与全篇事实核验'),('render','生成阅读版、正报和来源文档'),('validate','三件套独立验收'),('archive','保存任务与更新去重台账')]
         ctx.set_plan([dict(id=k,title=t,depends_on=[] if i==0 else [titles[i-1][0]],success_criteria=t+'并留存证据') for i,(k,t) in enumerate(titles)])
-        state=ctx.load_state();state.update(status='created',message=f'周报日期：{start} 至 {end}；任务已建立。',stage='package',report_period=[start,end],counts={},recoverable=True);ctx.save_state(state)
+        state=ctx.load_state();state.update(status='created',message=f'周报日期：{start} 至 {end}；任务已建立。',stage='package',report_period=[start,end],counts={},recoverable=True)
+        if payload.get('supersedes_run_id'):state['supersedes_run_id']=str(payload['supersedes_run_id'])
+        ctx.save_state(state)
         write(self.root/'latest.json',dict(run_id=run_id));self._launch(run_id);return self.get(run_id)
 
     def _reuse_verified_evidence(self,ctx,request,package):
@@ -216,7 +234,12 @@ class WeeklyReportJobs:
                 for kind in ('html','docx','sources'):self.download(run_id,kind)
                 return self.get(run_id)
             except ValueError:pass
-        self._package(root);self._launch(run_id);return self.get(run_id)
+        try:self._package(root)
+        except ValueError as exc:
+            if '执行器版本与本轮锁定版本不一致' not in str(exc):raise
+            request=read(root/'inputs/request.json');request.update(force_new=True,supersedes_run_id=run_id)
+            return self.start(request)
+        self._launch(run_id);return self.get(run_id)
 
     def cancel(self,run_id):
         self._run_path(run_id)
@@ -280,7 +303,7 @@ class WeeklyReportJobs:
                     section=self.section_runner(ctx,spec,request,coverage,lambda:self._check_cancel(run_id))
                     write(path,section)
                     sources=read(source_path) if source_path.exists() else {}
-                accepted=[];rejected=[];gap_reason=str(section.get('gap',''))
+                accepted=[];rejected=list(section.get('rejected',[]));gap_reason=str(section.get('gap',''))
                 for item in section.get('items',[]):
                     errors=rules.validate_item(item,spec,sources,start,end,coverage)
                     if errors:rejected.append(dict(title=item.get('title',''),errors=errors))
@@ -288,7 +311,7 @@ class WeeklyReportJobs:
                         rejected.append(dict(title=item.get('title',''),errors=['本期前序板块已收录同一来源或事件']))
                     else:accepted.append(item)
                 section=dict(section=spec['section'],subsection=spec['subsection'],items=accepted,gap=gap_reason)
-                write(path,section);write(ctx.working_dir/('diagnostics-'+stage+'.json'),dict(accepted=len(accepted),rejected=rejected))
+                write(path,section);write(ctx.working_dir/('diagnostics-'+stage+'.json'),dict(accepted=len(accepted),rejected=rejected,gap=gap_reason))
                 sections.append(section)
                 quality=rules.section_issues(spec,accepted)
                 if accepted and not quality:
@@ -296,7 +319,7 @@ class WeeklyReportJobs:
                 else:
                     reason='；'.join(quality) if quality else '；'.join(rejected[0]['errors']) if rejected else gap_reason or '检索未取得符合日期、来源与去重规则的事实'
                     gaps.append(spec['section']+' / '+(spec['subsection'] or '正文')+'：'+reason)
-                    self._update(ctx,stage,'blocked','未找到通过事件日、来源与去重核验的资讯；保留已取得证据。')
+                    self._update(ctx,stage,'blocked','待补齐：'+reason+'；已保留检索与来源。')
             stage='content'
             evidence_errors=rules.validate_source_files(read(ctx.working_dir/'sources.json'),ctx.root)
             if evidence_errors:raise ValueError('；'.join(evidence_errors))

@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>口碑洞察 · 正式库 数据服务</title>
+<style>
+:root{--ink:#23344e;--ink-2:#3a4a64;--ink-3:#7b8aa1;--brand:#376aff;--line:#e2eaf7}
+*{box-sizing:border-box}
+body{margin:0;background:#edf4fe;color:var(--ink);font:14px/1.6 "Microsoft YaHei","Segoe UI",sans-serif}
+a{color:var(--brand);text-decoration:none}
+a:hover{text-decoration:underline}
+.topbar{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:18px;padding:0 32px;height:60px}
+.topbar__brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px}
+.topbar__brand i{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#5087ff,#376aff);color:#fff;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:13px}
+.topbar__sub{color:var(--ink-3);font-size:12px}
+.topbar__back{margin-left:auto;color:var(--ink-2);font-weight:600}
+.topbar__back:hover{color:var(--brand);text-decoration:none}
+main{max-width:1480px;margin:0 auto;padding:32px 24px 60px}
+.page-hero{padding:3px 0 22px}
+.eyebrow{color:#376aff;font-weight:700;font-size:12px;letter-spacing:2px;margin:0 0 12px}
+h1{font-size:32px;line-height:1.4;letter-spacing:-.02em;margin:0}
+h1 span{color:#5188ff}
+.page-hero p{margin:10px 0 0;font-size:13px;color:var(--ink-3);line-height:1.8}
+.card{background:#fff;border:0;border-radius:17px;padding:22px;margin-bottom:20px;box-shadow:0 8px 26px #3460a008}
+.koubei{padding:22px}
+.kb-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px}
+.kb-source{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.kb-source span{border:1px solid #dfe8f5;background:#f7faff;color:var(--ink-2);border-radius:999px;padding:3px 10px;font-size:11px}
+.kb-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.kb-panel{border:1px solid var(--line);border-radius:13px;padding:16px;background:#fbfdff}
+.kb-panel__title{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;font-weight:800}
+.kb-panel__title small{font-weight:400;color:var(--ink-3);font-size:11px}
+.kb-panel--positive .kb-panel__title{color:#0b8f70}
+.kb-panel--negative .kb-panel__title{color:#d96812}
+.kb-insight{padding:12px 0;border-top:1px solid #edf2f8}
+.kb-insight:first-of-type{border-top:0;padding-top:0}
+.kb-insight__top{display:grid;grid-template-columns:24px 1fr auto;align-items:center;gap:8px}
+.kb-rank{width:22px;height:22px;display:grid;place-items:center;border-radius:7px;background:#edf3fb;color:var(--ink-2);font-size:11px;font-weight:800}
+.kb-label{font-weight:700;color:var(--ink)}
+.kb-share{font-weight:800;font-variant-numeric:tabular-nums}
+.kb-panel--positive .kb-share{color:#0b8f70}
+.kb-panel--negative .kb-share{color:#d96812}
+.kb-track{height:6px;background:#edf2f7;border-radius:8px;overflow:hidden;margin:8px 0 9px 32px}
+.kb-fill{height:100%;border-radius:8px}
+.kb-panel--positive .kb-fill{background:linear-gradient(90deg,#2ac6a0,#0b9d78)}
+.kb-panel--negative .kb-fill{background:linear-gradient(90deg,#ffb15e,#f97316)}
+.kb-secondary{display:flex;gap:6px;flex-wrap:wrap;margin-left:32px}
+.kb-secondary span{background:#fff;border:1px solid #e3eaf3;border-radius:6px;padding:3px 7px;color:var(--ink-2);font-size:11px}
+.kb-secondary b{color:var(--ink-3);font-weight:500;margin-right:4px}
+.kb-secondary em{font-style:normal;color:#c45b09;background:#fff3e9;border-radius:4px;padding:1px 4px;margin-left:4px;font-size:9px}
+.kb-mentions{font-size:10px;color:var(--ink-3);margin-left:32px;margin-top:7px}
+.kb-method{margin-top:14px;padding-top:12px;border-top:1px dashed #dce5f1;color:var(--ink-3);font-size:11px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.kb-explorer{margin-top:18px;padding-top:18px;border-top:1px solid var(--line)}
+.kb-explorer__head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:12px}
+.kb-explorer__head strong{display:block;font-size:15px;color:var(--ink)}
+.kb-explorer__head span{display:block;color:var(--ink-3);font-size:11px;margin-top:4px}
+.kb-explorer__layout{display:grid;grid-template-columns:minmax(280px,32%) 1fr;min-height:490px;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:#fff}
+.kb-tree{background:#f8fbff;border-right:1px solid var(--line);max-height:620px;overflow:auto;padding:12px}
+.kb-tree-filter{position:sticky;top:-12px;z-index:2;background:#f8fbff;padding:0 0 10px}
+.kb-tree-filter input{width:100%;height:36px;border:1px solid #dce6f4;border-radius:8px;background:#fff;padding:0 11px;color:var(--ink);outline:0}
+.kb-tree-filter input:focus{border-color:#8eb3ff;box-shadow:0 0 0 3px rgba(63,124,255,.11)}
+.kb-tree details{margin:2px 0}
+.kb-tree summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:7px;min-height:34px;border-radius:7px;padding:5px 7px;color:var(--ink-2);font-size:12px;font-weight:650;user-select:none}
+.kb-tree summary::-webkit-details-marker{display:none}
+.kb-tree summary::before{content:'\203A';width:15px;color:#7f91aa;font-size:17px;line-height:1;transition:transform .18s ease}
+.kb-tree details[open]>summary::before{transform:rotate(90deg)}
+.kb-tree summary:hover{background:#edf4ff;color:var(--brand)}
+.kb-tree summary b{margin-left:auto;font-size:10px;color:var(--ink-3);font-weight:600}
+.kb-tree-direction>summary{background:#eef5ff;color:var(--brand);font-weight:800;margin-bottom:4px}
+.kb-tree-direction--positive>summary{color:#087c63;background:#eafaf5}
+.kb-tree-direction--negative>summary{color:#c45b09;background:#fff3e9}
+.kb-tree-level2{margin-left:14px!important}
+.kb-tree-leaves{margin-left:31px;display:grid;gap:2px;padding:2px 0 5px}
+.kb-tree-tag{width:100%;border:0;background:transparent;border-radius:7px;min-height:31px;text-align:left;padding:6px 8px;color:var(--ink-2);font-size:11px;cursor:pointer;display:flex;align-items:center;gap:6px}
+.kb-tree-tag:hover{background:#edf4ff;color:var(--brand)}
+.kb-tree-tag.is-active{background:#e5efff;color:#235fd0;font-weight:750;box-shadow:inset 3px 0 0 #4f83f7}
+.kb-tree-tag b{margin-left:auto;color:var(--ink-3);font-size:10px}
+.kb-tree-tag em{font-style:normal;color:#c45b09;background:#fff0e2;border-radius:4px;padding:1px 4px;font-size:9px}
+.kb-review-pane{padding:18px 20px;max-height:620px;overflow:auto}
+.kb-review-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-bottom:13px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.kb-review-head strong{display:block;font-size:15px}
+.kb-review-head span{display:block;color:var(--ink-3);font-size:11px;margin-top:4px}
+.kb-review-total{white-space:nowrap;background:#f1f6ff;color:#42628f;border-radius:999px;padding:4px 9px;font-size:10px}
+.kb-review-card{border-bottom:1px solid #edf1f6;padding:13px 0}
+.kb-review-card:first-of-type{padding-top:2px}
+.kb-review-meta{display:flex;align-items:center;gap:8px;color:var(--ink-3);font-size:10px;margin-bottom:8px}
+.kb-review-source{border-radius:5px;padding:2px 6px;background:#eef5ff;color:#2f6bda;font-weight:700}
+.kb-review-source--autohome{background:#fff3e8;color:#cf650e}
+.kb-review-excerpt{border-left:3px solid #8fb4ff;background:#f7faff;border-radius:0 7px 7px 0;padding:8px 10px;color:var(--ink-2);font-size:12px;line-height:1.65;margin-bottom:8px}
+.kb-review-card--negative .kb-review-excerpt{border-left-color:#f6a252;background:#fff9f4}
+.kb-review-full summary{cursor:pointer;color:#58708f;font-size:11px;list-style:none}
+.kb-review-full summary::-webkit-details-marker{display:none}
+.kb-review-full summary::after{content:' 展开'}
+.kb-review-full[open] summary::after{content:' 收起'}
+.kb-review-text{white-space:pre-wrap;color:var(--ink-2);font-size:12px;line-height:1.75;margin:9px 0 0;max-width:900px}
+.kb-review-pager{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px;color:var(--ink-3);font-size:11px}
+.kb-review-pager button{border:1px solid var(--line);background:#fff;border-radius:7px;padding:5px 10px;color:var(--ink-2);cursor:pointer}
+.kb-review-pager button:disabled{opacity:.4;cursor:not-allowed}
+.kb-review-empty{min-height:330px;display:grid;place-items:center;text-align:center;color:var(--ink-3);font-size:12px;padding:30px}
+.module-state{min-height:150px;border:1px dashed #cddcf2;border-radius:12px;background:#f8fbff;display:grid;place-items:center;text-align:center;padding:24px;color:var(--ink-2)}
+.module-state strong{display:block;color:var(--ink);font-size:15px;margin-bottom:5px}
+.module-state span{display:block;max-width:620px;color:var(--ink-3);font-size:12px}
+.err{padding:30px;color:#9a4319;background:#fff5ee;border:1px solid #f4c7ae;border-radius:12px;text-align:center}
+@media (max-width:960px){
+  .kb-grid{grid-template-columns:1fr}
+  .kb-explorer__layout{grid-template-columns:1fr}
+  .kb-tree{max-height:none}
+  .kb-review-pane{max-height:none}
+  .topbar{padding:0 16px;gap:10px;flex-wrap:wrap;height:auto;min-height:56px}
+  .topbar__sub{display:none}
+}
+</style></head><body>
+<header class="topbar">
+  <span class="topbar__brand"><i>R</i>口碑洞察 · 正式库 数据服务</span>
+  <span class="topbar__sub" id="modelLabel">车型级正负向一级标签 TOP3 · 下钻至业务 V1.0 三级标签</span>
+  <a class="topbar__back" href="/reputation-detail">返回口碑明细</a>
+</header>
+<main>
+  <section class="page-hero">
+    <p class="eyebrow">AUTOMOTIVE REPUTATION INTELLIGENCE</p>
+    <h1 id="title">口碑洞察 <span>· 车型三级标签</span></h1>
+    <p>懂车帝 / 汽车之家原始口碑聚合 · 车型级正负向一级标签 TOP5 · 下钻至业务 V1.0 三级标签，点击三级标签查看真实口碑原文。</p>
+  </section>
+  <section class="card koubei">
+    <div id="reputationContent" class="module-state"><div><strong>正在读取车型口碑</strong><span>请通过 URL ?model=车型名称 访问。</span></div></div>
+  </section>
+</main>
+<script>
+(function(){
+  'use strict';
+  const $=function(id){return document.getElementById(id)};
+  const fmt=function(n){return Number(n).toLocaleString('en-US')};
+  const esc=function(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+
+  const params=new URLSearchParams(location.search);
+  const MODEL=(params.get('model')||'').trim();
+  const ROOT=$('reputationContent');
+  let activeModel='';
+
+  function renderPanel(direction,title,hint,groups){
+    return '<div class="kb-panel kb-panel--'+direction+'"><div class="kb-panel__title"><span>'+title+'</span><small>'+hint+'</small></div>'+
+      groups.map(function(item){
+        const pct=(Number(item.share)*100).toFixed(1);
+        const tertiary=(item.tertiary||[]).map(function(tag){
+          return '<span><b>'+esc(tag.level2)+'</b>'+esc(tag.name)+(tag.custom?'<em>待标准化</em>':'')+'</span>';
+        }).join('');
+        return '<div class="kb-insight"><div class="kb-insight__top"><span class="kb-rank">'+item.rank+'</span><span class="kb-label">'+esc(item.label)+'</span><span class="kb-share">'+pct+'%</span></div>'+
+          '<div class="kb-track"><div class="kb-fill" style="width:'+Math.max(4,Math.min(100,Number(pct)))+'%"></div></div><div class="kb-secondary">'+tertiary+'</div>'+
+          '<div class="kb-mentions">'+fmt(Number(item.mentions))+' 条有效口碑提及</div></div>';
+      }).join('')+'</div>';
+  }
+
+  async function loadReputation(model){
+    activeModel=model;
+    ROOT.className='module-state';
+    ROOT.innerHTML='<div><strong>正在加载 '+esc(model)+' 口碑</strong><span>正在关联懂车帝与汽车之家口碑明细。</span></div>';
+    try{
+      const res=await fetch('/api/new-car/reputation?model='+encodeURIComponent(model),{cache:'no-store',headers:{'Accept':'application/json'}});
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const data=await res.json();
+      if(activeModel!==model) return;
+      if(!data.success || data.source!=='api') throw new Error('口碑业务 API 查询失败');
+      if(!data.available){
+        ROOT.innerHTML='<div><strong>该车型暂无直接口碑样本</strong><span>正式库两平台原始口碑及标签结果中暂无精确关联记录；不按竞品正文提及归属。</span></div>';
+        return;
+      }
+      if(!data.analysis_available){
+        ROOT.className='';
+        ROOT.innerHTML='<div class="kb-head"><div><strong>'+esc(model)+' 口碑洞察</strong></div></div><div class="module-state"><div><strong>'+(data.analysis_processed?'本批已扫描，未形成明确正负标签':'当前未生成标签分析结果')+'</strong><span>没有明确观点或无法可靠落入标签字典，不硬凑 TOP5。</span></div></div>';
+        return;
+      }
+      const groups=data.groups||{};
+      ROOT.className='';
+      ROOT.innerHTML='<div class="kb-head"><div><strong>'+esc(model)+' 口碑洞察</strong><div style="color:var(--ink-3);font-size:12px;margin-top:3px">本批扫描 '+fmt(data.total_reviews)+' 条口碑；'+(data.analysis_current?'与当前原文版本一致':'当前原文已更新，标签结果需维护端增量更新')+' · 批次 '+esc(data.batch)+'</div></div>'+
+        '<div class="kb-source"><span>懂车帝 '+fmt(data.sources.dongchedi)+' 条</span><span>汽车之家 '+fmt(data.sources.autohome)+' 条</span></div></div>'+
+        '<div class="kb-grid">'+renderPanel('positive','正向关注 TOP5','用户认可点',groups.positive||[])+renderPanel('negative','负向关注 TOP5','用户改善诉求',groups.negative||[])+'</div>'+
+        '<div class="kb-method"><span>比例：该标签明确观点的去重口碑数 ÷ 本批扫描的原始口碑数；标签可重叠，TOP5 不补足空位</span><span>业务 V1.0 字典 · '+esc(data.analysis_method==='explicit_evidence_rules'?'保守原文证据规则':'历史分析')+' · 批次 '+esc(data.batch)+'</span></div>'+
+        '<section class="kb-explorer"><div class="kb-explorer__head"><div><strong>口碑标签下钻</strong><span>按正负方向逐级展开一级、二级、三级标签，点击三级标签查看真实口碑原文</span></div></div>'+
+        '<div class="kb-explorer__layout"><aside class="kb-tree" id="kbTree"><div class="kb-review-empty">正在加载标签树…</div></aside>'+
+        '<div class="kb-review-pane" id="kbReviewPane"><div class="kb-review-empty">请从左侧选择三级标签</div></div></div></section>';
+      loadReputationTree(model);
+    }catch(err){
+      ROOT.className='module-state';
+      if(activeModel!==model) return;
+      ROOT.innerHTML='<div><strong>口碑数据暂不可用</strong><span>数据服务 查询失败，请稍后重试；不能将服务异常当成没有口碑。</span></div>';
+    }
+  }
+
+  function renderReputationDirection(direction,items){
+    const title=direction==='positive'?'正向口碑':'负向口碑';
+    const total=items.length;
+    return '<details class="kb-tree-direction kb-tree-direction--'+direction+'" '+(direction==='positive'?'open':'')+'><summary>'+title+'<b>'+fmt(total)+' 个一级标签</b></summary>'+
+      items.map(function(primary,primaryIndex){
+        return '<details class="kb-tree-level1" '+(direction==='positive'&&primaryIndex===0?'open':'')+'><summary>'+esc(primary.name)+'<b>'+(primary.count==null?'—':fmt(primary.count))+'</b></summary>'+
+          (primary.children||[]).map(function(secondary,secondaryIndex){
+            return '<details class="kb-tree-level2" '+(direction==='positive'&&primaryIndex===0&&secondaryIndex===0?'open':'')+'><summary>'+esc(secondary.name)+'<b>'+(secondary.count==null?'—':fmt(secondary.count))+'</b></summary>'+
+              '<div class="kb-tree-leaves">'+(secondary.children||[]).map(function(tag){
+                return '<button type="button" class="kb-tree-tag" data-direction="'+direction+'" data-primary="'+esc(primary.name)+'" data-secondary="'+esc(secondary.name)+'" data-tag="'+esc(tag.name)+'">'+
+                  '<span>'+esc(tag.name)+'</span>'+(tag.custom?'<em>待标准化</em>':'')+'<b>'+fmt(tag.count)+'</b></button>';
+              }).join('')+'</div></details>';
+          }).join('')+'</details>';
+      }).join('')+'</details>';
+  }
+
+  async function loadReputationTree(model){
+    const tree=$('kbTree');
+    const pane=$('kbReviewPane');
+    if(!tree || !pane) return;
+    try{
+      const res=await fetch('/api/new-car/reputation-tree?model='+encodeURIComponent(model),{cache:'no-store',headers:{'Accept':'application/json'}});
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const data=await res.json();
+      if(activeModel!==model) return;
+      if(!data.success || !data.available) throw new Error(data.error || '标签明细为空');
+      tree.innerHTML='<div class="kb-tree-filter"><input id="kbTreeFilter" type="search" placeholder="筛选一级 / 二级 / 三级标签"></div>'+
+        renderReputationDirection('positive',(data.directions&&data.directions.positive)||[])+
+        renderReputationDirection('negative',(data.directions&&data.directions.negative)||[]);
+      ROOT.onclick=function(event){
+        const tagButton=event.target.closest('.kb-tree-tag');
+        if(tagButton){
+          ROOT.querySelectorAll('.kb-tree-tag').forEach(function(button){button.classList.remove('is-active')});
+          tagButton.classList.add('is-active');
+          loadReputationReviews(model,tagButton.dataset.direction,tagButton.dataset.tag,1,tagButton.dataset.primary,tagButton.dataset.secondary);
+          return;
+        }
+        const pageButton=event.target.closest('button[data-review-page]');
+        if(pageButton && !pageButton.disabled){
+          loadReputationReviews(model,pageButton.dataset.direction,pageButton.dataset.tag,Number(pageButton.dataset.reviewPage),pageButton.dataset.primary,pageButton.dataset.secondary);
+        }
+      };
+      ROOT.oninput=function(event){
+        if(event.target.id!=='kbTreeFilter') return;
+        const keyword=event.target.value.trim().toLowerCase();
+        tree.querySelectorAll('.kb-tree-tag').forEach(function(button){
+          const matched=!keyword || button.textContent.toLowerCase().indexOf(keyword)>=0 || button.dataset.primary.toLowerCase().indexOf(keyword)>=0 || button.dataset.secondary.toLowerCase().indexOf(keyword)>=0;
+          button.style.display=matched?'flex':'none';
+          if(matched && keyword){
+            let parent=button.parentElement;
+            while(parent && parent!==tree){if(parent.tagName==='DETAILS') parent.open=true;parent=parent.parentElement;}
+          }
+        });
+      };
+      const firstTag=tree.querySelector('.kb-tree-tag');
+      if(firstTag) firstTag.click();
+    }catch(err){
+      tree.innerHTML='<div class="kb-review-empty">标签树暂不可用，请稍后重试</div>';
+      pane.innerHTML='<div class="kb-review-empty">原始口碑未加载</div>';
+    }
+  }
+
+  async function loadReputationReviews(model,direction,tag,page,primary,secondary){
+    const pane=$('kbReviewPane');
+    if(!pane) return;
+    pane.innerHTML='<div class="kb-review-empty">正在读取真实口碑原文…</div>';
+    try{
+      const url='/api/new-car/reputation-reviews?model='+encodeURIComponent(model)+'&direction='+encodeURIComponent(direction)+'&tag='+encodeURIComponent(tag)+'&page='+page;
+      const res=await fetch(url,{cache:'no-store',headers:{'Accept':'application/json'}});
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const data=await res.json();
+      if(!data.available || !data.rows.length){
+        pane.innerHTML='<div class="kb-review-empty">该三级标签暂无可展示的口碑原文</div>';
+        return;
+      }
+      const totalPages=Math.max(1,Math.ceil(Number(data.total)/Number(data.page_size)));
+      pane.innerHTML='<div class="kb-review-head"><div><strong>'+esc(tag)+'</strong><span>'+esc(primary)+' / '+esc(secondary)+' / '+esc(tag)+'</span></div><div class="kb-review-total">'+fmt(Number(data.total))+' 条原文</div></div>'+
+        data.rows.map(function(row){
+          const sourceName=row.source==='autohome'?'汽车之家':'懂车帝';
+          const fullText=String(row.text||'').trim();
+          const excerpt=String(row.excerpt||'').trim();
+          const full=fullText && fullText!==excerpt
+            ? '<details class="kb-review-full"><summary>查看完整口碑原文</summary><div class="kb-review-text">'+esc(fullText)+'</div></details>'
+            : '<div class="kb-review-text">'+esc(fullText||excerpt)+'</div>';
+          return '<article class="kb-review-card kb-review-card--'+direction+'"><div class="kb-review-meta"><span class="kb-review-source kb-review-source--'+row.source+'">'+sourceName+'</span><span>'+esc(row.review_key)+'</span></div>'+
+            '<div class="kb-review-excerpt">'+esc(excerpt||fullText)+'</div>'+full+'</article>';
+        }).join('')+
+        '<div class="kb-review-pager"><button type="button" data-review-page="'+(page-1)+'" data-direction="'+direction+'" data-tag="'+esc(tag)+'" data-primary="'+esc(primary)+'" data-secondary="'+esc(secondary)+'" '+(page<=1?'disabled':'')+'>上一页</button>'+
+        '<span>第 '+page+' / '+totalPages+' 页</span><button type="button" data-review-page="'+(page+1)+'" data-direction="'+direction+'" data-tag="'+esc(tag)+'" data-primary="'+esc(primary)+'" data-secondary="'+esc(secondary)+'" '+(page>=totalPages?'disabled':'')+'>下一页</button></div>';
+      pane.scrollTop=0;
+    }catch(err){
+      pane.innerHTML='<div class="kb-review-empty">口碑原文暂不可用，请稍后重试</div>';
+    }
+  }
+
+  if(MODEL){
+    $('title').innerHTML='<span id="modelLabel">'+esc(MODEL)+'</span> <span style="color:#5188ff">· 口碑洞察</span>';
+    document.title=MODEL+' · 口碑洞察 · 正式库 数据服务';
+    loadReputation(MODEL);
+  }else{
+    ROOT.innerHTML='<div><strong>缺少车型参数</strong><span>请通过 <code>?model=车型名称</code> 访问，例如 <a href="/reputation-insight?model=%E7%90%86%E6%83%B3i8">/reputation-insight?model=理想i8</a></span></div>';
+  }
+})();
+</script></body></html>

@@ -20,7 +20,7 @@ from openpyxl import load_workbook
 
 
 DEFAULT_SOURCE_DIR = Path(
-    r"D:\2024年度工作日志和备忘录\数字化转型产品\4.0 同事组\5.4 晓亚\乘用车价格与权益监测-0921"
+    r"E:/AI/migration-backup/5.4 晓亚\乘用车价格与权益监测-0921"
 )
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 OUTPUT_DIR = PROJECT_DIR / "assets" / "data"

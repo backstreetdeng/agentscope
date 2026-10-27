@@ -1,5 +1,9 @@
 # AgentScope 2.0.3 乘用车市场与配置多智能体工程
 
+维护导航：[文档索引](docs/README.md) · [文件放置与清理规则](docs/directory-hygiene.md)。根目录只保留入口、配置及已登记的正式页面；辅助脚本、日志、临时任务、交付物分别进入 `scripts/`、`logs/`、`temp/`、`outputs/`。交付前执行 `../Scripts/python.exe -B scripts/workspace_hygiene.py` 检查根目录，不会自动删除文件。
+
+研发维护使用本机代码图谱 `market-agent-web`，执行“改前查影响、改后跑验证”；命令、索引范围和验证入口见 [研发代码图谱流程](docs/codebase-memory-workflow.md)。这项能力不挂载到业务 Agent。
+
 本工程基于 Python AgentScope 2.0.3 稳定正式版，面向乘用车企业“市场战略机会决策 + 用户洞察配置定义”场景构建。当前阶段两个 Agent 独立工作，后续可扩展为上下游联动协作。
 
 ## 工程目录

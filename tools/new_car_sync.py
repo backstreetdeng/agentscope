@@ -19,7 +19,7 @@ PG = dict(
     user=os.getenv("NEW_CAR_PG_USER", "vectordb"),
     password=os.getenv("NEW_CAR_PG_PASSWORD", ""),
 )
-DEFAULT_XLSX = Path(r"D:/2024年度工作日志和备忘录/数字化转型产品/4.0 同事组/5.4 晓亚/乘用车新车监测板块-0921/2026.1-8新车数据TO晓亚冰雨_202609.xlsx")
+DEFAULT_XLSX = Path(r"E:/AI/migration-backup/5.4 晓亚/乘用车新车监测板块-0921/2026.1-8新车数据TO晓亚冰雨_202609.xlsx")
 
 DDL = """
 CREATE TABLE IF NOT EXISTS new_car_model (

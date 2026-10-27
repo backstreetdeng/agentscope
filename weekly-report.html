@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>周度资讯快报自动生成</title><link rel="stylesheet" href="/assets/weekly-report.css"></head>
-<body><header class="top"><a href="/#skills">← 返回技能</a><span>乘用车市场战略决策AI智能体</span><span id="connection">正在连接</span></header>
+<body><header class="top"><a href="/#projects">← 返回项目</a><span>乘用车市场战略决策AI智能体</span><span id="connection">正在连接</span></header>
 <main><section class="intro"><p class="eyebrow">汽车产业 · 周度资讯</p><h1>把一周资讯，编成一份快报。</h1><p>逐板块检索、核验事件日期和来源，统一交付阅读版、Word正报和来源清单。</p></section>
 <div class="workspace"><section class="compose"><h2>周报日期</h2><p class="hint">默认最近一个完整的周六至周五，也可选择合并日期范围。</p>
 <form id="weekly-form"><div class="dates"><label>开始日期<input id="start-date" type="date" required></label><label>结束日期<input id="end-date" type="date" required></label></div>
-<label class="field">模型<select id="model-provider"><option value="minimax">MiniMax</option><option value="bailian_token_plan">百炼</option></select></label>
+<label class="field">模型<select id="model-provider"><option value="minimax" selected>MiniMax M3</option><option value="bailian_token_plan">百炼 Qwen3.7 Plus</option></select></label>
 <label class="field">本期说明（选填）<textarea id="weekly-note" rows="4" placeholder="例如：重点关注促消费政策、在华合作与技术量产，合并两周资讯。"></textarea></label>
 <p class="method">九大章节固定编排 · 旧闻与重复事件自动核对</p><button class="primary" id="start-button" type="submit" disabled>生成周报三件套</button></form>
 <div class="task-actions"><button id="resume-button" hidden>继续未完成任务</button><button id="cancel-button" hidden>暂停本轮执行</button></div>

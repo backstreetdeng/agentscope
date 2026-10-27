@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "YYYYMMDD-task-name",
+  "purpose": "本目录解决什么问题",
+  "created_by": "本次任务/维护人员",
+  "status": "in_progress / completed / needs_review",
+  "reproduce": "从项目根目录执行的生成命令；无则填写不可重建及原因",
+  "files": [
+    {
+      "path": "screenshots/example.png",
+      "purpose": "文件用途",
+      "source": "来源文件或任务；不含凭据和业务正文",
+      "rebuildable": true,
+      "retention": "保留 / 任务完成并确认无引用后可清理 / 待核实"
+    }
+  ],
+  "cleanup_conditions": "交付验收完成、无需恢复、没有调用引用；业务数据和会话不适用自动清理",
+  "restore": "若为归档/备份，记录原路径、哈希和不覆盖的恢复方式"
+}

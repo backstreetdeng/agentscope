@@ -10,6 +10,7 @@
   <link rel='stylesheet' href='/assets/home-workspace.css?v=20261012'>
   <link rel='icon' type='image/svg+xml' href='/assets/brand-mark.svg?v=20261012'>
   <link rel='stylesheet' href='/assets/intel-overview.css'>
+  <link rel='stylesheet' href='/assets/forecast-engine.css'>
 </head>
 <body class='workspace-page'>
   <a class='skip-link' href='#main-content' aria-label='跳到主内容，跳过左侧导航'>跳到主内容</a>
@@ -47,11 +48,6 @@
             <span class='nav-label'>情报速览</span>
             <span class='nav-badge nav-badge--live'>LIVE</span>
           </a>
-          <a class='nav-item' data-view='projects' href='#projects' aria-label='项目列表，记录已执行过的任务'>
-            <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M3 7 a2 2 0 0 1 2-2 h4 l2 2 h7 a2 2 0 0 1 2 2 v9 a2 2 0 0 1-2 2 H5 a2 2 0 0 1-2-2 z'/></svg></span>
-            <span class='nav-label'>项目</span>
-            <span class='nav-badge'>8</span>
-          </a>
           <a class='nav-item' data-view='analysis' href='#analysis' aria-label='市场分析，乘用车月报与新能源月报自动生成'>
             <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M3 20 V10 M8 20 V4 M13 20 V14 M18 20 V7'/></svg></span>
             <span class='nav-label'>市场分析</span>
@@ -62,16 +58,25 @@
             <span class='nav-label'>市场预测</span>
             <span class='nav-badge nav-badge--live'>LIVE</span>
           </a>
+          <a class='nav-item' data-view='forecast-engine' href='#forecast-engine' aria-label='新版-市场预测，市场情景预测与依据追溯'>
+            <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M3 19h18M4 15l5-5 4 3 7-9'/><path d='M15 4h5v5'/></svg></span>
+            <span class='nav-label'>新版-市场预测</span><span class='nav-badge nav-badge--ai'>NEW</span>
+          </a>
           <a class='nav-item' data-view='insight' href='#insight' aria-label='用户洞察，演示示例'>
             <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='9' cy='8' r='3'/><circle cx='17' cy='9' r='2.5'/><path d='M3 20 c0-3 3-5 6-5 s6 2 6 5 M14 20 c0-2 2-4 5-4'/></svg></span>
             <span class='nav-label'>用户洞察</span>
             <span class='nav-badge'>demo</span>
           </a>
+          <a class='nav-item' data-view='projects' href='#projects' aria-label='项目列表，记录已执行过的任务'>
+            <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M3 7 a2 2 0 0 1 2-2 h4 l2 2 h7 a2 2 0 0 1 2 2 v9 a2 2 0 0 1-2 2 H5 a2 2 0 0 1-2-2 z'/></svg></span>
+            <span class='nav-label'>项目</span>
+            <span class='nav-badge'>8</span>
+          </a>
           <p class='nav-section__title'>能力</p>
         <a class='nav-item' data-view='skills' href='#skills' aria-label='技能，已封装好的技能卡片'>
             <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='8' height='8' rx='1'/><rect x='13' y='3' width='8' height='8' rx='1'/><rect x='3' y='13' width='8' height='8' rx='1'/><path d='M13 17 h8 M17 13 v8'/></svg></span>
             <span class='nav-label'>技能</span>
-            <span class='nav-badge'>8</span>
+            <span class='nav-badge'>4</span>
           </a>
           <a class='nav-item' data-view='plugins' href='#plugins' aria-label='插件，数据底座：政策、权益、新车、口碑'>
             <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><ellipse cx='12' cy='5' rx='9' ry='3'/><path d='M3 5 v6 c0 1.7 4 3 9 3 s9-1.3 9-3 V5'/><path d='M3 11 v6 c0 1.7 4 3 9 3 s9-1.3 9-3 v-6'/></svg></span>
@@ -80,15 +85,6 @@
           </a>
         </div>
 
-        <div class='sidebar__divider' data-section='history'>
-          <span class='sidebar__divider-label'>历史信息栏</span>
-        </div>
-        <a class='nav-item nav-item--external' data-view='legacy-workbench' href='/legacy/workbench.html' aria-label='打开原工作台（战略决策工作台）'>市场分析（战略决策工作台）</a>
-        <a class='legacy-nav__link' href='#legacy-insight'>用户洞察</a>
-        <a class='legacy-nav__link' href='#legacy-tag'>用户标签</a>
-        <a class='legacy-nav__link' href='#legacy-config'>配置管理</a>
-        <a class='legacy-nav__link' href='#legacy-report'>报告查询</a>
-        <a class='legacy-nav__link' href='#legacy-newcar'>新车情报</a>
       </nav>
 
       <div class='sidebar__foot' aria-label='当前版本与模式'>
@@ -265,93 +261,7 @@
           </div>
         </section>
 
-        <section class='agents' aria-labelledby='agents-title'>
-          <header class='section-head'>
-            <div class='section-head__text'>
-              <h2 id='agents-title' class='section-head__title'>我们的智能体</h2>
-              <p class='section-head__desc'>两类智能体分别负责市场战略与用户洞察，可独立调用，也可协同编排。</p>
-            </div>
-            <div class='section-head__actions'>
-              <a href='#analysis' class='chip-btn' data-view-trigger='analysis'>查看更多 →</a>
-            </div>
-          </header>
 
-          <div class='agents__grid'>
-            <article class='agent-card agent-card--strategy' aria-labelledby='strategy-agent-title'>
-              <header class='agent-card__head'>
-                <span class='agent-card__icon' aria-hidden='true'>
-                  <svg viewBox='0 0 32 32' width='36' height='36' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'>
-                    <rect x='3' y='3' width='26' height='26' rx='4'/>
-                    <path d='M7 10 h12 M7 15 h18 M7 20 h9 M22 22 l3 3 5-5'/>
-                  </svg>
-                </span>
-                <div class='agent-card__title-stack'>
-                  <h3 id='strategy-agent-title' class='agent-card__title'>市场战略Agent</h3>
-                  <p class='agent-card__role'>Market Strategy Agent · 战略决策</p>
-                </div>
-                <span class='agent-card__status' aria-label='当前状态：在线'>
-                  <span class='agent-card__status-dot' aria-hidden='true'></span>在线
-                </span>
-              </header>
-              <p class='agent-card__desc'>识别机会 / 风险 / 产能 / 进入决策，生成可被业务团队直接采纳的市场研判、配置定义与季度计划。</p>
-              <ul class='agent-card__capabilities' aria-label='核心能力'>
-                <li><span aria-hidden='true'>·</span> 政策 · 权益 · 新车 · 口碑 四源融合</li>
-                <li><span aria-hidden='true'>·</span> 自动月报 / 周报 / 专题报告</li>
-                <li><span aria-hidden='true'>·</span> 销量弹性与渗透率预测</li>
-                <li><span aria-hidden='true'>·</span> 进入决策建议与产能测算</li>
-              </ul>
-              <div class='agent-card__meta'>
-                <span class='agent-card__meta-key'>已对接技能</span>
-                <span class='agent-card__meta-val'>passenger_car_monthly_report · multi_agent</span>
-              </div>
-              <div class='agent-card__actions'>
-                <button class='btn btn--primary btn-call-agent' type='button' data-agent='market_strategy' data-skill='passenger_car_monthly_report' aria-label='调用市场战略Agent开始一次乘用车月报任务'>
-                  <span>调用市场战略Agent</span>
-                  <svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M5 12 h14 M13 6 l6 6-6 6'/></svg>
-                </button>
-                <button class='btn btn--ghost' type='button' aria-label='查看市场战略Agent详情'>查看详情</button>
-              </div>
-            </article>
-
-            <article class='agent-card agent-card--insight' data-ai-output='true' aria-labelledby='insight-agent-title'>
-              <header class='agent-card__head'>
-                <span class='agent-card__icon' aria-hidden='true'>
-                  <svg viewBox='0 0 32 32' width='36' height='36' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'>
-                    <circle cx='11' cy='12' r='5'/>
-                    <path d='M3 27 c0-4 4-7 8-7 s8 3 8 7'/>
-                    <circle cx='22' cy='10' r='3'/>
-                    <path d='M19 16 c3 0 6 2 6 5'/>
-                  </svg>
-                </span>
-                <div class='agent-card__title-stack'>
-                  <h3 id='insight-agent-title' class='agent-card__title'>用户洞察Agent</h3>
-                  <p class='agent-card__role'>User Insight Agent · 用户与配置</p>
-                </div>
-                <span class='agent-card__status' aria-label='当前状态：在线'>
-                  <span class='agent-card__status-dot' aria-hidden='true'></span>在线
-                </span>
-              </header>
-              <p class='agent-card__desc'>从评论、访谈、销售数据中识别用户圈层、需求与选装优先级，给出卖给谁、卖什么的答案。</p>
-              <ul class='agent-card__capabilities' aria-label='核心能力'>
-                <li><span aria-hidden='true'>·</span> 用户圈层识别与标签体系</li>
-                <li><span aria-hidden='true'>·</span> 配置与选装优先级排序</li>
-                <li><span aria-hidden='true'>·</span> 口碑情感与品牌力追踪</li>
-                <li><span aria-hidden='true'>·</span> 城市级偏好热力图</li>
-              </ul>
-              <div class='agent-card__meta'>
-                <span class='agent-card__meta-key'>已对接技能</span>
-                <span class='agent-card__meta-val'>user_insight_tagger · web-fetch</span>
-              </div>
-              <div class='agent-card__actions'>
-                <button class='btn btn--primary btn-call-agent' type='button' data-agent='user_insight_config' data-skill='user_insight_tagger' aria-label='调用用户洞察Agent开始一次任务'>
-                  <span>调用用户洞察Agent</span>
-                  <svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><path d='M5 12 h14 M13 6 l6 6-6 6'/></svg>
-                </button>
-                <button class='btn btn--ghost' type='button' aria-label='查看用户洞察Agent详情'>查看详情</button>
-              </div>
-            </article>
-          </div>
-        </section>
 
       </div>
 
@@ -507,8 +417,8 @@
         <section class='projects' aria-labelledby='projects-title'>
           <header class='section-head'>
             <div class='section-head__text'>
-              <h2 id='projects-title' class='section-head__title section-head__title--ai'>项目 · 已执行过的任务</h2>
-              <p class='section-head__desc'>每个项目都是一次智能体编排的完整轨迹，点击重入即可继续。</p>
+              <h2 id='projects-title' class='section-head__title section-head__title--ai'>项目 <span class='project-heading-sep'>/</span> 任务与交付</h2>
+              <p class='section-head__desc'>查看已执行任务、获取交付成果，或从保存的进度继续。</p>
             </div>
             <div class='section-head__actions'>
               <a class='btn btn--primary' href='/strategy-analysis.html?new=1' target='_blank' rel='noopener' aria-label='在新窗口新建一次市场分析'>
@@ -532,11 +442,13 @@
                     <option value='市场分析'>市场分析</option>
                     <option value='用户洞察'>用户洞察</option>
                     <option value='市场预测'>市场预测</option>
+                    <option value='资讯快报'>资讯快报</option>
                   </select>
                 </label>
                 <div class='project-status-tabs' id='projectStatusFilters' role='group' aria-label='按项目状态筛选'>
                   <button type='button' class='is-active' data-project-status='all' aria-pressed='true'>全部</button>
                   <button type='button' data-project-status='已完成' aria-pressed='false'>已完成</button>
+                  <button type='button' data-project-status='部分完成' aria-pressed='false'>部分完成</button>
                   <button type='button' data-project-status='执行中' aria-pressed='false'>执行中</button>
                   <button type='button' data-project-status='已失败' aria-pressed='false'>失败</button>
                 </div>
@@ -544,7 +456,7 @@
               <label class='project-search'>
                 <svg viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' aria-hidden='true'><circle cx='11' cy='11' r='7'/><path d='m16 16 4 4'/></svg>
                 <span class='sr-only'>检索项目</span>
-                <input id='projectSearchInput' type='search' placeholder='搜索任务主题、核心诉求或 Agent…' autocomplete='off'>
+                <input id='projectSearchInput' type='search' placeholder='搜索任务、技能或报告内容' autocomplete='off'>
               </label>
             </div>
 
@@ -559,9 +471,9 @@
                       </label>
                     </th>
                     <th scope='col'>任务主题 / 核心诉求</th>
-                    <th scope='col'>任务类型</th>
-                    <th scope='col'>执行 Agent / 模型</th>
-                    <th scope='col'>结果摘要</th>
+                    <th scope='col'>交付成果 / 结果摘要</th>
+                    <th scope='col'>执行技能 / Agent</th>
+                    <th scope='col' class='project-record-column'>执行记录</th>
                     <th scope='col'>状态</th>
                     <th scope='col'>更新时间</th>
                     <th scope='col'>操作</th>
@@ -574,7 +486,7 @@
             </div>
 
             <footer class='project-registry__footer'>
-              <div><strong id='projectResultCount'>0</strong> 条任务</div>
+              <div id='projectResultCount' aria-live='polite'>正在读取任务…</div>
               <label>每页
                 <select id='projectPageSize' aria-label='项目列表每页数量'>
                   <option value='10'>10 条</option>
@@ -813,7 +725,7 @@
               <p class='skill-catalog-card__desc'>按指定报告月份，读取并核验权威公开宏观数据，更新固定模板中的可编辑图表、表格与结论。数据缺失或口径不一致时明确提示，不以模板旧值替代。</p>
               <div class='skill-catalog-card__footer'>
                 <span>宏观指标核验 · 33 页可编辑月报</span>
-                <a class='skill-catalog-card__action' href='/strategy-analysis.html?new=1&amp;skills=macro_monthly_report&amp;model_provider=bailian_token_plan' target='_blank' rel='noopener noreferrer' aria-label='启动宏观经济月报生成'>启动生成 →</a>
+                <a class='skill-catalog-card__action' href='/strategy-analysis.html?new=1&amp;skills=macro_monthly_report&amp;model_provider=deepseek_pro' target='_blank' rel='noopener noreferrer' aria-label='启动宏观经济月报生成'>启动生成 →</a>
               </div>
             </article>
 
@@ -1207,6 +1119,7 @@
       <!-- ============================================================
            VIEW 5: 用户洞察 insight — 4 统计 + 3 圈层画像 + 需求匹配矩阵
            ============================================================ -->
+      <div class='view' data-view='forecast-engine' hidden><div id='forecast-engine-mount'>正在加载新版市场预测工作区…</div></div>
       <div class='view' data-view='insight' hidden>
 
         <section class='insight' aria-labelledby='insight-title'>
@@ -1514,7 +1427,7 @@
               <div class='skill-catalog-card__head'><h4>宏观经济月报</h4><span class='skill-catalog-card__status'>已安装</span></div>
               <p class='skill-catalog-card__meta'>市场分析 · skill_macro_monthly_report</p>
               <p class='skill-catalog-card__desc'>选择报告月份，读取宏观数据并更新可编辑月报。</p>
-              <div class='skill-catalog-card__footer'><span>33 页月报 · 月份选择</span><a class='skill-catalog-card__action' href='/strategy-analysis.html?skills=macro_monthly_report&amp;model_provider=bailian_token_plan' target='_blank' rel='noopener noreferrer'>应用此技能 →</a></div>
+              <div class='skill-catalog-card__footer'><span>33 页月报 · 月份选择</span><a class='skill-catalog-card__action' href='/strategy-analysis.html?skills=macro_monthly_report&amp;model_provider=deepseek_pro' target='_blank' rel='noopener noreferrer'>应用此技能 →</a></div>
             </article>
             <article class='skill-catalog-card' data-skill='passenger_car_monthly_report'>
               <div class='skill-catalog-card__head'><h4>乘用车月报智能生成</h4><span class='skill-catalog-card__status'>已安装</span></div>
@@ -1703,14 +1616,10 @@
             </article>
           </div>
 
+          <div class='connector-registry__head' style='margin-top: 28px'>
+            <h3>暂未开放</h3>
+          </div>
           <div class='plugins__grid connector-grid' aria-label='暂未开放的插件'>
-            <article class='plugin-card'>
-              <header class='plugin-card__head'>
-                <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>月度销量查询</h3></div>
-                <span class='plugin-card__status' style='background: var(--bg-muted, #F1F5F9); color: var(--text-secondary, #64748B)'>暂未开放</span>
-              </header>
-              <p class='plugin-card__desc'>按年月、车型与新能源类型查询月度销量。</p>
-            </article>
             <article class='plugin-card'>
               <header class='plugin-card__head'>
                 <div class='plugin-card__title-stack'><h3 class='plugin-card__title'>车型配置参数查询</h3></div>
@@ -1834,7 +1743,7 @@
           <span class='footer__sep' aria-hidden='true'>·</span>
           <span class='footer__usage'>仅限企业内部业务使用</span>
           <span class='footer__sep' aria-hidden='true'>·</span>
-          <span class='footer__model'>当前模型：MiniMax-M3</span>
+          <span class='footer__model'>默认：DeepSeek V4 Flash · 复杂任务：V4 Pro</span>
         </div>
         <div class='footer__right'>
           <span class='footer__mode' aria-label='当前运行模式：实时'>
@@ -1849,5 +1758,6 @@
 
   <script src='/assets/home.js' defer></script>
   <script src='/assets/intel-overview.js' defer></script>
+  <script src='/assets/forecast-engine.js' defer></script>
 </body>
 </html>

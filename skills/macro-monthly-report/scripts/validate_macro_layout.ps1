@@ -1,4 +1,4 @@
-param(
+﻿param(
     [Parameter(Mandatory=$true)][string]$InputPath,
     [Parameter(Mandatory=$true)][string]$ScopePath,
     [Parameter(Mandatory=$true)][string]$OutputDir
@@ -82,13 +82,16 @@ function Add-Obstacles($shapes, [int]$slideNumber) {
 }
 
 try {
+    if (@([System.Diagnostics.Process]::GetProcessesByName('POWERPNT')).Count -gt 0) {
+        throw 'user_powerpoint_active: Close PowerPoint or retry later; existing user presentations are untouched.'
+    }
+    if ($result.artifact_sha256 -ne $manifest.artifact_sha256) { throw 'artifact_hash_changed_before_measurement' }
     # PowerPoint COM can reuse an existing instance. Refuse rather than risk
     # touching or closing a user's open presentation.
     if (@([System.Diagnostics.Process]::GetProcessesByName('POWERPNT')).Count -gt 0) {
         throw 'user_powerpoint_active: Close PowerPoint or retry later; existing user presentations are untouched.'
     }
     if ($result.artifact_sha256 -ne $manifest.artifact_sha256) { throw 'artifact_hash_changed_before_measurement' }
-    $app = New-IsolatedPowerPoint
     $deck = $app.Presentations.Open($inputResolved, $true, $false, $false)
     $result.slides = [int]$deck.Slides.Count
     $copyPath = Join-Path $outputResolved 'office-roundtrip.pptx'

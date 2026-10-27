@@ -9,7 +9,7 @@ from pathlib import Path
 from pptx import Presentation
 
 
-SOURCE_ROOT = Path(r"D:\2024年度工作日志和备忘录\数字化转型产品\4.0 同事组\5.4 晓亚\提供邓skill-0915")
+SOURCE_ROOT = Path(r"E:/AI/migration-backup/5.4 晓亚\提供邓skill-0915")
 OUTPUT = Path(__file__).resolve().parents[1] / "skills" / "market-analysis-skill" / "passenger-car-monthly-report" / "assets" / "expert-headline-examples.json"
 SOURCES = [
     "2026年3月中国乘用车市场月度分析报告.pptx",
