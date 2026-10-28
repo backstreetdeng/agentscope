@@ -997,6 +997,12 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
             try:
                 if request_path == '/api/forecast-engine/status': self._send_json(forecast_status())
                 elif request_path == '/api/forecast-engine/jobs': self._send_json(FORECAST_WEB_JOBS.get(parse_qs(parsed.query).get('run_id',[''])[0]))
+                elif request_path == '/api/forecast-engine/chronos-status':
+                    from integrations.chronos2_forecast import status as chronos_status
+                    self._send_json(chronos_status())
+                elif request_path == '/api/forecast-engine/chronos-jobs':
+                    from integrations.chronos2_forecast import CHRONOS_JOBS
+                    self._send_json(CHRONOS_JOBS.get(parse_qs(parsed.query).get('run_id',[''])[0]))
                 else: self._send_json({'error':'未找到新版预测接口。'},status=404)
             except (ValueError,OSError) as exc: self._send_json({'error':str(exc)},status=400)
             return
@@ -1313,6 +1319,44 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         parsed = urlparse(self.path)
+        if parsed.path == '/api/forecast-engine/deepseek-insights':
+            try:
+                from integrations.forecast_local_assistant import allow_loopback_request
+                from integrations.forecast_deepseek import answer
+                if not allow_loopback_request(self.client_address[0], self.headers.get('Host', ''), self.headers.get('Origin')):
+                    self._send_json({'error': '预测分析仅允许本机页面访问。'}, status=403)
+                    return
+                length = int(self.headers.get('Content-Length', '0'))
+                if not 0 < length <= 2048: raise ValueError('分析请求为空或过大。')
+                payload = json.loads(self.rfile.read(length).decode('utf-8'))
+                self._send_json(answer(payload))
+            except (ValueError, OSError) as exc:
+                self._send_json({'error': str(exc)}, status=400)
+            return
+        if parsed.path == '/api/forecast-engine/local-insights':
+            # Historical business data must stay on this machine. Restrict both
+            # the peer and browser origin instead of relying on server binding.
+            try:
+                from integrations.forecast_local_assistant import allow_loopback_request, answer
+                if not allow_loopback_request(self.client_address[0], self.headers.get('Host', ''), self.headers.get('Origin')):
+                    self._send_json({'error': '本地预测分析仅允许本机页面访问。'}, status=403)
+                    return
+                length = int(self.headers.get('Content-Length', '0'))
+                if not 0 < length <= 24000: raise ValueError('分析请求为空或过大。')
+                payload = json.loads(self.rfile.read(length).decode('utf-8'))
+                self._send_json(answer(payload))
+            except (ValueError, OSError) as exc:
+                self._send_json({'error': str(exc)}, status=400)
+            return
+        if parsed.path == '/api/forecast-engine/chronos-jobs':
+            from integrations.chronos2_forecast import CHRONOS_JOBS
+            try:
+                length = int(self.headers.get('Content-Length', '0'))
+                if not 0 < length <= 16000: raise ValueError('预测请求为空或过大。')
+                payload = json.loads(self.rfile.read(length).decode('utf-8'))
+                self._send_json(CHRONOS_JOBS.start(payload), status=202)
+            except (ValueError, OSError) as exc: self._send_json({'error': str(exc)}, status=400)
+            return
         if parsed.path == '/api/forecast-engine/jobs':
             from integrations.forecast_engine_web import FORECAST_WEB_JOBS
             try:
