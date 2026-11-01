@@ -1881,6 +1881,56 @@
       }
     }
 
+    function renderQuant(data) {
+      if (!data) return '';
+      const groups = (data.groups || []).map((g) => `
+        <div class='quant-group'>
+          <div class='quant-group__head'>${esc(g.group)}（n=${g.total}）</div>
+          ${(g.items || []).map((i) => {
+            const pct = g.total ? Math.round(i.count / g.total * 100) : 0;
+            return `<div class='quant-item'><span class='quant-item__label'>${esc(i.value || '(空)')}</span><span class='quant-item__bar'><span style='width:${pct}%'></span></span><span class='quant-item__count'>${i.count}（${pct}%）</span></div>`;
+          }).join('')}
+        </div>
+      `).join('');
+      return `<div class='quant-meta'>${esc(data.question_text)} · 按 ${esc(data.group_by_label)} · 样本 ${data.sample_count}</div>${groups}`;
+    }
+
+    async function askQuant() {
+      const dim = document.getElementById('insight-quant-dim')?.value;
+      const q = document.getElementById('insight-quant-question')?.value;
+      const result = document.getElementById('insight-quant-result');
+      if (!dim || !q) { Toast.show('请选择维度和题目', 'error'); return; }
+      result.hidden = false;
+      result.innerHTML = '<div class="insight-qa__loading">正在统计…</div>';
+      try {
+        const response = await fetch('/api/insight/quant/stat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question_id: q, group_by: dim, top: 20 }),
+        });
+        const data = await response.json();
+        if (!response.ok || data.error) throw new Error(typeof data.error === 'string' ? data.error : '统计失败');
+        result.innerHTML = renderQuant(data);
+      } catch (error) {
+        result.innerHTML = `<div class='insight-qa__error'>统计失败：${esc(error.message || error)}</div>`;
+      }
+    }
+
+    async function initQuant() {
+      try {
+        const response = await fetch('/api/insight/quant/options', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: '{}',
+        });
+        const data = await response.json();
+        const dim = document.getElementById('insight-quant-dim');
+        const q = document.getElementById('insight-quant-question');
+        if (dim) dim.innerHTML = (data.dimensions || []).map((d) => `<option value="${esc(d.key)}">${esc(d.label)}</option>`).join('');
+        if (q) q.innerHTML = (data.questions || []).map((item) => `<option value="${esc(item.question_id)}">${esc(item.question_text)}</option>`).join('');
+      } catch (_) { /* 定量看板初始化失败不影响其他功能 */ }
+    }
+
     function init() {
       document.getElementById('insight-qa-run')?.addEventListener('click', ask);
       document.getElementById('insight-qa-input')?.addEventListener('keydown', (event) => {
@@ -1890,6 +1940,8 @@
       document.getElementById('insight-battle-input')?.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') askBattle();
       });
+      document.getElementById('insight-quant-run')?.addEventListener('click', askQuant);
+      initQuant();
     }
 
     return { init };

@@ -1447,7 +1447,7 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
             except Exception as exc:
                 self._send_json({'error': type(exc).__name__ + ': ' + str(exc)}, status=500)
             return
-        if self.path not in {"/api/assistant/chat", "/api/chat", "/api/ppt", "/api/audio-tags/run", "/api/quality-gate", "/api/market-skill/validate", "/api/intelligence/export", "/api/projects/update", "/api/macro-ledger", "/api/monthly-report/jobs", "/api/monthly-report/jobs/cancel", "/api/monthly-report/jobs/resume", "/api/macro-report/jobs", "/api/macro-report/jobs/cancel", "/api/macro-report/jobs/resume", "/api/insight/interview/query", "/api/insight/battle/analyze"}:
+        if self.path not in {"/api/assistant/chat", "/api/chat", "/api/ppt", "/api/audio-tags/run", "/api/quality-gate", "/api/market-skill/validate", "/api/intelligence/export", "/api/projects/update", "/api/macro-ledger", "/api/monthly-report/jobs", "/api/monthly-report/jobs/cancel", "/api/monthly-report/jobs/resume", "/api/macro-report/jobs", "/api/macro-report/jobs/cancel", "/api/macro-report/jobs/resume", "/api/insight/interview/query", "/api/insight/battle/analyze", "/api/insight/quant/stat", "/api/insight/quant/options"}:
             self.send_error(HTTPStatus.NOT_FOUND)
             return
 
@@ -1736,6 +1736,26 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
                     self._send_json({"error": type(exc).__name__ + ": " + str(exc)}, status=502)
                     return
                 self._send_json(result)
+                return
+
+            if self.path == "/api/insight/quant/options":
+                from customer_insight.quant_service import QuantStatService
+
+                svc = QuantStatService()
+                self._send_json({
+                    "dimensions": svc.dimensions(),
+                    "questions": svc.list_questions(limit=200),
+                })
+                return
+
+            if self.path == "/api/insight/quant/stat":
+                question_id = str(payload.get("question_id", "")).strip()
+                group_by = str(payload.get("group_by", "")).strip()
+                top = int(payload.get("top") or 20)
+                from customer_insight.quant_service import QuantStatService
+
+                svc = QuantStatService()
+                self._send_json(svc.stat(question_id, group_by, top))
                 return
 
             question = str(payload.get("question", "")).strip()

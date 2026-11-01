@@ -5267,3 +5267,17 @@ body {
 .battle-tag { padding: 10px 12px; background: var(--bg-surface, #fff); border: 1px solid var(--border-subtle, #E2E8F0); border-radius: 8px; margin-bottom: 8px; }
 .battle-tag__head { display: block; font-size: 12px; color: #64748b; margin-bottom: 4px; }
 .battle-tag__value { font-size: 13px; line-height: 1.6; color: #1e293b; }
+
+
+/* 定量统计看板 */
+.insight-quant { margin-top: 24px; position: relative; z-index: 1500; }
+.insight-quant__bar { display: flex; gap: 10px; align-items: center; }
+.insight-quant__select { flex: 1; padding: 10px 12px; border: 1px solid var(--border-subtle, #E2E8F0); border-radius: 8px; font-size: 13px; color: var(--text-primary); background: var(--bg-surface, #fff); }
+.quant-meta { padding: 10px 14px; font-size: 13px; color: var(--text-tertiary, #64748b); margin-bottom: 10px; }
+.quant-group { background: var(--bg-surface, #fff); border: 1px solid var(--border-subtle, #E2E8F0); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
+.quant-group__head { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+.quant-item { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; font-size: 12px; color: #334155; }
+.quant-item__label { width: 120px; flex-shrink: 0; }
+.quant-item__bar { flex: 1; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+.quant-item__bar span { display: block; height: 100%; background: #2563eb; border-radius: 4px; }
+.quant-item__count { width: 80px; text-align: right; color: #64748b; flex-shrink: 0; }
