@@ -5311,3 +5311,14 @@ body {
 /* 再购意愿与品牌忠诚 */
 .insight-repurchase { margin-top: 24px; position: relative; z-index: 1500; }
 .insight-repurchase__bar { display: flex; gap: 10px; align-items: center; }
+
+
+/* 需求配置匹配矩阵 */
+.insight-matrix { margin-top: 24px; position: relative; z-index: 1500; }
+.insight-matrix__bar { display: flex; gap: 10px; align-items: center; }
+.matrix-quad { background: var(--bg-surface, #fff); border: 1px solid var(--border-subtle, #E2E8F0); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
+.matrix-quad__head { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+.matrix-item { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-top: 1px solid #f1f5f9; font-size: 12px; color: #334155; }
+.matrix-item:first-of-type { border-top: none; }
+.matrix-item__dim { font-weight: 600; color: #1e293b; }
+.matrix-item__stat { color: #64748b; }

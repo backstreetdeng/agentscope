@@ -20,6 +20,17 @@ ATT_PREFIX = "Q3_23__"  # 购车关注因素（勾选=1）
 SAT_LOW_THRESHOLD = 6   # 满意度 ≤6 分视为不满意/低分
 
 
+def _median(values: list[float]) -> float:
+    """中位数，用于四象限阈值划分。"""
+    if not values:
+        return 0.0
+    s = sorted(values)
+    n = len(s)
+    if n % 2:
+        return s[n // 2]
+    return (s[n // 2 - 1] + s[n // 2]) / 2
+
+
 class InsightService:
     """复用 quant_sample 做专题洞察，只读。"""
 
@@ -159,6 +170,76 @@ class InsightService:
                     "group_field": group_field,
                     "group_label": DIMENSIONS[group_field],
                     "group_value": group_value,
+                    "items": items,
+                }
+        finally:
+            conn.close()
+
+    def demand_config_matrix(self, group_field: str, group_value: str) -> dict[str, Any]:
+        """需求×配置匹配矩阵：16 个产品维度的购车关注度 × 使用满意度，划分四象限。"""
+        if group_field not in DIMENSIONS:
+            raise ValueError(f"不支持的维度：{group_field}")
+        conn = self._connect()
+        try:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute(
+                    f"SELECT count(*) AS total FROM user_insight.quant_sample WHERE {group_field} = %s",
+                    (group_value,),
+                )
+                total = cur.fetchone()["total"] or 0
+                items: list[dict[str, Any]] = []
+                for idx, dim in PRODUCT_DIMS:
+                    att_qid = f"{ATT_PREFIX}{idx}"
+                    sat_qid = f"{SAT_PREFIX}{idx}"
+                    cur.execute(
+                        f"SELECT "
+                        "count(*) FILTER (WHERE answers_text ? %s) AS att_cnt, "
+                        "count(*) FILTER (WHERE answers_text->>%s ~ '^[0-9]+$') AS sat_total, "
+                        "count(*) FILTER (WHERE answers_text->>%s ~ '^[0-9]+$' AND (answers_text->>%s)::int <= %s) AS low_cnt, "
+                        "avg(CASE WHEN answers_text->>%s ~ '^[0-9]+$' THEN (answers_text->>%s)::float END) AS mean_score "
+                        "FROM user_insight.quant_sample "
+                        f"WHERE {group_field} = %s",
+                        (att_qid, sat_qid, sat_qid, sat_qid, SAT_LOW_THRESHOLD, sat_qid, sat_qid, group_value),
+                    )
+                    row = cur.fetchone()
+                    att_cnt = row["att_cnt"] or 0
+                    sat_total = row["sat_total"] or 0
+                    low_cnt = row["low_cnt"] or 0
+                    items.append({
+                        "dimension": dim,
+                        "attention_rate": round(att_cnt / total, 4) if total else 0.0,
+                        "attention_count": att_cnt,
+                        "mean_score": round(float(row["mean_score"]), 2) if row["mean_score"] is not None else None,
+                        "low_rate": round(low_cnt / sat_total, 4) if sat_total else 0.0,
+                        "low_count": low_cnt,
+                        "sat_total": sat_total,
+                    })
+
+                att_med = _median([x["attention_rate"] for x in items])
+                low_rates = [x["low_rate"] for x in items if x["sat_total"] > 0]
+                low_med = _median(low_rates) if low_rates else 0.0
+
+                order = {"优先改进": 0, "核心优势": 1, "潜在不满": 2, "保持": 3}
+                for it in items:
+                    hi_att = it["attention_rate"] >= att_med
+                    hi_low = it["low_rate"] >= low_med
+                    if hi_att and hi_low:
+                        it["quadrant"] = "优先改进"
+                    elif hi_att and not hi_low:
+                        it["quadrant"] = "核心优势"
+                    elif not hi_att and hi_low:
+                        it["quadrant"] = "潜在不满"
+                    else:
+                        it["quadrant"] = "保持"
+                items.sort(key=lambda x: (order.get(x["quadrant"], 9), -x["attention_rate"]))
+
+                return {
+                    "group_field": group_field,
+                    "group_label": DIMENSIONS[group_field],
+                    "group_value": group_value,
+                    "sample_count": total,
+                    "att_median": round(att_med, 4),
+                    "low_median": round(low_med, 4),
                     "items": items,
                 }
         finally:

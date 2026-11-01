@@ -2056,6 +2056,44 @@
       }
     }
 
+    function renderMatrix(data) {
+      if (!data || !data.items) return '';
+      const quadrants = ['优先改进', '核心优势', '潜在不满', '保持'];
+      const colors = { '优先改进': '#dc2626', '核心优势': '#16a34a', '潜在不满': '#f59e0b', '保持': '#94a3b8' };
+      const blocks = quadrants.map((q) => {
+        const rows = (data.items || []).filter((it) => it.quadrant === q).map((it) => {
+          const att = Math.round((it.attention_rate || 0) * 100);
+          const low = Math.round((it.low_rate || 0) * 100);
+          const mean = it.mean_score == null ? '-' : it.mean_score;
+          return `<div class='matrix-item'><span class='matrix-item__dim'>${esc(it.dimension)}</span><span class='matrix-item__stat'>关注 ${att}% · 低分 ${low}% · 均分 ${mean}</span></div>`;
+        }).join('');
+        if (!rows) return '';
+        return `<div class='matrix-quad'><div class='matrix-quad__head' style='color:${colors[q]}'>${q}</div>${rows}</div>`;
+      }).join('');
+      return `<div class='joint-meta'>${esc(data.group_label)}「${esc(data.group_value)}」 · 关注×满意匹配矩阵（样本 ${data.sample_count}）</div>${blocks}`;
+    }
+
+    async function askMatrix() {
+      const dim = document.getElementById('insight-matrix-dim')?.value;
+      const val = document.getElementById('insight-matrix-input')?.value.trim();
+      const result = document.getElementById('insight-matrix-result');
+      if (!val) { Toast.show('请输入群体取值', 'error'); return; }
+      result.hidden = false;
+      result.innerHTML = '<div class="insight-qa__loading">正在生成需求配置矩阵…</div>';
+      try {
+        const response = await fetch('/api/insight/matrix/match', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ group_field: dim, group_value: val }),
+        });
+        const data = await response.json();
+        if (!response.ok || data.error) throw new Error(typeof data.error === 'string' ? data.error : '分析失败');
+        result.innerHTML = renderMatrix(data);
+      } catch (error) {
+        result.innerHTML = `<div class='insight-qa__error'>分析失败：${esc(error.message || error)}</div>`;
+      }
+    }
+
     function init() {
       document.getElementById('insight-qa-run')?.addEventListener('click', ask);
       document.getElementById('insight-qa-input')?.addEventListener('keydown', (event) => {
@@ -2078,6 +2116,10 @@
       document.getElementById('insight-repur-run')?.addEventListener('click', askRepurchase);
       document.getElementById('insight-repur-input')?.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') askRepurchase();
+      });
+      document.getElementById('insight-matrix-run')?.addEventListener('click', askMatrix);
+      document.getElementById('insight-matrix-input')?.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') askMatrix();
       });
       initQuant();
     }

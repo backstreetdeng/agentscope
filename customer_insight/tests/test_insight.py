@@ -54,5 +54,28 @@ class TestRepurchaseIntent(unittest.TestCase):
             self.service.repurchase_intent("bad_field", "x")
 
 
+class TestDemandConfigMatrix(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.service = InsightService()
+
+    def test_matrix_by_model(self):
+        result = self.service.demand_config_matrix("purchase_model", "唐L")
+        self.assertEqual(result["group_value"], "唐L")
+        self.assertEqual(len(result["items"]), 16)
+        quadrants = {x["quadrant"] for x in result["items"]}
+        self.assertTrue(quadrants.issubset({"优先改进", "核心优势", "潜在不满", "保持"}))
+        for it in result["items"]:
+            self.assertIn("attention_rate", it)
+            self.assertIn("low_rate", it)
+            self.assertIn("mean_score", it)
+            self.assertGreaterEqual(it["attention_rate"], 0.0)
+            self.assertLessEqual(it["attention_rate"], 1.0)
+
+    def test_matrix_invalid_field(self):
+        with self.assertRaises(ValueError):
+            self.service.demand_config_matrix("bad_field", "x")
+
+
 if __name__ == "__main__":
     unittest.main()
