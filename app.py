@@ -1447,7 +1447,7 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
             except Exception as exc:
                 self._send_json({'error': type(exc).__name__ + ': ' + str(exc)}, status=500)
             return
-        if self.path not in {"/api/assistant/chat", "/api/chat", "/api/ppt", "/api/audio-tags/run", "/api/quality-gate", "/api/market-skill/validate", "/api/intelligence/export", "/api/projects/update", "/api/macro-ledger", "/api/monthly-report/jobs", "/api/monthly-report/jobs/cancel", "/api/monthly-report/jobs/resume", "/api/macro-report/jobs", "/api/macro-report/jobs/cancel", "/api/macro-report/jobs/resume", "/api/insight/interview/query", "/api/insight/battle/analyze", "/api/insight/quant/stat", "/api/insight/quant/options", "/api/insight/joint/analyze"}:
+        if self.path not in {"/api/assistant/chat", "/api/chat", "/api/ppt", "/api/audio-tags/run", "/api/quality-gate", "/api/market-skill/validate", "/api/intelligence/export", "/api/projects/update", "/api/macro-ledger", "/api/monthly-report/jobs", "/api/monthly-report/jobs/cancel", "/api/monthly-report/jobs/resume", "/api/macro-report/jobs", "/api/macro-report/jobs/cancel", "/api/macro-report/jobs/resume", "/api/insight/interview/query", "/api/insight/battle/analyze", "/api/insight/quant/stat", "/api/insight/quant/options", "/api/insight/joint/analyze", "/api/insight/segment/clusters"}:
             self.send_error(HTTPStatus.NOT_FOUND)
             return
 
@@ -1774,6 +1774,14 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
                     self._send_json({"error": type(exc).__name__ + ": " + str(exc)}, status=502)
                     return
                 self._send_json(result)
+                return
+
+            if self.path == "/api/insight/segment/clusters":
+                min_samples = int(payload.get("min_samples") or 30)
+                from customer_insight.insight_service import InsightService
+
+                svc = InsightService()
+                self._send_json(svc.segment_clusters(min_samples))
                 return
 
             question = str(payload.get("question", "")).strip()

@@ -5287,3 +5287,11 @@ body {
 .insight-joint { margin-top: 24px; position: relative; z-index: 1500; }
 .insight-joint__bar { display: flex; gap: 10px; align-items: center; }
 .joint-meta { padding: 10px 14px; font-size: 13px; color: var(--text-tertiary, #64748b); margin-bottom: 10px; }
+
+
+/* 圈层画像 */
+.insight-segment { margin-top: 24px; position: relative; z-index: 1500; }
+.insight-segment__bar { display: flex; gap: 10px; align-items: center; }
+.segment-card { background: var(--bg-surface, #fff); border: 1px solid var(--border-subtle, #E2E8F0); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; }
+.segment-card__head { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+.segment-card__row { font-size: 12px; color: #334155; margin-bottom: 4px; line-height: 1.6; }

@@ -1958,6 +1958,36 @@
       }
     }
 
+    function renderSegment(data) {
+      if (!data || !data.segments) return '';
+      return (data.segments || []).map((s) => `
+        <div class='segment-card'>
+          <div class='segment-card__head'>${esc(s.name)}（n=${s.sample_count}）</div>
+          <div class='segment-card__row'>价格段：${(s.price_bands || []).slice(0, 4).map((x) => `${esc(x.value)}(${x.count})`).join('、')}</div>
+          <div class='segment-card__row'>年龄段：${(s.age_bands || []).slice(0, 4).map((x) => `${esc(x.value)}(${x.count})`).join('、')}</div>
+          <div class='segment-card__row'>车型：${(s.top_models || []).slice(0, 5).map((x) => esc(x.value)).join('、')}</div>
+        </div>
+      `).join('');
+    }
+
+    async function askSegment() {
+      const result = document.getElementById('insight-segment-result');
+      result.hidden = false;
+      result.innerHTML = '<div class="insight-qa__loading">正在生成圈层画像…</div>';
+      try {
+        const response = await fetch('/api/insight/segment/clusters', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ min_samples: 30 }),
+        });
+        const data = await response.json();
+        if (!response.ok || data.error) throw new Error(typeof data.error === 'string' ? data.error : '生成失败');
+        result.innerHTML = `<div class='joint-meta'>共 ${data.total} 样本，${(data.segments || []).length} 个圈层</div>${renderSegment(data)}`;
+      } catch (error) {
+        result.innerHTML = `<div class='insight-qa__error'>生成失败：${esc(error.message || error)}</div>`;
+      }
+    }
+
     function init() {
       document.getElementById('insight-qa-run')?.addEventListener('click', ask);
       document.getElementById('insight-qa-input')?.addEventListener('keydown', (event) => {
@@ -1972,6 +2002,7 @@
       document.getElementById('insight-joint-input')?.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') askJoint();
       });
+      document.getElementById('insight-segment-run')?.addEventListener('click', askSegment);
       initQuant();
     }
 
