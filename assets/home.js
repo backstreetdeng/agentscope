@@ -1931,6 +1931,33 @@
       } catch (_) { /* 定量看板初始化失败不影响其他功能 */ }
     }
 
+    async function askJoint() {
+      const type = document.getElementById('insight-joint-type')?.value;
+      const value = document.getElementById('insight-joint-input')?.value.trim();
+      const result = document.getElementById('insight-joint-result');
+      if (!value) { Toast.show('请输入分析对象', 'error'); return; }
+      result.hidden = false;
+      result.innerHTML = '<div class="insight-qa__loading">正在联合洞察…</div>';
+      try {
+        const response = await fetch('/api/insight/joint/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ target_type: type, target_value: value, top_k: 6 }),
+        });
+        const data = await response.json();
+        if (!response.ok || data.error) throw new Error(typeof data.error === 'string' ? data.error : '分析失败');
+        const j = data.joint || {};
+        const ev = j.qualitative?.evidence || [];
+        const b = j.battle?.battle;
+        const q = j.quant;
+        const meta = `<div class='joint-meta'>${esc(j.target_label)}「${esc(j.target_value)}」 · 定性 ${ev.length} 条${b ? ` · 战胜战败 ${b.buyer_count} 人` : ''}${q ? ` · 定量 ${q.sample_count} 样本` : ''}</div>`;
+        result.innerHTML = `<div class='insight-qa__answer'>${esc(data.answer || '').replace(/\n/g, '<br>')}</div>${meta}${renderEvidence(ev)}`;
+      } catch (error) {
+        result.innerHTML = `<div class='insight-qa__error'>分析失败：${esc(error.message || error)}</div>`;
+        Toast.show('联合洞察失败', 'error');
+      }
+    }
+
     function init() {
       document.getElementById('insight-qa-run')?.addEventListener('click', ask);
       document.getElementById('insight-qa-input')?.addEventListener('keydown', (event) => {
@@ -1941,6 +1968,10 @@
         if (event.key === 'Enter') askBattle();
       });
       document.getElementById('insight-quant-run')?.addEventListener('click', askQuant);
+      document.getElementById('insight-joint-run')?.addEventListener('click', askJoint);
+      document.getElementById('insight-joint-input')?.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') askJoint();
+      });
       initQuant();
     }
 

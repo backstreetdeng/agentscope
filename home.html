@@ -1154,6 +1154,19 @@
             </div>
             <div id='insight-quant-result' class='insight-qa__result' hidden></div>
           </div>
+
+          <div class='insight-joint' aria-label='联合洞察'>
+            <div class='insight-joint__bar'>
+              <select id='insight-joint-type' class='insight-quant__select' aria-label='分析颗粒度'>
+                <option value='vehicle_model'>目标车型</option>
+                <option value='purchase_type'>购车类型</option>
+                <option value='age_band'>用户圈层（年龄段）</option>
+              </select>
+              <input id='insight-joint-input' class='insight-qa__input' type='text' placeholder='如：唐L / 首购 / 36-40岁' aria-label='分析对象' />
+              <button id='insight-joint-run' class='btn btn--primary' type='button'>联合洞察</button>
+            </div>
+            <div id='insight-joint-result' class='insight-qa__result' hidden></div>
+          </div>
         </section>
 
       </div>

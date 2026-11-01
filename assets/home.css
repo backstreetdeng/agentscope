@@ -5281,3 +5281,9 @@ body {
 .quant-item__bar { flex: 1; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
 .quant-item__bar span { display: block; height: 100%; background: #2563eb; border-radius: 4px; }
 .quant-item__count { width: 80px; text-align: right; color: #64748b; flex-shrink: 0; }
+
+
+/* 联合洞察 */
+.insight-joint { margin-top: 24px; position: relative; z-index: 1500; }
+.insight-joint__bar { display: flex; gap: 10px; align-items: center; }
+.joint-meta { padding: 10px 14px; font-size: 13px; color: var(--text-tertiary, #64748b); margin-bottom: 10px; }

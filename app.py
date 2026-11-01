@@ -1447,7 +1447,7 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
             except Exception as exc:
                 self._send_json({'error': type(exc).__name__ + ': ' + str(exc)}, status=500)
             return
-        if self.path not in {"/api/assistant/chat", "/api/chat", "/api/ppt", "/api/audio-tags/run", "/api/quality-gate", "/api/market-skill/validate", "/api/intelligence/export", "/api/projects/update", "/api/macro-ledger", "/api/monthly-report/jobs", "/api/monthly-report/jobs/cancel", "/api/monthly-report/jobs/resume", "/api/macro-report/jobs", "/api/macro-report/jobs/cancel", "/api/macro-report/jobs/resume", "/api/insight/interview/query", "/api/insight/battle/analyze", "/api/insight/quant/stat", "/api/insight/quant/options"}:
+        if self.path not in {"/api/assistant/chat", "/api/chat", "/api/ppt", "/api/audio-tags/run", "/api/quality-gate", "/api/market-skill/validate", "/api/intelligence/export", "/api/projects/update", "/api/macro-ledger", "/api/monthly-report/jobs", "/api/monthly-report/jobs/cancel", "/api/monthly-report/jobs/resume", "/api/macro-report/jobs", "/api/macro-report/jobs/cancel", "/api/macro-report/jobs/resume", "/api/insight/interview/query", "/api/insight/battle/analyze", "/api/insight/quant/stat", "/api/insight/quant/options", "/api/insight/joint/analyze"}:
             self.send_error(HTTPStatus.NOT_FOUND)
             return
 
@@ -1756,6 +1756,24 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
 
                 svc = QuantStatService()
                 self._send_json(svc.stat(question_id, group_by, top))
+                return
+
+            if self.path == "/api/insight/joint/analyze":
+                target_type = str(payload.get("target_type", "")).strip()
+                target_value = str(payload.get("target_value", "")).strip()
+                top_k = int(payload.get("top_k") or 6)
+                if not target_value:
+                    self._send_json({"error": "分析对象不能为空。"}, status=400)
+                    return
+                try:
+                    with AGENT_RUN_LOCK:
+                        result = AGENT_LOOP_RUNNER.run(
+                            run_joint_analysis(target_type, target_value, top_k)
+                        )
+                except Exception as exc:
+                    self._send_json({"error": type(exc).__name__ + ": " + str(exc)}, status=502)
+                    return
+                self._send_json(result)
                 return
 
             question = str(payload.get("question", "")).strip()
@@ -3530,6 +3548,87 @@ async def run_battle_analysis(
         "evidence": evidence,
         "retrieval": retrieval,
         "warnings": warnings,
+    }
+
+
+async def run_joint_analysis(
+    target_type: str,
+    target_value: str,
+    top_k: int,
+) -> dict[str, Any]:
+    """配置建议及联合洞察：聚合定性证据 + 战胜战败 + 定量统计 → Agent 归纳配置建议。"""
+    load_dotenv(ENV_PATH, override=True)
+    config = load_json_config()
+
+    from customer_insight.joint_service import JointInsightService
+
+    service = JointInsightService()
+    joint = await asyncio.to_thread(service.joint_insight, target_type, target_value, top_k)
+    run_id = "joint-" + uuid4().hex[:12]
+
+    qualitative = joint.get("qualitative", {})
+    evidence = qualitative.get("evidence", [])
+    battle = joint.get("battle")
+    quant = joint.get("quant", {})
+
+    # 组合结构化块
+    evidence_block = "\n".join(
+        f"[{ev['evidence_id']}] {ev['respondent_code']}（{ev['city']}·{ev['vehicle_model']}）题{ev['question_id']}: {ev['quote']}"
+        for ev in evidence
+    )
+    battle_block = ""
+    if battle and battle.get("battle", {}).get("buyer_count"):
+        b = battle["battle"]
+        dims = "\n".join(
+            f"  - {d['content_group']}: " + "；".join(
+                f"{t['tag_name']}={t['tag_value'][:60]}" for t in d.get("tags", [])[:3]
+            )
+            for d in b.get("dimensions", [])
+        )
+        battle_block = f"【战胜战败】{b['target_model']} 受访者 {b['buyer_count']} 人\n{dims}"
+    quant_block = ""
+    if quant and quant.get("sample_count"):
+        items = "；".join(f"{i['value']}={i['count']}" for i in quant.get("items", [])[:5])
+        quant_block = f"【定量】{quant['question_text'][:40]}（样本 {quant['sample_count']}）：{items}"
+
+    from agents.user_insight_agent import build_interview_evidence_agent
+
+    agent = build_interview_evidence_agent(config)
+    user_content = (
+        f"分析对象：{joint['target_label']}「{target_value}」\n\n"
+        f"定性证据：\n{evidence_block}\n\n"
+        f"{battle_block}\n\n"
+        f"{quant_block}\n\n"
+        "请基于以上定性证据、战胜战败和定量统计，给出该分析对象的车辆配置优先级建议（2-5 条），"
+        "并说明依据。用 [E#] 标注证据，只陈述数据支持的内容，区分样本结果与研究假设。"
+    )
+    reply = await asyncio.wait_for(
+        agent.reply(UserMsg(name="业务用户", content=user_content)),
+        timeout=90,
+    )
+    answer = strip_thinking(reply.get_text_content())
+
+    valid_ids = {ev["evidence_id"] for ev in evidence}
+    answer = re.sub(
+        r"\[E(\d+)\]",
+        lambda m: m.group(0) if f"E{m.group(1)}" in valid_ids else "",
+        answer,
+    )
+
+    return {
+        "run_id": run_id,
+        "status": "completed",
+        "answer": answer,
+        "joint": {
+            "target_type": target_type,
+            "target_value": target_value,
+            "target_label": joint["target_label"],
+            "qualitative": qualitative,
+            "battle": battle,
+            "quant": quant,
+        },
+        "evidence": evidence,
+        "warnings": [],
     }
 
 

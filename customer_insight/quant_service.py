@@ -130,3 +130,43 @@ class QuantStatService:
             }
         finally:
             conn.close()
+
+    def stat_in_group(self, question_id: str, filter_field: str, filter_value: str, top: int = 10) -> dict[str, Any]:
+        """筛选 filter_field=filter_value 的样本后，统计 question_id 的分布（不做维度切分）。"""
+        question_id = (question_id or "").strip()
+        if not question_id:
+            raise ValueError("题目编号不能为空。")
+        if filter_field not in DIMENSIONS:
+            raise ValueError(f"不支持的筛选维度：{filter_field}")
+        top = max(1, min(int(top), 50))
+
+        conn = self._connect()
+        try:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute("SELECT question_text FROM user_insight.quant_question WHERE question_id = %s", (question_id,))
+                qrow = cur.fetchone()
+                if qrow is None:
+                    raise ValueError(f"题目不存在：{question_id}")
+                question_text = qrow["question_text"]
+
+                cur.execute(
+                    f"SELECT answers_text->>%s AS val, count(*) AS cnt "
+                    "FROM user_insight.quant_sample "
+                    f"WHERE {filter_field} = %s AND answers_text ? %s "
+                    "GROUP BY val ORDER BY cnt DESC LIMIT %s",
+                    (question_id, filter_value, question_id, top),
+                )
+                rows = cur.fetchall()
+
+            items = [{"value": r["val"], "count": r["cnt"]} for r in rows]
+            total = sum(i["count"] for i in items)
+            return {
+                "question_id": question_id,
+                "question_text": question_text,
+                "filter_field": filter_field,
+                "filter_value": filter_value,
+                "sample_count": total,
+                "items": items,
+            }
+        finally:
+            conn.close()
