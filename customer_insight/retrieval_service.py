@@ -328,3 +328,138 @@ class InterviewRetrievalService:
             counts[code] = counts.get(code, 0) + 1
             out.append(ev)
         return out
+
+    def battle_search(
+        self,
+        vehicle_model: str,
+        filters: dict[str, Any] | None = None,
+        top_k: int = DEFAULT_TOP_K,
+    ) -> dict[str, Any]:
+        """战胜战败决策链群体分析：对比车型/选购原因/弃购原因/能源偏好 的结构化归因。"""
+        vehicle_model = (vehicle_model or "").strip()
+        if not vehicle_model:
+            raise ValueError("目标车型不能为空。")
+        top_k = max(1, min(int(top_k), MAX_TOP_K))
+        clean_filters, warnings = self._validate_filters(filters)
+        content_groups = ("对比车型", "选购原因", "弃购原因", "能源偏好")
+
+        # 1. 找购买目标车型的受访者
+        conn = self._connect()
+        try:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                conds = ["i.vehicle_model = %s"]
+                params: list[Any] = [vehicle_model]
+                if clean_filters.get("city"):
+                    conds.append("i.city = ANY(%s)")
+                    params.append(clean_filters["city"])
+                if clean_filters.get("purchase_type"):
+                    conds.append("i.purchase_type = ANY(%s)")
+                    params.append(clean_filters["purchase_type"])
+                cur.execute(
+                    "SELECT interview_id, respondent_code, city, vehicle_model, purchase_type "
+                    "FROM user_insight.interview i WHERE " + " AND ".join(conds)
+                    + " ORDER BY respondent_code",
+                    params,
+                )
+                buyers = cur.fetchall()
+        finally:
+            conn.close()
+
+        if not buyers:
+            return {
+                "battle": {"target_model": vehicle_model, "buyer_count": 0, "dimensions": []},
+                "evidence": [],
+                "retrieval": {"matched_by": "none", "buyer_count": 0},
+                "warnings": warnings,
+            }
+
+        buyer_ids = [b["interview_id"] for b in buyers]
+        respondent_by_id = {b["interview_id"]: b for b in buyers}
+
+        # 2. 检索战胜战败相关标签
+        conn = self._connect()
+        try:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute(
+                    "SELECT tag_id, interview_id, content_group, tag_name, tag_value "
+                    "FROM user_insight.tag "
+                    "WHERE interview_id = ANY(%s) AND content_group = ANY(%s) "
+                    "ORDER BY content_group, interview_id, tag_name",
+                    (buyer_ids, list(content_groups)),
+                )
+                tags = cur.fetchall()
+        finally:
+            conn.close()
+
+        # 3. 检索标签证据
+        tag_ids = [t["tag_id"] for t in tags]
+        ev_by_tag: dict[str, list[dict[str, Any]]] = {}
+        if tag_ids:
+            conn = self._connect()
+            try:
+                with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                    cur.execute(
+                        "SELECT tag_id, question_id, quote_text, speaker_label, "
+                        "time_range_text, start_sec, end_sec, checksum "
+                        "FROM user_insight.tag_evidence WHERE tag_id = ANY(%s) "
+                        "ORDER BY tag_id LIMIT %s",
+                        (tag_ids, top_k * 40),
+                    )
+                    for r in cur.fetchall():
+                        ev_by_tag.setdefault(r["tag_id"], []).append(r)
+            finally:
+                conn.close()
+
+        # 4. 结构化归因：按 content_group 分组
+        dimensions: list[dict[str, Any]] = []
+        for cg in content_groups:
+            cg_tags = [t for t in tags if t["content_group"] == cg]
+            if not cg_tags:
+                continue
+            tag_items = []
+            for t in cg_tags:
+                quotes = [e["quote_text"] for e in ev_by_tag.get(t["tag_id"], [])[:2]]
+                tag_items.append({
+                    "respondent_code": respondent_by_id[t["interview_id"]]["respondent_code"],
+                    "tag_name": t["tag_name"],
+                    "tag_value": t["tag_value"],
+                    "evidence_quotes": quotes,
+                })
+            dimensions.append({"content_group": cg, "count": len(cg_tags), "tags": tag_items})
+
+        battle = {
+            "target_model": vehicle_model,
+            "buyer_count": len(buyers),
+            "buyer_codes": [b["respondent_code"] for b in buyers],
+            "dimensions": dimensions,
+        }
+
+        # 5. 证据编号 E1..En（tag_evidence 原文）
+        evidence: list[dict[str, Any]] = []
+        for t in tags:
+            for e in ev_by_tag.get(t["tag_id"], [])[:2]:
+                if len(evidence) >= top_k:
+                    break
+                evidence.append({
+                    "evidence_id": f"E{len(evidence) + 1}",
+                    "respondent_code": respondent_by_id[t["interview_id"]]["respondent_code"],
+                    "question_id": e["question_id"],
+                    "quote": e["quote_text"],
+                    "speaker": e["speaker_label"],
+                    "start_sec": float(e["start_sec"]) if e["start_sec"] is not None else None,
+                    "end_sec": float(e["end_sec"]) if e["end_sec"] is not None else None,
+                    "time_label": e["time_range_text"] or "",
+                    "time_precision": "second" if e["start_sec"] is not None else "none",
+                    "content_group": t["content_group"],
+                    "tag_name": t["tag_name"],
+                })
+            if len(evidence) >= top_k:
+                break
+
+        retrieval = {
+            "matched_by": "tag",
+            "buyer_count": len(buyers),
+            "tag_count": len(tags),
+            "returned": len(evidence),
+        }
+        return {"battle": battle, "evidence": evidence, "retrieval": retrieval, "warnings": warnings}

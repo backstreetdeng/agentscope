@@ -1831,10 +1831,64 @@
       }
     }
 
+    function renderBattle(battle, evidence) {
+      if (!battle) return '';
+      const dims = (battle.dimensions || []).map((d) => `
+        <div class='battle-dim'>
+          <h4 class='battle-dim__title'>${esc(d.content_group)}（${d.count}）</h4>
+          ${(d.tags || []).slice(0, 20).map((t) => `
+            <div class='battle-tag'>
+              <span class='battle-tag__head'>${esc(t.respondent_code)} / ${esc(t.tag_name)}</span>
+              <div class='battle-tag__value'>${esc(t.tag_value)}</div>
+            </div>
+          `).join('')}
+        </div>
+      `).join('');
+      const meta = `<div class='battle-meta'>目标车型 ${esc(battle.target_model)} · 受访者 ${battle.buyer_count} 人（${esc((battle.buyer_codes || []).join(', '))}）</div>`;
+      return `${meta}${dims}${renderEvidence(evidence)}`;
+    }
+
+    async function askBattle() {
+      const input = document.getElementById('insight-battle-input');
+      const result = document.getElementById('insight-battle-result');
+      const btn = document.getElementById('insight-battle-run');
+      const vehicle = (input?.value || '').trim();
+      if (!vehicle) { Toast.show('请输入目标车型', 'error'); return; }
+      if (btn) btn.disabled = true;
+      result.hidden = false;
+      result.innerHTML = '<div class="insight-qa__loading">正在分析战胜战败…</div>';
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 90000);
+      try {
+        const response = await fetch('/api/insight/battle/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ vehicle_model: vehicle, filters: {}, top_k: 6 }),
+          signal: controller.signal,
+        });
+        const data = await response.json();
+        if (!response.ok || (data.error && data.status !== 'completed')) {
+          throw new Error(typeof data.error === 'string' ? data.error : '分析失败（' + response.status + '）');
+        }
+        const answer = data.answer || '（无回答）';
+        result.innerHTML = `<div class='insight-qa__answer'>${esc(answer).replace(/\n/g, '<br>')}</div>${renderBattle(data.battle, data.evidence || [])}`;
+      } catch (error) {
+        result.innerHTML = `<div class='insight-qa__error'>分析失败：${esc(error.message || error)}</div>`;
+        Toast.show('战胜战败分析失败', 'error');
+      } finally {
+        clearTimeout(timer);
+        if (btn) btn.disabled = false;
+      }
+    }
+
     function init() {
       document.getElementById('insight-qa-run')?.addEventListener('click', ask);
       document.getElementById('insight-qa-input')?.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') ask();
+      });
+      document.getElementById('insight-battle-run')?.addEventListener('click', askBattle);
+      document.getElementById('insight-battle-input')?.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') askBattle();
       });
     }
 

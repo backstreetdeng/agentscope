@@ -1447,7 +1447,7 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
             except Exception as exc:
                 self._send_json({'error': type(exc).__name__ + ': ' + str(exc)}, status=500)
             return
-        if self.path not in {"/api/assistant/chat", "/api/chat", "/api/ppt", "/api/audio-tags/run", "/api/quality-gate", "/api/market-skill/validate", "/api/intelligence/export", "/api/projects/update", "/api/macro-ledger", "/api/monthly-report/jobs", "/api/monthly-report/jobs/cancel", "/api/monthly-report/jobs/resume", "/api/macro-report/jobs", "/api/macro-report/jobs/cancel", "/api/macro-report/jobs/resume", "/api/insight/interview/query"}:
+        if self.path not in {"/api/assistant/chat", "/api/chat", "/api/ppt", "/api/audio-tags/run", "/api/quality-gate", "/api/market-skill/validate", "/api/intelligence/export", "/api/projects/update", "/api/macro-ledger", "/api/monthly-report/jobs", "/api/monthly-report/jobs/cancel", "/api/monthly-report/jobs/resume", "/api/macro-report/jobs", "/api/macro-report/jobs/cancel", "/api/macro-report/jobs/resume", "/api/insight/interview/query", "/api/insight/battle/analyze"}:
             self.send_error(HTTPStatus.NOT_FOUND)
             return
 
@@ -1713,6 +1713,24 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
                     with AGENT_RUN_LOCK:
                         result = AGENT_LOOP_RUNNER.run(
                             run_interview_evidence_qa(question, filters, top_k)
+                        )
+                except Exception as exc:
+                    self._send_json({"error": type(exc).__name__ + ": " + str(exc)}, status=502)
+                    return
+                self._send_json(result)
+                return
+
+            if self.path == "/api/insight/battle/analyze":
+                vehicle_model = str(payload.get("vehicle_model", "")).strip()
+                if not vehicle_model:
+                    self._send_json({"error": "目标车型不能为空。"}, status=400)
+                    return
+                filters = payload.get("filters")
+                top_k = int(payload.get("top_k") or 6)
+                try:
+                    with AGENT_RUN_LOCK:
+                        result = AGENT_LOOP_RUNNER.run(
+                            run_battle_analysis(vehicle_model, filters, top_k)
                         )
                 except Exception as exc:
                     self._send_json({"error": type(exc).__name__ + ": " + str(exc)}, status=502)
@@ -3414,6 +3432,81 @@ async def run_interview_evidence_qa(
         "run_id": run_id,
         "status": "completed",
         "answer": answer,
+        "evidence": evidence,
+        "retrieval": retrieval,
+        "warnings": warnings,
+    }
+
+
+async def run_battle_analysis(
+    vehicle_model: str,
+    filters: dict[str, Any] | None,
+    top_k: int,
+) -> dict[str, Any]:
+    """战胜战败决策链群体分析：确定性检索 → 结构化归因 → Agent 归纳 → [E#] 校验。"""
+    load_dotenv(ENV_PATH, override=True)
+    config = load_json_config()
+
+    from customer_insight.retrieval_service import InterviewRetrievalService
+
+    service = InterviewRetrievalService()
+    result = await asyncio.to_thread(service.battle_search, vehicle_model, filters, top_k)
+    battle = result.get("battle", {})
+    evidence = result.get("evidence", [])
+    retrieval = result.get("retrieval", {})
+    warnings = list(result.get("warnings", []))
+    run_id = "battle-" + uuid4().hex[:12]
+
+    if not battle.get("buyer_count"):
+        return {
+            "run_id": run_id,
+            "status": "completed",
+            "answer": f"访谈库中没有找到购买「{vehicle_model}」的受访者，无法进行战胜战败分析。",
+            "battle": battle,
+            "evidence": [],
+            "retrieval": retrieval,
+            "warnings": warnings,
+        }
+
+    dimension_lines = []
+    for dim in battle.get("dimensions", []):
+        items = [f"  - {t['respondent_code']} / {t['tag_name']}: {t['tag_value']}" for t in dim.get("tags", [])]
+        dimension_lines.append(f"【{dim['content_group']}】({dim['count']} 条)\n" + "\n".join(items))
+    battle_block = "\n".join(dimension_lines)
+
+    evidence_block = "\n".join(
+        f"[{ev['evidence_id']}] {ev['respondent_code']}（{ev['content_group']}·{ev['tag_name']}）: {ev['quote']}"
+        for ev in evidence
+    )
+
+    from agents.user_insight_agent import build_interview_evidence_agent
+
+    agent = build_interview_evidence_agent(config)
+    user_content = (
+        f"目标车型：{vehicle_model}\n\n"
+        f"战胜战败结构化归因：\n{battle_block}\n\n"
+        f"证据：\n{evidence_block}\n\n"
+        "请基于以上结构化归因和证据，总结该车型的战胜战败决策链：对比了哪些车型、放弃了哪些（原因）、"
+        "最终选购原因和能源形式取舍。用 [E#] 标注证据，只陈述受访者原话归因，不强行因果推断。"
+    )
+    reply = await asyncio.wait_for(
+        agent.reply(UserMsg(name="业务用户", content=user_content)),
+        timeout=90,
+    )
+    answer = strip_thinking(reply.get_text_content())
+
+    valid_ids = {ev["evidence_id"] for ev in evidence}
+    answer = re.sub(
+        r"\[E(\d+)\]",
+        lambda m: m.group(0) if f"E{m.group(1)}" in valid_ids else "",
+        answer,
+    )
+
+    return {
+        "run_id": run_id,
+        "status": "completed",
+        "answer": answer,
+        "battle": battle,
         "evidence": evidence,
         "retrieval": retrieval,
         "warnings": warnings,
