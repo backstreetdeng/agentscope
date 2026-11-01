@@ -5306,3 +5306,8 @@ body {
 .pain-item__stat { font-size: 12px; color: #64748b; }
 .pain-item__bar { height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
 .pain-item__bar span { display: block; height: 100%; background: #dc2626; border-radius: 4px; }
+
+
+/* 再购意愿与品牌忠诚 */
+.insight-repurchase { margin-top: 24px; position: relative; z-index: 1500; }
+.insight-repurchase__bar { display: flex; gap: 10px; align-items: center; }

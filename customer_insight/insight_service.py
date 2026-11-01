@@ -123,31 +123,43 @@ class InsightService:
             conn.close()
 
     def repurchase_intent(self, group_field: str, group_value: str) -> dict[str, Any]:
-        """再购意愿：统计某群体再次购车的品牌/燃料类型意向。"""
+        """再购意愿与品牌忠诚：统计某群体再次购车的时间、技术类型、意向品牌及是否同品牌。"""
         if group_field not in DIMENSIONS:
             raise ValueError(f"不支持的维度：{group_field}")
+        questions = [
+            ("Q6_3", "再购时间"),
+            ("Q6_4", "再购技术类型"),
+            ("Q6_5", "再购意向品牌"),
+            ("Q2_7", "品牌忠诚（是否同品牌）"),
+        ]
         conn = self._connect()
         try:
             with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-                result: dict[str, Any] = {"group_field": group_field, "group_value": group_value}
-                for qid, label in (("Q6_2", "再购燃料类型"), ("Q6_3", "再购品牌")):
+                items: list[dict[str, Any]] = []
+                for qid, label in questions:
                     cur.execute(
-                        "SELECT question_text FROM user_insight.quant_question WHERE question_id LIKE %s LIMIT 1",
-                        (qid + "%",),
+                        "SELECT question_text FROM user_insight.quant_question WHERE question_id = %s",
+                        (qid,),
                     )
                     qrow = cur.fetchone()
-                    if not qrow:
-                        result[label] = None
-                        continue
                     cur.execute(
                         f"SELECT answers_text->>%s AS val, count(*) AS cnt FROM user_insight.quant_sample "
                         f"WHERE {group_field} = %s AND answers_text ? %s GROUP BY val ORDER BY cnt DESC LIMIT 8",
-                        (qrow["question_id"], group_value, qrow["question_id"]),
+                        (qid, group_value, qid),
                     )
-                    result[label] = {
-                        "question_text": qrow["question_text"],
-                        "dist": [{"value": r["val"], "count": r["cnt"]} for r in cur.fetchall()],
-                    }
-                return result
+                    dist = [{"value": r["val"], "count": r["cnt"]} for r in cur.fetchall()]
+                    items.append({
+                        "question_id": qid,
+                        "label": label,
+                        "question_text": qrow["question_text"] if qrow else label,
+                        "sample_count": sum(i["count"] for i in dist),
+                        "dist": dist,
+                    })
+                return {
+                    "group_field": group_field,
+                    "group_label": DIMENSIONS[group_field],
+                    "group_value": group_value,
+                    "items": items,
+                }
         finally:
             conn.close()

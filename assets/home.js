@@ -2022,6 +2022,40 @@
       }
     }
 
+    function renderRepurchase(data) {
+      if (!data || !data.items) return '';
+      const blocks = (data.items || []).map((it) => {
+        const total = it.sample_count || 0;
+        const rows = (it.dist || []).map((d) => {
+          const pct = total ? Math.round(d.count / total * 100) : 0;
+          return `<div class='quant-item'><span class='quant-item__label'>${esc(d.value || '(空)')}</span><span class='quant-item__bar'><span style='width:${pct}%'></span></span><span class='quant-item__count'>${d.count}（${pct}%）</span></div>`;
+        }).join('');
+        return `<div class='quant-group'><div class='quant-group__head'>${esc(it.label)}（n=${total}）</div>${rows}</div>`;
+      }).join('');
+      return `<div class='joint-meta'>${esc(data.group_label)}「${esc(data.group_value)}」 · 再购意愿与品牌忠诚</div>${blocks}`;
+    }
+
+    async function askRepurchase() {
+      const dim = document.getElementById('insight-repur-dim')?.value;
+      const val = document.getElementById('insight-repur-input')?.value.trim();
+      const result = document.getElementById('insight-repur-result');
+      if (!val) { Toast.show('请输入群体取值', 'error'); return; }
+      result.hidden = false;
+      result.innerHTML = '<div class="insight-qa__loading">正在分析再购意愿…</div>';
+      try {
+        const response = await fetch('/api/insight/repurchase/intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ group_field: dim, group_value: val }),
+        });
+        const data = await response.json();
+        if (!response.ok || data.error) throw new Error(typeof data.error === 'string' ? data.error : '分析失败');
+        result.innerHTML = renderRepurchase(data);
+      } catch (error) {
+        result.innerHTML = `<div class='insight-qa__error'>分析失败：${esc(error.message || error)}</div>`;
+      }
+    }
+
     function init() {
       document.getElementById('insight-qa-run')?.addEventListener('click', ask);
       document.getElementById('insight-qa-input')?.addEventListener('keydown', (event) => {
@@ -2040,6 +2074,10 @@
       document.getElementById('insight-pain-run')?.addEventListener('click', askPainpoints);
       document.getElementById('insight-pain-input')?.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') askPainpoints();
+      });
+      document.getElementById('insight-repur-run')?.addEventListener('click', askRepurchase);
+      document.getElementById('insight-repur-input')?.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') askRepurchase();
       });
       initQuant();
     }

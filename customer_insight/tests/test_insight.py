@@ -31,5 +31,28 @@ class TestSatisfactionPainpoints(unittest.TestCase):
             self.service.satisfaction_painpoints("bad_field", "x")
 
 
+class TestRepurchaseIntent(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.service = InsightService()
+
+    def test_repurchase_by_model(self):
+        result = self.service.repurchase_intent("purchase_model", "唐L")
+        self.assertEqual(result["group_value"], "唐L")
+        self.assertEqual(len(result["items"]), 4)
+        labels = {x["label"] for x in result["items"]}
+        self.assertIn("再购时间", labels)
+        self.assertIn("再购技术类型", labels)
+        self.assertIn("再购意向品牌", labels)
+        self.assertIn("品牌忠诚（是否同品牌）", labels)
+        for it in result["items"]:
+            self.assertGreaterEqual(it["sample_count"], 0)
+            self.assertIsInstance(it["dist"], list)
+
+    def test_repurchase_invalid_field(self):
+        with self.assertRaises(ValueError):
+            self.service.repurchase_intent("bad_field", "x")
+
+
 if __name__ == "__main__":
     unittest.main()

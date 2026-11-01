@@ -1190,6 +1190,22 @@
             </div>
             <div id='insight-pain-result' class='insight-qa__result' hidden></div>
           </div>
+
+          <div class='insight-repurchase' aria-label='再购意愿与品牌忠诚'>
+            <div class='insight-repurchase__bar'>
+              <select id='insight-repur-dim' class='insight-quant__select' aria-label='群体维度'>
+                <option value='purchase_type'>购车类型</option>
+                <option value='price_band'>价格段</option>
+                <option value='age_band'>年龄段</option>
+                <option value='gender'>性别</option>
+                <option value='city'>城市</option>
+                <option value='purchase_model'>车型</option>
+              </select>
+              <input id='insight-repur-input' class='insight-qa__input' type='text' placeholder='如：唐L / 首购 / 36-40岁' aria-label='群体取值' />
+              <button id='insight-repur-run' class='btn btn--primary' type='button'>再购意愿</button>
+            </div>
+            <div id='insight-repur-result' class='insight-qa__result' hidden></div>
+          </div>
         </section>
 
       </div>

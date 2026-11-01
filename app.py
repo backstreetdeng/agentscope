@@ -1797,6 +1797,18 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
                 self._send_json(svc.satisfaction_painpoints(group_field, group_value, top))
                 return
 
+            if self.path == "/api/insight/repurchase/intent":
+                group_field = str(payload.get("group_field", "")).strip()
+                group_value = str(payload.get("group_value", "")).strip()
+                if not group_value:
+                    self._send_json({"error": "群体取值不能为空。"}, status=400)
+                    return
+                from customer_insight.insight_service import InsightService
+
+                svc = InsightService()
+                self._send_json(svc.repurchase_intent(group_field, group_value))
+                return
+
             question = str(payload.get("question", "")).strip()
             agent_key = str(payload.get("agent", "market_strategy")).strip() or "market_strategy"
             capabilities = payload.get("capabilities", [])
