@@ -1821,6 +1821,17 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
                 self._send_json(svc.demand_config_matrix(group_field, group_value))
                 return
 
+            if self.path == "/api/insight/compare":
+                focus = str(payload.get("focus", "attention")).strip()
+                min_samples = int(payload.get("min_samples") or 20)
+                top_models = int(payload.get("top_models") or 8)
+                top_dims = int(payload.get("top_dims") or 5)
+                from customer_insight.insight_service import InsightService
+
+                svc = InsightService()
+                self._send_json(svc.competitor_compare(focus, min_samples, top_models, top_dims))
+                return
+
             question = str(payload.get("question", "")).strip()
             agent_key = str(payload.get("agent", "market_strategy")).strip() or "market_strategy"
             capabilities = payload.get("capabilities", [])

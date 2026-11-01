@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from typing import Any
 
+import statistics
+
 import psycopg2
 import psycopg2.extras
 
@@ -242,5 +244,70 @@ class InsightService:
                     "low_median": round(low_med, 4),
                     "items": items,
                 }
+        finally:
+            conn.close()
+
+    def competitor_compare(
+        self,
+        focus: str = "attention",
+        min_samples: int = 20,
+        top_models: int = 8,
+        top_dims: int = 5,
+    ) -> dict[str, Any]:
+        """竞品横向对比：按车型分组，计算各产品维度的关注度/满意度低分率矩阵，识别差异最大的维度。"""
+        focus = "attention" if focus != "satisfaction" else "satisfaction"
+        min_samples = max(5, min(int(min_samples), 500))
+        top_models = max(2, min(int(top_models), 20))
+        top_dims = max(1, min(int(top_dims), 16))
+
+        cols: list[str] = []
+        if focus == "attention":
+            for idx, _dim in PRODUCT_DIMS:
+                qid = f"{ATT_PREFIX}{idx}"
+                cols.append(f"count(*) FILTER (WHERE answers_text ? '{qid}') AS v{idx}")
+        else:
+            for idx, _dim in PRODUCT_DIMS:
+                qid = f"{SAT_PREFIX}{idx}"
+                cols.append(
+                    f"count(*) FILTER (WHERE answers_text->>'{qid}' ~ '^[0-9]+$' "
+                    f"AND (answers_text->>'{qid}')::int <= {SAT_LOW_THRESHOLD}) AS v{idx}"
+                )
+
+        conn = self._connect()
+        try:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                sql = (
+                    "SELECT purchase_model, count(*) AS total, " + ", ".join(cols) +
+                    " FROM user_insight.quant_sample WHERE purchase_model IS NOT NULL "
+                    "GROUP BY purchase_model HAVING count(*) >= %s ORDER BY total DESC LIMIT %s"
+                )
+                cur.execute(sql, (min_samples, top_models))
+                rows = cur.fetchall()
+
+            dims = [dim for _idx, dim in PRODUCT_DIMS]
+            models: list[dict[str, Any]] = []
+            matrix_rows: list[dict[str, Any]] = []
+            for r in rows:
+                total = r["total"] or 0
+                values = {dim: round(r[f"v{idx}"] / total, 4) if total else 0.0 for idx, dim in PRODUCT_DIMS}
+                models.append({"model": r["purchase_model"], "total": total})
+                matrix_rows.append({"model": r["purchase_model"], "total": total, "values": values})
+
+            diff_dims: list[dict[str, Any]] = []
+            for idx, dim in PRODUCT_DIMS:
+                vals = [row["values"][dim] for row in matrix_rows]
+                std = statistics.pstdev(vals) if len(vals) > 1 else 0.0
+                diff_dims.append({"dimension": dim, "std": round(std, 4)})
+            diff_dims.sort(key=lambda x: -x["std"])
+
+            return {
+                "focus": focus,
+                "focus_label": "购车关注度" if focus == "attention" else "满意度低分率",
+                "min_samples": min_samples,
+                "models": models,
+                "dims": dims,
+                "rows": matrix_rows,
+                "top_diff_dims": diff_dims[:top_dims],
+            }
         finally:
             conn.close()

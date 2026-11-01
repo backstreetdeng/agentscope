@@ -77,5 +77,28 @@ class TestDemandConfigMatrix(unittest.TestCase):
             self.service.demand_config_matrix("bad_field", "x")
 
 
+class TestCompetitorCompare(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.service = InsightService()
+
+    def test_compare_attention(self):
+        result = self.service.competitor_compare("attention", min_samples=20, top_models=8, top_dims=5)
+        self.assertEqual(result["focus"], "attention")
+        self.assertGreaterEqual(len(result["rows"]), 1)
+        self.assertEqual(len(result["dims"]), 16)
+        self.assertLessEqual(len(result["top_diff_dims"]), 5)
+        for row in result["rows"]:
+            self.assertEqual(len(row["values"]), 16)
+            for v in row["values"].values():
+                self.assertGreaterEqual(v, 0.0)
+                self.assertLessEqual(v, 1.0)
+
+    def test_compare_satisfaction(self):
+        result = self.service.competitor_compare("satisfaction", min_samples=20, top_models=6)
+        self.assertEqual(result["focus"], "satisfaction")
+        self.assertGreaterEqual(len(result["rows"]), 1)
+
+
 if __name__ == "__main__":
     unittest.main()

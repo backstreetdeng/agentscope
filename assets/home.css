@@ -5322,3 +5322,14 @@ body {
 .matrix-item:first-of-type { border-top: none; }
 .matrix-item__dim { font-weight: 600; color: #1e293b; }
 .matrix-item__stat { color: #64748b; }
+
+
+/* 竞品横向对比 */
+.insight-compare { margin-top: 24px; position: relative; z-index: 1500; }
+.insight-compare__bar { display: flex; gap: 10px; align-items: center; }
+.cmp-wrap { overflow-x: auto; border: 1px solid var(--border-subtle, #E2E8F0); border-radius: 10px; background: var(--bg-surface, #fff); }
+.cmp-table { border-collapse: collapse; width: 100%; font-size: 12px; }
+.cmp-table th, .cmp-table td { padding: 8px 10px; text-align: center; border-bottom: 1px solid #f1f5f9; white-space: nowrap; }
+.cmp-table th { background: #f8fafc; color: #475569; font-weight: 600; position: sticky; top: 0; }
+.cmp-table td:first-child, .cmp-table th:first-child { text-align: left; }
+.cmp-cell { display: inline-block; padding: 2px 8px; border-radius: 6px; color: #1e293b; }

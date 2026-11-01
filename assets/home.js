@@ -2094,6 +2094,43 @@
       }
     }
 
+    function renderCompare(data) {
+      if (!data || !data.rows) return '';
+      const dims = (data.top_diff_dims || []).map((d) => d.dimension);
+      const head = `<th>车型（n）</th>` + dims.map((d) => `<th>${esc(d)}</th>`).join('');
+      const body = (data.rows || []).map((r) => {
+        const cells = dims.map((d) => {
+          const v = r.values[d] || 0;
+          const pct = Math.round(v * 100);
+          const alpha = 0.08 + v * 0.85;
+          return `<td><span class='cmp-cell' style='background:rgba(37,99,235,${alpha.toFixed(2)})'>${pct}%</span></td>`;
+        }).join('');
+        return `<tr><td>${esc(r.model)}（${r.total}）</td>${cells}</tr>`;
+      }).join('');
+      return `<div class='joint-meta'>${esc(data.focus_label)} · 车型横向对比（差异最大的 ${dims.length} 个维度）</div>
+        <div class='cmp-wrap'><table class='cmp-table'><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>
+        <div class='joint-meta'>按车型样本数标准化，颜色越深占比越高；仅展示跨车型差异最大的维度。</div>`;
+    }
+
+    async function askCompare() {
+      const focus = document.getElementById('insight-compare-focus')?.value || 'attention';
+      const result = document.getElementById('insight-compare-result');
+      result.hidden = false;
+      result.innerHTML = '<div class="insight-qa__loading">正在生成竞品横向对比…</div>';
+      try {
+        const response = await fetch('/api/insight/compare', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ focus, min_samples: 20, top_models: 8, top_dims: 5 }),
+        });
+        const data = await response.json();
+        if (!response.ok || data.error) throw new Error(typeof data.error === 'string' ? data.error : '分析失败');
+        result.innerHTML = renderCompare(data);
+      } catch (error) {
+        result.innerHTML = `<div class='insight-qa__error'>分析失败：${esc(error.message || error)}</div>`;
+      }
+    }
+
     function init() {
       document.getElementById('insight-qa-run')?.addEventListener('click', ask);
       document.getElementById('insight-qa-input')?.addEventListener('keydown', (event) => {
@@ -2121,6 +2158,7 @@
       document.getElementById('insight-matrix-input')?.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') askMatrix();
       });
+      document.getElementById('insight-compare-run')?.addEventListener('click', askCompare);
       initQuant();
     }
 
