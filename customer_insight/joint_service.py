@@ -13,6 +13,13 @@ TARGET_MAP: dict[str, dict[str, Any]] = {
     "age_band": {"qual_field": None, "quant_field": "age_band", "label": "用户圈层（年龄段近似）"},
 }
 
+# 群体维度 -> 定性检索过滤字段（访谈库仅支持 city/vehicle_model/purchase_type）
+QUAL_FIELD_MAP: dict[str, str] = {
+    "purchase_type": "purchase_type",
+    "purchase_model": "vehicle_model",
+    "city": "city",
+}
+
 CONFIG_QUESTION = "用户对车辆配置的关注点、优先级和必备配置有哪些？"
 CONFIG_QUANT_QID = "Q3_23__14"  # 智能驾驶关注度（配置关注题）
 
@@ -59,4 +66,48 @@ class JointInsightService:
             "qualitative": qualitative,
             "battle": battle,
             "quant": quant,
+        }
+
+    def cross_validation(self, group_field: str, group_value: str, top_k: int = 6) -> dict[str, Any]:
+        """圈层差异交叉验证：某圈层的定性原声 + 定量关注度/满意度并排展示。"""
+        from customer_insight.insight_service import InsightService
+        from customer_insight.quant_service import DIMENSIONS
+
+        group_field = (group_field or "").strip()
+        group_value = (group_value or "").strip()
+        if group_field not in DIMENSIONS:
+            raise ValueError(f"不支持的维度：{group_field}")
+        if not group_value:
+            raise ValueError("群体取值不能为空。")
+
+        insight = InsightService()
+
+        # 1. 定性原声（仅当维度在访谈库有对应过滤字段时检索）
+        qual_field = QUAL_FIELD_MAP.get(group_field)
+        if qual_field:
+            qualitative = self.retrieval.search(CONFIG_QUESTION, {qual_field: [group_value]}, top_k)
+        else:
+            qualitative = {
+                "evidence": [],
+                "retrieval": {},
+                "warnings": ["访谈库无该维度的过滤字段，仅展示定量分布。"],
+            }
+
+        # 2. 定量：16 维度关注度 + 满意度痛点
+        matrix = insight.demand_config_matrix(group_field, group_value)
+        attention = [
+            {"dimension": it["dimension"], "attention_rate": it["attention_rate"],
+             "attention_count": it["attention_count"], "quadrant": it["quadrant"]}
+            for it in sorted(matrix["items"], key=lambda x: -x["attention_rate"])
+        ]
+        satisfaction = insight.satisfaction_painpoints(group_field, group_value, top=16)
+
+        return {
+            "group_field": group_field,
+            "group_label": DIMENSIONS[group_field],
+            "group_value": group_value,
+            "sample_count": matrix["sample_count"],
+            "qualitative": qualitative,
+            "attention": attention,
+            "satisfaction": satisfaction,
         }

@@ -1832,6 +1832,22 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
                 self._send_json(svc.competitor_compare(focus, min_samples, top_models, top_dims))
                 return
 
+            if self.path == "/api/insight/cross/validate":
+                group_field = str(payload.get("group_field", "")).strip()
+                group_value = str(payload.get("group_value", "")).strip()
+                top_k = int(payload.get("top_k") or 6)
+                if not group_value:
+                    self._send_json({"error": "群体取值不能为空。"}, status=400)
+                    return
+                from customer_insight.joint_service import JointInsightService
+
+                try:
+                    svc = JointInsightService()
+                    self._send_json(svc.cross_validation(group_field, group_value, top_k))
+                except Exception as exc:
+                    self._send_json({"error": type(exc).__name__ + ": " + str(exc)}, status=502)
+                return
+
             question = str(payload.get("question", "")).strip()
             agent_key = str(payload.get("agent", "market_strategy")).strip() or "market_strategy"
             capabilities = payload.get("capabilities", [])

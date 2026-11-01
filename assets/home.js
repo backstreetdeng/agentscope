@@ -2131,6 +2131,48 @@
       }
     }
 
+    function renderCross(data) {
+      if (!data) return '';
+      const ev = data.qualitative?.evidence || [];
+      const warnings = data.qualitative?.warnings || [];
+      const att = (data.attention || []).slice(0, 6).map((it) => {
+        const pct = Math.round((it.attention_rate || 0) * 100);
+        return `<div class='quant-item'><span class='quant-item__label'>${esc(it.dimension)}</span><span class='quant-item__bar'><span style='width:${pct}%'></span></span><span class='quant-item__count'>${pct}%</span></div>`;
+      }).join('');
+      const sat = (data.satisfaction?.items || []).slice(0, 6).map((it) => {
+        const pct = Math.round((it.low_rate || 0) * 100);
+        return `<div class='quant-item'><span class='quant-item__label'>${esc(it.dimension)}</span><span class='quant-item__bar'><span style='width:${pct}%'></span></span><span class='quant-item__count'>低分 ${pct}%</span></div>`;
+      }).join('');
+      const warn = warnings.length ? `<div class='insight-qa__error'>${esc(warnings.join('；'))}</div>` : '';
+      const qualBlock = ev.length ? renderEvidence(ev) : '<div class="insight-qa__loading">暂无定性原声（访谈库无该维度过滤字段）</div>';
+      return `<div class='joint-meta'>${esc(data.group_label)}「${esc(data.group_value)}」 · 样本 ${data.sample_count} · 定性原声 ${ev.length} 条</div>
+        <div class='cross-grid'>
+          <div class='cross-col'><h4 class='evidence-title'>定性原声</h4>${qualBlock}${warn}</div>
+          <div class='cross-col'><h4 class='evidence-title'>定量 · 关注度 Top</h4><div class='quant-group'>${att}</div><h4 class='evidence-title'>定量 · 满意度痛点</h4><div class='quant-group'>${sat}</div></div>
+        </div>`;
+    }
+
+    async function askCross() {
+      const dim = document.getElementById('insight-cross-dim')?.value;
+      const val = document.getElementById('insight-cross-input')?.value.trim();
+      const result = document.getElementById('insight-cross-result');
+      if (!val) { Toast.show('请输入群体取值', 'error'); return; }
+      result.hidden = false;
+      result.innerHTML = '<div class="insight-qa__loading">正在圈层交叉验证…</div>';
+      try {
+        const response = await fetch('/api/insight/cross/validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ group_field: dim, group_value: val, top_k: 6 }),
+        });
+        const data = await response.json();
+        if (!response.ok || data.error) throw new Error(typeof data.error === 'string' ? data.error : '分析失败');
+        result.innerHTML = renderCross(data);
+      } catch (error) {
+        result.innerHTML = `<div class='insight-qa__error'>分析失败：${esc(error.message || error)}</div>`;
+      }
+    }
+
     function init() {
       document.getElementById('insight-qa-run')?.addEventListener('click', ask);
       document.getElementById('insight-qa-input')?.addEventListener('keydown', (event) => {
@@ -2159,6 +2201,10 @@
         if (event.key === 'Enter') askMatrix();
       });
       document.getElementById('insight-compare-run')?.addEventListener('click', askCompare);
+      document.getElementById('insight-cross-run')?.addEventListener('click', askCross);
+      document.getElementById('insight-cross-input')?.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') askCross();
+      });
       initQuant();
     }
 

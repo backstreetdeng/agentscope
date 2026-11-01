@@ -5333,3 +5333,11 @@ body {
 .cmp-table th { background: #f8fafc; color: #475569; font-weight: 600; position: sticky; top: 0; }
 .cmp-table td:first-child, .cmp-table th:first-child { text-align: left; }
 .cmp-cell { display: inline-block; padding: 2px 8px; border-radius: 6px; color: #1e293b; }
+
+
+/* 圈层差异交叉验证 */
+.insight-cross { margin-top: 24px; position: relative; z-index: 1500; }
+.insight-cross__bar { display: flex; gap: 10px; align-items: center; }
+.cross-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.cross-col { min-width: 0; }
+@media (max-width: 900px) { .cross-grid { grid-template-columns: 1fr; } }

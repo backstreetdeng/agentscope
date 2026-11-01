@@ -6,6 +6,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from customer_insight.insight_service import InsightService  # noqa: E402
+from customer_insight.joint_service import JointInsightService  # noqa: E402
 
 
 class TestSatisfactionPainpoints(unittest.TestCase):
@@ -98,6 +99,29 @@ class TestCompetitorCompare(unittest.TestCase):
         result = self.service.competitor_compare("satisfaction", min_samples=20, top_models=6)
         self.assertEqual(result["focus"], "satisfaction")
         self.assertGreaterEqual(len(result["rows"]), 1)
+
+
+class TestCrossValidation(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.service = JointInsightService()
+
+    def test_cross_by_model(self):
+        result = self.service.cross_validation("purchase_model", "唐L", top_k=4)
+        self.assertEqual(result["group_value"], "唐L")
+        self.assertEqual(len(result["attention"]), 16)
+        self.assertGreaterEqual(len(result["satisfaction"]["items"]), 1)
+        self.assertIn("evidence", result["qualitative"])
+
+    def test_cross_quant_only_field(self):
+        # age_band 在访谈库无过滤字段 → 定性为空，定量仍有效
+        result = self.service.cross_validation("age_band", "36-40岁", top_k=4)
+        self.assertEqual(result["qualitative"]["evidence"], [])
+        self.assertGreater(len(result["attention"]), 0)
+
+    def test_cross_invalid_field(self):
+        with self.assertRaises(ValueError):
+            self.service.cross_validation("bad_field", "x")
 
 
 if __name__ == "__main__":
