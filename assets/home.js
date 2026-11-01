@@ -2173,7 +2173,23 @@
       }
     }
 
+    function initTabs() {
+      const tabs = document.querySelectorAll('.insight-tab');
+      const blocks = document.querySelectorAll('#insight [data-insight-tab]:not(.insight-tab)');
+      function apply(key) {
+        tabs.forEach((t) => {
+          const active = t.getAttribute('data-insight-tab') === key;
+          t.classList.toggle('is-active', active);
+          t.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+        blocks.forEach((b) => { b.hidden = b.getAttribute('data-insight-tab') !== key; });
+      }
+      tabs.forEach((t) => t.addEventListener('click', () => apply(t.getAttribute('data-insight-tab'))));
+      apply('qa');
+    }
+
     function init() {
+      initTabs();
       document.getElementById('insight-qa-run')?.addEventListener('click', ask);
       document.getElementById('insight-qa-input')?.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') ask();

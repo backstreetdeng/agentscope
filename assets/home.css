@@ -5341,3 +5341,10 @@ body {
 .cross-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .cross-col { min-width: 0; }
 @media (max-width: 900px) { .cross-grid { grid-template-columns: 1fr; } }
+
+
+/* 洞察能力 Tab 分组 */
+.insight-tabs { display: flex; gap: 4px; margin: 4px 0 20px; border-bottom: 1px solid var(--border-subtle, #E2E8F0); flex-wrap: wrap; }
+.insight-tab { padding: 10px 16px; border: none; background: none; cursor: pointer; font-size: 14px; color: #64748b; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color .15s, border-color .15s; }
+.insight-tab:hover { color: #334155; }
+.insight-tab.is-active { color: #2563eb; border-bottom-color: #2563eb; font-weight: 600; }
