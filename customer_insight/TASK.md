@@ -1,0 +1,88 @@
+# 用户洞察智能体 · 任务状态（TRAE）
+
+- 主责：TRAE（用户洞察）；Codex 主责市场战略与预测，已有预测功能保持不变。
+- 数据基准：`D:\work\AI\用户洞察智能体\方案相关\用户洞察智能体_数据底座_v1_20261030`（2026-10-30 版 manifest / 质量报告）。
+- 代码落点：`customer_insight/`（独立业务包，可被 `app.py` 导入）。
+- 文档真源：本文件 + `customer_insight/communication/`；不新建平行会话日志。
+
+## 任务总览
+
+| 任务 | 内容 | 状态 |
+|---|---|---|
+| T0 | 审计复核 + CATARC 借鉴 + 数据/Schema/API 契约核验 | ✅ 阶段性通过（2026-10-30） |
+| T1 | 最小开发期 Harness + 文档真源 + 测试入口 + 协作规则 | 🔄 进行中（已授权） |
+| T2 | 数据冻结 + 独立 Schema + 导入 | ✅ 完成（2026-10-30） |
+| T3 | InterviewRetrievalService + `interview_evidence_search` Tool | ✅ 完成（检索 4 测试通过 + 端到端验证） |
+| T4 | 独立同步 API + `reportArea` 证据卡片 | ✅ 完成（API+前端+浏览器端到端验证通过） |
+| T5–T8 | 战胜战败 Skill / 定量 / 群体对比与联合 / SSE·Checkpoint | ⏸ 待定 |
+
+## T1 目标
+
+建立最小开发期 Harness、文档真源、测试验证入口和协作规则。
+
+## T1 范围与禁止项
+
+- 范围：`customer_insight/` 包骨架、任务真源（本文件）、`tests/` + Windows 校验入口（stdlib unittest）、协作规则。
+- 禁止：重构业务代码、执行生产数据库迁移、修改市场战略及预测功能、触碰 `app.py` 及预测相关未提交修改。
+
+## T1 待办
+
+- [x] 检查现有模块是否已有等价功能（避免重复建设）——复用 `ReadOnlyBusinessTool`、`SkillRunContext`、`tests/`(unittest)、`scripts/` 既有约定；无 `services/`、无访谈检索等价实现。
+- [x] 建立 `customer_insight/` Python 包骨架（`__init__.py`，`__version__=0.1.0`）。
+- [x] 建立 `customer_insight/tests/test_smoke.py` 与 `verify.ps1` 校验入口（stdlib unittest，2 例通过）。
+- [x] 确定文档真源唯一（`reference_docs/02_工程事实依据` 为 SSOT，README 已建，SHA256 核对与数据底座 `03_实现设计` 一致；2026-10-30 定稿）。
+- [ ] Git 分支/worktree：约定已写入；实际分支未创建（T4 已在当前 checkout 的 main 上最小修改共享文件，未提交、未建分支、未推送）。
+
+## T1 验收标准
+
+- 非用户洞察模块零意外变更；市场/预测回归基线通过。
+- 测试入口可运行（单元测试用合成数据，不称真实业务验收）。
+- 文档真源唯一，不产生平行清单。
+
+## 已确认的环境事实（2026-10-30）
+
+- 目标数据库：`192.168.3.146:5432` 的 `vectordb` 库（市场数据与用户洞察目标库同一实例）。
+  - 运行期查询账户：`market_mcp_reader`（只读，经环境变量 `MARKET_PG_*` / `NEW_CAR_PG_*` 注入）。
+  - 旧 rag-engine 的 `vectordb`/`vectordb123` 是独立工程的硬编码写账号，存在安全隐患，用户洞察不沿用。
+- Embedding：服务器 Ollama `bge-m3:latest` @ `192.168.3.146:11434`（1024 维，与 `vector(1024)` 兼容）；已探活（2026-10-30），`/api/embed` 返回 1024 维。
+- Reranker：`http://192.168.3.146:8082`（FastAPI）；已探活（2026-10-30），`/health` 200、`/rerank` 端点存在。均内网 HTTP 直连，无需 SSH 隧道。
+- SSH 连接 146 已核验（2026-10-30 probe）：Paramiko 5.0.0 已装至 `%LOCALAPPDATA%\Codex\ssh-146\python-packages`，凭据 `C:\deng\.env` 就绪；probe 返回 `target_verified`（root / ubuntu-virtual-machine / 192.168.3.146:12816）与 `probe_succeeded`，`normal_logout=true`。
+- `user_insight` schema 已创建（2026-10-30）：在 146 `vectordb` 库执行完整 Schema SQL，7 张表（interview/question/answer/evidence/tag/tag_evidence/retrieval_run）+ 索引，全部 `IF NOT EXISTS` 幂等；DDL 账户 `vectordb`（一次性），未触碰 public/policy_monitor/policycrawlerdb/staging。
+
+## 协作边界（Codex 已确认 2026-10-30）
+
+- `app.py` + 6 个已跟踪文件的未提交修改 = 现有预测工作与交接记录，TRAE 完整保留，不覆盖、不回退；未跟踪预测源码/测试/依赖一并保留。
+- T4 须待 T3 完成并取得授权。共享文件最小修改：
+  - `app.py` 仅新增独立访谈查询路由及必要调用，保留现有预测、聊天、报告接口。
+  - `legacy_workbench.html` 仅在用户洞察结果区增加证据卡片。
+  - `model_config/config.json`、`.env.example` 默认不改，确有需求时只追加独立配置或无真实凭据示例。
+- 实施前：核对最新 Git 状态，先形成含未跟踪预测源码的可复现基线，再协调分支/Worktree，回归原有接口、预测功能与页面。
+
+## T2 前置（进入 T2 前必须明确）
+
+- Schema 结构已建（2026-10-30，`user_insight` + 7 表 + 索引，见上文）；数据导入账户已建 `user_insight_loader`（独立写账户，非超户，密码存 `.env`，经 SSH→postgres 创建）；查询账户 `market_mcp_reader` 只读；回滚 = `DROP SCHEMA user_insight CASCADE` / `DROP ROLE user_insight_loader`（需授权）。
+- 口径已核验（2026-10-30）：标签=5355（非 45,244，45,244 是标签证据数）；`tag_evidence.csv` 45244 行 `tag_id` 全部有效（unmatched=0），结构化数据已解决 29 条未关联，无 `NOT NULL` 冲突。
+- `retrieval_run` PII 保留策略已定（见 `reference_docs/02_工程事实依据/用户洞察智能体_运行数据保留策略_20261030.md`），T2 落实 Schema 改动与自动清理。
+- Embedding / Reranker 只读接入方式已探活（内网 HTTP 直连，见上文），待 T3 接入检索服务。
+
+## T2 执行记录（2026-10-30）
+
+- 数据冻结：口径以 `00_manifest` + `data_quality_report.md` 为权威；字段映射与转换规则见 `temp/20261030-freeze-inventory/manifest.json`。
+- 数据导入：`ops/import_user_insight.py` 按外键依赖导入 6 表，全部 `ON CONFLICT DO NOTHING` 幂等。
+  - 结果行数：question=85、interview=63、answer=5355、evidence=81437、tag=5355、tag_evidence=45244（均匹配权威口径）。
+  - 字段转换：`mapped_question_ids` `'Q68'`→`[68]`；`time_available` `'False'`→bool；JSON 字符串→jsonb；空 `start_sec/end_sec`→NULL。
+- Embedding：`ops/backfill_embedding.py` 为 answer（answer_text）与 tag（`tag_name: tag_value`）补 bge-m3 1024 维向量，幂等（仅 `embedding IS NULL`）；已完成（answer=5355、tag=5355 全部有向量）。
+- 回滚：`DROP SCHEMA user_insight CASCADE;` + `DROP ROLE user_insight_loader;`（均需授权）。
+
+## T3/T4 执行记录（2026-10-30）
+
+- T3 检索服务：`customer_insight/retrieval_service.py`（`InterviewRetrievalService`）
+  - 白名单过滤（city/vehicle_model/purchase_type/question_ids/tag_names/tag_values/respondent_codes）→ 向量召回（pgvector 余弦 top 30）→ Reranker top_k → 证据打包（E1..En，同受访者限量，最多 8 条）。
+  - 测试：`customer_insight/tests/test_retrieval.py` 4 例通过；端到端验证（检索 + Agent 归纳）通过，证据不足时正确拒答不编造。
+- T3 Tool：`customer_insight/tool.py`（`InterviewEvidenceSearchTool`，继承 `ReadOnlyBusinessTool`），已加入 `build_business_toolkit`。
+- T4 API：`app.py` 新增 `POST /api/insight/interview/query`（`run_interview_evidence_qa`），确定性检索 → 证据注入 → Agent 归纳 → [E#] 引用校验。
+- T4 前端：首页 `home.html` 的 `#insight` 板块新增「访谈证据问答」区块 + 证据卡片渲染（`assets/home.js` 的 `InsightQA` 模块）。
+- 代码落点（2026-11-01 迁移）：用户洞察核心业务逻辑集中到 `customer_insight/` 包内——`retrieval_service.py`（检索服务）、`tool.py`（AgentScope Tool）；仅保留共有资源在外层（`tools/custom_tools.py` 的 `ReadOnlyBusinessTool` 基类、`agents/user_insight_agent.py`、`ops/` 导入脚本、`app.py` 的 Web 层）。已删除 `services/` 目录。
+- 前端（2026-11-01 迁移）：证据问答从废弃的 `legacy_workbench.html` 迁到首页 `home.html` 的 `#insight` 板块（`assets/home.js` 的 `InsightQA` 模块 + `assets/home.css` 样式），删除静态「用户洞察 · Demo 演示」。
+- 浏览器端到端验证已通过（2026-11-01，用户已授权启动服务）：选「访谈证据问答」→ 提问 → 6 条 evidence-card 渲染、无未捕获 JS 报错。
+- 待办：查询账户 `market_mcp_reader` 凭据未配置（当前检索复用 `user_insight_loader`，后续应切独立只读账户）。

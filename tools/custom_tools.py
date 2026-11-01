@@ -572,6 +572,10 @@ def build_business_toolkit(include_monthly_report_tools: bool = False) -> list[T
         AgentReachDecoratedTool(),
         UserInsightTaggerTool(),
     ]
+    # 延迟导入，避免 customer_insight.tool 与 tools.custom_tools 循环引用。
+    from customer_insight.tool import InterviewEvidenceSearchTool
+
+    tools.append(InterviewEvidenceSearchTool())
     if include_monthly_report_tools:
         from tools.monthly_report_browser import build_monthly_report_browser_tools
 

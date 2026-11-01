@@ -1770,6 +1770,78 @@
   })();
 
   // ────────────────────────────────────────────────────────────────────────
+  //  Insight evidence QA（访谈证据问答，独立区块）
+  // ────────────────────────────────────────────────────────────────────────
+  const InsightQA = (() => {
+    function esc(value) {
+      return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function renderEvidence(evidence) {
+      if (!evidence || !evidence.length) return '';
+      const cards = evidence.map((ev) => `
+        <div class='evidence-card'>
+          <div class='evidence-head'>
+            <span class='evidence-id'>${esc(ev.evidence_id)}</span>
+            <span class='evidence-respondent'>${esc(ev.respondent_code)} · ${esc(ev.city || '-')} · ${esc(ev.vehicle_model || '-')}</span>
+            <span class='evidence-question'>题${esc(ev.question_id ?? '')}</span>
+          </div>
+          <div class='evidence-quote'>“${esc(ev.quote || '')}”</div>
+          <div class='evidence-meta'>
+            ${ev.time_label ? `<span>${esc(ev.time_label)}</span>` : ''}
+            ${ev.speaker ? `<span>说话人：${esc(ev.speaker)}</span>` : ''}
+            ${ev.confidence ? `<span>置信度：${esc(ev.confidence)}</span>` : ''}
+          </div>
+        </div>
+      `).join('');
+      return `<h4 class='evidence-title'>证据引用（${evidence.length}）</h4><div class='evidence-list'>${cards}</div>`;
+    }
+
+    async function ask() {
+      const input = document.getElementById('insight-qa-input');
+      const result = document.getElementById('insight-qa-result');
+      const btn = document.getElementById('insight-qa-run');
+      const question = (input?.value || '').trim();
+      if (!question) { Toast.show('请输入访谈证据问题', 'error'); return; }
+      if (btn) btn.disabled = true;
+      result.hidden = false;
+      result.innerHTML = '<div class="insight-qa__loading">正在检索访谈证据…</div>';
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 90000);
+      try {
+        const response = await fetch('/api/insight/interview/query', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question, filters: {}, top_k: 6 }),
+          signal: controller.signal,
+        });
+        const data = await response.json();
+        if (!response.ok || (data.error && data.status !== 'completed')) {
+          throw new Error(typeof data.error === 'string' ? data.error : '检索失败（' + response.status + '）');
+        }
+        const answer = data.answer || '（无回答）';
+        result.innerHTML = `<div class='insight-qa__answer'>${esc(answer).replace(/\n/g, '<br>')}</div>${renderEvidence(data.evidence || [])}`;
+        if (data.retrieval?.reranker_degraded) Toast.show('重排服务降级，已回退向量排序', 'warning');
+      } catch (error) {
+        result.innerHTML = `<div class='insight-qa__error'>检索失败：${esc(error.message || error)}</div>`;
+        Toast.show('访谈证据检索失败', 'error');
+      } finally {
+        clearTimeout(timer);
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    function init() {
+      document.getElementById('insight-qa-run')?.addEventListener('click', ask);
+      document.getElementById('insight-qa-input')?.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') ask();
+      });
+    }
+
+    return { init };
+  })();
+
+  // ────────────────────────────────────────────────────────────────────────
   //  Market forecast workspace
   //  One normalized dataset drives KPIs, chart, detail table and CSV export.
   // ────────────────────────────────────────────────────────────────────────
@@ -2608,6 +2680,7 @@
     Skills.init();
     Plugins.init();
     Agents.init();
+    InsightQA.init();
     ForecastView.init();
     Shortcuts.init();
     Pulse.init();

@@ -995,6 +995,11 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
         if request_path.startswith('/api/forecast-engine/'):
             from integrations.forecast_engine_web import FORECAST_WEB_JOBS, status as forecast_status
             try:
+                if request_path in {'/api/forecast-engine/sarimax-status','/api/forecast-engine/sarimax-jobs'}:
+                    from integrations.forecast_local_assistant import allow_loopback_request
+                    if not allow_loopback_request(self.client_address[0], self.headers.get('Host', ''), self.headers.get('Origin')):
+                        self._send_json({'error':'统计模型仅允许本机页面访问。'},status=403)
+                        return
                 if request_path == '/api/forecast-engine/status': self._send_json(forecast_status())
                 elif request_path == '/api/forecast-engine/jobs': self._send_json(FORECAST_WEB_JOBS.get(parse_qs(parsed.query).get('run_id',[''])[0]))
                 elif request_path == '/api/forecast-engine/chronos-status':
@@ -1003,6 +1008,12 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
                 elif request_path == '/api/forecast-engine/chronos-jobs':
                     from integrations.chronos2_forecast import CHRONOS_JOBS
                     self._send_json(CHRONOS_JOBS.get(parse_qs(parsed.query).get('run_id',[''])[0]))
+                elif request_path == '/api/forecast-engine/sarimax-status':
+                    from integrations.sarimax_forecast import status as sarimax_status
+                    self._send_json(sarimax_status())
+                elif request_path == '/api/forecast-engine/sarimax-jobs':
+                    from integrations.sarimax_forecast import SARIMAX_JOBS
+                    self._send_json(SARIMAX_JOBS.get(parse_qs(parsed.query).get('run_id',[''])[0]))
                 else: self._send_json({'error':'未找到新版预测接口。'},status=404)
             except (ValueError,OSError) as exc: self._send_json({'error':str(exc)},status=400)
             return
@@ -1319,6 +1330,27 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         parsed = urlparse(self.path)
+        if parsed.path in {'/api/forecast-engine/sarimax-jobs','/api/forecast-engine/model-comparison'}:
+            try:
+                from integrations.forecast_local_assistant import allow_loopback_request
+                if not allow_loopback_request(self.client_address[0], self.headers.get('Host', ''), self.headers.get('Origin')):
+                    self._send_json({'error':'统计模型仅允许本机页面访问。'},status=403)
+                    return
+                length = int(self.headers.get('Content-Length','0'))
+                if not 0 < length <= 16000: raise ValueError('请求为空或过大。')
+                payload = json.loads(self.rfile.read(length).decode('utf-8'))
+                from integrations.sarimax_forecast import SARIMAX_JOBS, compare_backtests
+                if parsed.path.endswith('/sarimax-jobs'):
+                    self._send_json(SARIMAX_JOBS.start(payload),status=202)
+                else:
+                    if not isinstance(payload,dict) or set(payload) != {'chronos_run_id','sarimax_run_id'}:
+                        raise ValueError('比较请求参数无效。')
+                    from integrations.chronos2_forecast import CHRONOS_JOBS
+                    self._send_json(compare_backtests(CHRONOS_JOBS.get(payload['chronos_run_id']),
+                                                      SARIMAX_JOBS.get(payload['sarimax_run_id'])))
+            except (ValueError,OSError) as exc:
+                self._send_json({'error':str(exc)},status=400)
+            return
         if parsed.path == '/api/forecast-engine/deepseek-insights':
             try:
                 from integrations.forecast_local_assistant import allow_loopback_request
@@ -1415,7 +1447,7 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
             except Exception as exc:
                 self._send_json({'error': type(exc).__name__ + ': ' + str(exc)}, status=500)
             return
-        if self.path not in {"/api/assistant/chat", "/api/chat", "/api/ppt", "/api/audio-tags/run", "/api/quality-gate", "/api/market-skill/validate", "/api/intelligence/export", "/api/projects/update", "/api/macro-ledger", "/api/monthly-report/jobs", "/api/monthly-report/jobs/cancel", "/api/monthly-report/jobs/resume", "/api/macro-report/jobs", "/api/macro-report/jobs/cancel", "/api/macro-report/jobs/resume"}:
+        if self.path not in {"/api/assistant/chat", "/api/chat", "/api/ppt", "/api/audio-tags/run", "/api/quality-gate", "/api/market-skill/validate", "/api/intelligence/export", "/api/projects/update", "/api/macro-ledger", "/api/monthly-report/jobs", "/api/monthly-report/jobs/cancel", "/api/monthly-report/jobs/resume", "/api/macro-report/jobs", "/api/macro-report/jobs/cancel", "/api/macro-report/jobs/resume", "/api/insight/interview/query"}:
             self.send_error(HTTPStatus.NOT_FOUND)
             return
 
@@ -1667,6 +1699,24 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
                     payload.get("dataset_path"),
                     payload.get("sheet_name"),
                 )
+                self._send_json(result)
+                return
+
+            if self.path == "/api/insight/interview/query":
+                question = str(payload.get("question", "")).strip()
+                if not question:
+                    self._send_json({"error": "问题不能为空。"}, status=400)
+                    return
+                filters = payload.get("filters")
+                top_k = int(payload.get("top_k") or 6)
+                try:
+                    with AGENT_RUN_LOCK:
+                        result = AGENT_LOOP_RUNNER.run(
+                            run_interview_evidence_qa(question, filters, top_k)
+                        )
+                except Exception as exc:
+                    self._send_json({"error": type(exc).__name__ + ": " + str(exc)}, status=502)
+                    return
                 self._send_json(result)
                 return
 
@@ -3303,6 +3353,71 @@ class MonthlyReportJobManager:
                     error={"type": type(exc).__name__, "message": str(exc)},
                     recoverable=True,
                 )
+
+
+async def run_interview_evidence_qa(
+    question: str,
+    filters: dict[str, Any] | None,
+    top_k: int,
+) -> dict[str, Any]:
+    """独立访谈证据问答：确定性检索 → 证据注入 → Agent 归纳 → 校验 [E#] 引用。"""
+    load_dotenv(ENV_PATH, override=True)
+    config = load_json_config()
+
+    from customer_insight.retrieval_service import InterviewRetrievalService
+
+    service = InterviewRetrievalService()
+    result = await asyncio.to_thread(service.search, question, filters, top_k)
+    evidence = result.get("evidence", [])
+    retrieval = result.get("retrieval", {})
+    warnings = list(result.get("warnings", []))
+    run_id = "ins-" + uuid4().hex[:12]
+
+    if not evidence:
+        return {
+            "run_id": run_id,
+            "status": "completed",
+            "answer": "当前访谈库中没有足以支持该结论的原话证据。",
+            "evidence": [],
+            "retrieval": retrieval,
+            "warnings": warnings,
+        }
+
+    evidence_block = "\n".join(
+        f"[{ev['evidence_id']}] {ev['respondent_code']}"
+        f"（{ev.get('city') or ''}·{ev.get('vehicle_model') or ''}·{ev.get('purchase_type') or ''}）"
+        f" 题{ev['question_id']}：{ev['quote']}"
+        for ev in evidence
+    )
+    from agents.user_insight_agent import build_interview_evidence_agent
+
+    agent = build_interview_evidence_agent(config)
+    user_content = (
+        f"问题：{question}\n\n可用访谈证据：\n{evidence_block}\n\n"
+        "请基于以上证据回答，并在正文中用 [E#] 标注所引用的证据编号。"
+    )
+    reply = await asyncio.wait_for(
+        agent.reply(UserMsg(name="业务用户", content=user_content)),
+        timeout=60,
+    )
+    answer = strip_thinking(reply.get_text_content())
+
+    # 校验 [E#] 引用：删除正文中指向不存在证据的编号，避免虚构引用。
+    valid_ids = {ev["evidence_id"] for ev in evidence}
+    answer = re.sub(
+        r"\[E(\d+)\]",
+        lambda m: m.group(0) if f"E{m.group(1)}" in valid_ids else "",
+        answer,
+    )
+
+    return {
+        "run_id": run_id,
+        "status": "completed",
+        "answer": answer,
+        "evidence": evidence,
+        "retrieval": retrieval,
+        "warnings": warnings,
+    }
 
 
 async def run_agent_once(

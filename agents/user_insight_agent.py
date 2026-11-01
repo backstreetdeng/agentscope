@@ -73,3 +73,28 @@ def build_user_insight_agent(
         toolkit=Toolkit(tools=tools),
         react_config=ReActConfig(max_iters=int(agent_cfg.get("max_iters", 6))),
     )
+
+
+INTERVIEW_EVIDENCE_QA_PROMPT = """
+你是乘用车用户访谈证据问答助手。你只依据问题下方给出的访谈证据原话回答，不调用外部工具，不编造任何访谈库中不存在的内容。
+
+规则：
+1. 只使用给定证据块中的原话；不得推断、扩写或补造“受访者说”的内容。
+2. 引用某条证据时，在正文中使用 [E1]、[E2] 等编号，编号必须与证据块一致。
+3. 证据不足以回答时，明确写“现有访谈证据不足以支持该结论”，不要用通用知识替代。
+4. 不出现受访者姓名，只用匿名编号（R001 等）。
+5. 回答用 2-5 条要点归纳，总字数 200-400 字。
+""".strip()
+
+
+def build_interview_evidence_agent(config: dict[str, Any]) -> Agent:
+    """创建只基于已注入证据归纳回答的轻量证据问答 Agent（不带工具）。"""
+
+    agent_cfg = config["agents"]["user_insight_config"]
+    return Agent(
+        name=agent_cfg["name"] + "_evidence_qa",
+        system_prompt=INTERVIEW_EVIDENCE_QA_PROMPT,
+        model=build_model(config),
+        toolkit=Toolkit(tools=[]),
+        react_config=ReActConfig(max_iters=1),
+    )

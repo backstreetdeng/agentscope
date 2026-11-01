@@ -5236,3 +5236,23 @@ body {
     overflow-x: auto;
   }
 }
+
+
+/* 访谈证据问答 */
+.insight-qa { margin-top: 24px; position: relative; z-index: 1500; }
+.insight-qa__bar { display: flex; gap: 10px; align-items: center; }
+.insight-qa__input { flex: 1; padding: 12px 14px; border: 1px solid var(--border-subtle, #E2E8F0); border-radius: 8px; font-size: 14px; color: var(--text-primary); background: var(--bg-surface, #fff); }
+.insight-qa__input:focus { outline: none; border-color: #2563eb; }
+.insight-qa__result { margin-top: 16px; }
+.insight-qa__loading { padding: 16px; color: var(--text-tertiary, #64748b); }
+.insight-qa__answer { padding: 16px; background: var(--bg-surface, #fff); border: 1px solid var(--border-subtle, #E2E8F0); border-radius: 10px; font-size: 14px; line-height: 1.7; color: var(--text-primary); margin-bottom: 16px; }
+.insight-qa__error { padding: 16px; color: var(--c-risk-red, #dc2626); background: rgba(220,38,38,.06); border-radius: 8px; }
+.evidence-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin: 0 0 10px; }
+.evidence-list { display: flex; flex-direction: column; gap: 12px; }
+.evidence-card { background: var(--bg-surface, #fff); border: 1px solid var(--border-subtle, #E2E8F0); border-radius: 10px; padding: 14px 16px; }
+.evidence-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+.evidence-id { color: #2563eb; font-weight: 700; font-size: 13px; }
+.evidence-respondent { color: #334155; font-size: 13px; }
+.evidence-question { margin-left: auto; color: #64748b; font-size: 12px; }
+.evidence-quote { color: #1e293b; font-size: 14px; line-height: 1.7; margin-bottom: 8px; }
+.evidence-meta { display: flex; gap: 14px; flex-wrap: wrap; color: #94a3b8; font-size: 12px; }
