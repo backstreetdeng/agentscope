@@ -1988,6 +1988,40 @@
       }
     }
 
+    function renderPainpoints(data) {
+      if (!data || !data.items) return '';
+      const rows = (data.items || []).map((it) => {
+        const pct = Math.round((it.low_rate || 0) * 100);
+        const mean = it.mean_score == null ? '-' : it.mean_score;
+        return `<div class='pain-item'>
+          <div class='pain-item__head'><span class='pain-item__dim'>${esc(it.dimension)}</span><span class='pain-item__stat'>低分率 ${pct}% · 均分 ${mean}（低分 ${it.low_count}/${it.total}）</span></div>
+          <div class='pain-item__bar'><span style='width:${pct}%'></span></div>
+        </div>`;
+      }).join('');
+      return `<div class='joint-meta'>${esc(data.group_label)}「${esc(data.group_value)}」 · 低分阈值 ≤${data.threshold} 分</div>${rows}`;
+    }
+
+    async function askPainpoints() {
+      const dim = document.getElementById('insight-pain-dim')?.value;
+      const val = document.getElementById('insight-pain-input')?.value.trim();
+      const result = document.getElementById('insight-pain-result');
+      if (!val) { Toast.show('请输入群体取值', 'error'); return; }
+      result.hidden = false;
+      result.innerHTML = '<div class="insight-qa__loading">正在分析满意度痛点…</div>';
+      try {
+        const response = await fetch('/api/insight/satisfaction/painpoints', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ group_field: dim, group_value: val, top: 10 }),
+        });
+        const data = await response.json();
+        if (!response.ok || data.error) throw new Error(typeof data.error === 'string' ? data.error : '分析失败');
+        result.innerHTML = renderPainpoints(data);
+      } catch (error) {
+        result.innerHTML = `<div class='insight-qa__error'>分析失败：${esc(error.message || error)}</div>`;
+      }
+    }
+
     function init() {
       document.getElementById('insight-qa-run')?.addEventListener('click', ask);
       document.getElementById('insight-qa-input')?.addEventListener('keydown', (event) => {
@@ -2003,6 +2037,10 @@
         if (event.key === 'Enter') askJoint();
       });
       document.getElementById('insight-segment-run')?.addEventListener('click', askSegment);
+      document.getElementById('insight-pain-run')?.addEventListener('click', askPainpoints);
+      document.getElementById('insight-pain-input')?.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') askPainpoints();
+      });
       initQuant();
     }
 

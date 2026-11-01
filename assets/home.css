@@ -5295,3 +5295,14 @@ body {
 .segment-card { background: var(--bg-surface, #fff); border: 1px solid var(--border-subtle, #E2E8F0); border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; }
 .segment-card__head { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
 .segment-card__row { font-size: 12px; color: #334155; margin-bottom: 4px; line-height: 1.6; }
+
+
+/* 满意度痛点 */
+.insight-painpoints { margin-top: 24px; position: relative; z-index: 1500; }
+.insight-painpoints__bar { display: flex; gap: 10px; align-items: center; }
+.pain-item { background: var(--bg-surface, #fff); border: 1px solid var(--border-subtle, #E2E8F0); border-radius: 10px; padding: 12px 14px; margin-bottom: 10px; }
+.pain-item__head { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.pain-item__dim { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.pain-item__stat { font-size: 12px; color: #64748b; }
+.pain-item__bar { height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
+.pain-item__bar span { display: block; height: 100%; background: #dc2626; border-radius: 4px; }

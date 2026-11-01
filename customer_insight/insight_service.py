@@ -8,6 +8,17 @@ import psycopg2.extras
 
 from customer_insight.quant_service import DIMENSIONS, _load_env
 
+# 产品维度（购车关注因素 Q3_23__N 与使用满意度 Q5_2__N 一一对应，N=1..16）
+PRODUCT_DIMS: list[tuple[int, str]] = [
+    (1, "安全性"), (2, "操控性"), (3, "动力性"), (4, "舒适性"),
+    (5, "空间"), (6, "外观"), (7, "内饰"), (8, "质量"),
+    (9, "使用费用"), (10, "购车价格"), (11, "品牌"), (12, "服务"),
+    (13, "智能座舱"), (14, "智能驾驶"), (15, "纯电续航里程"), (16, "电池特性"),
+]
+SAT_PREFIX = "Q5_2__"   # 使用感受满意度打分（1-10 分）
+ATT_PREFIX = "Q3_23__"  # 购车关注因素（勾选=1）
+SAT_LOW_THRESHOLD = 6   # 满意度 ≤6 分视为不满意/低分
+
 
 class InsightService:
     """复用 quant_sample 做专题洞察，只读。"""
@@ -68,31 +79,45 @@ class InsightService:
             conn.close()
 
     def satisfaction_painpoints(self, group_field: str, group_value: str, top: int = 10) -> dict[str, Any]:
-        """满意度痛点：统计某群体「最不满意」的分布（Q5_2 满意度逐条打分）。"""
+        """满意度痛点：统计某群体在 16 个产品维度上的低分率（打分 ≤6）与均分，按低分率降序。"""
         if group_field not in DIMENSIONS:
             raise ValueError(f"不支持的维度：{group_field}")
+        top = max(1, min(int(top), 16))
         conn = self._connect()
         try:
             with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-                # 满意度题前缀 Q5_2（使用感受逐条打分），取打分低的条目
-                cur.execute(
-                    f"SELECT question_id, question_text FROM user_insight.quant_question "
-                    "WHERE question_id LIKE 'Q5_2%%' AND question_text NOT LIKE '%【%' ORDER BY question_id LIMIT 30",
-                )
-                qs = cur.fetchall()
-                items = []
-                for q in qs:
+                items: list[dict[str, Any]] = []
+                for idx, dim in PRODUCT_DIMS:
+                    qid = f"{SAT_PREFIX}{idx}"
                     cur.execute(
-                        f"SELECT answers_text->>%s AS val, count(*) AS cnt FROM user_insight.quant_sample "
-                        f"WHERE {group_field} = %s AND answers_text ? %s GROUP BY val ORDER BY cnt DESC LIMIT 5",
-                        (q["question_id"], group_value, q["question_id"]),
+                        f"SELECT "
+                        "count(*) FILTER (WHERE (answers_text->>%s)::int <= %s) AS low_cnt, "
+                        "avg((answers_text->>%s)::float) AS mean_score, "
+                        "count(*) AS total "
+                        "FROM user_insight.quant_sample "
+                        f"WHERE {group_field} = %s AND answers_text->>%s ~ '^[0-9]+$'",
+                        (qid, SAT_LOW_THRESHOLD, qid, group_value, qid),
                     )
-                    dist = [{"value": r["val"], "count": r["cnt"]} for r in cur.fetchall()]
-                    items.append({"question_id": q["question_id"], "question_text": q["question_text"], "dist": dist})
+                    row = cur.fetchone()
+                    total = row["total"] or 0
+                    if not total:
+                        continue
+                    low_cnt = row["low_cnt"] or 0
+                    items.append({
+                        "dimension": dim,
+                        "question_id": qid,
+                        "mean_score": round(float(row["mean_score"]), 2) if row["mean_score"] is not None else None,
+                        "low_count": low_cnt,
+                        "total": total,
+                        "low_rate": round(low_cnt / total, 4),
+                    })
+                items.sort(key=lambda x: -x["low_rate"])
                 return {
                     "group_field": group_field,
+                    "group_label": DIMENSIONS[group_field],
                     "group_value": group_value,
-                    "items": items,
+                    "threshold": SAT_LOW_THRESHOLD,
+                    "items": items[:top],
                 }
         finally:
             conn.close()
