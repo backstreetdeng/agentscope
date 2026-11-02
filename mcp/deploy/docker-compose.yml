@@ -5,36 +5,47 @@ x-mcp-common: &mcp-common
     args:
       PIP_INDEX_URL: ${PIP_INDEX_URL:-https://mirrors.aliyun.com/pypi/simple/}
   restart: unless-stopped
-  env_file: .env
   volumes:
     - ../../assets/data:/app/mcp/assets-data:ro
-    - mcp-exports:/srv/mcp-exports
   networks: [market-mcp]
+
+x-mcp-internal-env: &mcp-internal-env
+  DATA_API_INTERNAL_URL: http://data-api:8815/api/v1
+  DATA_API_INTERNAL_TOKEN: ${DATA_API_INTERNAL_TOKEN}
 
 services:
   policy-mcp:
     <<: *mcp-common
     command: python -m market_data.policy_server
     environment:
+      <<: *mcp-internal-env
       MCP_PORT: 8811
+    depends_on: [data-api]
   rights-mcp:
     <<: *mcp-common
     command: python -m market_data.rights_server
     environment:
+      <<: *mcp-internal-env
       MCP_PORT: 8812
+    depends_on: [data-api]
   new-car-mcp:
     <<: *mcp-common
     command: python -m market_data.new_car_server
     environment:
+      <<: *mcp-internal-env
       MCP_PORT: 8813
+    depends_on: [data-api]
   reputation-mcp:
     <<: *mcp-common
     command: python -m market_data.reputation_server
     environment:
+      <<: *mcp-internal-env
       MCP_PORT: 8814
+    depends_on: [data-api]
   data-api:
     <<: *mcp-common
     command: python -m market_data.api_server
+    env_file: .env
     environment:
       DATA_API_PORT: 8815
   gateway:

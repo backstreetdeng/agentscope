@@ -95,14 +95,17 @@ async def dispatch(request):
 
 
 class TokenAuth:
-    def __init__(self,app): self.app=app
-    async def __call__(self,scope,receive,send):
-        token=os.getenv('MCP_API_TOKEN','')
+    def __init__(self,app):
+        self.app=app
+        tokens={os.getenv(key,'') for key in ('MCP_API_TOKEN','DATA_API_CLIENT_TOKEN','DATA_API_INTERNAL_TOKEN')}
+        tokens.discard('')
         token_file=os.getenv('RIGHTS_MCP_TOKEN_FILE')
-        if token_file: token=Path(token_file).read_text().strip()
+        if token_file: tokens.add(Path(token_file).read_text().strip())
+        self.tokens=tokens
+    async def __call__(self,scope,receive,send):
         if scope['type']=='http':
             auth=dict(scope.get('headers',[])).get(b'authorization',b'')
-            if not token or not secrets.compare_digest(auth,b'Bearer '+token.encode()):
+            if not self.tokens or not any(secrets.compare_digest(auth,b'Bearer '+t.encode()) for t in self.tokens):
                 await DataJSON(dict(error='unauthorized'),status_code=401)(scope,receive,send); return
         await self.app(scope,receive,send)
 
