@@ -1,0 +1,37 @@
+{
+  "name": "competitor-benchmarking",
+  "version": "0.1.0",
+  "task": "MKT-001",
+  "updated": "2026-11-02",
+  "description": "市场板块竞品对标能力：三源取证（款型配置信息 P0 / 知识库 P2 / 联网 P1-P2）+ 交叉校验 + 对标矩阵与 So What 交付",
+  "entry": "SKILL.md",
+  "agent": {
+    "mode": "dedicated",
+    "definition": "agents/benchmark_agent.py（S6 实现）",
+    "model_routing": "utils/model_routing.py：L1/L2=deepseek-v4-flash，L3=deepseek-v4-pro"
+  },
+  "dependencies": {
+    "tools": [
+      "miit_search_models（S4 注册，本地只读 psycopg2 直连 miit schema）",
+      "miit_get_model_detail（S4 注册，本地只读 psycopg2 直连 miit schema）",
+      "reputation_*（现有）",
+      "web_search_local / web_search_exa / web_search_tavily（现有）",
+      "web_reader_local / web_reader_firecrawl（现有）"
+    ],
+    "engine": "utils/benchmark_research_dag.py（机制复制自 monthly_research_dag，独立演进；任务图/回执/签名去重/波次/断点/账本）",
+    "data": ["miit schema @ 192.168.3.146:5432/vectordb（market_mcp_reader 只读）"],
+    "runtime": ["skill runtime 隔离运行：run_id / inputs / working / outputs / run-state.json / checkpoints.jsonl"]
+  },
+  "artifacts": {
+    "contract": "assets/matrix-schema.json",
+    "acceptance": "scripts/validate_matrix.py（规则 S5 实现）",
+    "importer": "scripts/import_miit.py（实现 S4 交付）",
+    "deliverables": ["对标矩阵 JSON", "So What 列表", "缺口声明"]
+  },
+  "references": [
+    "references/evidence-rules.md",
+    "references/benchmark-matrix.md",
+    "references/so-what.md"
+  ],
+  "status": "已接入（2026-11-02：S0–S8 完成，skill-integration-standard 12 项全部满足）"
+}

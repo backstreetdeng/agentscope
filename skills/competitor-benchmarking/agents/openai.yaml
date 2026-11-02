@@ -1,0 +1,16 @@
+interface:
+  display_name: "竞品对标"
+  short_description: "三源取证，款型配置信息锚定硬参数，输出对标矩阵与战略 So What"
+  default_prompt: "对目标车型建立竞品池，输出对标矩阵（硬参数以款型配置信息为锚）与战略 So What。"
+policy:
+  allow_implicit_invocation: true
+  allow_package_scripts: true
+  required_artifact_validators:
+    - "benchmark_matrix"
+dependencies:
+  data:
+    - "miit schema @ 192.168.3.146:5432/vectordb（market_mcp_reader 只读）"
+  tools:
+    - "miit_search_models / miit_get_model_detail（本地只读，psycopg2 直连）"
+    - "reputation_*（MCP data-api）"
+    - "web 搜索 / 精读（any_search / tavily_search / web_fetch）"

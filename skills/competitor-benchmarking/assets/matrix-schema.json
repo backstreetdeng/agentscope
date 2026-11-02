@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CompetitorBenchmarkMatrix",
+  "description": "MKT-001 竞品对标矩阵契约（前端展示与验收器共用）",
+  "type": "object",
+  "required": ["run_id", "target_model", "generated_at", "dimensions", "models", "cells"],
+  "properties": {
+    "run_id": { "type": "string" },
+    "target_model": { "type": "string" },
+    "task_type": { "enum": ["S1", "S2", "S3"] },
+    "depth": { "enum": ["L1", "L2", "L3"] },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "dimensions": {
+      "type": "array",
+      "minItems": 4,
+      "items": {
+        "type": "object",
+        "required": ["name", "category", "anchor"],
+        "properties": {
+          "name": { "type": "string" },
+          "category": { "enum": ["hard_spec", "market", "intelligence", "reputation", "dynamics"] },
+          "anchor": { "enum": ["P0", "P1", "P2", "P3", "none"] }
+        }
+      }
+    },
+    "models": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["name", "is_target", "pool_evidence"],
+        "properties": {
+          "name": { "type": "string" },
+          "is_target": { "type": "boolean" },
+          "pool_evidence": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "入选竞品池的 receipt_id 证据"
+          }
+        }
+      }
+    },
+    "cells": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["model", "dimension", "value", "status", "receipt_id", "as_of", "source_tier"],
+        "properties": {
+          "model": { "type": "string" },
+          "dimension": { "type": "string" },
+          "value": { "type": ["string", "number", "null"] },
+          "unit": { "type": "string" },
+          "status": {
+            "enum": ["confirmed", "majority", "disputed", "single_source", "insufficient", "na"]
+          },
+          "receipt_id": { "type": ["string", "array"] },
+          "as_of": { "type": "string" },
+          "source_tier": { "enum": ["P0", "P1", "P2", "P3"] },
+          "note": { "type": "string", "description": "disputed 格必须含双方值与口径" }
+        }
+      }
+    },
+    "so_what": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["finding", "type", "confidence", "evidence_receipt_ids", "horizon"],
+        "properties": {
+          "finding": { "type": "string" },
+          "type": { "enum": ["opportunity", "threat"] },
+          "confidence": { "enum": ["high", "medium", "low"] },
+          "evidence_receipt_ids": { "type": "array", "items": { "type": "string" } },
+          "horizon": { "enum": ["short_term", "mid_term"] }
+        }
+      }
+    },
+    "gaps": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "缺口声明：未取证到/单源/口径未消解的维度与原因"
+    }
+  }
+}

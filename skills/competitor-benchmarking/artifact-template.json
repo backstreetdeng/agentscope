@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "kind": "benchmark_matrix",
+  "contract": "assets/matrix-schema.json",
+  "validator_script": "scripts/validate_matrix.py",
+  "deliverables": ["对标矩阵 JSON", "So What 列表", "缺口声明"]
+}
