@@ -8,14 +8,13 @@ from datetime import date
 from mcp.server.fastmcp import FastMCP
 from pydantic import BaseModel, ConfigDict, Field
 
-from .shared import (
+from .protocol import (
     READ_ONLY_ANNOTATIONS,
     PageInput,
     ResponseFormat,
     any_text_contains,
     create_excel_export,
     date_in_range,
-    load_domain_dataset,
     paginated,
     parse_date,
     render_response,
@@ -23,6 +22,7 @@ from .shared import (
     single,
     text_contains,
 )
+from .pg import load_domain_dataset
 
 
 DATASET = "rights-intelligence.json"

@@ -10,7 +10,8 @@ from pathlib import Path
 MCP_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(MCP_ROOT))
 
-from market_data.shared import DATA_DIR, parse_date, pg_connect  # noqa: E402
+from market_data.pg import pg_connect  # noqa: E402
+from market_data.protocol import DATA_DIR, parse_date  # noqa: E402
 
 
 def _load(filename: str) -> dict:

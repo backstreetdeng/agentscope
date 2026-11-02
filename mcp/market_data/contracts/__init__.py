@@ -1,0 +1,1 @@
+"""Shared Pydantic input contracts for MCP servers and data-api read models."""

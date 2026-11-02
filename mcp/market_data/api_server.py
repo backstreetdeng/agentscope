@@ -49,18 +49,34 @@ async def dispatch(request):
             if path == 'reputation/overview': payload = dict(success=True,source='api',status=payload)
         elif path == 'policies': payload = await asyncio.to_thread(reads.policy_list, values)
         elif path == 'policies/snapshot': payload = await asyncio.to_thread(reads.policy_list,values,True)
+        elif path == 'policies/status': payload = await asyncio.to_thread(reads.policy_status)
+        elif path == 'policies/detail': payload = await asyncio.to_thread(reads.policy_detail, values)
+        elif path == 'policies/changes': payload = await asyncio.to_thread(reads.policy_changes, values)
+        elif path == 'policies/compare':
+            if request.query_params.getlist('regions'): values['regions'] = request.query_params.getlist('regions')
+            payload = await asyncio.to_thread(reads.policy_compare, values)
         elif path == 'rights':
             if request.query_params.getlist('activity_type'): values['activity_types'] = request.query_params.getlist('activity_type')
             values.pop('activity_type', None)
             payload = await asyncio.to_thread(reads.rights_list, values)
-        elif path in {'new-cars','new-cars/planned','new-cars/detail'}:
-            payload = await asyncio.to_thread(reads.new_car_list,values,path.endswith('planned'),path.endswith('detail'))
-        elif path in {'new-cars/snapshot','new-cars/planned/snapshot','new-cars/detail/snapshot'}:
+        elif path == 'new-cars/status': payload = await asyncio.to_thread(reads.new_car_status)
+        elif path == 'new-cars/detail': payload = await asyncio.to_thread(reads.new_car_detail, values)
+        elif path == 'new-cars/compare':
+            if request.query_params.getlist('models'): values['models'] = request.query_params.getlist('models')
+            payload = await asyncio.to_thread(reads.new_car_compare, values)
+        elif path in {'new-cars','new-cars/planned'}:
+            payload = await asyncio.to_thread(reads.new_car_list,values,path.endswith('planned'),False)
+        elif path in {'new-cars/snapshot','new-cars/planned/snapshot'}:
             resource=path.removesuffix('/snapshot')
-            payload=await asyncio.to_thread(reads.new_car_list,values,resource.endswith('planned'),resource.endswith('detail'),True)
+            payload=await asyncio.to_thread(reads.new_car_list,values,resource.endswith('planned'),False,True)
         elif path == 'new-cars/sales': payload = await asyncio.to_thread(reads.new_car_sales,values)
         elif path == 'reputation/reviews': payload = dict(await asyncio.to_thread(search_source_reviews,SourceReviewInput(**values)),source='api')
         elif path in {'reputation/summary','reputation/tree','reputation/evidence'}: payload = await asyncio.to_thread(reads.reputation_read,path,values)
+        elif path == 'reputation/models': payload = await asyncio.to_thread(reads.reputation_models,values)
+        elif path == 'reputation/tagged-reviews': payload = await asyncio.to_thread(reads.reputation_tagged_reviews,values)
+        elif path == 'reputation/compare':
+            if request.query_params.getlist('models'): values['models'] = request.query_params.getlist('models')
+            payload = await asyncio.to_thread(reads.reputation_compare,values)
         else: return DataJSON(dict(success=False,error='未定义的业务资源'),status_code=404)
         return DataJSON(payload)
     except reads.VersionChanged:

@@ -5,7 +5,7 @@ import json
 import sys
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 
 MCP_ROOT = Path(__file__).resolve().parents[1] / "mcp"
@@ -35,17 +35,39 @@ class MarketDataMcpTests(unittest.TestCase):
             self.assertTrue(all(tool.annotations.readOnlyHint is True for tool in tools))
             self.assertTrue(all(tool.annotations.destructiveHint is False for tool in tools))
 
-    def test_policy_search_and_detail_use_real_snapshot(self):
-        search = call_json(
-            policy_server.mcp,
-            "policy_search_policies",
-            {"params": {"province": "河北", "keyword": "消费券", "limit": 5}},
-        )
-        self.assertTrue(search["success"])
-        self.assertGreaterEqual(search["total_count"], 1)
-        record_id = search["items"][0]["记录编号"]
-        detail = call_json(policy_server.mcp, "policy_get_policy_detail", {"params": {"record_id": record_id}})
-        self.assertEqual(detail["item"]["记录编号"], record_id)
+    def test_policy_search_and_detail_roundtrip_via_data_api(self):
+        search_payload = {
+            "success": True,
+            "source": "api",
+            "total_count": 1,
+            "count": 1,
+            "offset": 0,
+            "has_more": False,
+            "next_offset": None,
+            "data_version": "v1",
+            "items": [{"记录编号": "P-001", "省份": "河北", "政策名称": "汽车消费券"}],
+        }
+        detail_payload = {
+            "success": True,
+            "source": "api",
+            "item": {"记录编号": "P-001", "省份": "河北", "政策名称": "汽车消费券"},
+            "data_version": "v1",
+        }
+
+        async def fake_get(resource, params=None):
+            return detail_payload if resource == "policies/detail" else search_payload
+
+        with patch.object(policy_server.DataApiClient, "get", new=AsyncMock(side_effect=fake_get)):
+            search = call_json(
+                policy_server.mcp,
+                "policy_search_policies",
+                {"params": {"province": "河北", "keyword": "消费券", "limit": 5}},
+            )
+            self.assertTrue(search["success"])
+            self.assertGreaterEqual(search["total_count"], 1)
+            record_id = search["items"][0]["记录编号"]
+            detail = call_json(policy_server.mcp, "policy_get_policy_detail", {"params": {"record_id": record_id}})
+            self.assertEqual(detail["item"]["记录编号"], record_id)
 
     def test_rights_activity_type_filter_uses_standard_options(self):
         payload = call_json(
@@ -57,25 +79,30 @@ class MarketDataMcpTests(unittest.TestCase):
         self.assertGreaterEqual(payload["total_count"], 1)
         self.assertTrue(all("其他权益" in item["当前活动类型（支持多选）"] for item in payload["items"]))
 
-    def test_new_car_status_can_report_database_counts(self):
-        with patch.object(new_car_server, "query_scalar", side_effect=[487, 120, "batch-1"]):
+    def test_new_car_status_can_report_counts(self):
+        status_payload = {
+            "success": True,
+            "source": "api",
+            "status": "ready",
+            "model_count": 487,
+            "planned_count": 120,
+            "latest_batch": "batch-1",
+        }
+        with patch.object(new_car_server.DataApiClient, "get", new=AsyncMock(return_value=status_payload)):
             payload = call_json(new_car_server.mcp, "new_car_get_status", {})
         self.assertEqual(payload["status"], "ready")
         self.assertEqual(payload["model_count"], 487)
 
     def test_reputation_summary_groups_positive_and_negative(self):
-        rows = [
-            {"direction": "positive", "rank": 1, "primary_label": "空间"},
-            {"direction": "negative", "rank": 1, "primary_label": "能耗"},
-        ]
-        with patch.object(reputation_server, "query_rows", return_value=rows), patch.object(
-            reputation_server, "source_status", return_value={
-                "analysis_current": True,
-                "analysis_source_version": "test-version",
-                "analysis_method": "test",
-                "analysis_batch": "test-batch",
+        summary_payload = {
+            "success": True,
+            "source": "api",
+            "groups": {
+                "positive": [{"direction": "positive", "rank": 1, "primary_label": "空间"}],
+                "negative": [{"direction": "negative", "rank": 1, "primary_label": "能耗"}],
             },
-        ):
+        }
+        with patch.object(reputation_server.DataApiClient, "get", new=AsyncMock(return_value=summary_payload)):
             payload = call_json(
                 reputation_server.mcp,
                 "reputation_get_model_summary",

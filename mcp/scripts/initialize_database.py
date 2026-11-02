@@ -10,7 +10,7 @@ from pathlib import Path
 MCP_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(MCP_ROOT))
 
-from market_data.shared import pg_connect, query_scalar  # noqa: E402
+from market_data.pg import pg_connect, query_scalar  # noqa: E402
 from scripts.import_policy_rights import import_policy, import_rights  # noqa: E402
 
 

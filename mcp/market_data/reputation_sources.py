@@ -1,22 +1,7 @@
 """Read-only, transaction-consistent access to the two existing raw source tables."""
-from datetime import date
-from enum import Enum
 import re
-from pydantic import Field
-from .shared import PageInput, pg_connect
-
-
-class SourceName(str, Enum):
-    AUTOHOME = 'autohome'
-    DONGCHEDI = 'dongchedi'
-
-
-class SourceReviewInput(PageInput):
-    model: str = Field(default='', max_length=100, description='Exact source model/input name; no fuzzy competitor-text attribution.')
-    source: SourceName | None = None
-    keyword: str = Field(default='', max_length=200, description='Filter original review text.')
-    published_from: date | None = None
-    published_to: date | None = None
+from .pg import pg_connect
+from .contracts.reputation import SourceReviewInput  # noqa: F401
 
 
 RAW = """

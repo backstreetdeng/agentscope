@@ -1,4 +1,8 @@
-"""Tencent ledger adapter. Fixed read-only SQL; no local dataset fallback."""
+"""Tencent ledger adapter. Fixed read-only SQL; no local dataset fallback.
+
+Phase 5（MCP→data-api 去数据库化 / 权益）单独立项：本文件当前仍在 MCP 进程中直连
+腾讯云 MySQL `price_monitor.ledger`，本轮未整改，保持现状、不扩大错误。
+"""
 from __future__ import annotations
 
 import base64
@@ -13,7 +17,7 @@ from typing import Literal
 from mcp.server.fastmcp import FastMCP
 from openpyxl import Workbook
 from pydantic import BaseModel, ConfigDict, Field
-from .shared import READ_ONLY_ANNOTATIONS, PageInput, ResponseFormat, render_response, single
+from .protocol import READ_ONLY_ANNOTATIONS, PageInput, ResponseFormat, render_response, single
 
 HEADERS = ['记录编号','监测日期/发布日期','车企/品牌','车型','年款及版本','动力类型','活动名称','活动开始日期','活动结束日期','适用地区及渠道','适用客群','原指导价','现指导价','当前活动价及口径','当前活动类型（支持多选）','活动内容','叠加及限制条件','较上期变化类型','较上期变化详情','信息来源链接','采集日期']
 COLUMNS = ['id','monitor_date','brand','model_name','model_version','power_type','activity_name','activity_start','activity_end','region_channel','target_customer','original_msrp','current_msrp','current_price_note',None,None,'stacking_conditions','change_type','change_detail','source_url','crawl_date']
