@@ -69,13 +69,26 @@ class MarketDataMcpTests(unittest.TestCase):
             detail = call_json(policy_server.mcp, "policy_get_policy_detail", {"params": {"record_id": record_id}})
             self.assertEqual(detail["item"]["记录编号"], record_id)
 
-    def test_rights_activity_type_filter_uses_standard_options(self):
-        payload = call_json(
-            rights_server.mcp,
-            "rights_search_offers",
-            {"params": {"activity_types": ["其他权益"], "limit": 5}},
-        )
+    def test_rights_search_offers_uses_standard_activity_types(self):
+        list_payload = {
+            "success": True,
+            "source": "api",
+            "total_count": 1,
+            "count": 1,
+            "offset": 0,
+            "has_more": False,
+            "next_offset": None,
+            "data_version": "v1",
+            "items": [{"记录编号": "MYSQL-1", "当前活动类型（支持多选）": ["其他权益"]}],
+        }
+        with patch.object(rights_server.DataApiClient, "get", new=AsyncMock(return_value=list_payload)):
+            payload = call_json(
+                rights_server.mcp,
+                "rights_search_offers",
+                {"params": {"activity_types": ["其他权益"], "limit": 5}},
+            )
         self.assertTrue(payload["success"])
+        self.assertEqual(payload["data_source"], "rights")
         self.assertGreaterEqual(payload["total_count"], 1)
         self.assertTrue(all("其他权益" in item["当前活动类型（支持多选）"] for item in payload["items"]))
 

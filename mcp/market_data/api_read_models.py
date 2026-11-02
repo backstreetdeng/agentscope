@@ -10,6 +10,7 @@ from .pg import pg_connect
 from .contracts.new_car import NewCarSearchInput, PlannedCarSearchInput
 from .contracts.policy import PolicySearchInput, PolicyChangeInput, PolicyCompareInput, PolicyExportInput
 from .contracts.reputation import ReputationModelInput
+from .contracts.rights import Export, RightsChangeInput, Search
 
 
 class VersionChanged(ValueError): pass
@@ -306,6 +307,48 @@ def rights_export(values):
     module = cloud()
     if not values.get('data_version'): raise ValueError('缺少数据版本')
     return dict(module.export_payload(module.Export(**values)), source='api')
+
+
+def rights_detail(values):
+    record_id = values.get('record_id', '') or ''
+    if not record_id.startswith('MYSQL-') or not record_id[6:].isdigit():
+        raise ValueError('请使用查询返回的 MYSQL-主键编号')
+    module = cloud()
+    payload = module.query(Search(limit=1), 'id = %s', (int(record_id[6:]),))
+    item = payload['items'][0] if payload['items'] else None
+    return dict(success=True, source='api', item=item, data_version=payload['data_version'])
+
+
+def rights_active(values):
+    module = cloud()
+    params = Search(**{k: v for k, v in values.items() if k in Search.model_fields})
+    if not params.active_on:
+        params = params.model_copy(update={'active_on': date.today()})
+    return dict(module.query(params), source='api')
+
+
+def rights_compare(values):
+    module = cloud()
+    models = values.get('models', []) or []
+    if not models:
+        models = [m.strip() for m in str(values.get('models', '')).split(',') if m.strip()]
+    if not (2 <= len(models) <= 10): raise ValueError('车型数量需在 2-10 之间')
+    active_on = values.get('active_on')
+    comparisons = []
+    for model in models:
+        result = module.query(Search(model=model, active_on=active_on, limit=10))
+        comparisons.append({'model': model, 'offer_count': result['total_count'],
+                            'activity_counts': result['categories'], 'items': result['items']})
+    return dict(success=True, source='api', comparisons=comparisons)
+
+
+def rights_changes(values):
+    module = cloud()
+    params = RightsChangeInput(**{k: v for k, v in values.items() if k in RightsChangeInput.model_fields})
+    payload = module.query(Search(brand=params.brand, limit=params.limit, offset=params.offset),
+                           "(COALESCE(change_type,'') <> '' OR COALESCE(change_detail,'') <> '') AND LOCATE(%s,COALESCE(change_type,'')) > 0",
+                           (params.change_type,))
+    return dict(payload, source='api')
 
 
 def reputation_read(path, values):

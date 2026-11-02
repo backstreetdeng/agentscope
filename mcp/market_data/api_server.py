@@ -56,9 +56,16 @@ async def dispatch(request):
             if request.query_params.getlist('regions'): values['regions'] = request.query_params.getlist('regions')
             payload = await asyncio.to_thread(reads.policy_compare, values)
         elif path == 'rights':
-            if request.query_params.getlist('activity_type'): values['activity_types'] = request.query_params.getlist('activity_type')
+            if request.query_params.getlist('activity_types'): values['activity_types'] = request.query_params.getlist('activity_types')
+            elif request.query_params.getlist('activity_type'): values['activity_types'] = request.query_params.getlist('activity_type')
             values.pop('activity_type', None)
             payload = await asyncio.to_thread(reads.rights_list, values)
+        elif path == 'rights/detail': payload = await asyncio.to_thread(reads.rights_detail, values)
+        elif path == 'rights/active': payload = await asyncio.to_thread(reads.rights_active, values)
+        elif path == 'rights/compare':
+            if request.query_params.getlist('models'): values['models'] = request.query_params.getlist('models')
+            payload = await asyncio.to_thread(reads.rights_compare, values)
+        elif path == 'rights/changes': payload = await asyncio.to_thread(reads.rights_changes, values)
         elif path == 'new-cars/status': payload = await asyncio.to_thread(reads.new_car_status)
         elif path == 'new-cars/detail': payload = await asyncio.to_thread(reads.new_car_detail, values)
         elif path == 'new-cars/compare':

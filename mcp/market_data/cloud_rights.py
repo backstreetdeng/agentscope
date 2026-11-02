@@ -1,7 +1,9 @@
-"""Tencent ledger adapter. Fixed read-only SQL; no local dataset fallback.
+"""Tencent ledger data-access adapter. Fixed read-only SQL; no MCP protocol here.
 
-Phase 5（MCP→data-api 去数据库化 / 权益）单独立项：本文件当前仍在 MCP 进程中直连
-腾讯云 MySQL `price_monitor.ledger`，本轮未整改，保持现状、不扩大错误。
+Phase 5（MCP→data-api 去数据库化 / 权益）：本模块只保留腾讯云 MySQL
+`price_monitor.ledger` 的只读访问、版本校验与 21 列导出逻辑，供 data-api 的
+`rights_*` 读模型调用。MCP 协议适配已移到 `rights_server.py`（经 data-api），
+本文件不再构建 FastMCP 服务或注册 MCP 工具。
 """
 from __future__ import annotations
 
@@ -11,51 +13,16 @@ import io
 import json
 import os
 from pathlib import Path
-from datetime import date
-from typing import Literal
 
-from mcp.server.fastmcp import FastMCP
 from openpyxl import Workbook
-from pydantic import BaseModel, ConfigDict, Field
-from .protocol import READ_ONLY_ANNOTATIONS, PageInput, ResponseFormat, render_response, single
+
+from .contracts.rights import Export, Search  # noqa: F401  (re-export for api_read_models / tests)
 
 HEADERS = ['记录编号','监测日期/发布日期','车企/品牌','车型','年款及版本','动力类型','活动名称','活动开始日期','活动结束日期','适用地区及渠道','适用客群','原指导价','现指导价','当前活动价及口径','当前活动类型（支持多选）','活动内容','叠加及限制条件','较上期变化类型','较上期变化详情','信息来源链接','采集日期']
 COLUMNS = ['id','monitor_date','brand','model_name','model_version','power_type','activity_name','activity_start','activity_end','region_channel','target_customer','original_msrp','current_msrp','current_price_note',None,None,'stacking_conditions','change_type','change_detail','source_url','crawl_date']
 TYPES = {'现金优惠':'cash_discount','置换及增购补贴':'trade_in_subsidy','保险补贴':'insurance_subsidy','购置税补贴':'purchase_tax_subsidy','金融政策':'finance_policy','其他权益':'other_benefits'}
 ROOT = Path('/opt/price-monitor')
 
-class RightsIdInput(BaseModel):
-    model_config=ConfigDict(str_strip_whitespace=True,extra='forbid')
-    record_id: str=Field(min_length=1,max_length=80)
-    response_format: ResponseFormat=ResponseFormat.JSON
-
-class RightsCompareInput(BaseModel):
-    model_config=ConfigDict(str_strip_whitespace=True,extra='forbid')
-    models: list[str]=Field(min_length=2,max_length=10)
-    active_on: date | None=None
-    response_format: ResponseFormat=ResponseFormat.JSON
-
-class RightsChangeInput(PageInput):
-    brand: str=Field(default='',max_length=80)
-    change_type: str=Field(default='',max_length=80)
-
-class Search(PageInput):
-    brand: str=Field(default='',max_length=80)
-    model: str=Field(default='',max_length=100)
-    keyword: str=Field(default='',max_length=200)
-    activity_types: list[str]=Field(default_factory=list,max_length=6)
-    region: str=Field(default='',max_length=100)
-    active_on: date | None=None
-    activity_match: Literal['any','all'] = 'any'
-    power: str = Field(default='', max_length=80)
-    start_date: date | None = None
-    end_date: date | None = None
-    exact_names: bool = False
-    data_version: str = Field(default='', max_length=100)
-
-class Export(Search):
-    record_ids: list[str] = Field(default_factory=list, max_length=5000)
-    limit: int = Field(default=5000, ge=1, le=5000)
 
 def connect():
     import pymysql
@@ -65,10 +32,12 @@ def connect():
         c.execute('START TRANSACTION READ ONLY')
     return db
 
+
 def version(c):
     c.execute('SELECT COUNT(*) AS n, MAX(id) AS last_id, MAX(updated_at) AS changed, SUM(UNIX_TIMESTAMP(updated_at)) AS stamp FROM ledger')
     row = c.fetchone()
     return hashlib.sha256(json.dumps(row,default=str,sort_keys=True).encode()).hexdigest()[:32]
+
 
 def present(row):
     result = {h: str(row.get(col) or '') for h,col in zip(HEADERS,COLUMNS) if col}
@@ -79,6 +48,7 @@ def present(row):
     result['有效期完整性'] = '已提供起止日期' if row.get('activity_start') and row.get('activity_end') else '日期不完整，生效状态待确认'
     return result
 
+
 def where(params):
     parts,args = [],[]
     for attr,col in [('brand','brand'),('model','model_name'),('region','region_channel'),('power','power_type')]:
@@ -88,7 +58,7 @@ def where(params):
             args.append(value)
     if params.keyword:
         fields = list(dict.fromkeys([c for c in COLUMNS if c and c!='id'] + list(TYPES.values()) + ['record_no']))
-        parts.append('('+' OR '.join(f'LOCATE(%s, COALESCE({c},\'\')) > 0' for c in fields)+')')
+        parts.append('('+' OR '.join(f"LOCATE(%s, COALESCE({c},'')) > 0" for c in fields)+')')
         args.extend([params.keyword]*len(fields))
     if set(params.activity_types)-set(TYPES):
         raise ValueError('不支持的活动类型')
@@ -104,6 +74,7 @@ def where(params):
         parts.extend(['(activity_start IS NULL OR activity_start <= %s)','(activity_end IS NULL OR activity_end >= %s)'])
         args.extend([params.active_on,params.active_on])
     return parts,args
+
 
 def query(params, extra=None, extra_args=(), export=False, connection=None):
     db=connection or connect()
@@ -135,6 +106,7 @@ def query(params, extra=None, extra_args=(), export=False, connection=None):
     finally:
         if connection is None: db.close()
 
+
 def status():
     db=connect()
     try:
@@ -158,53 +130,8 @@ def status():
                               'multiTypeCount':result['metrics']['multi'],'categories':result['categories'],'latest':result['items']},warnings=result['warnings'])
     finally: db.close()
 
-mcp=FastMCP('rights_mcp',host='127.0.0.1',port=8812,streamable_http_path='/mcp',stateless_http=True,json_response=True)
 
-@mcp.tool(annotations=READ_ONLY_ANNOTATIONS)
-def rights_get_status(response_format:ResponseFormat=ResponseFormat.JSON)->str:
-    """Return real MySQL storage, cumulative ledger metrics, batch status and filter options."""
-    return render_response(status(),response_format)
-
-@mcp.tool(annotations=READ_ONLY_ANNOTATIONS)
-def rights_search_offers(params:Search)->str:
-    """Search cumulative ledger using database pagination. Activity types match any by default; dates filter monitor_date."""
-    return render_response(query(params),params.response_format)
-
-@mcp.tool(annotations=READ_ONLY_ANNOTATIONS)
-def rights_get_offer_detail(params:RightsIdInput)->str:
-    """Get one row by stable MYSQL-primary-key ID; original record numbers may be duplicated."""
-    if not params.record_id.startswith('MYSQL-') or not params.record_id[6:].isdigit():
-        raise ValueError('请使用查询返回的 MYSQL-主键编号')
-    result=query(Search(limit=1),'id = %s',(int(params.record_id[6:]),))
-    return render_response(single(result['items'][0] if result['items'] else None,source='rights',version=result['data_version']),params.response_format)
-
-@mcp.tool(annotations=READ_ONLY_ANNOTATIONS)
-def rights_get_active_offers(params:Search)->str:
-    """Find candidates for active_on (defaults to today); undated rows are explicitly unconfirmed."""
-    return render_response(query(params.model_copy(update={'active_on':params.active_on or date.today()})),params.response_format)
-
-@mcp.tool(annotations=READ_ONLY_ANNOTATIONS)
-def rights_compare_models(params:RightsCompareInput)->str:
-    """Compare stored cumulative ledger rows for two to ten model names, not unique live campaigns."""
-    comparisons=[]
-    for model in params.models:
-        result=query(Search(model=model,active_on=params.active_on,limit=10))
-        comparisons.append({'model':model,'offer_count':result['total_count'],'activity_counts':result['categories'],'items':result['items']})
-    return render_response({'success':True,'data_source':'rights','comparisons':comparisons},params.response_format)
-
-@mcp.tool(annotations=READ_ONLY_ANNOTATIONS)
-def rights_get_offer_changes(params:RightsChangeInput)->str:
-    """List only explicit stored change fields; no inferred day-over-day changes."""
-    result=query(Search(brand=params.brand,limit=params.limit,offset=params.offset),
-                 "(COALESCE(change_type,'') <> '' OR COALESCE(change_detail,'') <> '') AND LOCATE(%s,COALESCE(change_type,'')) > 0",(params.change_type,))
-    return render_response(result,params.response_format)
-
-@mcp.tool(annotations=READ_ONLY_ANNOTATIONS)
-def rights_export_offers(params:Export)->str:
-    """Export the identical query/version to approved 21-column Excel, base64 bytes; refuses truncation."""
-    return render_response(export_payload(params),params.response_format)
-
-def export_payload(params:Export)->dict:
+def export_payload(params: Export) -> dict:
     extra,args=None,()
     if params.record_ids:
         ids=[]
@@ -225,7 +152,13 @@ def export_payload(params:Export)->dict:
     return {'success':True,'data_source':'rights','row_count':result['count'],'data_version':result['data_version'],
             'file_name':'权益情报明细.xlsx','file_base64':base64.b64encode(out.getvalue()).decode()}
 
+
 class Auth:
+    """Token-file HTTP auth. Kept for the rights token-file contract covered by tests.
+
+    The data-api layer (`api_server.TokenAuth`) holds the serving-side check;
+    this class remains the standalone token-file middleware used historically.
+    """
     def __init__(self,app):
         self.app=app
         self.token=Path(os.environ['RIGHTS_MCP_TOKEN_FILE']).read_text().strip()
@@ -239,14 +172,3 @@ class Auth:
                 await send({'type':'http.response.body','body':b'{"error":"unauthorized"}'})
                 return
         await self.app(scope,receive,send)
-
-if __name__=='__main__':
-    import uvicorn
-    from starlette.routing import Mount
-    from .api_server import api_routes
-    os.environ['MARKET_RIGHTS_BACKEND']='mysql'
-    application=mcp.streamable_http_app()
-    # The MCP application owns its lifespan; route HTTP reads on the same
-    # loopback listener so the existing encrypted SSH channel remains usable.
-    application.router.routes[0:0]=api_routes
-    uvicorn.run(Auth(application),host='127.0.0.1',port=8812,access_log=False)
