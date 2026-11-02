@@ -88,7 +88,11 @@
 - 代码落点（2026-11-01 迁移）：用户洞察核心业务逻辑集中到 `customer_insight/` 包内——`retrieval_service.py`（检索服务）、`tool.py`（AgentScope Tool）；仅保留共有资源在外层（`tools/custom_tools.py` 的 `ReadOnlyBusinessTool` 基类、`agents/user_insight_agent.py`、`ops/` 导入脚本、`app.py` 的 Web 层）。已删除 `services/` 目录。
 - 前端（2026-11-01 迁移）：证据问答从废弃的 `legacy_workbench.html` 迁到首页 `home.html` 的 `#insight` 板块（`assets/home.js` 的 `InsightQA` 模块 + `assets/home.css` 样式），删除静态「用户洞察 · Demo 演示」。
 - 浏览器端到端验证已通过（2026-11-01，用户已授权启动服务）：选「访谈证据问答」→ 提问 → 6 条 evidence-card 渲染、无未捕获 JS 报错。
+- 证据选段修复（2026-11-02）：同一 answer 由「按时间取第一条」改为按与 `answer_text` 的字符二元组重叠评分取 2 段，问句/题干片段降权（`MAX_EVIDENCE_PER_ANSWER=2`）。「计划换车」复验返回受访者真实回答（R035 四五年换代、R040 3~4 年还贷、R058 七八年）；`test_retrieval` 4 例通过。
+- 布局与说明书（2026-11-02）：`#insight` 四 Tab 改为「1 检索问答 → 2 定量统计 → 3 专题洞察 → 4 对比与验证」四步链路；战胜战败从检索问答移入专题洞察；10 个功能全部加卡片标题与一句话说明；新增 Tab 使用引导与头部描述。`customer_insight/使用说明.md` 重写为完整操作手册（四 Tab 关系、10 功能步骤/示例/输出解读、群体取值速查）。
 - 待办：查询账户 `market_mcp_reader` 凭据未配置（当前检索复用 `user_insight_loader`，后续应切独立只读账户）。
+- 服务重启（2026-11-02，用户授权）：重启 7860 后已确认新页面生效（10 张 `insight-card`、引导条、战胜战败归入专题洞察、无旧 `qa` 归属）；启动脚本的隐藏进程未存活，改用后台常驻方式启动。
+- Tab 筛选缺陷修复 + 复验（2026-11-02）：`initTabs()` 选择器依赖 `#insight` 容器，但 `<section class='insight'>` 缺该 id，导致 `blocks` 为空、10 张卡片始终全部可见。已补 `<section id='insight'>` 并新增 `.insight-card[hidden]{display:none!important}`。重启后浏览器实测：默认仅 1 张（访谈证据检索）、定量统计 1 张、专题洞察 5 张、对比与验证 3 张，`aria-selected` 正确迁移、无 JS 控制台报错。
 
 ## T5 战胜战败决策链专题（进行中，2026-11-01 已授权）
 

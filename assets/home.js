@@ -1883,16 +1883,23 @@
 
     function renderQuant(data) {
       if (!data) return '';
+      const multi = !!data.multi_select;
       const groups = (data.groups || []).map((g) => `
         <div class='quant-group'>
-          <div class='quant-group__head'>${esc(g.group)}（n=${g.total}）</div>
+          <div class='quant-group__head'>${esc(g.group)}（样本 ${g.total}）</div>
           ${(g.items || []).map((i) => {
-            const pct = g.total ? Math.round(i.count / g.total * 100) : 0;
-            return `<div class='quant-item'><span class='quant-item__label'>${esc(i.value || '(空)')}</span><span class='quant-item__bar'><span style='width:${pct}%'></span></span><span class='quant-item__count'>${i.count}（${pct}%）</span></div>`;
+            const pct = multi
+              ? (i.coverage != null ? i.coverage : 0)
+              : (g.answered ? Math.round(i.count / g.answered * 100) : 0);
+            const text = multi ? `勾选 ${i.count}（覆盖 ${pct}%）` : `${i.count}（${pct}%）`;
+            return `<div class='quant-item'><span class='quant-item__label'>${esc(i.value || '(空)')}</span><span class='quant-item__bar'><span style='width:${Math.min(100, pct)}%'></span></span><span class='quant-item__count'>${text}</span></div>`;
           }).join('')}
         </div>
       `).join('');
-      return `<div class='quant-meta'>${esc(data.question_text)} · 按 ${esc(data.group_by_label)} · 样本 ${data.sample_count}</div>${groups}`;
+      const hint = multi
+        ? '<div class="quant-meta">本题为勾选题，占比按该群体全部样本计算（不是只按勾选者计算）。</div>'
+        : '';
+      return `<div class='quant-meta'>${esc(data.question_text)} · 按 ${esc(data.group_by_label)} · 作答 ${data.sample_count} 份</div>${hint}${groups}`;
     }
 
     async function askQuant() {
@@ -1916,12 +1923,12 @@
       }
     }
 
-    async function initQuant() {
+    async function initQuant(keyword = '') {
       try {
         const response = await fetch('/api/insight/quant/options', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: '{}',
+          body: JSON.stringify({ keyword }),
         });
         const data = await response.json();
         const dim = document.getElementById('insight-quant-dim');
@@ -2199,6 +2206,14 @@
         if (event.key === 'Enter') askBattle();
       });
       document.getElementById('insight-quant-run')?.addEventListener('click', askQuant);
+      const quantKeyword = document.getElementById('insight-quant-keyword');
+      if (quantKeyword) {
+        let quantTimer = null;
+        quantKeyword.addEventListener('input', () => {
+          clearTimeout(quantTimer);
+          quantTimer = setTimeout(() => initQuant(quantKeyword.value.trim()), 300);
+        });
+      }
       document.getElementById('insight-joint-run')?.addEventListener('click', askJoint);
       document.getElementById('insight-joint-input')?.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') askJoint();

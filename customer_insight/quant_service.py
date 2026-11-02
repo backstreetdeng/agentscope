@@ -54,7 +54,7 @@ class QuantStatService:
     def dimensions(self) -> list[dict[str, str]]:
         return [{"key": k, "label": v} for k, v in DIMENSIONS.items()]
 
-    def list_questions(self, keyword: str = "", limit: int = 100) -> list[dict[str, Any]]:
+    def list_questions(self, keyword: str = "", limit: int = 2000) -> list[dict[str, Any]]:
         keyword = (keyword or "").strip()
         conn = self._connect()
         try:
@@ -92,6 +92,14 @@ class QuantStatService:
                     raise ValueError(f"题目不存在：{question_id}")
                 question_text = qrow["question_text"]
 
+                # 分母：该群体全部样本，不受“是否作答该题”影响（勾选题必须用这个分母）
+                cur.execute(
+                    f"SELECT {group_by} AS grp, count(*) AS total "
+                    "FROM user_insight.quant_sample "
+                    f"WHERE {group_by} IS NOT NULL GROUP BY grp"
+                )
+                group_totals = {str(r["grp"]): r["total"] for r in cur.fetchall()}
+
                 cur.execute(
                     f"SELECT {group_by} AS grp, answers_text->>%s AS val, count(*) AS cnt "
                     "FROM user_insight.quant_sample "
@@ -110,15 +118,21 @@ class QuantStatService:
                 by_group[g].append({"value": r["val"], "count": r["cnt"]})
                 total += r["cnt"]
 
+            # 勾选题（如 Q3_23 购车关注因素）：取值只有 1，占比应按群体总样本算
+            multi_select = bool(rows) and all(str(r["val"]) in ("1", "1.0") for r in rows)
+
             groups = []
             for g, items in by_group.items():
-                g_total = sum(i["count"] for i in items)
+                g_total = group_totals.get(g, sum(i["count"] for i in items))
+                for i in items:
+                    i["coverage"] = round(i["count"] / g_total * 100, 1) if g_total else 0.0
                 groups.append({
                     "group": g,
                     "total": g_total,
+                    "answered": sum(i["count"] for i in items),
                     "items": sorted(items, key=lambda x: -x["count"])[:top],
                 })
-            groups.sort(key=lambda x: -x["total"])
+            groups.sort(key=lambda x: -x["answered"])
 
             return {
                 "question_id": question_id,
@@ -126,6 +140,7 @@ class QuantStatService:
                 "group_by": group_by,
                 "group_by_label": DIMENSIONS[group_by],
                 "sample_count": total,
+                "multi_select": multi_select,
                 "groups": groups[:top],
             }
         finally:

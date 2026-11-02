@@ -5272,7 +5272,9 @@ body {
 /* 定量统计看板 */
 .insight-quant { margin-top: 24px; position: relative; z-index: 1500; }
 .insight-quant__bar { display: flex; gap: 10px; align-items: center; }
-.insight-quant__select { flex: 1; padding: 10px 12px; border: 1px solid var(--border-subtle, #E2E8F0); border-radius: 8px; font-size: 13px; color: var(--text-primary); background: var(--bg-surface, #fff); }
+.insight-quant__bar .btn { flex-shrink: 0; }
+.insight-quant__select { flex: 1 1 0; min-width: 0; padding: 10px 12px; border: 1px solid var(--border-subtle, #E2E8F0); border-radius: 8px; font-size: 13px; color: var(--text-primary); background: var(--bg-surface, #fff); }
+.insight-quant__keyword { flex: 0 1 180px; min-width: 110px; padding: 10px 12px; border: 1px solid var(--border-subtle, #E2E8F0); border-radius: 8px; font-size: 13px; color: var(--text-primary); background: var(--bg-surface, #fff); }
 .quant-meta { padding: 10px 14px; font-size: 13px; color: var(--text-tertiary, #64748b); margin-bottom: 10px; }
 .quant-group { background: var(--bg-surface, #fff); border: 1px solid var(--border-subtle, #E2E8F0); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
 .quant-group__head { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
@@ -5348,3 +5350,69 @@ body {
 .insight-tab { padding: 10px 16px; border: none; background: none; cursor: pointer; font-size: 14px; color: #64748b; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color .15s, border-color .15s; }
 .insight-tab:hover { color: #334155; }
 .insight-tab.is-active { color: #2563eb; border-bottom-color: #2563eb; font-weight: 600; }
+
+
+/* 洞察使用引导与功能卡片 */
+.insight-guide {
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-subtle, #E2E8F0);
+  border-left: 3px solid #2563eb;
+  border-radius: 8px;
+  background: #F8FAFF;
+  font-size: 13px;
+  line-height: 1.75;
+  color: #475569;
+}
+.insight-guide strong { color: #1E293B; font-weight: 600; }
+
+.insight-card {
+  margin-bottom: 16px;
+  padding: 18px 20px;
+  border: 1px solid var(--border-subtle, #E2E8F0);
+  border-radius: 12px;
+  background: var(--bg-surface, #fff);
+}
+.insight-card[hidden] { display: none !important; }
+.insight-card__title {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary, #1D2129);
+}
+.insight-card__desc {
+  margin: 0 0 14px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #64748B;
+}
+
+/* 卡片内功能区不再需要顶部间距，避免与标题脱节 */
+.insight-card .insight-qa,
+.insight-card .insight-battle,
+.insight-card .insight-quant,
+.insight-card .insight-joint,
+.insight-card .insight-segment,
+.insight-card .insight-painpoints,
+.insight-card .insight-repurchase,
+.insight-card .insight-matrix,
+.insight-card .insight-compare,
+.insight-card .insight-cross {
+  margin-top: 0;
+}
+
+@media (max-width: 720px) {
+  .insight-card { padding: 14px; }
+  .insight-qa__bar,
+  .insight-battle__bar,
+  .insight-quant__bar,
+  .insight-joint__bar,
+  .insight-segment__bar,
+  .insight-painpoints__bar,
+  .insight-repurchase__bar,
+  .insight-matrix__bar,
+  .insight-compare__bar,
+  .insight-cross__bar {
+    flex-wrap: wrap;
+  }
+}

@@ -31,7 +31,7 @@ ALLOWED_FILTERS = {
 DEFAULT_TOP_K = 6
 MAX_TOP_K = 8
 RECALL_LIMIT = 30
-MAX_EVIDENCE_PER_ANSWER = 1
+MAX_EVIDENCE_PER_ANSWER = 2
 MAX_EVIDENCE_PER_RESPONDENT = 3
 
 
@@ -84,6 +84,69 @@ def _format_seconds(sec: float | None) -> str:
     minutes = int(total // 60)
     seconds = total - minutes * 60
     return f"{minutes}:{seconds:04.1f}"
+
+
+def _normalize_text(text: str | None) -> str:
+    """去掉标点与空白，用于原话与答案摘要的字符重叠比较。"""
+    return re.sub(r"[\s，。、；：！？,.;:!?\"'“”‘’（）()~—\-…]+", "", text or "")
+
+
+def _bigrams(text: str) -> set[str]:
+    if len(text) < 2:
+        return {text} if text else set()
+    return {text[i:i + 2] for i in range(len(text) - 1)}
+
+
+def _looks_like_question(row: dict[str, Any]) -> bool:
+    """判断证据段是否是访谈员提问：以问号结尾，或是题干的一部分。"""
+    raw = (row.get("quote_text") or "").strip()
+    if raw.endswith(("？", "?")):
+        return True
+    quote = _normalize_text(raw)
+    question = _normalize_text(row.get("question_text"))
+    return len(quote) >= 6 and quote in question
+
+
+def _segment_score(row: dict[str, Any], answer_text: str) -> float:
+    """按与答案摘要的字符二元组重叠打分，越像回答内容分越高。"""
+    quote = _normalize_text(row.get("quote_text"))
+    answer = _normalize_text(answer_text)
+    if not quote:
+        return -1.0
+    score = 0.0
+    if answer:
+        qb, ab = _bigrams(quote), _bigrams(answer)
+        inter = len(qb & ab)
+        # 平衡「原话被答案覆盖」与「答案被原话覆盖」
+        score = 0.5 * (inter / len(qb)) + 0.5 * (inter / len(ab))
+    if _looks_like_question(row):
+        score -= 1.0
+    if len(quote) < 6:
+        score -= 0.5
+    return score
+
+
+def _pick_evidence_segments(
+    rows: list[dict[str, Any]],
+    answer_text: str,
+    limit: int,
+) -> list[dict[str, Any]]:
+    """同一答案下选取最能代表回答内容的证据段，按时间顺序返回。"""
+    if not rows:
+        return []
+    scored = [(score, idx, row) for idx, row in enumerate(rows) for score in [_segment_score(row, answer_text)]]
+    scored.sort(key=lambda item: (-item[0], item[1]))
+    positives = [item for item in scored if item[0] > 0]
+    non_questions = [item for item in scored if not _looks_like_question(item[2])]
+    pool = positives or non_questions or scored
+    picked = [item[2] for item in pool[:limit]]
+    picked.sort(key=lambda r: (
+        r.get("start_sec") is None,
+        r.get("start_sec") or 0.0,
+        r.get("block_index") or 0,
+        r.get("segment_index") or 0,
+    ))
+    return picked
 
 
 def _time_label(row: dict[str, Any]) -> str:
@@ -285,7 +348,10 @@ class InterviewRetrievalService:
         selected_by_id = {c["answer_id"]: c for c in selected}
         evidence: list[dict[str, Any]] = []
         for answer_id in answer_ids:
-            for row in by_answer.get(answer_id, [])[:MAX_EVIDENCE_PER_ANSWER]:
+            answer_text = (selected_by_id.get(answer_id) or {}).get("answer_text") or ""
+            for row in _pick_evidence_segments(
+                by_answer.get(answer_id, []), answer_text, MAX_EVIDENCE_PER_ANSWER
+            ):
                 loc = row.get("source_locator") or {}
                 if isinstance(loc, str):
                     try:
