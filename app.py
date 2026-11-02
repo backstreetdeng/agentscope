@@ -243,7 +243,7 @@ def save_macro_ledger(filename: str, data: bytes) -> dict[str, Any]:
     return metadata
 
 from openai import AuthenticationError
-from agentscope.message import UserMsg
+from agentscope.message import AssistantMsg, UserMsg
 
 from main import (
     ENV_PATH,
@@ -254,6 +254,7 @@ from main import (
     strip_thinking,
 )
 from skills.market_analysis_skill import MarketAnalysisSkill
+from agents.benchmark_agent import build_benchmark_agent
 from integrations.market_mcp_plugins import load_market_mcp_plugins
 from integrations.reputation_live import load_reputation
 from integrations.new_car_live import load_new_car
@@ -265,7 +266,7 @@ from skills.market_analysis_skill.runtime import (
     normalize_top15_summary_wording,
     strip_internal_evidence_markers,
 )
-from tools.custom_tools import clear_tool_call_events, get_tool_call_events, record_tool_call
+from tools.custom_tools import clear_evidence_registry, clear_tool_call_events, get_collected_evidence, get_tool_call_events, record_tool_call
 from tools.monthly_report_browser import MONTHLY_REPORT_BROWSER, MonthlyReportBrowserConnector, _page_card_codes, _card_has_current_period
 from skill_runtime import SkillRegistry, SkillRunContext, build_skill_runtime_tools
 from utils.audio_tagging_engine import DEFAULT_TAG_TAXONOMY, run_audio_tagging_workflow
@@ -300,6 +301,7 @@ PASSENGER_MONTHLY_PACKAGE_DIR = (PROJECT_DIR / "outputs" / "monthly-report-data"
 # 模板是版式母版；跨月份导出先按本轮BI卡片更新图表和表格。
 PASSENGER_MONTHLY_CAPABILITY_ID = "passenger_car_monthly_report"
 MACRO_MONTHLY_CAPABILITY_ID = "macro_monthly_report"
+COMPETITOR_BENCHMARK_CAPABILITY_ID = "competitor_benchmark"
 MACRO_MONTHLY_SKILL_DIR = PROJECT_DIR / "skills" / "macro-monthly-report"
 SKILL_RUNTIME_ROOT = PROJECT_DIR / "runtime" / "skill-runs"
 SKILL_REGISTRY = SkillRegistry([PROJECT_DIR / "skills"])
@@ -362,6 +364,24 @@ presentation_powerpoint_validate 和 skill_validate_run。
 
 每完成一个任务节点立刻调用 skill_update_task；缺失的数据要按 Skill 的预测规则
 标注，不得为了继续流程编造来源。不要在最终回答中复述操作计划，工具完成前继续执行。
+"""
+    elif skill_id == "competitor-benchmarking":
+        instruction += """
+
+# 竞品对标运行时执行约束
+
+先调用 skill_plan_tasks 建立任务图（至少包含：识别目标车型 → P0 款型配置取证 →
+口碑/联网佐证 → 交叉校验 → 产出对标矩阵 → 独立验收）。硬参数（纯电续航/整备质量/
+能耗/电池能量）必须用 miit_search_models 找 car_id，再 miit_get_model_detail 取
+CLTC/WLTC/NEDC 续航等配置值，以款型配置值为唯一锚；宣传值仅佐证并标注口径。价格
+阶梯分列（指导价/先享价/限时价/经销商价），冲突三型分治，缺失标 insufficient/na。
+
+取证后调用 workspace_write_text 把对标矩阵写入 outputs/benchmark-matrix.json
+（契约见 assets/matrix-schema.json），artifact_kind 填 benchmark_matrix。随后调用
+skill_run_script 执行 scripts/validate_matrix.py，args_json 填
+["outputs/benchmark-matrix.json"]，按返回 failures 修复矩阵；修复后调用
+skill_update_task 记录验收证据。最后调用 skill_validate_run，required_artifacts_json
+填 ["outputs/benchmark-matrix.json"]，只有 passed=true 才能宣告完成。
 """
     tools = build_skill_runtime_tools(context)
     return context, instruction, tools
@@ -992,6 +1012,9 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
         if request_path == '/forecast-engine-view':
             self._send_html((PROJECT_DIR / 'pages/forecast-engine.html').read_text(encoding='utf-8'))
             return
+        if request_path in ('/benchmark', '/benchmark.html'):
+            self._send_html((PROJECT_DIR / 'pages/benchmark.html').read_text(encoding='utf-8'))
+            return
         if request_path.startswith('/api/forecast-engine/'):
             from integrations.forecast_engine_web import FORECAST_WEB_JOBS, status as forecast_status
             try:
@@ -1447,7 +1470,7 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
             except Exception as exc:
                 self._send_json({'error': type(exc).__name__ + ': ' + str(exc)}, status=500)
             return
-        if self.path not in {"/api/assistant/chat", "/api/chat", "/api/ppt", "/api/audio-tags/run", "/api/quality-gate", "/api/market-skill/validate", "/api/intelligence/export", "/api/projects/update", "/api/macro-ledger", "/api/monthly-report/jobs", "/api/monthly-report/jobs/cancel", "/api/monthly-report/jobs/resume", "/api/macro-report/jobs", "/api/macro-report/jobs/cancel", "/api/macro-report/jobs/resume", "/api/insight/interview/query", "/api/insight/battle/analyze", "/api/insight/quant/stat", "/api/insight/quant/options", "/api/insight/joint/analyze", "/api/insight/segment/clusters", "/api/insight/satisfaction/painpoints", "/api/insight/repurchase/intent", "/api/insight/matrix/match", "/api/insight/compare", "/api/insight/cross/validate"}:
+        if self.path not in {"/api/assistant/chat", "/api/chat", "/api/ppt", "/api/audio-tags/run", "/api/quality-gate", "/api/market-skill/validate", "/api/intelligence/export", "/api/projects/update", "/api/macro-ledger", "/api/monthly-report/jobs", "/api/monthly-report/jobs/cancel", "/api/monthly-report/jobs/resume", "/api/macro-report/jobs", "/api/macro-report/jobs/cancel", "/api/macro-report/jobs/resume", "/api/insight/interview/query", "/api/insight/battle/analyze", "/api/insight/quant/stat", "/api/insight/quant/options", "/api/insight/joint/analyze", "/api/insight/segment/clusters", "/api/insight/satisfaction/painpoints", "/api/insight/repurchase/intent", "/api/insight/matrix/match", "/api/insight/compare", "/api/insight/cross/validate", "/api/insight/agent/query", "/api/insight/agent/stream"}:
             self.send_error(HTTPStatus.NOT_FOUND)
             return
 
@@ -1742,9 +1765,10 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
                 from customer_insight.quant_service import QuantStatService
 
                 svc = QuantStatService()
+                keyword = str(payload.get("keyword", "")).strip()
                 self._send_json({
                     "dimensions": svc.dimensions(),
-                    "questions": svc.list_questions(limit=200),
+                    "questions": svc.list_questions(keyword=keyword, limit=2000),
                 })
                 return
 
@@ -1846,6 +1870,49 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
                     self._send_json(svc.cross_validation(group_field, group_value, top_k))
                 except Exception as exc:
                     self._send_json({"error": type(exc).__name__ + ": " + str(exc)}, status=502)
+                return
+
+            if self.path == "/api/insight/agent/query":
+                question = str(payload.get("question", "")).strip()
+                session_id = str(payload.get("session_id", "")).strip()
+                if not question:
+                    self._send_json({"error": "问题不能为空。"}, status=400)
+                    return
+                try:
+                    with AGENT_RUN_LOCK:
+                        result = AGENT_LOOP_RUNNER.run(
+                            run_insight_agent_query(question, session_id),
+                        )
+                except Exception as exc:
+                    self._send_json({"error": type(exc).__name__ + ": " + str(exc)}, status=502)
+                    return
+                self._send_json(result)
+                return
+
+            if self.path == "/api/insight/agent/stream":
+                question = str(payload.get("question", "")).strip()
+                session_id = str(payload.get("session_id", "")).strip()
+                if not question:
+                    self._send_json({"error": "问题不能为空。"}, status=400)
+                    return
+                self._begin_ndjson()
+
+                def emit(event: dict[str, Any]) -> None:
+                    self._write_ndjson(event)
+
+                try:
+                    with AGENT_RUN_LOCK:
+                        AGENT_LOOP_RUNNER.run(
+                            asyncio.wait_for(
+                                stream_insight_agent_query(question, emit, session_id),
+                                timeout=300,
+                            ),
+                        )
+                except Exception as exc:
+                    try:
+                        emit({"type": "error", "message": type(exc).__name__ + ": " + str(exc)})
+                    except Exception:
+                        pass
                 return
 
             question = str(payload.get("question", "")).strip()
@@ -1997,6 +2064,22 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(data)))
         self.end_headers()
         self.wfile.write(data)
+
+    def _begin_ndjson(self) -> None:
+        """开始一条 NDJSON 流式响应：不发送 Content-Length，按行推送并即时刷新。"""
+        self.send_response(HTTPStatus.OK)
+        self.send_header("Content-Type", "application/x-ndjson; charset=utf-8")
+        self.send_header("Cache-Control", "no-store, max-age=0")
+        self.send_header("X-Accel-Buffering", "no")
+        self.send_header("Connection", "close")
+        self.end_headers()
+        self.close_connection = True
+
+    def _write_ndjson(self, payload: dict[str, Any]) -> None:
+        """写入一行 NDJSON 事件并立即刷新到客户端。"""
+        line = (json.dumps(payload, ensure_ascii=False, default=str) + "\n").encode("utf-8")
+        self.wfile.write(line)
+        self.wfile.flush()
 
     def _send_json(self, payload: dict[str, Any], status: int = 200) -> None:
         data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
@@ -3704,6 +3787,188 @@ async def run_joint_analysis(
     }
 
 
+def build_insight_conversation_inputs(
+    question: str,
+    session_id: str,
+    agent_name: str,
+) -> tuple[list[Any], int]:
+    """把会话历史拼成 Agent 输入消息；返回 (消息列表, 携带的历史轮数)。"""
+    if not session_id:
+        return [UserMsg(name="业务用户", content=question)], 0
+
+    from customer_insight.session import get_history
+
+    history = get_history(session_id)
+    inputs: list[Any] = []
+    for turn in history:
+        inputs.append(UserMsg(name="业务用户", content=turn["question"]))
+        inputs.append(AssistantMsg(name=agent_name, content=turn["answer"]))
+    inputs.append(UserMsg(name="业务用户", content=question))
+    return inputs, len(history)
+
+
+async def _load_reputation_mcp_tools(config: dict[str, Any]) -> list[Any]:
+    """加载口碑 MCP 工具，供用户洞察自由问答跨源调用。
+
+    口碑是独立数据源（汽车之家/懂车帝），由 Agent 按需调用。插件不可用时降级为空列表，
+    不阻断主流程；Agent 仍可用访谈/定量/联网工具回答。
+    """
+    try:
+        from integrations.market_mcp_plugins import load_market_mcp_plugins
+
+        bundle = await load_market_mcp_plugins(
+            config,
+            agent_key="user_insight_config",
+            selected_plugin_ids=["reputation"],
+        )
+        return bundle.tools
+    except Exception:
+        return []
+
+
+async def run_insight_agent_query(question: str, session_id: str = "") -> dict[str, Any]:
+    """用户洞察自由问答：带工具的 ReAct Agent 自主编排，结束后跨轮校验 [E#] 引用。"""
+    load_dotenv(ENV_PATH, override=True)
+    config = load_json_config()
+
+    from agents.user_insight_agent import build_user_insight_free_qa_agent
+
+    clear_tool_call_events()
+    clear_evidence_registry()
+    reputation_tools = await _load_reputation_mcp_tools(config)
+    agent = build_user_insight_free_qa_agent(config, market_mcp_tools=reputation_tools)
+    run_id = "ins-agent-" + uuid4().hex[:12]
+    inputs, history_turns = build_insight_conversation_inputs(question, session_id, agent.name)
+
+    reply = await asyncio.wait_for(
+        agent.reply(inputs),
+        timeout=180,
+    )
+    answer = strip_thinking(reply.get_text_content())
+    tool_events = get_tool_call_events()
+    evidence = get_collected_evidence()
+
+    # 反幻觉硬门：跨轮收集 valid_ids，删除正文中指向不存在证据的 [E#]，避免虚构引用。
+    valid_ids = {ev["evidence_id"] for ev in evidence}
+    answer = re.sub(
+        r"\[E(\d+)\]",
+        lambda m: m.group(0) if f"E{m.group(1)}" in valid_ids else "",
+        answer,
+    )
+
+    warnings: list[str] = []
+    if not evidence:
+        warnings.append("本轮未检索到任何访谈证据，回答仅基于定量统计或模型判断。")
+
+    if session_id and answer:
+        from customer_insight.session import append_turn
+
+        append_turn(session_id, question, answer)
+
+    return {
+        "run_id": run_id,
+        "status": "completed",
+        "session_id": session_id,
+        "history_turns": history_turns,
+        "answer": answer,
+        "evidence": evidence,
+        "tool_events": tool_events,
+        "warnings": warnings,
+    }
+
+
+async def stream_insight_agent_query(question: str, emit: Any, session_id: str = "") -> None:
+    """用户洞察自由问答（流式）：把 Agent 的推理过程与工具调用实时推送为 NDJSON 事件。
+
+    事件类型：
+    - start / round：会话与模型轮次开始
+    - reasoning_start / reasoning_delta / reasoning_end：推理文本增量（思考过程）
+    - tool_start / tool_end / tool_result：工具调用与结果状态
+    - final：经 [E#] 硬校验后的最终答案、证据与工具审计
+    - error：异常
+    """
+    load_dotenv(ENV_PATH, override=True)
+    config = load_json_config()
+
+    from agents.user_insight_agent import build_user_insight_free_qa_agent
+
+    clear_tool_call_events()
+    clear_evidence_registry()
+    reputation_tools = await _load_reputation_mcp_tools(config)
+    agent = build_user_insight_free_qa_agent(config, market_mcp_tools=reputation_tools)
+    run_id = "ins-agent-" + uuid4().hex[:12]
+    inputs, history_turns = build_insight_conversation_inputs(question, session_id, agent.name)
+    emit({"type": "start", "run_id": run_id, "session_id": session_id, "history_turns": history_turns})
+
+    blocks: dict[str, str] = {}
+    block_order: list[str] = []
+    rounds = 0
+
+    try:
+        async for event in agent.reply_stream(inputs):
+            kind = str(getattr(event, "type", "")).lower()
+            if kind == "model_call_start":
+                rounds += 1
+                emit({"type": "round", "round": rounds})
+            elif kind == "text_block_start":
+                block_id = str(getattr(event, "block_id", "") or f"b{len(block_order) + 1}")
+                blocks[block_id] = ""
+                block_order.append(block_id)
+                emit({"type": "reasoning_start", "block": block_id})
+            elif kind == "text_block_delta":
+                block_id = str(getattr(event, "block_id", ""))
+                delta = str(getattr(event, "delta", "") or "")
+                blocks[block_id] = blocks.get(block_id, "") + delta
+                emit({"type": "reasoning_delta", "block": block_id, "text": delta})
+            elif kind == "text_block_end":
+                emit({"type": "reasoning_end", "block": str(getattr(event, "block_id", ""))})
+            elif kind == "tool_call_start":
+                emit({
+                    "type": "tool_start",
+                    "id": str(getattr(event, "tool_call_id", "")),
+                    "name": str(getattr(event, "tool_call_name", "")),
+                })
+            elif kind == "tool_result_end":
+                emit({
+                    "type": "tool_result",
+                    "id": str(getattr(event, "tool_call_id", "")),
+                    "name": str(getattr(event, "tool_call_name", "")),
+                    "state": str(getattr(event, "state", "")),
+                })
+    except Exception as exc:
+        emit({"type": "error", "message": type(exc).__name__ + ": " + str(exc)})
+        return
+
+    # 最后一个文本块是最终答复；其余文本块是推理过程，仅用于实时展示。
+    answer = strip_thinking(blocks.get(block_order[-1], "") if block_order else "")
+    evidence = get_collected_evidence()
+    valid_ids = {ev["evidence_id"] for ev in evidence}
+    answer = re.sub(
+        r"\[E(\d+)\]",
+        lambda m: m.group(0) if f"E{m.group(1)}" in valid_ids else "",
+        answer,
+    )
+    warnings: list[str] = []
+    if not evidence:
+        warnings.append("本轮未检索到任何访谈证据，回答仅基于定量统计或模型判断。")
+
+    if session_id and answer:
+        from customer_insight.session import append_turn
+
+        append_turn(session_id, question, answer)
+
+    emit({
+        "type": "final",
+        "run_id": run_id,
+        "session_id": session_id,
+        "history_turns": history_turns,
+        "answer": answer,
+        "evidence": evidence,
+        "tool_events": get_tool_call_events(),
+        "warnings": warnings,
+    })
+
+
 async def run_agent_once(
     agent_key: str,
     question: str,
@@ -3756,11 +4021,17 @@ async def run_agent_once(
     if macro_monthly_task:
         return await run_macro_monthly_skill(question, config)
 
-    plugin_bundle = await load_market_mcp_plugins(
-        config,
-        agent_key=agent_key if agent_key == "user_insight_config" else "market_strategy",
-        selected_plugin_ids=mcp_plugin_ids,
-    )
+    if agent_key == "competitor_benchmark":
+        # 竞品对标：P0 款型配置信息由本地 miit 工具提供，P2 口碑走 reputation 插件。
+        plugin_bundle = await load_market_mcp_plugins(
+            config, agent_key="market_strategy", selected_plugin_ids=["reputation"],
+        )
+    else:
+        plugin_bundle = await load_market_mcp_plugins(
+            config,
+            agent_key=agent_key if agent_key == "user_insight_config" else "market_strategy",
+            selected_plugin_ids=mcp_plugin_ids,
+        )
     for plugin_status in plugin_bundle.statuses:
         if plugin_status.status == "disabled":
             continue
@@ -3774,7 +4045,27 @@ async def run_agent_once(
         )
 
     market_skill_context = None
-    if agent_key == "user_insight_config":
+    if agent_key == "competitor_benchmark":
+        skill_run_context, skill_instruction, skill_runtime_tools = activate_skill_runtime(
+            "competitor-benchmarking",
+        )
+        record_tool_call(
+            "skill_runtime_activate",
+            "success",
+            (
+                f"skill=competitor-benchmarking; "
+                f"run_id={skill_run_context.run_id}; "
+                f"resources={len(skill_run_context.package.resources())}"
+            ),
+        )
+        agent = build_benchmark_agent(
+            config,
+            market_mcp_tools=plugin_bundle.tools,
+            skill_instruction=skill_instruction,
+            skill_runtime_tools=skill_runtime_tools,
+            max_iters_override=32,
+        )
+    elif agent_key == "user_insight_config":
         agent = build_user_insight_agent(config, market_mcp_tools=plugin_bundle.tools)
     else:
         agent_key = "market_strategy"

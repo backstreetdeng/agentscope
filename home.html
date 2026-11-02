@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang='zh-CN'>
 <head>
   <meta charset='UTF-8'>
@@ -6,7 +6,7 @@
   <meta name='description' content='乘用车市场战略决策AI智能体系统 — 战略驾驶舱，把情报和决策交给我们'>
   <meta name='color-scheme' content='light'>
   <title>乘用车市场战略决策AI智能体系统 · Strategy Cockpit</title>
-  <link rel='stylesheet' href='/assets/home.css'>
+  <link rel='stylesheet' href='/assets/home.css?v=20261102e'>
   <link rel='stylesheet' href='/assets/home-workspace.css?v=20261012'>
   <link rel='icon' type='image/svg+xml' href='/assets/brand-mark.svg?v=20261012'>
   <link rel='stylesheet' href='/assets/intel-overview.css'>
@@ -61,6 +61,11 @@
           <a class='nav-item' data-view='forecast-engine' href='#forecast-engine' aria-label='新版-市场预测，市场情景预测与依据追溯'>
             <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M3 19h18M4 15l5-5 4 3 7-9'/><path d='M15 4h5v5'/></svg></span>
             <span class='nav-label'>新版-市场预测</span><span class='nav-badge nav-badge--ai'>NEW</span>
+          </a>
+          <a class='nav-item nav-item--external' data-view='benchmark' href='/benchmark' aria-label='竞品对标，款型配置信息锚定的竞品矩阵与战略So What'>
+            <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='7' height='7' rx='1'/><rect x='14' y='14' width='7' height='7' rx='1'/><path d='M10 10 L14 14 M14 10 L10 14'/></svg></span>
+            <span class='nav-label'>竞品对标</span>
+            <span class='nav-badge nav-badge--ai'>AI</span>
           </a>
           <a class='nav-item' data-view='insight' href='#insight' aria-label='用户洞察，演示示例'>
             <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='9' cy='8' r='3'/><circle cx='17' cy='9' r='2.5'/><path d='M3 20 c0-3 3-5 6-5 s6 2 6 5 M14 20 c0-2 2-4 5-4'/></svg></span>
@@ -1126,184 +1131,239 @@
           <header class='section-head'>
             <div class='section-head__text'>
               <h2 id='insight-title' class='section-head__title section-head__title--ai'>用户洞察</h2>
-              <p class='section-head__desc'>基于 63 位深访与 1380 份问卷，四步完成一次洞察：先找原话，再看比例，再得结论，最后交叉核对。</p>
+              <p class='section-head__desc'>问一句就够：智能问答会自己判断是查访谈原话、算问卷比例还是做专题分析，并给出结论与可回源证据。需要自己核对时，再展开下方证据抽屉。</p>
             </div>
           </header>
 
-          <nav class='insight-tabs' role='tablist' aria-label='洞察能力分组'>
-            <button class='insight-tab is-active' data-insight-tab='qa' role='tab' aria-selected='true' type='button'>1 检索问答</button>
-            <button class='insight-tab' data-insight-tab='quant' role='tab' aria-selected='false' type='button'>2 定量统计</button>
-            <button class='insight-tab' data-insight-tab='topic' role='tab' aria-selected='false' type='button'>3 专题洞察</button>
-            <button class='insight-tab' data-insight-tab='compare' role='tab' aria-selected='false' type='button'>4 对比与验证</button>
-          </nav>
-
-          <p class='insight-guide'>
-            <strong>先回答“用户到底说了什么”</strong>：检索问答找出可引用原话 →
-            <strong>再回答“有多少人”</strong>：定量统计看比例 →
-            <strong>再回答“结论是什么”</strong>：专题洞察看战胜战败、圈层、痛点、再购、需求矩阵 →
-            <strong>最后回答“靠不靠谱”</strong>：对比与验证做竞品对比和定性定量互证。
-          </p>
-
-          <article class='insight-card' data-insight-tab='qa' aria-label='访谈证据检索'>
-            <h3 class='insight-card__title'>访谈证据检索</h3>
-            <p class='insight-card__desc'>输入一个业务问题，系统从 63 位受访者的访谈原话中检索证据，给出带编号的结论和可回源的引文（E1、E2… 为本次结果的证据序号，R018 为受访者匿名编号）。证据不足时会明确拒答，不编造。</p>
+          <article class='insight-card insight-card--primary' aria-label='智能问答'>
+            <h3 class='insight-card__title'>智能问答</h3>
+            <p class='insight-card__desc'>直接用自然语言提问，智能体会自主决定调用哪些工具（访谈证据、定量统计、专题洞察，必要时联网查车型参数），一站式给出结论、可回源证据与工具调用过程。支持连续追问，它会带着上文继续查。</p>
+            <div class='insight-agent-guide'>
+              <p class='insight-agent-guide__title'>怎么用：把问题当一句话说清楚，智能体会自己判断查访谈原话、算问卷比例、还是做专题分析。</p>
+              <div class='insight-agent-examples'>
+                <span class='insight-agent-examples__label'>试试问：</span>
+                <button type='button' class='agent-example' data-agent-q='哪些用户提到后排空间和孩子？'>后排空间谁在提</button>
+                <button type='button' class='agent-example' data-agent-q='唐L用户最不满意哪些方面？'>唐L哪里不满意</button>
+                <button type='button' class='agent-example' data-agent-q='增换购用户最看重哪些配置？'>增换购看重什么</button>
+                <button type='button' class='agent-example' data-agent-q='有哪些用户因为续航放弃某款车？'>谁因续航弃购</button>
+              </div>
+              <p class='insight-agent-guide__note'>回答包含结论 + 可回源证据（[E#]）+ 工具调用过程；结论区分「样本结果」与「研究假设」，访谈原话 ≠ 统计比例，样本量小时不夸大。</p>
+            </div>
             <div class='insight-qa'>
               <div class='insight-qa__bar'>
-                <input id='insight-qa-input' class='insight-qa__input' type='text' placeholder='例如：哪些用户提到后排空间和孩子？' aria-label='访谈证据问题' />
-                <button id='insight-qa-run' class='btn btn--primary' type='button'>检索证据</button>
+                <input id='insight-agent-input' class='insight-qa__input' type='text' placeholder='可以接着追问，例如：那你去查这些车型的续航差值' aria-label='智能问答问题' />
+                <button id='insight-agent-run' class='btn btn--primary' type='button'>发送</button>
+                <button id='insight-agent-clear' class='btn btn--ghost' type='button'>清空对话</button>
               </div>
-              <div id='insight-qa-result' class='insight-qa__result' hidden></div>
+              <div id='insight-agent-thread' class='agent-thread' hidden></div>
             </div>
           </article>
 
-          <article class='insight-card' data-insight-tab='quant' aria-label='问卷分布统计'>
-            <h3 class='insight-card__title'>问卷分布统计</h3>
-            <p class='insight-card__desc'>选择“切分维度 + 问卷题目”，查看 1380 份问卷在该题目上的选项分布与占比，用来判断某个说法覆盖多少人。定性原话不能当比例用，比例只看这里。</p>
-            <div class='insight-quant'>
-              <div class='insight-quant__bar'>
-                <select id='insight-quant-dim' class='insight-quant__select' aria-label='切分维度'></select>
-                <input id='insight-quant-keyword' class='insight-quant__keyword' type='text' placeholder='搜索题目，如：空间' aria-label='题目搜索' />
-                <select id='insight-quant-question' class='insight-quant__select' aria-label='问卷题目'></select>
-                <button id='insight-quant-run' class='btn btn--primary' type='button'>统计分布</button>
-              </div>
-              <div id='insight-quant-result' class='insight-qa__result' hidden></div>
-            </div>
-          </article>
+          <div id='insight-ctx' class='insight-ctx' hidden>
+            <span class='insight-ctx__label'>当前上下文</span>
+            <span id='insight-ctx-chips' class='insight-ctx__chips'></span>
+            <span id='insight-ctx-source' class='insight-ctx__source'></span>
+            <button id='insight-ctx-clear' class='insight-ctx__clear' type='button'>清除</button>
+          </div>
 
-          <article class='insight-card' data-insight-tab='topic' aria-label='战胜战败分析'>
-            <h3 class='insight-card__title'>战胜战败分析</h3>
-            <p class='insight-card__desc'>输入一个目标车型，查看购买它的用户对比过哪些车、最终放弃了谁，以及选购与弃购的原因标签。用于解释“为什么买 / 为什么不买”。</p>
-            <div class='insight-battle'>
-              <div class='insight-battle__bar'>
-                <input id='insight-battle-input' class='insight-qa__input' type='text' placeholder='输入目标车型，如：唐L、理想i8' aria-label='目标车型' />
-                <button id='insight-battle-run' class='btn btn--primary' type='button'>分析战胜战败</button>
-              </div>
-              <div id='insight-battle-result' class='insight-qa__result' hidden></div>
-            </div>
-          </article>
+          <p class='insight-drawers__note'>证据抽屉默认收起：结论出来后再按需展开核对原话、比例与口径；抽屉会自动带入本轮问答涉及的群体条件，不必重复输入。</p>
 
-          <article class='insight-card' data-insight-tab='topic' aria-label='圈层画像'>
-            <h3 class='insight-card__title'>圈层画像</h3>
-            <p class='insight-card__desc'>无需输入。按购车类型自动划分用户圈层，查看每个圈层的样本量、价格段、年龄段、性别与热门车型，先建立“人”的整体轮廓。</p>
-            <div class='insight-segment'>
-              <div class='insight-segment__bar'>
-                <button id='insight-segment-run' class='btn btn--primary' type='button'>查看圈层画像</button>
+          <div class='insight-drawers' aria-label='证据抽屉'>
+            <section class='insight-drawer' data-drawer='evidence'>
+              <button class='insight-drawer__head' type='button' data-drawer-toggle='evidence' aria-expanded='false'>
+                <span class='insight-drawer__idx'>1</span>
+                <span class='insight-drawer__label'>原话来源 · 访谈检索</span>
+                <span class='insight-drawer__hint'>内部工具：智能问答已自动调用，仅用于单独排查</span>
+                <span class='insight-drawer__chev' aria-hidden='true'></span>
+              </button>
+              <div class='insight-drawer__body' hidden>
+                <article class='insight-card' aria-label='访谈证据检索'>
+                  <h3 class='insight-card__title'>访谈证据检索</h3>
+                  <p class='insight-card__desc'>输入一个业务问题，系统从 63 位受访者的访谈原话中检索证据，给出带编号的结论和可回源的引文（E1、E2… 为本次结果的证据序号，R018 为受访者匿名编号）。证据不足时会明确拒答，不编造。</p>
+                  <div class='insight-qa'>
+                    <div class='insight-qa__bar'>
+                      <input id='insight-qa-input' class='insight-qa__input' type='text' placeholder='例如：哪些用户提到后排空间和孩子？' aria-label='访谈证据问题' />
+                      <button id='insight-qa-run' class='btn btn--primary' type='button'>检索证据</button>
+                    </div>
+                    <div id='insight-qa-result' class='insight-qa__result' hidden></div>
+                  </div>
+                </article>
               </div>
-              <div id='insight-segment-result' class='insight-qa__result' hidden></div>
-            </div>
-          </article>
+            </section>
 
-          <article class='insight-card' data-insight-tab='topic' aria-label='满意度痛点洞察'>
-            <h3 class='insight-card__title'>满意度痛点</h3>
-            <p class='insight-card__desc'>选择一个群体维度并填写准确取值，查看该群体在 16 个产品维度上的低分率（≤6 分）与均分，按痛点严重程度排序。</p>
-            <div class='insight-painpoints'>
-              <div class='insight-painpoints__bar'>
-                <select id='insight-pain-dim' class='insight-quant__select' aria-label='群体维度'>
-                  <option value='purchase_type'>购车类型</option>
-                  <option value='price_band'>价格段</option>
-                  <option value='age_band'>年龄段</option>
-                  <option value='gender'>性别</option>
-                  <option value='city'>城市</option>
-                  <option value='purchase_model'>车型</option>
-                </select>
-                <input id='insight-pain-input' class='insight-qa__input' type='text' placeholder='如：唐L / 10-15万 / 36-40岁' aria-label='群体取值' />
-                <button id='insight-pain-run' class='btn btn--primary' type='button'>满意度痛点</button>
+            <section class='insight-drawer' data-drawer='quant'>
+              <button class='insight-drawer__head' type='button' data-drawer-toggle='quant' aria-expanded='false'>
+                <span class='insight-drawer__idx'>2</span>
+                <span class='insight-drawer__label'>比例来源 · 定量统计</span>
+                <span class='insight-drawer__hint'>想知道「覆盖多少人」，在这里看问卷比例</span>
+                <span class='insight-drawer__chev' aria-hidden='true'></span>
+              </button>
+              <div class='insight-drawer__body' hidden>
+                <article class='insight-card' aria-label='问卷分布统计'>
+                  <h3 class='insight-card__title'>问卷分布统计</h3>
+                  <p class='insight-card__desc'>选择“切分维度 + 问卷题目”，查看 1380 份问卷在该题目上的选项分布与占比，用来判断某个说法覆盖多少人。定性原话不能当比例用，比例只看这里。</p>
+                  <div class='insight-quant'>
+                    <div class='insight-quant__bar'>
+                      <select id='insight-quant-dim' class='insight-quant__select' aria-label='切分维度'></select>
+                      <input id='insight-quant-keyword' class='insight-quant__keyword' type='text' placeholder='搜索题目，如：空间' aria-label='题目搜索' />
+                      <select id='insight-quant-question' class='insight-quant__select' aria-label='问卷题目'></select>
+                      <button id='insight-quant-run' class='btn btn--primary' type='button'>统计分布</button>
+                    </div>
+                    <div id='insight-quant-result' class='insight-qa__result' hidden></div>
+                  </div>
+                </article>
               </div>
-              <div id='insight-pain-result' class='insight-qa__result' hidden></div>
-            </div>
-          </article>
+            </section>
 
-          <article class='insight-card' data-insight-tab='topic' aria-label='再购意愿与品牌忠诚'>
-            <h3 class='insight-card__title'>再购意愿与品牌忠诚</h3>
-            <p class='insight-card__desc'>选择一个群体并填写准确取值，查看该群体的再购时间、倾向的技术类型、意向品牌，以及是否仍选同一品牌。</p>
-            <div class='insight-repurchase'>
-              <div class='insight-repurchase__bar'>
-                <select id='insight-repur-dim' class='insight-quant__select' aria-label='群体维度'>
-                  <option value='purchase_type'>购车类型</option>
-                  <option value='price_band'>价格段</option>
-                  <option value='age_band'>年龄段</option>
-                  <option value='gender'>性别</option>
-                  <option value='city'>城市</option>
-                  <option value='purchase_model'>车型</option>
-                </select>
-                <input id='insight-repur-input' class='insight-qa__input' type='text' placeholder='如：唐L / 10-15万 / 36-40岁' aria-label='群体取值' />
-                <button id='insight-repur-run' class='btn btn--primary' type='button'>再购意愿</button>
+            <section class='insight-drawer' data-drawer='topic'>
+              <button class='insight-drawer__head' type='button' data-drawer-toggle='topic' aria-expanded='false'>
+                <span class='insight-drawer__idx'>3</span>
+                <span class='insight-drawer__label'>固定口径 · 专题洞察</span>
+                <span class='insight-drawer__hint'>用固定口径得到可复述的结论，避免每次口径不一致</span>
+                <span class='insight-drawer__chev' aria-hidden='true'></span>
+              </button>
+              <div class='insight-drawer__body' hidden>
+                <article class='insight-card' aria-label='战胜战败分析'>
+                  <h3 class='insight-card__title'>战胜战败分析</h3>
+                  <p class='insight-card__desc'>输入一个目标车型，查看购买它的用户对比过哪些车、最终放弃了谁，以及选购与弃购的原因标签。用于解释“为什么买 / 为什么不买”。</p>
+                  <div class='insight-battle'>
+                    <div class='insight-battle__bar'>
+                      <input id='insight-battle-input' class='insight-qa__input' type='text' placeholder='输入目标车型，如：唐L、理想i8' aria-label='目标车型' />
+                      <button id='insight-battle-run' class='btn btn--primary' type='button'>分析战胜战败</button>
+                    </div>
+                    <div id='insight-battle-result' class='insight-qa__result' hidden></div>
+                  </div>
+                </article>
+                <article class='insight-card' aria-label='圈层画像'>
+                  <h3 class='insight-card__title'>圈层画像</h3>
+                  <p class='insight-card__desc'>无需输入。按购车类型自动划分用户圈层，查看每个圈层的样本量、价格段、年龄段、性别与热门车型，先建立“人”的整体轮廓。</p>
+                  <div class='insight-segment'>
+                    <div class='insight-segment__bar'>
+                      <button id='insight-segment-run' class='btn btn--primary' type='button'>查看圈层画像</button>
+                    </div>
+                    <div id='insight-segment-result' class='insight-qa__result' hidden></div>
+                  </div>
+                </article>
+                <article class='insight-card' aria-label='满意度痛点洞察'>
+                  <h3 class='insight-card__title'>满意度痛点</h3>
+                  <p class='insight-card__desc'>选择一个群体维度并填写准确取值，查看该群体在 16 个产品维度上的低分率（≤6 分）与均分，按痛点严重程度排序。</p>
+                  <div class='insight-painpoints'>
+                    <div class='insight-painpoints__bar'>
+                      <select id='insight-pain-dim' class='insight-quant__select' aria-label='群体维度'>
+                        <option value='purchase_type'>购车类型</option>
+                        <option value='price_band'>价格段</option>
+                        <option value='age_band'>年龄段</option>
+                        <option value='gender'>性别</option>
+                        <option value='city'>城市</option>
+                        <option value='purchase_model'>车型</option>
+                      </select>
+                      <input id='insight-pain-input' class='insight-qa__input' type='text' placeholder='如：唐L / 10-15万 / 36-40岁' aria-label='群体取值' />
+                      <button id='insight-pain-run' class='btn btn--primary' type='button'>满意度痛点</button>
+                    </div>
+                    <div id='insight-pain-result' class='insight-qa__result' hidden></div>
+                  </div>
+                </article>
+                <article class='insight-card' aria-label='再购意愿与品牌忠诚'>
+                  <h3 class='insight-card__title'>再购意愿与品牌忠诚</h3>
+                  <p class='insight-card__desc'>选择一个群体并填写准确取值，查看该群体的再购时间、倾向的技术类型、意向品牌，以及是否仍选同一品牌。</p>
+                  <div class='insight-repurchase'>
+                    <div class='insight-repurchase__bar'>
+                      <select id='insight-repur-dim' class='insight-quant__select' aria-label='群体维度'>
+                        <option value='purchase_type'>购车类型</option>
+                        <option value='price_band'>价格段</option>
+                        <option value='age_band'>年龄段</option>
+                        <option value='gender'>性别</option>
+                        <option value='city'>城市</option>
+                        <option value='purchase_model'>车型</option>
+                      </select>
+                      <input id='insight-repur-input' class='insight-qa__input' type='text' placeholder='如：唐L / 10-15万 / 36-40岁' aria-label='群体取值' />
+                      <button id='insight-repur-run' class='btn btn--primary' type='button'>再购意愿</button>
+                    </div>
+                    <div id='insight-repur-result' class='insight-qa__result' hidden></div>
+                  </div>
+                </article>
+                <article class='insight-card' aria-label='需求配置矩阵'>
+                  <h3 class='insight-card__title'>需求×配置矩阵</h3>
+                  <p class='insight-card__desc'>选择一个群体并填写准确取值，把 16 个产品维度放进“购车关注度 × 使用满意度”四象限，定位高关注低满意（优先改进）的配置点。</p>
+                  <div class='insight-matrix'>
+                    <div class='insight-matrix__bar'>
+                      <select id='insight-matrix-dim' class='insight-quant__select' aria-label='群体维度'>
+                        <option value='purchase_type'>购车类型</option>
+                        <option value='price_band'>价格段</option>
+                        <option value='age_band'>年龄段</option>
+                        <option value='gender'>性别</option>
+                        <option value='city'>城市</option>
+                        <option value='purchase_model'>车型</option>
+                      </select>
+                      <input id='insight-matrix-input' class='insight-qa__input' type='text' placeholder='如：唐L / 10-15万 / 36-40岁' aria-label='群体取值' />
+                      <button id='insight-matrix-run' class='btn btn--primary' type='button'>需求×配置矩阵</button>
+                    </div>
+                    <div id='insight-matrix-result' class='insight-qa__result' hidden></div>
+                  </div>
+                </article>
+                <article class='insight-card' aria-label='联合洞察'>
+                  <h3 class='insight-card__title'>联合洞察</h3>
+                  <p class='insight-card__desc'>输入一个车型或圈层，系统把定性原话、战胜战败与定量统计合并成一份配置建议。适合需要“一段话讲清结论”的汇报场景。</p>
+                  <div class='insight-joint'>
+                    <div class='insight-joint__bar'>
+                      <select id='insight-joint-type' class='insight-quant__select' aria-label='分析颗粒度'>
+                        <option value='vehicle_model'>目标车型</option>
+                        <option value='purchase_type'>购车类型</option>
+                        <option value='age_band'>用户圈层（年龄段）</option>
+                      </select>
+                      <input id='insight-joint-input' class='insight-qa__input' type='text' placeholder='如：唐L / 10-15万 / 36-40岁' aria-label='分析对象' />
+                      <button id='insight-joint-run' class='btn btn--primary' type='button'>联合洞察</button>
+                    </div>
+                    <div id='insight-joint-result' class='insight-qa__result' hidden></div>
+                  </div>
+                </article>
               </div>
-              <div id='insight-repur-result' class='insight-qa__result' hidden></div>
-            </div>
-          </article>
+            </section>
 
-          <article class='insight-card' data-insight-tab='topic' aria-label='需求配置匹配矩阵'>
-            <h3 class='insight-card__title'>需求×配置矩阵</h3>
-            <p class='insight-card__desc'>选择一个群体并填写准确取值，把 16 个产品维度放进“购车关注度 × 使用满意度”四象限，定位高关注低满意（优先改进）的配置点。</p>
-            <div class='insight-matrix'>
-              <div class='insight-matrix__bar'>
-                <select id='insight-matrix-dim' class='insight-quant__select' aria-label='群体维度'>
-                  <option value='purchase_type'>购车类型</option>
-                  <option value='price_band'>价格段</option>
-                  <option value='age_band'>年龄段</option>
-                  <option value='gender'>性别</option>
-                  <option value='city'>城市</option>
-                  <option value='purchase_model'>车型</option>
-                </select>
-                <input id='insight-matrix-input' class='insight-qa__input' type='text' placeholder='如：唐L / 10-15万 / 36-40岁' aria-label='群体取值' />
-                <button id='insight-matrix-run' class='btn btn--primary' type='button'>需求×配置矩阵</button>
+            <section class='insight-drawer' data-drawer='compare'>
+              <button class='insight-drawer__head' type='button' data-drawer-toggle='compare' aria-expanded='false'>
+                <span class='insight-drawer__idx'>4</span>
+                <span class='insight-drawer__label'>一致性 · 对比与验证</span>
+                <span class='insight-drawer__hint'>核对「听到的说法」和「统计的比例」是否一致</span>
+                <span class='insight-drawer__chev' aria-hidden='true'></span>
+              </button>
+              <div class='insight-drawer__body' hidden>
+                <article class='insight-card' aria-label='竞品横向对比'>
+                  <h3 class='insight-card__title'>竞品横向对比</h3>
+                  <p class='insight-card__desc'>无需输入。选择一个对比口径（购车关注度或满意度低分率），横向比较各车型在 16 个维度上的差异，找出差异最大的维度。</p>
+                  <div class='insight-compare'>
+                    <div class='insight-compare__bar'>
+                      <select id='insight-compare-focus' class='insight-quant__select' aria-label='对比维度'>
+                        <option value='attention'>购车关注度</option>
+                        <option value='satisfaction'>满意度低分率</option>
+                      </select>
+                      <button id='insight-compare-run' class='btn btn--primary' type='button'>竞品横向对比</button>
+                    </div>
+                    <div id='insight-compare-result' class='insight-qa__result' hidden></div>
+                  </div>
+                </article>
+                <article class='insight-card' aria-label='圈层差异交叉验证'>
+                  <h3 class='insight-card__title'>圈层交叉验证</h3>
+                  <p class='insight-card__desc'>选择一个群体并填写准确取值，把该圈层的定性原声与定量指标并排展示，用来验证“听到的说法”和“统计的比例”是否一致。</p>
+                  <div class='insight-cross'>
+                    <div class='insight-cross__bar'>
+                      <select id='insight-cross-dim' class='insight-quant__select' aria-label='群体维度'>
+                        <option value='purchase_type'>购车类型</option>
+                        <option value='price_band'>价格段</option>
+                        <option value='age_band'>年龄段</option>
+                        <option value='gender'>性别</option>
+                        <option value='city'>城市</option>
+                        <option value='purchase_model'>车型</option>
+                      </select>
+                      <input id='insight-cross-input' class='insight-qa__input' type='text' placeholder='如：唐L / 10-15万 / 36-40岁' aria-label='群体取值' />
+                      <button id='insight-cross-run' class='btn btn--primary' type='button'>圈层交叉验证</button>
+                    </div>
+                    <div id='insight-cross-result' class='insight-qa__result' hidden></div>
+                  </div>
+                </article>
               </div>
-              <div id='insight-matrix-result' class='insight-qa__result' hidden></div>
-            </div>
-          </article>
-
-          <article class='insight-card' data-insight-tab='compare' aria-label='联合洞察'>
-            <h3 class='insight-card__title'>联合洞察</h3>
-            <p class='insight-card__desc'>输入一个车型或圈层，系统把定性原话、战胜战败与定量统计合并成一份配置建议。适合需要“一段话讲清结论”的汇报场景。</p>
-            <div class='insight-joint'>
-              <div class='insight-joint__bar'>
-                <select id='insight-joint-type' class='insight-quant__select' aria-label='分析颗粒度'>
-                  <option value='vehicle_model'>目标车型</option>
-                  <option value='purchase_type'>购车类型</option>
-                  <option value='age_band'>用户圈层（年龄段）</option>
-                </select>
-                <input id='insight-joint-input' class='insight-qa__input' type='text' placeholder='如：唐L / 10-15万 / 36-40岁' aria-label='分析对象' />
-                <button id='insight-joint-run' class='btn btn--primary' type='button'>联合洞察</button>
-              </div>
-              <div id='insight-joint-result' class='insight-qa__result' hidden></div>
-            </div>
-          </article>
-
-          <article class='insight-card' data-insight-tab='compare' aria-label='竞品横向对比'>
-            <h3 class='insight-card__title'>竞品横向对比</h3>
-            <p class='insight-card__desc'>无需输入。选择一个对比口径（购车关注度或满意度低分率），横向比较各车型在 16 个维度上的差异，找出差异最大的维度。</p>
-            <div class='insight-compare'>
-              <div class='insight-compare__bar'>
-                <select id='insight-compare-focus' class='insight-quant__select' aria-label='对比维度'>
-                  <option value='attention'>购车关注度</option>
-                  <option value='satisfaction'>满意度低分率</option>
-                </select>
-                <button id='insight-compare-run' class='btn btn--primary' type='button'>竞品横向对比</button>
-              </div>
-              <div id='insight-compare-result' class='insight-qa__result' hidden></div>
-            </div>
-          </article>
-
-          <article class='insight-card' data-insight-tab='compare' aria-label='圈层差异交叉验证'>
-            <h3 class='insight-card__title'>圈层交叉验证</h3>
-            <p class='insight-card__desc'>选择一个群体并填写准确取值，把该圈层的定性原声与定量指标并排展示，用来验证“听到的说法”和“统计的比例”是否一致。</p>
-            <div class='insight-cross'>
-              <div class='insight-cross__bar'>
-                <select id='insight-cross-dim' class='insight-quant__select' aria-label='群体维度'>
-                  <option value='purchase_type'>购车类型</option>
-                  <option value='price_band'>价格段</option>
-                  <option value='age_band'>年龄段</option>
-                  <option value='gender'>性别</option>
-                  <option value='city'>城市</option>
-                  <option value='purchase_model'>车型</option>
-                </select>
-                <input id='insight-cross-input' class='insight-qa__input' type='text' placeholder='如：唐L / 10-15万 / 36-40岁' aria-label='群体取值' />
-                <button id='insight-cross-run' class='btn btn--primary' type='button'>圈层交叉验证</button>
-              </div>
-              <div id='insight-cross-result' class='insight-qa__result' hidden></div>
-            </div>
-          </article>
+            </section>
+          </div>
         </section>
 
       </div>
@@ -1657,7 +1717,7 @@
 
   <div class='toast-container' id='toast-container' aria-live='polite' aria-atomic='true'></div>
 
-  <script src='/assets/home.js' defer></script>
+  <script src='/assets/home.js?v=20261102e' defer></script>
   <script src='/assets/intel-overview.js' defer></script>
   <script src='/assets/forecast-engine.js' defer></script>
 </body>
