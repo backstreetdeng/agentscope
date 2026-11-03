@@ -1,187 +1,31 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>竞品对标 · 竞品对标智能体</title>
-  <style>
-    :root {
-      --bg: #0f1420;
-      --panel: #171e2e;
-      --panel-2: #1d2537;
-      --border: #2a3450;
-      --text: #e6ebf5;
-      --muted: #8b96ad;
-      --accent: #4f8cff;
-      --accent-2: #7c5cff;
-      --ok: #38d39f;
-      --warn: #ffb454;
-      --err: #ff6b6b;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font: 14px/1.6 -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
-    }
-    header {
-      padding: 18px 28px;
-      border-bottom: 1px solid var(--border);
-      background: linear-gradient(180deg, #141b2c, #0f1420);
-    }
-    header h1 { margin: 0; font-size: 20px; }
-    header p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
-    main { max-width: 1080px; margin: 0 auto; padding: 24px 28px 60px; }
-    .input-row { display: flex; gap: 12px; flex-wrap: wrap; }
-    input[type=text] {
-      flex: 1; min-width: 320px;
-      padding: 12px 14px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--panel-2);
-      color: var(--text);
-      font-size: 15px;
-    }
-    input[type=text]:focus { outline: none; border-color: var(--accent); }
-    button {
-      padding: 12px 22px;
-      border: 0; border-radius: 8px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      color: #fff; font-size: 15px; font-weight: 600; cursor: pointer;
-    }
-    button:disabled { opacity: .55; cursor: not-allowed; }
-    .hint { color: var(--muted); font-size: 12px; margin-top: 10px; }
-    .status { margin: 18px 0; color: var(--muted); font-size: 13px; }
-    .status.err { color: var(--err); }
-    .panel {
-      margin-top: 20px;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    .panel h2 {
-      margin: 0; padding: 12px 16px;
-      font-size: 14px; font-weight: 600;
-      border-bottom: 1px solid var(--border);
-      background: var(--panel-2);
-    }
-    .panel .body { padding: 16px; }
-    pre {
-      margin: 0; white-space: pre-wrap; word-break: break-word;
-      font: 12.5px/1.6 ui-monospace, "Cascadia Code", Consolas, monospace;
-      max-height: 520px; overflow: auto;
-    }
-    .tools { display: grid; gap: 8px; }
-    .tool {
-      display: flex; gap: 10px; align-items: baseline;
-      padding: 8px 12px; border-radius: 6px;
-      background: var(--panel-2); border: 1px solid var(--border);
-      font-size: 12.5px;
-    }
-    .tool .name { font-weight: 600; color: var(--accent); }
-    .tool .st { flex-shrink: 0; }
-    .tool .st.success { color: var(--ok); }
-    .tool .st.error { color: var(--err); }
-    .tool .st.warning { color: var(--warn); }
-    .tag {
-      display: inline-block; padding: 2px 8px; margin-right: 6px;
-      border-radius: 999px; font-size: 11px; font-weight: 600;
-    }
-    .tag.P0 { background: rgba(79,140,255,.16); color: var(--accent); }
-    .tag.P1 { background: rgba(124,92,255,.16); color: var(--accent-2); }
-    .tag.P2 { background: rgba(56,211,159,.16); color: var(--ok); }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>竞品对标</h1>
-    <p>三源取证 · 款型配置信息（P0）锚定硬参数，融合口碑知识库与联网动态，输出对标矩阵与战略 So What。</p>
+<section class="bm-root" aria-labelledby="bm-title">
+  <header class="section-head">
+    <div class="section-head__text">
+      <p class="bm-eyebrow">COMPETITOR BENCHMARKING · 竞品对标</p>
+      <h2 id="bm-title" class="section-head__title section-head__title--ai">竞品对标</h2>
+      <p class="section-head__desc">自主识别目标车型并建立多维竞品池：款型配置信息（P0）锚定硬参数，融合口碑知识库与联网动态，交叉校验后输出对标矩阵与战略 So What。</p>
+    </div>
   </header>
-  <main>
-    <div class="input-row">
-      <input type="text" id="target" placeholder="输入目标车型，例如：宋PLUS EV 或 比亚迪宋PLUS EV 2026款" />
-      <button id="run">开始对标</button>
-    </div>
-    <div class="hint">硬参数（纯电续航 / 整备质量 / 能耗 / 电池能量）以款型配置信息为唯一锚；价格阶梯分列；冲突双边呈现；缺失标 na / insufficient。</div>
-    <div class="status" id="status">就绪。</div>
 
-    <div class="panel" id="answer-panel" hidden>
-      <h2>对标结果</h2>
-      <div class="body"><pre id="answer"></pre></div>
-    </div>
-    <div class="panel" id="tools-panel" hidden>
-      <h2>工具审计</h2>
-      <div class="body"><div class="tools" id="tools"></div></div>
-    </div>
-  </main>
+  <article class="bm-card">
+    <form class="bm-form" id="bm-form">
+      <label class="bm-label" for="bm-target">目标车型</label>
+      <div class="bm-form-row">
+        <input type="text" id="bm-target" class="bm-input" placeholder="例如：宋PLUS EV 或 比亚迪宋PLUS EV 2026款" autocomplete="off">
+        <button type="submit" class="bm-primary" id="bm-run">开始对标</button>
+      </div>
+    </form>
+    <p class="bm-hint">硬参数（纯电续航 / 整备质量 / 能耗 / 电池能量）以款型配置信息为唯一锚；价格阶梯分列（指导价 / 先享价 / 限时价 / 经销商价）；冲突双边呈现；缺失标 na / insufficient。</p>
+    <div class="bm-status" id="bm-status" role="status" aria-live="polite">就绪。</div>
+  </article>
 
-  <script>
-    const $ = (id) => document.getElementById(id);
-    const runBtn = $('run'), target = $('target'), status = $('status');
+  <article class="bm-panel" id="bm-answer-panel" hidden>
+    <h3 class="bm-panel__title">对标结果</h3>
+    <div class="bm-panel__body"><pre class="bm-answer" id="bm-answer"></pre></div>
+  </article>
 
-    async function run() {
-      const q = target.value.trim();
-      if (!q) { status.textContent = '请输入目标车型。'; status.className = 'status err'; return; }
-      runBtn.disabled = true;
-      status.textContent = '正在取证…（款型配置信息 → 口碑 → 联网，可能需要数十秒）';
-      status.className = 'status';
-      $('answer-panel').hidden = true;
-      $('tools-panel').hidden = true;
-      try {
-        const resp = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            question: q,
-            agent: 'competitor_benchmark',
-            analysis_type: 'competitor_benchmark',
-            capabilities: [],
-            mcp_plugins: ['reputation'],
-          }),
-        });
-        const data = await resp.json();
-        if (!resp.ok) {
-          throw new Error(data.error || ('请求失败 HTTP ' + resp.status));
-        }
-        $('answer').textContent = data.answer || '(无正文)';
-        $('answer-panel').hidden = false;
-        renderTools(data.tool_events || []);
-        status.textContent = '完成。';
-        status.className = 'status';
-      } catch (e) {
-        status.textContent = '出错：' + (e && e.message ? e.message : e);
-        status.className = 'status err';
-      } finally {
-        runBtn.disabled = false;
-      }
-    }
-
-    function renderTools(events) {
-      const box = $('tools');
-      box.innerHTML = '';
-      if (!events.length) { box.innerHTML = '<div class="tool"><span>无工具调用记录</span></div>'; }
-      for (const ev of events) {
-        const el = document.createElement('div');
-        el.className = 'tool';
-        const st = document.createElement('span');
-        st.className = 'st ' + (ev.status || '');
-        st.textContent = (ev.status || '');
-        const nm = document.createElement('span');
-        nm.className = 'name';
-        nm.textContent = ev.name || '';
-        const dt = document.createElement('span');
-        dt.style.color = 'var(--muted)';
-        dt.textContent = (ev.detail || '').slice(0, 200);
-        el.append(st, nm, dt);
-        box.appendChild(el);
-      }
-      $('tools-panel').hidden = false;
-    }
-
-    runBtn.addEventListener('click', run);
-    target.addEventListener('keydown', (e) => { if (e.key === 'Enter') run(); });
-  </script>
-</body>
-</html>
+  <article class="bm-panel" id="bm-tools-panel" hidden>
+    <h3 class="bm-panel__title">工具审计</h3>
+    <div class="bm-panel__body"><div class="bm-tools" id="bm-tools"></div></div>
+  </article>
+</section>

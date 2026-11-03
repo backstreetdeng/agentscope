@@ -18,7 +18,7 @@
     TOAST_TTL_MS: 3000,
     MOBILE_BREAKPOINT: 960,
     VIEW_TRANSITION_MS: 150,
-    MAIN_NAV_KEYS: ['intel', 'projects', 'analysis', 'forecast', 'forecast-engine', 'insight', 'skills', 'plugins'],
+    MAIN_NAV_KEYS: ['intel', 'projects', 'analysis', 'forecast', 'forecast-engine', 'benchmark', 'insight', 'skills', 'plugins'],
     DETAIL_VIEW_KEYS: ['policy-detail', 'rights-detail'],
     LEGACY_WORKBENCH: '/legacy/workbench.html',
   });
@@ -1797,6 +1797,231 @@
       return `<h4 class='evidence-title'>证据引用（${evidence.length}）</h4><div class='evidence-list'>${cards}</div>`;
     }
 
+    function renderMarkdown(text) {
+      const src = String(text ?? '');
+      const lines = src.split('\n');
+      let html = '';
+      let i = 0;
+      let inTable = false;
+
+      const inline = (s) => esc(s)
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>');
+
+      const cells = (line) => line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((c) => c.trim());
+
+      while (i < lines.length) {
+        const raw = lines[i];
+        const line = raw.trim();
+        const isRow = /^\|.*\|$/.test(line);
+
+        if (isRow && i + 1 < lines.length && /^\|[\s:|-]+\|$/.test(lines[i + 1].trim())) {
+          const head = cells(raw).map((c) => `<th>${inline(c)}</th>`).join('');
+          html += `<div class='md-table-wrap'><table class='md-table'><thead><tr>${head}</tr></thead><tbody>`;
+          i += 2;
+          inTable = true;
+          continue;
+        }
+        if (inTable && isRow) {
+          html += `<tr>${cells(raw).map((c) => `<td>${inline(c)}</td>`).join('')}</tr>`;
+          i += 1;
+          continue;
+        }
+        if (inTable && !isRow) {
+          html += '</tbody></table></div>';
+          inTable = false;
+        }
+        if (line === '') { i += 1; continue; }
+        if (/^#{1,6}\s/.test(line)) {
+          const level = Math.min((line.match(/^#+/)[0].length) + 1, 6);
+          html += `<h${level} class='md-h'>${inline(line.replace(/^#+\s*/, ''))}</h${level}>`;
+        } else if (/^[-*]\s+/.test(line)) {
+          html += `<div class='md-li'>${inline(line.replace(/^[-*]\s+/, ''))}</div>`;
+        } else if (/^\d+\.\s+/.test(line)) {
+          html += `<div class='md-li'>${inline(line.replace(/^\d+\.\s+/, ''))}</div>`;
+        } else {
+          html += `<p class='md-p'>${inline(line)}</p>`;
+        }
+        i += 1;
+      }
+      if (inTable) html += '</tbody></table></div>';
+      return html;
+    }
+
+    function renderToolEvents(events) {
+      if (!events || !events.length) return '';
+      const items = events.map((e) => `
+        <div class='tool-event'>
+          <span class='tool-event__name'>${esc(e.name)}</span>
+          <span class='tool-event__status ${e.status === 'success' ? 'is-ok' : 'is-err'}'>${esc(e.status)}</span>
+          <span class='tool-event__detail'>${esc(e.detail || '')}</span>
+        </div>
+      `).join('');
+      return `<h4 class='evidence-title'>工具调用（${events.length}）</h4><div class='tool-list'>${items}</div>`;
+    }
+
+    const AGENT_SESSION_KEY = 'insightAgentSessionId';
+
+    function agentSessionId() {
+      let sid = sessionStorage.getItem(AGENT_SESSION_KEY);
+      if (!sid) {
+        sid = 'ins-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+        sessionStorage.setItem(AGENT_SESSION_KEY, sid);
+      }
+      return sid;
+    }
+
+    async function askAgent() {
+      const input = document.getElementById('insight-agent-input');
+      const thread = document.getElementById('insight-agent-thread');
+      const btn = document.getElementById('insight-agent-run');
+      const question = (input?.value || '').trim();
+      if (!question) { Toast.show('请输入问题', 'error'); return; }
+      if (btn) btn.disabled = true;
+      const sessionId = agentSessionId();
+
+      thread.hidden = false;
+      const turn = document.createElement('div');
+      turn.className = 'agent-turn';
+      turn.innerHTML = `
+        <div class='agent-bubble agent-bubble--user'>${esc(question)}</div>
+        <div class='agent-live'>
+          <div class='agent-live__head'>思考过程 <span class='agent-live__state'>实时</span></div>
+          <div class='agent-live__body'></div>
+        </div>
+        <div class='agent-answer-box'></div>`;
+      thread.appendChild(turn);
+
+      const headEl = turn.querySelector('.agent-live__head');
+      const liveBody = turn.querySelector('.agent-live__body');
+      const answerBox = turn.querySelector('.agent-answer-box');
+      const thinkRefs = {};
+      const stepRefs = {};
+      let stepCount = 0;
+
+      const scrollLive = () => { if (liveBody) liveBody.scrollTop = liveBody.scrollHeight; };
+
+      const handleEvent = (event) => {
+        switch (event.type) {
+          case 'start': {
+            if (event.history_turns > 0 && headEl) {
+              headEl.innerHTML = `思考过程 <span class='agent-live__state'>实时 · 已带 ${event.history_turns} 轮上文</span>`;
+            }
+            break;
+          }
+          case 'reasoning_start': {
+            const block = document.createElement('div');
+            block.className = 'agent-think is-streaming';
+            const text = document.createElement('p');
+            text.className = 'agent-think__text';
+            block.appendChild(text);
+            liveBody.appendChild(block);
+            thinkRefs[event.block] = { block, text };
+            scrollLive();
+            break;
+          }
+          case 'reasoning_delta': {
+            const ref = thinkRefs[event.block];
+            if (ref) { ref.text.textContent += event.text || ''; scrollLive(); }
+            break;
+          }
+          case 'reasoning_end': {
+            const ref = thinkRefs[event.block];
+            if (ref) ref.block.classList.remove('is-streaming');
+            break;
+          }
+          case 'tool_start': {
+            stepCount += 1;
+            const step = document.createElement('div');
+            step.className = 'agent-step is-running';
+            step.innerHTML = `<span class='agent-step__idx'>${stepCount}</span><span class='agent-step__name'>${esc(event.name)}</span><span class='agent-step__status'>调用中…</span>`;
+            liveBody.appendChild(step);
+            stepRefs[event.id] = step;
+            scrollLive();
+            break;
+          }
+          case 'tool_result': {
+            const step = stepRefs[event.id];
+            if (step) {
+              const ok = String(event.state || '').toLowerCase().includes('success');
+              step.classList.remove('is-running');
+              step.classList.add(ok ? 'is-ok' : 'is-err');
+              const status = step.querySelector('.agent-step__status');
+              if (status) status.textContent = ok ? '完成' : (event.state || '已返回');
+            }
+            break;
+          }
+          case 'final': {
+            const warnings = (event.warnings || []).map((w) => `<div class='insight-qa__error'>${esc(w)}</div>`).join('');
+            answerBox.innerHTML = `<div class='insight-qa__answer'>${renderMarkdown(event.answer || '（无回答）')}</div>${warnings}${renderEvidence(event.evidence || [])}${renderToolEvents(event.tool_events || [])}`;
+            if (headEl) headEl.innerHTML = `思考过程 <span class='agent-live__state is-done'>已完成 · ${stepCount} 次工具调用</span>`;
+            inheritFromToolEvents(event.tool_events || []);
+            if (input) input.value = '';
+            break;
+          }
+          case 'error': {
+            answerBox.innerHTML = `<div class='insight-qa__error'>智能问答失败：${esc(event.message || '未知错误')}</div>`;
+            Toast.show('智能问答失败', 'error');
+            break;
+          }
+          default:
+            break;
+        }
+      };
+
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 300000);
+      try {
+        const response = await fetch('/api/insight/agent/stream', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question, session_id: sessionId }),
+          signal: controller.signal,
+        });
+        if (!response.ok) {
+          throw new Error('智能问答失败（' + response.status + '）');
+        }
+        if (!response.body) {
+          const data = await response.json();
+          handleEvent({ type: 'final', answer: data.answer, evidence: data.evidence, tool_events: data.tool_events, warnings: data.warnings });
+          return;
+        }
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let buffer = '';
+        for (;;) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          let newline = buffer.indexOf('\n');
+          while (newline !== -1) {
+            const line = buffer.slice(0, newline).trim();
+            buffer = buffer.slice(newline + 1);
+            newline = buffer.indexOf('\n');
+            if (!line) continue;
+            try { handleEvent(JSON.parse(line)); } catch (_) { /* 忽略半行/非法行 */ }
+          }
+        }
+        const tail = buffer.trim();
+        if (tail) { try { handleEvent(JSON.parse(tail)); } catch (_) { /* 忽略 */ } }
+      } catch (error) {
+        answerBox.innerHTML = `<div class='insight-qa__error'>智能问答失败：${esc(error.message || error)}</div>`;
+        Toast.show('智能问答失败', 'error');
+      } finally {
+        clearTimeout(timer);
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    function clearAgentThread() {
+      const thread = document.getElementById('insight-agent-thread');
+      if (thread) { thread.innerHTML = ''; thread.hidden = true; }
+      const input = document.getElementById('insight-agent-input');
+      if (input) { input.value = ''; input.focus(); }
+      sessionStorage.removeItem(AGENT_SESSION_KEY);
+      Toast.show('已清空当前对话', 'success');
+    }
+
     async function ask() {
       const input = document.getElementById('insight-qa-input');
       const result = document.getElementById('insight-qa-result');
@@ -2065,8 +2290,10 @@
 
     function renderMatrix(data) {
       if (!data || !data.items) return '';
-      const quadrants = ['优先改进', '核心优势', '潜在不满', '保持'];
-      const colors = { '优先改进': '#dc2626', '核心优势': '#16a34a', '潜在不满': '#f59e0b', '保持': '#94a3b8' };
+      const quadrants = ['优先诊断', '重点维持', '局部痛点', '保持监测'];
+      const colors = { '优先诊断': '#dc2626', '重点维持': '#16a34a', '局部痛点': '#f59e0b', '保持监测': '#94a3b8' };
+      const attTh = data.attention_threshold != null ? Math.round(data.attention_threshold * 100) : 25;
+      const lowTh = data.low_rate_threshold != null ? Math.round(data.low_rate_threshold * 1000) / 10 : 5.7;
       const blocks = quadrants.map((q) => {
         const rows = (data.items || []).filter((it) => it.quadrant === q).map((it) => {
           const att = Math.round((it.attention_rate || 0) * 100);
@@ -2077,7 +2304,8 @@
         if (!rows) return '';
         return `<div class='matrix-quad'><div class='matrix-quad__head' style='color:${colors[q]}'>${q}</div>${rows}</div>`;
       }).join('');
-      return `<div class='joint-meta'>${esc(data.group_label)}「${esc(data.group_value)}」 · 关注×满意匹配矩阵（样本 ${data.sample_count}）</div>${blocks}`;
+      return `<div class='joint-meta'>${esc(data.group_label)}「${esc(data.group_value)}」 · 关注×满意匹配矩阵（样本 ${data.sample_count}）</div>
+        <div class='joint-meta'>高关注 ≥ ${attTh}% · 高不满（打分≤6）≥ ${lowTh}%（固定阈值，跨群体一致）</div>${blocks}`;
     }
 
     async function askMatrix() {
@@ -2180,23 +2408,106 @@
       }
     }
 
-    function initTabs() {
-      const tabs = document.querySelectorAll('.insight-tab');
-      const blocks = document.querySelectorAll('#insight [data-insight-tab]:not(.insight-tab)');
-      function apply(key) {
-        tabs.forEach((t) => {
-          const active = t.getAttribute('data-insight-tab') === key;
-          t.classList.toggle('is-active', active);
-          t.setAttribute('aria-selected', active ? 'true' : 'false');
-        });
-        blocks.forEach((b) => { b.hidden = b.getAttribute('data-insight-tab') !== key; });
+    // ── 证据抽屉与上下文继承 ──
+    const CTX_DIMS = {
+      purchase_model: '车型', purchase_type: '购车类型', price_band: '价格段',
+      age_band: '年龄段', gender: '性别', city: '城市',
+    };
+    const CTX_FIELDS = [
+      ['insight-pain-dim', 'insight-pain-input'],
+      ['insight-repur-dim', 'insight-repur-input'],
+      ['insight-matrix-dim', 'insight-matrix-input'],
+      ['insight-cross-dim', 'insight-cross-input'],
+      ['insight-joint-type', 'insight-joint-input'],
+    ];
+    const ctxState = { dim: '', value: '', source: '' };
+
+    function setSelectValue(select, value) {
+      if (!select) return;
+      if (Array.prototype.some.call(select.options, (o) => o.value === value)) select.value = value;
+    }
+
+    function renderContext() {
+      const bar = document.getElementById('insight-ctx');
+      if (!bar) return;
+      if (!ctxState.dim || !ctxState.value) { bar.hidden = true; return; }
+      bar.hidden = false;
+      const chips = document.getElementById('insight-ctx-chips');
+      if (chips) chips.innerHTML = `<span class='insight-ctx__chip'>${esc(CTX_DIMS[ctxState.dim])} = ${esc(ctxState.value)}</span>`;
+      const src = document.getElementById('insight-ctx-source');
+      if (src) src.textContent = ctxState.source ? `来自${ctxState.source}` : '';
+    }
+
+    function applyContext(dim, value, source) {
+      if (!CTX_DIMS[dim] || !value) return;
+      ctxState.dim = dim;
+      ctxState.value = value;
+      ctxState.source = source || '手动输入';
+      renderContext();
+      setSelectValue(document.getElementById('insight-quant-dim'), dim);
+      CTX_FIELDS.forEach(([dimId, inputId]) => {
+        const sel = document.getElementById(dimId);
+        if (sel) setSelectValue(sel, dimId === 'insight-joint-type' && dim === 'purchase_model' ? 'vehicle_model' : dim);
+        const input = document.getElementById(inputId);
+        if (input) input.value = value;
+      });
+      const battle = document.getElementById('insight-battle-input');
+      if (battle && dim === 'purchase_model') battle.value = value;
+    }
+
+    function clearContext() {
+      ctxState.dim = '';
+      ctxState.value = '';
+      ctxState.source = '';
+      renderContext();
+      Toast.show('已清除上下文', 'success');
+    }
+
+    function syncContextFrom(dimId, inputId) {
+      let dim = document.getElementById(dimId)?.value || '';
+      if (dimId === 'insight-joint-type' && dim === 'vehicle_model') dim = 'purchase_model';
+      const val = (document.getElementById(inputId)?.value || '').trim();
+      if (dim && val) applyContext(dim, val, '手动输入');
+    }
+
+    function inheritFromToolEvents(events) {
+      if (!Array.isArray(events) || !events.length) return;
+      for (const ev of events) {
+        const m = String(ev.detail || '').match(/(?:group|filter)=([a-z_]+)=([^;]+)/);
+        if (m && CTX_DIMS[m[1].trim()] && m[2].trim()) {
+          applyContext(m[1].trim(), m[2].trim(), '本轮工具调用');
+          return;
+        }
       }
-      tabs.forEach((t) => t.addEventListener('click', () => apply(t.getAttribute('data-insight-tab'))));
-      apply('qa');
+    }
+
+    function initDrawers() {
+      document.querySelectorAll('[data-drawer-toggle]').forEach((btn) => {
+        const key = btn.getAttribute('data-drawer-toggle');
+        const body = document.querySelector(`.insight-drawer[data-drawer='${key}'] .insight-drawer__body`);
+        btn.addEventListener('click', () => {
+          const open = btn.getAttribute('aria-expanded') !== 'true';
+          btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+          btn.classList.toggle('is-open', open);
+          if (body) body.hidden = !open;
+        });
+      });
     }
 
     function init() {
-      initTabs();
+      initDrawers();
+      document.getElementById('insight-ctx-clear')?.addEventListener('click', clearContext);
+      document.getElementById('insight-agent-run')?.addEventListener('click', askAgent);
+      document.getElementById('insight-agent-clear')?.addEventListener('click', clearAgentThread);
+      document.getElementById('insight-agent-input')?.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') askAgent();
+      });
+      document.querySelectorAll('[data-agent-q]').forEach((el) => {
+        el.addEventListener('click', () => {
+          const input = document.getElementById('insight-agent-input');
+          if (input) { input.value = el.getAttribute('data-agent-q') || ''; input.focus(); }
+        });
+      });
       document.getElementById('insight-qa-run')?.addEventListener('click', ask);
       document.getElementById('insight-qa-input')?.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') ask();
@@ -2235,6 +2546,19 @@
       document.getElementById('insight-cross-run')?.addEventListener('click', askCross);
       document.getElementById('insight-cross-input')?.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') askCross();
+      });
+      [
+        ['insight-pain-dim', 'insight-pain-input'],
+        ['insight-repur-dim', 'insight-repur-input'],
+        ['insight-matrix-dim', 'insight-matrix-input'],
+        ['insight-cross-dim', 'insight-cross-input'],
+        ['insight-joint-type', 'insight-joint-input'],
+      ].forEach(([dimId, inputId]) => {
+        document.getElementById(dimId.replace('-dim', '-run').replace('-type', '-run'))?.addEventListener('click', () => syncContextFrom(dimId, inputId));
+      });
+      document.getElementById('insight-battle-run')?.addEventListener('click', () => {
+        const val = (document.getElementById('insight-battle-input')?.value || '').trim();
+        if (val) applyContext('purchase_model', val, '手动输入');
       });
       initQuant();
     }

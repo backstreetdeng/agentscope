@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang='zh-CN'>
 <head>
   <meta charset='UTF-8'>
@@ -11,6 +11,7 @@
   <link rel='icon' type='image/svg+xml' href='/assets/brand-mark.svg?v=20261012'>
   <link rel='stylesheet' href='/assets/intel-overview.css'>
   <link rel='stylesheet' href='/assets/forecast-engine.css'>
+  <link rel='stylesheet' href='/assets/benchmark.css'>
 </head>
 <body class='workspace-page'>
   <a class='skip-link' href='#main-content' aria-label='跳到主内容，跳过左侧导航'>跳到主内容</a>
@@ -62,15 +63,15 @@
             <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M3 19h18M4 15l5-5 4 3 7-9'/><path d='M15 4h5v5'/></svg></span>
             <span class='nav-label'>新版-市场预测</span><span class='nav-badge nav-badge--ai'>NEW</span>
           </a>
-          <a class='nav-item nav-item--external' data-view='benchmark' href='/benchmark' aria-label='竞品对标，款型配置信息锚定的竞品矩阵与战略So What'>
+          <a class='nav-item' data-view='benchmark' href='#benchmark' aria-label='竞品对标，款型配置信息锚定的竞品矩阵与战略So What'>
             <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='7' height='7' rx='1'/><rect x='14' y='14' width='7' height='7' rx='1'/><path d='M10 10 L14 14 M14 10 L10 14'/></svg></span>
             <span class='nav-label'>竞品对标</span>
             <span class='nav-badge nav-badge--ai'>AI</span>
           </a>
-          <a class='nav-item' data-view='insight' href='#insight' aria-label='用户洞察，演示示例'>
+          <a class='nav-item' data-view='insight' href='#insight' aria-label='用户洞察，智能问答与证据回源'>
             <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='9' cy='8' r='3'/><circle cx='17' cy='9' r='2.5'/><path d='M3 20 c0-3 3-5 6-5 s6 2 6 5 M14 20 c0-2 2-4 5-4'/></svg></span>
             <span class='nav-label'>用户洞察</span>
-            <span class='nav-badge'>demo</span>
+            <span class='nav-badge nav-badge--ai'>AI</span>
           </a>
           <a class='nav-item' data-view='projects' href='#projects' aria-label='项目列表，记录已执行过的任务'>
             <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M3 7 a2 2 0 0 1 2-2 h4 l2 2 h7 a2 2 0 0 1 2 2 v9 a2 2 0 0 1-2 2 H5 a2 2 0 0 1-2-2 z'/></svg></span>
@@ -1125,6 +1126,7 @@
            VIEW 5: 用户洞察 insight — 4 统计 + 3 圈层画像 + 需求匹配矩阵
            ============================================================ -->
       <div class='view' data-view='forecast-engine' hidden><div id='forecast-engine-mount'>正在加载新版市场预测工作区…</div></div>
+      <div class='view' data-view='benchmark' hidden><div id='benchmark-mount'>正在加载竞品对标工作区…</div></div>
       <div class='view' data-view='insight' hidden>
 
         <section id='insight' class='insight' aria-labelledby='insight-title'>
@@ -1720,5 +1722,6 @@
   <script src='/assets/home.js?v=20261102e' defer></script>
   <script src='/assets/intel-overview.js' defer></script>
   <script src='/assets/forecast-engine.js' defer></script>
+  <script src='/assets/benchmark.js' defer></script>
 </body>
 </html>

@@ -1013,6 +1013,12 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
             self._send_html((PROJECT_DIR / 'pages/forecast-engine.html').read_text(encoding='utf-8'))
             return
         if request_path in ('/benchmark', '/benchmark.html'):
+            # 竞品对标已并入主工作区导航，旧地址统一跳转到首页对应视图。
+            self.send_response(HTTPStatus.FOUND)
+            self.send_header('Location', '/#benchmark')
+            self.end_headers()
+            return
+        if request_path == '/benchmark-view':
             self._send_html((PROJECT_DIR / 'pages/benchmark.html').read_text(encoding='utf-8'))
             return
         if request_path.startswith('/api/forecast-engine/'):
