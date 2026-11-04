@@ -13,10 +13,19 @@ _process=None
 def ensure_tunnel(url):
     global _process
     from urllib.parse import urlsplit
-    if urlsplit(url).netloc != '127.0.0.1:18812': return
+    netloc = urlsplit(url).netloc
+    host, _, port_text = netloc.partition(':')
+    if host != '127.0.0.1' or not port_text:
+        return
+    try:
+        port = int(port_text)
+    except ValueError:
+        return
+    if port not in (18812, 18815):
+        return
     with _lock:
         try:
-            with socket.create_connection(('127.0.0.1',18812),timeout=.3): return
+            with socket.create_connection(('127.0.0.1', port), timeout=.3): return
         except OSError: pass
         if _process is None or _process.poll() is not None:
             python=ROOT/'runtime'/'rights-ssh-env'/'Scripts'/'python.exe'
@@ -29,6 +38,6 @@ def ensure_tunnel(url):
                     creationflags=subprocess.CREATE_NO_WINDOW if os.name=='nt' else 0)
         for _ in range(60):
             try:
-                with socket.create_connection(('127.0.0.1',18812),timeout=.2): return
+                with socket.create_connection(('127.0.0.1', port), timeout=.2): return
             except OSError: time.sleep(.1)
         raise ConnectionError('权益 SSH 加密通道尚未就绪')

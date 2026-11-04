@@ -1,0 +1,3 @@
+# Install into runtime/sarimax-deps without upgrading the main environment.
+statsmodels==0.15.0
+patsy==1.0.3

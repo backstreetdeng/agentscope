@@ -59,11 +59,13 @@ def connect():
     return client
 
 class Forward(socketserver.BaseRequestHandler):
+    remote_port = 8812  # loopback target on the cloud host; overridden per tunnel
+
     def handle(self):
         channel=None
         try:
             if not transport or not transport.is_active(): return
-            channel=transport.open_channel('direct-tcpip',('127.0.0.1',8812),self.request.getpeername(),timeout=10)
+            channel=transport.open_channel('direct-tcpip',('127.0.0.1',self.remote_port),self.request.getpeername(),timeout=10)
             while True:
                 ready,_,_=select.select([self.request,channel],[],[],30)
                 for source in ready:
@@ -73,6 +75,15 @@ class Forward(socketserver.BaseRequestHandler):
         except Exception: pass
         finally:
             if channel: channel.close()
+
+
+class ForwardMCP(Forward):
+    remote_port = 8812
+
+
+class ForwardDataApi(Forward):
+    remote_port = 8815
+
 
 class Server(socketserver.ThreadingTCPServer):
     allow_reuse_address=True
@@ -84,8 +95,11 @@ if __name__=='__main__':
         sys.exit(0)
     try:
         client=connect();transport=client.get_transport()
-        server=Server(('127.0.0.1',18812),Forward)
-        threading.Thread(target=server.serve_forever,daemon=True).start()
+        servers=[]
+        for local_port, handler in ((18812, ForwardMCP), (18815, ForwardDataApi)):
+            server=Server(('127.0.0.1',local_port),handler)
+            threading.Thread(target=server.serve_forever,daemon=True).start()
+            servers.append(server)
         print('rights_tunnel_ready',flush=True)
         while True:
             time.sleep(5)
@@ -94,7 +108,7 @@ if __name__=='__main__':
                 try: client=connect();transport=client.get_transport(); print('rights_tunnel_reconnected',flush=True)
                 except paramiko.AuthenticationException: print('authentication_failed_no_retry',flush=True);break
                 except Exception: time.sleep(20)
-        server.shutdown()
+        for server in servers: server.shutdown()
     except Exception as exc:
         print('rights_tunnel_failed:',type(exc).__name__,flush=True)
         sys.exit(1)

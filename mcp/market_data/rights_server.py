@@ -151,4 +151,16 @@ mcp = build_server()
 
 
 if __name__ == "__main__":
-    run_server(mcp, 8812)
+    import uvicorn
+
+    from .cloud_rights import Auth
+
+    # 腾讯云权益 MCP 直接经 SSH 隧道对外（无 nginx 网关），沿用 token-file Auth 做
+    # 服务端校验；data-api 的 `/api/v1/rights/*` 校验由 api_server.TokenAuth 承担。
+    app = Auth(mcp.streamable_http_app())
+    uvicorn.run(
+        app,
+        host=os.getenv("MCP_HOST", "127.0.0.1"),
+        port=int(os.getenv("MCP_PORT", "8812")),
+        access_log=False,
+    )

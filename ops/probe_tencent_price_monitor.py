@@ -6,7 +6,7 @@ import sys
 sys.path.insert(0, str(Path.home() / 'AppData/Local/Codex/ssh-146/python-packages'))
 import paramiko
 
-credential_path = Path('C:/Users/11489/.codex/skills/tencent-cloud-price-monitor-ssh/.env')
+credential_path = Path.home() / '.codex/skills/tencent-cloud-price-monitor-ssh/.env'
 text = credential_path.read_text(encoding='utf-8-sig')
 lines = text.splitlines()
 password = None
@@ -65,11 +65,12 @@ PY
         remote=sys.argv[sys.argv.index('--remote-dir')+1]
         if not remote.startswith('/opt/price-monitor/rights-mcp/releases/'):
             raise ValueError('upload scope invalid')
-        _, out, _=client.exec_command('mkdir -p '+remote+'/market_data')
+        _, out, _=client.exec_command('mkdir -p '+remote+'/market_data/contracts')
         if out.channel.recv_exit_status(): raise RuntimeError('mkdir failed')
         with client.open_sftp() as sftp:
-            for name in ('__init__.py','shared.py','cloud_rights.py'):
-                sftp.put(str(folder/name),remote+'/market_data/'+name)
+            for path in folder.rglob('*.py'):
+                rel = path.relative_to(folder).as_posix()
+                sftp.put(str(path), remote+'/market_data/'+rel)
         print('new_release_uploaded')
     if '--command-file' in sys.argv:
         command = Path(sys.argv[sys.argv.index('--command-file')+1]).read_text(encoding='utf-8-sig')

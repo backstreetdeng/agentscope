@@ -12,7 +12,7 @@ PROJECT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(PROJECT))
 
 
-def main(port=8860):
+def main(port=8860, no_agent_loop=False):
     import app
     preview=PROJECT/('runtime/forecast-engine-preview' if port == 8860 else f'runtime/forecast-engine-preview-{port}')
     preview.mkdir(parents=True,exist_ok=True)
@@ -25,19 +25,25 @@ def main(port=8860):
                 self._send_json({'error':'此端口仅预览新版市场预测；其他功能请使用原服务。'},status=503);return
             super().do_GET()
         def do_POST(self):
-            if urlparse(self.path).path not in {'/api/forecast-engine/jobs','/api/forecast-engine/chronos-jobs','/api/forecast-engine/local-insights','/api/forecast-engine/deepseek-insights','/api/chat'}:
+            if no_agent_loop and urlparse(self.path).path == '/api/chat':
+                self._send_json({'error':'此预览禁用通用聊天。'},status=403);return
+            if urlparse(self.path).path not in {'/api/forecast-engine/jobs','/api/forecast-engine/chronos-jobs','/api/forecast-engine/sarimax-jobs','/api/forecast-engine/model-comparison','/api/forecast-engine/local-insights','/api/forecast-engine/deepseek-insights','/api/chat'}:
                 self._send_json({'error':'预览不执行其他业务任务。'},status=403);return
             super().do_POST()
         def do_DELETE(self):
             self._send_json({'error':'预览不删除业务数据。'},status=403)
     server=app.ThreadingHTTPServer(('127.0.0.1',port),Handler)
-    app.AGENT_LOOP_RUNNER.start()
+    if not no_agent_loop: app.AGENT_LOOP_RUNNER.start()
     print(f'Forecast UI preview: http://127.0.0.1:{port}/#forecast-engine',flush=True)
     try:server.serve_forever()
-    finally:server.server_close();app.AGENT_LOOP_RUNNER.stop()
+    finally:
+        server.server_close()
+        if not no_agent_loop: app.AGENT_LOOP_RUNNER.stop()
 
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--port',type=int,default=8860,choices=range(1024,65536),metavar='PORT')
-    main(parser.parse_args().port)
+    parser.add_argument('--no-agent-loop',action='store_true',help='只预览数学预测，不启动通用Agent循环')
+    args=parser.parse_args()
+    main(args.port,args.no_agent_loop)

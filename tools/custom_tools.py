@@ -74,6 +74,39 @@ def record_tool_call(name: str, status: str, detail: str) -> None:
     )
 
 
+# agentic 自由问答中，工具在多轮调用里收集到的访谈证据在此登记，
+# 供请求结束后统一做 [E#] 引用校验（跨轮收集 valid_ids，防止虚构引用）。
+_EVIDENCE_REGISTRY: list[dict[str, Any]] = []
+
+
+def clear_evidence_registry() -> None:
+    """清空本轮的访谈证据注册表。请求入口调用，避免跨请求污染编号。"""
+
+    _EVIDENCE_REGISTRY.clear()
+
+
+def register_evidence(evidence: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """把工具返回的证据登记到全局注册表，并分配全局唯一 [E#] 编号。
+
+    返回改写后的证据列表，供工具作为 ToolChunk 返回给模型。全局编号保证
+    Agent 在多轮工具调用后引用的 [E#] 与请求结束时收集到的 valid_ids 一致。
+    """
+
+    renumbered: list[dict[str, Any]] = []
+    for ev in evidence:
+        item = dict(ev)
+        item["evidence_id"] = f"E{len(_EVIDENCE_REGISTRY) + 1}"
+        _EVIDENCE_REGISTRY.append(item)
+        renumbered.append(item)
+    return renumbered
+
+
+def get_collected_evidence() -> list[dict[str, Any]]:
+    """返回本轮 agentic 自由问答收集到的全部访谈证据（含全局编号）。"""
+
+    return list(_EVIDENCE_REGISTRY)
+
+
 class ReadOnlyBusinessTool(ToolBase):
     """业务只读工具基类。
 

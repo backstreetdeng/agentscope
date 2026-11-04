@@ -1,0 +1,10 @@
+set -euo pipefail
+echo "=== bge-m3 cache dir ==="
+ls -la /root/.cache/huggingface/hub/models--BAAI--bge-m3 2>/dev/null || echo "not yet created"
+echo "=== snapshots ==="
+ls -laR /root/.cache/huggingface/hub/models--BAAI--bge-m3/snapshots 2>/dev/null | head -40 || echo "no snapshots"
+echo "=== blobs size ==="
+du -sh /root/.cache/huggingface/hub/models--BAAI--bge-m3 2>/dev/null || echo "no dir"
+echo "=== running python dl proc ==="
+ps aux | grep -iE 'snapshot_download|huggingface|bge-m3' | grep -v grep || echo "no dl proc running"
+echo "=== DONE ==="

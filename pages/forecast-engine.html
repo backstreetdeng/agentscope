@@ -5,19 +5,21 @@
     <div class="nf-guide-body">
       <ol>
         <li><strong>生成预测：</strong>选择“销量预测”，设置地区、动力类型、历史数据截止月份和预测月数，点击“运行预测”。模型读取截止月份及之前的历史数据，生成之后各月的预测。</li>
-        <li><strong>查看结果：</strong>P50 是预测中位数，P10 和 P90 是该月预测区间的下界与上界。图表、明细和“查看计算依据与假设”展示同一次计算的结果；切换条件后需重新运行。</li>
+        <li><strong>查看结果：</strong>Chronos-2 的 P50 是预测中位数，P10 和 P90 为预测区间；SARIMAX 展示预测均值和模型条件 80% 区间，两者不可视为同等校准。切换条件后需重新运行。</li>
         <li><strong>检验历史表现：</strong>选择“历史回测”，设置地区、动力类型与截止月份后运行。页面按 1、3、6、12 个月展示误差和区间覆盖，并与季节性基线比较；WAPE 越低，代表该样本中的相对误差越小。</li>
+        <li><strong>比较模型：</strong>在相同地区、动力和截止月份下，分别选择两种模型运行预测或历史回测，再点击比较按钮。预测还需选择相同的预测月数；页面会记住各模型最近一次结果。</li>
         <li><strong>保存结果：</strong>运行完成后点击“下载内部核验结果”，保存本次计算的 JSON 文件。结果需经过真实数据回测和业务复核后才能对外发布。</li>
       </ol>
       <p>数据口径：零售量，单位为辆；插电式混合动力包含增程，四类合计不含燃料电池。已出现月份中缺失的省份和类别按零处理。</p>
-      <p>预测助手可在本机回答历史和回测问题；选择固定分析类型后，可单独调用 DeepSeek 分析未来预测。外发内容仅包括预测范围和未来各月预测区间，不发送历史实际、回测、提问原文或对话。“引擎情景预测”“假设推演”“指标查询”“预测依据”仍使用原引擎的模拟数据。</p>
+      <p>油价试验：选择“SARIMAX + 广东油价”，地区选广东、动力选插电式混合动力，预测不超过12月。固定使用92号最高零售价的月均价、滞后1月，未来未知油价保持起点最近水平。回测自动运行共同窗口对照，滞后3月仅作敏感性检查；如有失败起点，页面明确报告，成功交集评分不能代表完整回测通过。价格权益尚未形成连续月度变量，不参与本次计算。输入是当前采集快照，统计关系不能解释为因果。</p>
+      <p>预测助手目前仅支持 Chronos-2；SARIMAX 不会自动调用助手或 DeepSeek。Chronos-2 选择固定分析类型时，DeepSeek 仅接收预测范围和未来各月预测区间，不发送历史实际、回测、提问原文或对话。“引擎情景预测”“假设推演”“指标查询”“预测依据”仍使用原引擎的模拟数据。</p>
     </div>
   </details>
   <div class="nf-workspace">
     <section class="nf-controls" aria-label="预测操作"><div class="nf-panel-heading"><span>预测控制台</span><span class="nf-small">手动运行 · 数学引擎</span></div>
       <div class="nf-tabs" role="tablist" aria-label="选择预测功能"><button type="button" class="is-active" role="tab" aria-selected="true" data-nf-mode="chronos">销量预测</button><button type="button" role="tab" aria-selected="false" data-nf-mode="chronos-backtest">历史回测</button><button type="button" role="tab" aria-selected="false" data-nf-mode="forecast">引擎情景预测</button><button type="button" role="tab" aria-selected="false" data-nf-mode="scenario">假设推演</button><button type="button" role="tab" aria-selected="false" data-nf-mode="indicator">指标查询</button><button type="button" role="tab" aria-selected="false" data-nf-mode="explain">预测依据</button></div>
       <form id="nf-form"><p class="nf-mode-description" id="nf-mode-description">正在核对历史数据与模型。</p>
-        <div class="nf-field" data-nf-field="chronos-model"><label>预测模型</label><p class="nf-hint">Chronos-2 使用预训练权重，历史销量作为上下文；本阶段不重新训练模型。</p></div>
+        <div class="nf-field" data-nf-field="chronos-model"><label for="nf-forecast-model">预测模型</label><select id="nf-forecast-model"><option value="chronos">Chronos-2</option><option value="sarimax">SARIMAX 季节性基线</option><option value="oil">SARIMAX + 广东油价（内部试验）</option></select><p class="nf-hint" id="nf-model-hint">根据历史销量走势预测未来销量，并给出可能范围，帮助您提前规划。</p></div>
         <div class="nf-field" data-nf-field="chronos-region"><label for="nf-chronos-region">地区</label><select id="nf-chronos-region"></select></div>
         <div class="nf-field" data-nf-field="chronos-energy"><label for="nf-chronos-energy">动力类型</label><select id="nf-chronos-energy"></select><p class="nf-hint">四类合计不含燃料电池；插混包括增程。</p></div>
         <div class="nf-field" data-nf-field="chronos-cutoff"><label for="nf-chronos-cutoff">历史数据截止月份</label><input id="nf-chronos-cutoff" type="month"></div>
@@ -31,11 +33,12 @@
         <button type="submit" class="nf-primary" id="nf-run" disabled>正在核对数据</button>
       </form>
       <div class="nf-run-state" aria-live="polite"><span id="nf-state-dot"></span><div><strong id="nf-state-text">等待运行</strong><p id="nf-state-detail">操作会保存独立的输入版本与计算回执。</p></div></div>
-      <dl class="nf-source-info"><div><dt>统计口径</dt><dd>乘用车零售</dd></div><div><dt>历史数据</dt><dd id="nf-history-count">—</dd></div><div><dt>数据截止</dt><dd id="nf-cutoff">—</dd></div><div><dt>预测区间</dt><dd>P10 / P50 / P90</dd></div></dl>
+      <button type="button" class="nf-text-button" id="nf-compare">比较两个模型的预测 →</button><p class="nf-hint" id="nf-compare-hint">请在相同条件下分别运行两种模型。</p>
+      <dl class="nf-source-info"><div><dt>统计口径</dt><dd>乘用车零售</dd></div><div><dt>历史数据</dt><dd id="nf-history-count">—</dd></div><div><dt>数据截止</dt><dd id="nf-cutoff">—</dd></div><div><dt>预测区间</dt><dd id="nf-interval-label">P10 / P50 / P90</dd></div></dl>
     </section>
     <section class="nf-results" aria-label="预测结果"><div class="nf-panel-heading"><span>结果与依据</span><button type="button" class="nf-text-button" id="nf-download" disabled>下载内部核验结果 ↓</button></div>
       <div class="nf-empty" id="nf-empty"><svg viewBox="0 0 200 100" aria-hidden="true"><path d="M10 80H190M20 10V85" fill="none" stroke="#D8E2F3"/><path d="M25 70L55 57L85 62L115 40L145 47L180 22" fill="none" stroke="#5477EF" stroke-width="3"/><path d="M115 22L145 25L180 8V45L145 65L115 58Z" fill="#5477EF" opacity=".12"/></svg><h2>让预测从可核验的数据开始</h2><p>运行后查看总量、动力结构与区间；<br>每份结果保留情景、数据截止和来源。</p><span>尚未生成本次预测结果</span></div>
-      <div id="nf-result-content" hidden><div class="nf-result-meta" id="nf-result-meta"></div><div class="nf-metrics" id="nf-metrics"></div><div id="nf-intervals" class="nf-intervals"></div><p class="nf-decision" id="nf-decision" hidden></p><div class="nf-result-table" id="nf-result-table"></div><details class="nf-evidence"><summary>查看计算依据与假设</summary><div id="nf-evidence-text"></div></details></div>
+      <div id="nf-result-content" hidden><div class="nf-result-meta" id="nf-result-meta"></div><div class="nf-metrics" id="nf-metrics"></div><div id="nf-intervals" class="nf-intervals"></div><p class="nf-decision" id="nf-decision" hidden></p><div class="nf-result-table" id="nf-result-table"></div><details class="nf-evidence"><summary>查看计算依据与假设</summary><div id="nf-evidence-text"></div></details></div><div id="nf-comparison" class="nf-result-table" aria-live="polite" hidden></div>
     </section>
   </div>
   <section class="nf-assistant" aria-labelledby="nf-assistant-title"><div class="nf-assistant-head"><div><p class="nf-eyebrow">预测助手</p><h2 id="nf-assistant-title">从结果到业务判断</h2><p>历史与回测在本机分析；DeepSeek 分析只发送未来预测信息。</p></div><span class="nf-badge">历史数据不出域</span></div><p class="nf-hint" id="nf-chat-context">请先运行销量预测或历史回测，再向助手提问。</p><form id="nf-chat-form"><label class="sr-only" for="nf-question">预测问题</label><textarea id="nf-question" rows="2" maxlength="2000" placeholder="例如：未来销量是什么趋势？历史数据有季节性吗？"></textarea><button type="submit" class="nf-primary" id="nf-chat-submit">本机分析问题 →</button></form><p class="nf-hint">自由问题和历史对话只在本机处理；没有外部因素证据时不推断变化原因。</p>
