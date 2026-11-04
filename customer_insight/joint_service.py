@@ -21,7 +21,7 @@ QUAL_FIELD_MAP: dict[str, str] = {
 }
 
 CONFIG_QUESTION = "用户对车辆配置的关注点、优先级和必备配置有哪些？"
-CONFIG_QUANT_QID = "Q3_23__14"  # 智能驾驶关注度（配置关注题）
+CONFIG_QUANT_QID = "Q3_13__14"  # 智能驾驶关注度（配置关注题）
 
 
 class JointInsightService:

@@ -93,6 +93,8 @@
 - 待办：查询账户 `market_mcp_reader` 凭据未配置（当前检索复用 `user_insight_loader`，后续应切独立只读账户）。
 - 服务重启（2026-11-02，用户授权）：重启 7860 后已确认新页面生效（10 张 `insight-card`、引导条、战胜战败归入专题洞察、无旧 `qa` 归属）；启动脚本的隐藏进程未存活，改用后台常驻方式启动。
 - Tab 筛选缺陷修复 + 复验（2026-11-02）：`initTabs()` 选择器依赖 `#insight` 容器，但 `<section class='insight'>` 缺该 id，导致 `blocks` 为空、10 张卡片始终全部可见。已补 `<section id='insight'>` 并新增 `.insight-card[hidden]{display:none!important}`。重启后浏览器实测：默认仅 1 张（访谈证据检索）、定量统计 1 张、专题洞察 5 张、对比与验证 3 张，`aria-selected` 正确迁移、无 JS 控制台报错。
+- Sparse 向量回填（2026-11-02，用户授权）：为 `user_insight.answer` 新增 `sparse_embedding sparsevec(250002)` 列并回填全部 5355 条 bge-m3 稀疏向量（lexical weights）。实现路径：复用 146 `torchai` conda 环境已装的 `FlagEmbedding 1.3.5` + `torch 2.6`（CPU 推理，`use_fp16=False, device='cpu'`），经国内 `hf-mirror.com` 下载 `BAAI/bge-m3` 权重（4.3G，snapshot `5617a9f`）；`sudo -u postgres` 走 peer 认证免密连库，凭据不落盘不传远端。转换规则：bge-m3 词表 250002，lexical_weights 的 token_id（0-based，key 为 str）→ sparsevec 下标 `token_id+1`（1-based）。回填结果：`count(*)=5355`，`count(sparse_embedding)=5355`，全部命中；样例行 `A-R001-Q001` 读回值格式 `{5:0.0425,...,227838:0.215}/250002` 正确。生成耗时约 66s（CPU）。命令文件落 `ops/20261102-sparse-*.sh`（环境检查/下载/生成/导入/校验）。**检索链路尚未接入 sparse**（`retrieval_service.py` 仍为纯 dense+rerank），待用户确认是否做 dense+sparse 混合检索。
+- Dense+Sparse 混合检索 + 评测（2026-11-02，用户授权）：已接入。① 146 部署常驻 sparse 编码服务 `sparse_server.py`（FastAPI + FlagEmbedding，`torchai` 环境，CPU，端口 8091，`POST /sparse` 返回 `[[token_id, weight], ...]`）。② `retrieval_service.py` 新增 `_embed_sparse`/`_sparse_vec_str`/`_rrf_fuse`，`search()` 改为 dense 余弦（`<=>`）+ sparse 负内积（`<#>`）各召回 top30 → RRF(k=60) 融合 → rerank → 证据打包；sparse 服务故障自动降级纯 dense（`matched_by` 标注 `hybrid+rerank`/`vector+rerank`）。③ 评测集 `scripts/eval_hybrid_retrieval.py`：10 个 query，用 tag 语义标注（content_group + tag_value 模式 → 关联 answer）作 ground truth，指标 Recall@10/30 + MRR。**评测结果：MRR 0.452→0.523（+15.7%，排序改善明显），Recall@30 0.151→0.160（+6%，召回基本持平）**；部分 query（续航焦虑/使用成本/纯电续航）hybrid 反而略降。结论：小语料（5355 条）+ 已有 cross-encoder reranker 下，sparse 融合的收益主要在排序（MRR）而非扩展召回（Recall）；语义类 query 是 dense 强项，sparse 主要补专有名词（800V/NOA 等）精确匹配。
 
 ## T5 战胜战败决策链专题（进行中，2026-11-01 已授权）
 
@@ -205,4 +207,161 @@
 - 前端：`#insight` 板块新增 5 个区块（满意度痛点/再购意愿/需求×配置矩阵/竞品横向对比/圈层交叉验证）。
 - 测试：`customer_insight/tests/test_insight.py` 11 例通过（含 #6 定性检索，Ollama/reranker 在线）；5 个 API 端到端验证通过（唐L：痛点 Top=纯电续航里程、矩阵 16 维度四象限、交叉验证定性 4 条+定量 16 维度）。
 - 数据边界：定性原声与定量比例并排但不混用口径；四象限按群体内中位数划分，标注样本结果非普遍结论。
+
+## agentic 自由问答改造（2026-11-02 已授权）
+
+把用户洞察从「确定性 RAG（预编排检索 → 注入 → 归纳）」升级为「agentic RAG（Agent 自主决定调用哪个工具）」，原确定性端点保持不变、不被替换。
+
+### 落地（A→D）
+
+- A 工具化：`customer_insight/tool.py` 新增 `battle_search` + quant(3：list_questions/stat/stat_in_group) + insight(5：圈层/痛点/再购/矩阵/竞品) 共 9 个 `ReadOnlyBusinessTool`；`build_user_insight_toolkit()` 返回 10 个洞察工具（独立于市场战略共用 toolkit，不污染）。
+- B Agent 引导：`agents/user_insight_agent.py` 新增 `USER_INSIGHT_FREE_QA_PROMPT`（列工具 + 使用规则 + [E#] 引用 + 证据不足拒答 + 定性定量分离）+ `build_user_insight_free_qa_agent()`（带工具 ReAct，max_iters≥8）。
+- C agentic 端点：`app.py` 新增 `POST /api/insight/agent/query`（已入 do_POST 白名单），`run_insight_agent_query()` 返回 answer + evidence + tool_events + warnings。
+- D 反幻觉硬门：`tools/custom_tools.py` 新增全局证据注册表 `register_evidence / clear_evidence_registry / get_collected_evidence`；工具跨轮全局编号，请求结束统一 [E#] 引用校验，证据不足时拒答不编造。
+
+### 验证
+
+- 语法编译通过；`customer_insight/tests/test_toolkit.py` 4 例通过（工具集 + 全局编号注册 + 清空）。
+- 端到端（真实 DeepSeek + 内网 PG/Ollama/reranker）：问「唐L 用户最不满意哪些方面」→ Agent 自主调用 `satisfaction_painpoints` + `interview_evidence_search`，正确区分定量/定性、[E#] 引用合法、访谈证据不足时明确拒答不编造、样本量 n=44 不推断普遍性。
+- 原确定性端点（`/api/insight/interview/query` 等）未改动，行为不变。
+
+### 前端接入（2026-11-02）
+
+- `home.html`：新增「智能问答」Tab（默认选中，`data-insight-tab='agent'`）+ 输入卡片；引导文案改为「一句话问到底用智能问答，分步用四步链路」。
+- `assets/home.js`：新增 `renderMarkdown`（轻量 markdown：标题/表格/列表/加粗）、`renderToolEvents`（工具调用审计）、`askAgent`（fetch `/api/insight/agent/query`）；`initTabs` 默认 `agent`，`init` 绑定事件。
+- `assets/home.css`：新增 `md-table/md-h/md-p/md-li/tool-event` 样式。
+
+### 浏览器端到端验证（2026-11-02）
+
+- 已重启 7860 加载新代码（新端点 `/api/insight/agent/query` 空参数返回 400 验证通过）。
+- 浏览器实测 `#insight`：「智能问答」Tab 默认选中；输入「唐L用户最不满意哪些方面？」→ 返回 markdown 答案 + 证据卡 + 工具调用列表（`satisfaction_painpoints` / `interview_evidence_search` ×2 / `demand_config_matrix` 共 4 条 success），无 JS 报错。
+
+### 流式思考过程（2026-11-02 追加）
+
+- 问题：答案一次性返回，用户看不到 Agent 的决策过程（调了哪些工具、推理了什么）。
+- 方案：新增 `POST /api/insight/agent/stream`，用 AgentScope 2.0.3 `Agent.reply_stream()` 把事件实时推送为 NDJSON（`application/x-ndjson`，无 Content-Length，逐行 flush）。
+  - 事件：`start` / `round` / `reasoning_start|delta|end` / `tool_start` / `tool_result` / `final` / `error`。
+  - 最终答案取**最后一个文本块**；前置文本块是 ReAct 推理过程，仅用于实时展示。`[E#]` 硬校验逻辑与非流式端点一致（跨轮 `valid_ids`）。
+- 前端：`askAgent()` 改为 `fetch` + `ReadableStream` 逐行解析 NDJSON，实时渲染「思考过程」时间线（推理文本带流式光标、工具调用步骤带 进行中/完成 状态），结束后渲染答案 + 证据 + 工具审计。
+- 缓存：`home.html` 的 `home.css` / `home.js` 加 `?v=20261102`，避免浏览器沿用旧 JS 仍请求 `/agent/query`。
+- 验证：
+  - 直调 `stream_insight_agent_query`：`round=6, reasoning_delta=1292, tool_start=12, final=1`，答案 1760 字、证据 8 条、工具 12 条、无 warning。
+  - HTTP 实测（Python 客户端）：`content-type=application/x-ndjson`，首个事件 0.04s 到达，端到端 2.3s（简单问题）。
+  - 浏览器实测：点击后 **0.56s** 出现「思考过程 实时」，`agent-think`/`agent-step` 计数持续增长（1/2→5/10），结束时显示「已完成 · 10 次工具调用」，答案 4846 字符。
+
+### 多轮对话与联网补数（2026-11-02 追加）
+
+- 问题：单轮问答，用户追问「那你直接去查这些车型的续航差值」时无法延续上文；且 Agent 没有联网工具，续航等外部事实查不到。
+- 多轮：
+  - `customer_insight/session.py` 内存会话（`get_history / append_turn / reset`，保留最近 6 轮，TTL 1 小时）。后续要持久化只需替换这三个函数。
+  - `build_insight_conversation_inputs()` 把历史拼成 `UserMsg/AssistantMsg` 列表，连同新问题一起传给 `reply_stream`。
+  - `start` 事件带 `history_turns`；前端在思考过程头部显示「已带 N 轮上文」。
+  - `[E#]` 校验仍按**本轮**证据集合，保证编号与当轮证据卡一一对应。
+- 联网：
+  - `customer_insight/tool.py` 新增 `web_search`（Tavily）与 `web_fetch`（公开网页正文），Toolkit 从 10 个增至 12 个。
+  - 系统提示新增规则：访谈/问卷未覆盖的外部事实（续航、价差、配置）主动联网查，必须标注来源 URL 与「公开网络信息，需业务复核」，不得与访谈原话/问卷比例混用。
+  - `max_iters` 提升至 ≥12。
+- 前端：`#insight-agent-thread` 对话线程（用户气泡 + 每轮思考过程 + 答案 + 证据 + 工具审计），新增「清空对话」，会话 id 存 `sessionStorage`。
+- 表格溢出修复：markdown 表格包进 `.md-table-wrap`（`overflow-x:auto`），避免宽表把输入栏挤出屏幕。
+- 验证：
+  - 直调两轮：第 1 轮 8 次工具调用命中 4 位因续航弃购受访者；第 2 轮 `history_turns=1`，自主调用 `web_search` 4 次，输出「用户自述续航 vs 官方 CLTC」对照与差值，并标注来源 URL。
+  - 浏览器实测：两轮问答并存于同一线程；第 2 轮头部显示「已带 1 轮上文」，工具步骤 3 次 `web_search`，答案含官方 CLTC 参数、差值与 xinhuanet/xiaopeng 等来源链接；「清空对话」后线程清空且 `sessionStorage` 移除。
+
+### 四象限规则修复（2026-11-02 追加）
+
+- 问题：需求×配置矩阵用「群体内相对中位数」划分四象限，导致同一个「高关注·低不满」维度跨群体分类漂移。实例：舒适性（关注 47.6%、低分率 3.6%、均分 8.6）在增购组被误判「优先改进」，在换购组却是「核心优势」。
+- 根因：`demand_config_matrix` 用本群体关注度/低分率中位数作为阈值，非固定业务阈值。
+- 修复：
+  - 改为固定阈值（跨群体一致）：关注度 ≥ 25%（约全样本中位数），低分率 ≥ 5.7%（全样本 P75，n=1380、16 维度，2026-11-02 计算）。
+  - 四象限标签按业务语义重命名：优先诊断（高关注·高不满）/ 重点维持（高关注·低不满）/ 局部痛点（低关注·高不满）/ 保持监测（低关注·低不满）。
+  - 返回字段 `att_median`/`low_median` 改为 `attention_threshold`/`low_rate_threshold`（语义准确，无消费方）。
+  - 补 n=0 边界：群体取值匹配不到时返回空 items，不再全量误判「优先改进」。
+- 同步：`home.js` renderMatrix 新象限名 + 颜色 + 阈值口径说明；`tool.py` 工具描述；`test_insight.py` 断言。
+- 验证：增购组舒适性由「优先改进」修正为「重点维持」；换购组同样归「重点维持」，规则跨群体一致。`TestDemandConfigMatrix` 2 例通过。
+
+### 信息架构重构：主入口 + 证据抽屉（2026-11-02 追加）
+
+- 问题：原 `#insight` 用 5 个并列 Tab（智能问答/检索问答/定量统计/专题洞察/对比验证），把工具当功能并列展示。用户不清楚「检索问答」和「智能问答」区别，也不知道后三个该什么时候用；且各卡片的群体取值只能手输，上一轮问答涉及的群体条件不会带到下一张卡片。
+- 方案：对外只保留「智能问答」一个主入口，其余工具收进 4 个默认收起的证据抽屉：
+  1. 原话来源 · 访谈检索（标注内部工具，智能问答已自动调用）
+  2. 比例来源 · 定量统计
+  3. 固定口径 · 专题洞察（战胜战败/圈层/痛点/再购/矩阵/联合洞察）
+  4. 一致性 · 对比与验证（竞品横向对比/圈层交叉验证）
+- 参数继承：新增 `#insight-ctx` 上下文条。`final` 事件里解析 `tool_events[].detail`（`group=<维度>=<取值>`、`filter=<维度>=<取值>`），自动写入定量维度、痛点/再购/矩阵/交叉的维度+取值、联合洞察颗粒度、战胜战败车型；手动点击任一分析按钮也会反向同步上下文，一处改动处处一致。
+- 文件：`home.html`（#insight 区块重排，CRLF 统一）、`assets/home.js`（`initDrawers` / `applyContext` / `inheritFromToolEvents`，移除 `initTabs`）、`assets/home.css`（`.insight-ctx` / `.insight-drawer*` 样式，移除 tab 样式）。
+- 验证（Chrome headless 真实浏览器，拦截流式接口注入 `filter=purchase_model=唐L` 事件）：16/16 通过——无编号 Tab、主入口唯一、4 抽屉默认收起、抽屉可展开、上下文条显示「车型 = 唐L / 来自本轮工具调用」、痛点/再购/矩阵/交叉/联合/战胜战败 6 个输入框全部自动填入唐L、维度下拉同步 `purchase_model`、联合颗粒度同步 `vehicle_model`、定量题目仍加载 1283 条、无 JS 报错。截图 `outputs/20261102-insight-refactor/insight-drawer.png`。
+- 另用真实模型跑通一次「唐L用户最不满意哪些方面？」：6 次工具调用完成，上下文条显示「车型 = 唐L / 来自本轮工具调用」。
+
+### 购车关注题号修复（2026-11-02 追加）
+
+- 问题：`insight_service.ATT_PREFIX` 原为 `Q3_23__`，注释写"购车关注因素"，但 Q3_23 实际是「选择最终购买车型的原因」（战胜原因），不是购车关注因素。真正的购车关注因素是 Q3_13。
+- 根因：H1→H2 题号迁移——H1 3.11 购车关注 → H2 `Q3_13`；H1 3.15 选择最终车型原因 → H2 `Q3_23`。代码把战胜原因题（Q3_23）错当成购车关注题。
+- 证据：`quant_columns.csv`（col 295-310=Q3_13 购车关注，col 651-666=Q3_23 选择最终车型原因，两者 16 维度标签相同但语义不同）。
+- 修复：
+  - `ATT_PREFIX` 由 `Q3_23__` 改为 `Q3_13__`（购车关注因素）。
+  - 新增 `CHOOSE_REASON_PREFIX = "Q3_23__"`（选择最终车型原因，独立指标，勿与购车关注混用）。
+  - `joint_service.CONFIG_QUANT_QID` 由 `Q3_23__14` 改为 `Q3_13__14`。
+  - `quant_service`、`tool.py` 注释/示例同步修正。
+- 影响：`demand_config_matrix`、`competitor_compare` 的"关注度"从战胜原因数据回归到购车关注数据。增购舒适性关注度由 47.6%（Q3_23）修正为 43.6%（Q3_13），与 Agent 自由问答口径一致。
+- 验证：`TestDemandConfigMatrix` 2 例通过；`repro_quadrant.py` 复验增购/换购四象限数据语义正确（舒适性→重点维持、续航/智驾→优先诊断）。
+
+### 待办
+
+- 查询账户仍复用 `user_insight_loader`，未切独立只读账户 `market_mcp_reader`。
+- 改造后代码未提交（仅基线 `fd177df` 已本地 commit），待用户确认后再提交。
+
+## 诊断报告问题修复（2026-11-03）
+
+第一项交付物《智能问答诊断报告（8 个问题实测）》的修复闭环，逐项对应报告编号：
+
+- [x] 1.2 聚合词静默空结果：新增 `customer_insight/segment_aliases.py`（读库真实枚举 + 5 分钟缓存 + 聚合词展开）；`demand_config_matrix` / `stat_in_group` / `search` / `battle_search` 精确匹配改 `= ANY(%s)`，正常结果回传 `expanded_values`，空结果回传 `available_values` + `hint`。
+- [x] 1.3 访谈员提问混入引文：`_clean_quote` 去前缀、按最后一个问号切「提问+回答」、截断「……，您……」追加追问；`_looks_like_question` 增加无问号复述式追问识别；`_pick_evidence_segments` 改提问硬过滤。
+- [x] 1.8 具体配置下钻：`InsightService.config_detail` + 工具 `config_detail`，Q3_13_1__NN 明细项按群体勾选率返回（库内实际 94 项，原文档写的 117 已修正）。
+- [x] 1.7 关注/满意/战胜口径混用：`USER_INSIGHT_FREE_QA_PROMPT` 规则 7/11 明确 Q3_13 / Q5_2 / Q3_23 / Q3_24_1 不可互推，因果表述必须有 battle_search 证据。
+- [x] 1.1 关键词试错题号：工具描述写明题号语义与下钻路径，提示词补题号字典与排他表述核对（规则 9）。
+- 1.4 / 1.5 / 1.6 为前序修复，本次复跑未回退（增购舒适性 43.6% 来自 Q3_13，非 Q3_23）。
+
+验证：
+- `temp/20261103-insight-audit/verify_fixes.py`：10 项断言 PASS（矩阵 n=547 / group_size=547 / 定性 evidence 非空 / 引文无提问残留 / 明细层口径一致）。
+- `temp/20261103-insight-audit/verify_quotes.py`：同一 query 6 条证据逐条无问号、无“您”、无访谈员前缀。
+- 端到端「增换购用户最看重哪些配置？」（新会话）：3 次工具调用 `config_detail` → `demand_config_matrix` → `interview_evidence_search`，无关键词试错；答案分层（16 维度 / 94 配置项）并注明展开口径。日志 `temp/20261103-insight-audit/e2e_v2.log`。
+- 端到端复验（排他表述）：修复后只调用 `config_detail` + `demand_config_matrix` 即完成两层结论，四象限写“优先诊断共 2 项：纯电续航里程、智能驾驶”，不再出现“唯一”。日志 `temp/20261103-insight-audit/e2e_v4.log`。
+- 单测：`python -m unittest discover -s customer_insight\tests` 27 例通过（`test_toolkit` 工具数更新为 13，新增 `TestSegmentAliases` 3 例）。
+- 未提交 Git；未重启 7860 服务（遵守月报浏览器保护规则，验证走独立进程）。
+
+### 1.3 残留缺陷（2026-11-03 浏览器自测发现并修复）
+
+浏览器实测「唐L用户最不满意哪些方面？」时，证据列表出现访谈员复述「明白，好的。也就是说回来看了看插混这样的，你买四驱主要考虑到SUV动力性。」，说明 1.3 只修了带问号和「您」的情形。
+
+- 根因一：`_looks_like_question` 只看清洗后文本，`M：` 前缀已被 `_clean_quote` 剥掉，最可靠的访谈员信号丢失。
+- 根因二：`_pick_evidence_segments` 用 `positives or non_questions`，与答案相似度高的访谈员发言会绕过提问过滤回到证据池。
+
+修复：
+- 新增 `_INTERVIEWER_PREFIX`，`_looks_like_question` 在清洗前先判 `M/Q/问/访/主持人/访谈员` 前缀。
+- 证据池改为 `[item for item in non_questions if item[0] > 0] or non_questions`，提问永不进入。
+- 曾试加「也就是说/就是说」为问句线索，测出会误杀受访者原话（如「主要就是说。」），已回退，只保留前缀判定。
+
+验证：
+- `temp/20261103-insight-audit/verify_leak_v2.py`：全库 81437 条证据，带访谈员前缀 1389 条 100% 判为提问；唐L 检索 8 条证据全部 OK。
+- 浏览器复测（服务重启后新会话）：回答 4106 字，15 条证据全为受访者原话，旧句消失，无 `M：`/「您觉得」/「也就是说」痕迹。
+- `test_toolkit` 7 例通过。
+
+遗留（2026-11-03 记录）：无前缀受访者侧约 21.9% 被问句线索误过滤（如「感觉也不怎么样」）——只影响召回不影响正确性的旧表述被用户否定（召回损失即间接影响结果正确性），2026-11-04 修复见下节。
+
+## 前端口径与召回优化（2026-11-04）
+
+用户验收反馈两项修复（唐L 口碑库无数据由用户安排旧电脑采集，不在本任务范围）：
+
+### 工具调用清单口径一致（思考过程 5 次 vs 底部清单 3 条）
+
+- 现象：思考过程按框架 `tool_call_start` 流式事件计数（含 MCP 口碑工具），底部「工具调用」清单来自 `record_tool_call` 审计日志，而 MCP 工具（`mcp__reputation_data_mcp__*`）由框架直接调用、不经任何包装，从不写入审计日志。
+- 修复：`integrations/market_mcp_plugins.py` 新增 `MCPToolAuditMiddleware`（AgentScope ToolMiddlewareBase），在工具调用层记录 success/error 与参数/返回摘要，`load_market_mcp_plugins` 装配时为每个 MCP 工具追加该 middleware。市场/用户洞察、流式/非流式所有调用路径口径统一。
+- 验证：假工具走 `ToolBase.__call__` + middleware，success/error 两条审计记录均正确落库（`get_tool_call_events` 断言通过）。
+
+### 问句弱线索从硬过滤改为降权（1.3 召回优化）
+
+- 方案：过滤分两层。新增 `_is_definite_question`（访谈员前缀 / 清洗后无受访者发言 / 整段为题干复述，三类确定性信号）继续整条丢弃；`_looks_like_question` 中仅问句线索命中（如「感觉也不怎么样」）的条目不再过滤，`_segment_score` 对其扣 0.5 降权（确定性信号仍扣 1.0），排序靠后但证据池不足时仍可入选。
+- 已知教训保留：不把「也就是说/就是说」加回线索（此前实测误杀「主要就是说。」）。
+- 测试：`test_toolkit` 新增 `TestQuestionFilterLayering` 6 例（前缀判提问、纯提问判提问、受访者口语不判 definite、软线索降权、软线索可入选、确定性提问永不入选），15 例全过。
+- 全库统计与浏览器端到端复测：2026-11-04 执行时 146 数据库/Ollama/Reranker 整机不可达（TCP 可建连、服务无响应，疑似采集任务高负载），`verify_leak_v2.py`（已更新为 definite/soft 分层口径）与浏览器复测待 146 恢复后补跑。
 

@@ -65,7 +65,7 @@ class TestDemandConfigMatrix(unittest.TestCase):
         self.assertEqual(result["group_value"], "唐L")
         self.assertEqual(len(result["items"]), 16)
         quadrants = {x["quadrant"] for x in result["items"]}
-        self.assertTrue(quadrants.issubset({"优先改进", "核心优势", "潜在不满", "保持"}))
+        self.assertTrue(quadrants.issubset({"优先诊断", "重点维持", "局部痛点", "保持监测"}))
         for it in result["items"]:
             self.assertIn("attention_rate", it)
             self.assertIn("low_rate", it)

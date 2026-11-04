@@ -3,14 +3,16 @@ from __future__ import annotations
 
 from typing import Any
 
+import re
 import statistics
 
 import psycopg2
 import psycopg2.extras
 
 from customer_insight.quant_service import DIMENSIONS, _load_env
+from customer_insight.segment_aliases import distinct_values, expand
 
-# 产品维度（购车关注因素 Q3_23__N 与使用满意度 Q5_2__N 一一对应，N=1..16）
+# 产品维度（购车关注因素 Q3_13__N 与使用满意度 Q5_2__N 一一对应，N=1..16）
 PRODUCT_DIMS: list[tuple[int, str]] = [
     (1, "安全性"), (2, "操控性"), (3, "动力性"), (4, "舒适性"),
     (5, "空间"), (6, "外观"), (7, "内饰"), (8, "质量"),
@@ -18,19 +20,30 @@ PRODUCT_DIMS: list[tuple[int, str]] = [
     (13, "智能座舱"), (14, "智能驾驶"), (15, "纯电续航里程"), (16, "电池特性"),
 ]
 SAT_PREFIX = "Q5_2__"   # 使用感受满意度打分（1-10 分）
-ATT_PREFIX = "Q3_23__"  # 购车关注因素（勾选=1）
+ATT_PREFIX = "Q3_13__"  # 购车关注因素（勾选=1）——注意不是 Q3_23
+CHOOSE_REASON_PREFIX = "Q3_23__"  # 选择最终购买车型的原因（战胜原因，独立指标，勿与购车关注混用）
 SAT_LOW_THRESHOLD = 6   # 满意度 ≤6 分视为不满意/低分
 
+# 需求×配置矩阵四象限的固定阈值（跨群体一致，不随单群体中位数漂移）。
+# 来源：全样本 n=1380、16 个产品维度分布（2026-11-02 计算，见 temp/20261102-agentic-rag）。
+#   - 关注度（勾选率）：>= 25% 视为「高关注」（约全样本中位数 24%，取整）。
+#   - 低分率（打分<=6 比例）：>= 5.7% 视为「高不满」（全样本 P75）。
+ATTENTION_THRESHOLD = 0.25
+LOW_RATE_THRESHOLD = 0.057
 
-def _median(values: list[float]) -> float:
-    """中位数，用于四象限阈值划分。"""
-    if not values:
-        return 0.0
-    s = sorted(values)
-    n = len(s)
-    if n % 2:
-        return s[n // 2]
-    return (s[n // 2 - 1] + s[n // 2]) / 2
+# 四象限标签（业务解释框架）：
+#   (高关注, 高不满) -> 优先诊断（改进候选）
+#   (高关注, 低不满) -> 重点维持（优势候选）
+#   (低关注, 高不满) -> 局部痛点（分群排查）
+#   (低关注, 低不满) -> 保持监测
+QUADRANT_LABELS: dict[tuple[bool, bool], str] = {
+    (True, True): "优先诊断",
+    (True, False): "重点维持",
+    (False, True): "局部痛点",
+    (False, False): "保持监测",
+}
+# 前端展示顺序（优先级从高到低）
+QUADRANT_ORDER = {"优先诊断": 0, "重点维持": 1, "局部痛点": 2, "保持监测": 3}
 
 
 class InsightService:
@@ -184,9 +197,15 @@ class InsightService:
         conn = self._connect()
         try:
             with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                # 圈层取值是具体枚举，没有「增换购」这类聚合值：先展开，避免精确匹配静默返回 0。
+                available: list[str] = []
+                values = [group_value]
+                if group_field == "purchase_type":
+                    available = distinct_values(conn, "user_insight.quant_sample", group_field)
+                    values = expand([group_value], available)
                 cur.execute(
-                    f"SELECT count(*) AS total FROM user_insight.quant_sample WHERE {group_field} = %s",
-                    (group_value,),
+                    f"SELECT count(*) AS total FROM user_insight.quant_sample WHERE {group_field} = ANY(%s)",
+                    (values,),
                 )
                 total = cur.fetchone()["total"] or 0
                 items: list[dict[str, Any]] = []
@@ -200,8 +219,8 @@ class InsightService:
                         "count(*) FILTER (WHERE answers_text->>%s ~ '^[0-9]+$' AND (answers_text->>%s)::int <= %s) AS low_cnt, "
                         "avg(CASE WHEN answers_text->>%s ~ '^[0-9]+$' THEN (answers_text->>%s)::float END) AS mean_score "
                         "FROM user_insight.quant_sample "
-                        f"WHERE {group_field} = %s",
-                        (att_qid, sat_qid, sat_qid, sat_qid, SAT_LOW_THRESHOLD, sat_qid, sat_qid, group_value),
+                        f"WHERE {group_field} = ANY(%s)",
+                        (att_qid, sat_qid, sat_qid, sat_qid, SAT_LOW_THRESHOLD, sat_qid, sat_qid, values),
                     )
                     row = cur.fetchone()
                     att_cnt = row["att_cnt"] or 0
@@ -217,31 +236,103 @@ class InsightService:
                         "sat_total": sat_total,
                     })
 
-                att_med = _median([x["attention_rate"] for x in items])
-                low_rates = [x["low_rate"] for x in items if x["sat_total"] > 0]
-                low_med = _median(low_rates) if low_rates else 0.0
+                if total == 0:
+                    return {
+                        "group_field": group_field,
+                        "group_label": DIMENSIONS[group_field],
+                        "group_value": group_value,
+                        "expanded_values": values,
+                        "sample_count": 0,
+                        "available_values": available[:8],
+                        "hint": (
+                            f"「{group_value}」在 {group_field} 中无匹配样本；"
+                            f"库内实际取值为：{'；'.join(available[:8])}"
+                        ) if available else "该维度无样本。",
+                        "attention_threshold": ATTENTION_THRESHOLD,
+                        "low_rate_threshold": LOW_RATE_THRESHOLD,
+                        "items": [],
+                    }
 
-                order = {"优先改进": 0, "核心优势": 1, "潜在不满": 2, "保持": 3}
                 for it in items:
-                    hi_att = it["attention_rate"] >= att_med
-                    hi_low = it["low_rate"] >= low_med
-                    if hi_att and hi_low:
-                        it["quadrant"] = "优先改进"
-                    elif hi_att and not hi_low:
-                        it["quadrant"] = "核心优势"
-                    elif not hi_att and hi_low:
-                        it["quadrant"] = "潜在不满"
-                    else:
-                        it["quadrant"] = "保持"
-                items.sort(key=lambda x: (order.get(x["quadrant"], 9), -x["attention_rate"]))
+                    hi_att = it["attention_rate"] >= ATTENTION_THRESHOLD
+                    hi_low = it["low_rate"] >= LOW_RATE_THRESHOLD
+                    it["quadrant"] = QUADRANT_LABELS[(hi_att, hi_low)]
+                items.sort(key=lambda x: (QUADRANT_ORDER.get(x["quadrant"], 9), -x["attention_rate"]))
 
                 return {
                     "group_field": group_field,
                     "group_label": DIMENSIONS[group_field],
                     "group_value": group_value,
+                    "expanded_values": values,
                     "sample_count": total,
-                    "att_median": round(att_med, 4),
-                    "low_median": round(low_med, 4),
+                    "attention_threshold": ATTENTION_THRESHOLD,
+                    "low_rate_threshold": LOW_RATE_THRESHOLD,
+                    "items": items,
+                }
+        finally:
+            conn.close()
+
+    def config_detail(self, group_field: str, group_value: str, top: int = 15) -> dict[str, Any]:
+        """具体配置项下钻：Q3_13_1__NN 明细层（94 项）按勾选率排序，隶属 16 产品维度之下。"""
+        if group_field not in DIMENSIONS:
+            raise ValueError(f"不支持的维度：{group_field}")
+        top = max(1, min(int(top), 50))
+        conn = self._connect()
+        try:
+            with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                available: list[str] = []
+                values = [group_value]
+                if group_field == "purchase_type":
+                    available = distinct_values(conn, "user_insight.quant_sample", group_field)
+                    values = expand([group_value], available)
+
+                cur.execute(
+                    f"SELECT count(*) AS n FROM user_insight.quant_sample WHERE {group_field} = ANY(%s)",
+                    (values,),
+                )
+                total = cur.fetchone()["n"] or 0
+                if total == 0:
+                    return {
+                        "group_field": group_field,
+                        "group_label": DIMENSIONS[group_field],
+                        "group_value": group_value,
+                        "expanded_values": values,
+                        "sample_count": 0,
+                        "available_values": available[:8],
+                        "hint": (
+                            f"「{group_value}」在 {group_field} 中无匹配样本；"
+                            f"库内实际取值为：{'；'.join(available[:8])}"
+                        ) if available else "该维度无样本。",
+                        "items": [],
+                    }
+
+                cur.execute(
+                    "SELECT q.question_id, q.question_text, "
+                    "count(*) FILTER (WHERE s.answers_text ? q.question_id) AS cnt "
+                    "FROM user_insight.quant_question q CROSS JOIN user_insight.quant_sample s "
+                    "WHERE q.question_id ~ '^Q3_13_1__[0-9]+$' AND s." + group_field + " = ANY(%s) "
+                    "GROUP BY q.question_id, q.question_text "
+                    "ORDER BY cnt DESC, q.question_id LIMIT %s",
+                    (values, top),
+                )
+                items = [
+                    {
+                        "question_id": r["question_id"],
+                        "config_item": re.sub(
+                            rf"^{re.escape(r['question_id'])}\s*", "", r["question_text"] or ""
+                        ).strip() or r["question_text"],
+                        "attention_count": r["cnt"],
+                        "attention_rate": round(r["cnt"] / total, 4),
+                    }
+                    for r in cur.fetchall()
+                ]
+                return {
+                    "group_field": group_field,
+                    "group_label": DIMENSIONS[group_field],
+                    "group_value": group_value,
+                    "expanded_values": values,
+                    "sample_count": total,
+                    "metric": "Q3_13_1__NN 购车关注具体配置项（勾选率=勾选人数/群体总样本）",
                     "items": items,
                 }
         finally:

@@ -8,6 +8,8 @@ from typing import Any
 import psycopg2
 import psycopg2.extras
 
+from customer_insight.segment_aliases import distinct_values, expand
+
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 # 白名单维度：切分维度 -> 显示名
@@ -118,7 +120,7 @@ class QuantStatService:
                 by_group[g].append({"value": r["val"], "count": r["cnt"]})
                 total += r["cnt"]
 
-            # 勾选题（如 Q3_23 购车关注因素）：取值只有 1，占比应按群体总样本算
+            # 勾选题（如 Q3_13 购车关注因素）：取值只有 1，占比应按群体总样本算
             multi_select = bool(rows) and all(str(r["val"]) in ("1", "1.0") for r in rows)
 
             groups = []
@@ -164,24 +166,46 @@ class QuantStatService:
                     raise ValueError(f"题目不存在：{question_id}")
                 question_text = qrow["question_text"]
 
+                # 圈层取值是具体枚举，「增换购」这类聚合词需展开后才能命中。
+                available: list[str] = []
+                values = [filter_value]
+                if filter_field == "purchase_type":
+                    available = distinct_values(conn, "user_insight.quant_sample", filter_field)
+                    values = expand([filter_value], available)
+
+                cur.execute(
+                    f"SELECT count(*) AS n FROM user_insight.quant_sample WHERE {filter_field} = ANY(%s)",
+                    (values,),
+                )
+                group_size = cur.fetchone()["n"] or 0
+
                 cur.execute(
                     f"SELECT answers_text->>%s AS val, count(*) AS cnt "
                     "FROM user_insight.quant_sample "
-                    f"WHERE {filter_field} = %s AND answers_text ? %s "
+                    f"WHERE {filter_field} = ANY(%s) AND answers_text ? %s "
                     "GROUP BY val ORDER BY cnt DESC LIMIT %s",
-                    (question_id, filter_value, question_id, top),
+                    (question_id, values, question_id, top),
                 )
                 rows = cur.fetchall()
 
             items = [{"value": r["val"], "count": r["cnt"]} for r in rows]
             total = sum(i["count"] for i in items)
-            return {
+            result: dict[str, Any] = {
                 "question_id": question_id,
                 "question_text": question_text,
                 "filter_field": filter_field,
                 "filter_value": filter_value,
+                "expanded_values": values,
                 "sample_count": total,
+                "group_size": group_size,
                 "items": items,
             }
+            if group_size == 0:
+                result["available_values"] = available[:8]
+                result["hint"] = (
+                    f"「{filter_value}」在 {filter_field} 中无匹配样本；"
+                    f"库内实际取值为：{'；'.join(available[:8])}"
+                ) if available else "该维度无样本。"
+            return result
         finally:
             conn.close()

@@ -12,7 +12,50 @@ import os
 from dataclasses import dataclass, field
 from typing import Any, Iterable
 
+from agentscope.message import ToolResultState
 from agentscope.mcp import HttpMCPConfig, MCPClient
+from agentscope.tool import ToolChunk, ToolMiddlewareBase
+
+
+class MCPToolAuditMiddleware(ToolMiddlewareBase):
+    """Write MCP tool calls into the shared tool audit log.
+
+    The frontend "工具调用" list is fed by ``record_tool_call`` while the
+    thinking-process step counter is fed by framework ``tool_call_start``
+    events; without this middleware MCP tools appear in the step counter
+    but never in the audit list, so both views disagree.
+    """
+
+    async def on_tool_call(self, tool, input_kwargs, next_handler):
+        # 延迟导入，避免 integrations 与 tools 之间产生导入环。
+        from tools.custom_tools import record_tool_call
+
+        args_detail = "; ".join(
+            f"{key}={str(value)[:40]}" for key, value in input_kwargs.items()
+        ) or "no-args"
+        chunks: list[ToolChunk] = []
+        try:
+            async for chunk in next_handler(**input_kwargs):
+                chunks.append(chunk)
+                yield chunk
+        except Exception as exc:
+            record_tool_call(
+                tool.name,
+                "error",
+                f"{args_detail}; error={type(exc).__name__}: {exc}",
+            )
+            raise
+        text_len = sum(
+            len(getattr(block, "text", "") or "")
+            for chunk in chunks
+            for block in chunk.content
+        )
+        failed = any(chunk.state == ToolResultState.ERROR for chunk in chunks)
+        record_tool_call(
+            tool.name,
+            "error" if failed else "success",
+            f"{args_detail}; returned {text_len} chars",
+        )
 
 
 DEFAULT_PLUGINS: dict[str, dict[str, Any]] = {
@@ -224,6 +267,9 @@ async def load_market_mcp_plugins(
     tools: list[Any] = []
     statuses: list[MarketMCPPluginStatus] = []
     for plugin_tools, status in results:
+        for tool in plugin_tools:
+            # 让 MCP 工具调用进入统一的工具审计日志，与内部工具口径一致。
+            tool._middlewares = [*getattr(tool, "_middlewares", []), MCPToolAuditMiddleware()]
         tools.extend(plugin_tools)
         statuses.append(status)
     return MarketMCPPluginBundle(tools=tools, statuses=statuses)
