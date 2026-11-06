@@ -5,7 +5,7 @@ task_id: BCI-002
 title: 深访用户洞察档案模板（两份：新能源 / 用户洞察档案）
 stage: TESTED
 owner: TRAE
-commit_paths: competitor_insight/templates,competitor_insight/web/templates.json,competitor_insight/web/bci.js,competitor_insight/docs/template-vs-prototype-mapping.md,competitor_insight/tasks/BCI-002,outputs/competitor-insights/BCI-002
+commit_paths: competitor_insight/templates/nev_user_insight_template.json,competitor_insight/templates/nev_user_insight_template.md,competitor_insight/templates/user_insight_archive_template.json,competitor_insight/templates/user_insight_archive_template.md,competitor_insight/templates/README.md,competitor_insight/web/templates.json,competitor_insight/docs/template-vs-prototype-mapping.md,competitor_insight/tasks/BCI-002,outputs/competitor-insights/BCI-002
 updated: 2026-11-06
 blocked: no
 next: 用户验收 7860 页面下拉两条模板均可选后确认上线
@@ -33,6 +33,20 @@ evidence: outputs/competitor-insights/BCI-002/20261106-template-v1/
 - 新车型模板继续「待提供」，原因写明「待业务提供模板文件，不是开发待办」。
 
 **允许写入**：`competitor_insight/templates/`（模板定义 + 说明）、`competitor_insight/web/templates.json`（下拉清单）、`competitor_insight/web/bci.js`（只改模板选项加载方式）、`competitor_insight/docs/`（核对文档）、`competitor_insight/` 内任务与看板文档、`outputs/competitor-insights/BCI-002/` 证据。
+
+### 入库判定（commit_paths）的边界 — 2026-11-07 声明收窄
+
+原声明把 `competitor_insight/templates` 整目录算进来。但该目录已被 BCI-004 用来写 `user_insight_archive.source-map.json`（其允许写入范围明确包含 `templates/*.source-map.json`），整目录声明会让别人的在途文件持续把本任务判红。按「谁生成谁声明」改为具体文件，**这是声明层面的归属修正，不是为了变绿**：
+
+| 路径 | 处理 | 原因 |
+|---|---|---|
+| `competitor_insight/templates/`（整目录） | **改为逐个文件** | 共享目录；BCI-004 正在写 `*.source-map.json`，不属本任务 |
+| `competitor_insight/web/bci.js` | **移出** | 与 BCI-001 共用（本任务只改模板选项加载，BCI-001 负责模块主体与 `bci.scope`） |
+| 4 份模板 + `templates/README.md` | 保留 | 本任务产出并独占 |
+| `competitor_insight/web/templates.json` | 保留 | 本任务产出的下拉清单（单文件，不整目录声明 `web/`） |
+| `competitor_insight/docs/template-vs-prototype-mapping.md` | 保留 | 本任务产出的核对文档（具体文件） |
+
+**盲区**：`templates/README.md` 若日后被别的任务改写，本检查会判红；届时应改由实际改动方声明，或按本表方式再收窄。本任务今后若再改 `bci.js`，需人工登记，自动检查不再覆盖。
 
 ## 2. 交付结构（对照埃安RT 报告）
 
