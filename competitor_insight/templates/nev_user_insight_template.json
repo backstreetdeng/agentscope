@@ -1,0 +1,432 @@
+{
+  "template_id": "nev_user_insight",
+  "name": "新能源用户洞察档案模板",
+  "version": "v1",
+  "status": "ready",
+  "updated": "2026-11-06",
+  "scenario": "面向新能源车型（纯电/插混）上市前后深访用户的单用户洞察档案。每个受访者一份档案，按本模板维度填写，供竞品洞察、用户运营与产品定义复用。",
+  "source_baseline": {
+    "report": "埃安RT_本竞品用户洞察报告.html",
+    "path": "D:/work/AI/用户洞察智能体/用户洞察开发基线/埃安RT_本竞品用户洞察报告.html",
+    "usage": "章节分类与关注项命名对齐该报告的 P1-P11；数值口径与品牌枚举参考其正文。"
+  },
+  "groups": [
+    {"id": "basic_profile", "name": "基本信息与画像", "report_section": "P1", "description": "受访者人口统计、生活状态与购车预算。"},
+    {"id": "purchase_decision", "name": "购车关注与决策", "report_section": "P4 / P10", "description": "关注因素、排序、价格锚点与流失红线。"},
+    {"id": "user_source", "name": "用户来源与增换购", "report_section": "P2 / P3", "description": "前车能源类型、级别、品牌与对比车型；明细流转结构依赖流通数据。"},
+    {"id": "competitor_compare", "name": "本竞品对比与首选", "report_section": "P5 / P6", "description": "核心对比车型、首选车型、战胜原因与竞品胜出逻辑。"},
+    {"id": "satisfaction", "name": "满意度与进攻方向", "report_section": "P7", "description": "总体满意度、满意点、不满意点与本品可进攻方向。"},
+    {"id": "channels", "name": "信息渠道", "report_section": "P8", "description": "认知、对比、决策三阶段的触点与内容偏好。"},
+    {"id": "attraction", "name": "本品吸引力", "report_section": "P9", "description": "本品吸引点、惊喜项与网约车标签影响。"},
+    {"id": "conversion", "name": "转化机会与风险", "report_section": "P10", "description": "转化触发条件、流失风险与原话证据。"}
+  ],
+  "dimensions": [
+    {
+      "id": "respondent_id",
+      "name": "受访者编号",
+      "group": "basic_profile",
+      "type": "text",
+      "required": true,
+      "description": "调研执行方分配的受访者唯一编号，用于回溯源文件与录音。",
+      "qualified": "非空且与调研名单一致；同一编号不得重复建档。"
+    },
+    {
+      "id": "age",
+      "name": "年龄",
+      "group": "basic_profile",
+      "type": "number",
+      "required": true,
+      "description": "受访者实际年龄（周岁）。",
+      "qualified": "18-70 的整数；不接受区间写法（区间留给聚合分析）。"
+    },
+    {
+      "id": "gender",
+      "name": "性别",
+      "group": "basic_profile",
+      "type": "enum",
+      "required": true,
+      "options": ["男", "女"],
+      "description": "受访者自述性别。",
+      "qualified": "取值为枚举之一。"
+    },
+    {
+      "id": "marital_status",
+      "name": "婚姻与家庭状态",
+      "group": "basic_profile",
+      "type": "enum",
+      "required": true,
+      "options": ["未婚", "二人世界", "已婚无孩", "已婚有孩", "其他"],
+      "description": "当前婚姻与家庭结构，对应报告中的「未婚／二人世界为主」口径。",
+      "qualified": "取值为枚举之一；有孩需同时能说明孩子年龄段（写入 life_values 或备注）。"
+    },
+    {
+      "id": "personal_income",
+      "name": "个人月/年收入区间",
+      "group": "basic_profile",
+      "type": "enum",
+      "required": true,
+      "options": ["10万以下", "10-15万", "15-20万", "20-30万", "30万以上", "不便透露"],
+      "description": "个人年收入区间，用于判断预算合理性。",
+      "qualified": "取值为枚举之一；填「不便透露」时须有其他预算字段佐证。"
+    },
+    {
+      "id": "education",
+      "name": "学历",
+      "group": "basic_profile",
+      "type": "enum",
+      "required": false,
+      "options": ["高中及以下", "大专", "本科", "硕士及以上", "不便透露"],
+      "description": "受访者最高学历，用于解释人群结构与内容偏好。",
+      "qualified": "取值为枚举之一；未问到时留空，不臆测。"
+    },
+    {
+      "id": "industry",
+      "name": "所属行业",
+      "group": "basic_profile",
+      "type": "text",
+      "required": false,
+      "description": "受访者所在行业或职业类型。",
+      "qualified": "填写具体行业或职业；「行业分散」只能作为聚合结论，不能作为单条档案取值。"
+    },
+    {
+      "id": "life_values",
+      "name": "生活状态与价值观",
+      "group": "basic_profile",
+      "type": "text",
+      "required": true,
+      "description": "生活节奏、消费观、情绪价值偏好等，对应报告 P1 的生活状态与价值观段落。",
+      "qualified": "至少包含「生活状态」「消费观」两项信息，且各有一句可引用的事实或原话。"
+    },
+    {
+      "id": "hobbies",
+      "name": "兴趣爱好",
+      "group": "basic_profile",
+      "type": "multi",
+      "required": false,
+      "options": ["户外运动", "游戏", "影音娱乐", "社交聚会", "其他"],
+      "description": "可多选；用于解释用车场景与内容偏好。",
+      "qualified": "至少 1 项；「其他」需在 life_values 中补充说明。"
+    },
+    {
+      "id": "purchase_stage",
+      "name": "购车阶段",
+      "group": "purchase_decision",
+      "type": "enum",
+      "required": true,
+      "options": ["首购", "增购", "换购"],
+      "description": "本次购车属于首购、增购还是换购。",
+      "qualified": "取值为枚举之一；换购/增购须能关联 user_source 组的前车信息。"
+    },
+    {
+      "id": "budget_range",
+      "name": "购车预算区间",
+      "group": "purchase_decision",
+      "type": "enum",
+      "required": true,
+      "options": ["10万以下", "10-13万", "13-15万", "15-17万", "17-20万", "20万以上"],
+      "description": "实际可接受的车价区间（裸车）。",
+      "qualified": "取值为枚举之一；与 price_anchor 不矛盾。"
+    },
+    {
+      "id": "brand_attention",
+      "name": "品牌关注与要求",
+      "group": "purchase_decision",
+      "type": "text",
+      "required": false,
+      "description": "对品牌的关注程度与具体要求，对应报告 P4「品牌是信任基础」。",
+      "qualified": "须写明「关注度」与「具体要求」两层；只写「不在意品牌」视为未填合格。"
+    },
+    {
+      "id": "attention_factors",
+      "name": "购车关注因素",
+      "group": "purchase_decision",
+      "type": "multi",
+      "required": true,
+      "options": ["外观", "智驾", "续航", "底盘/操控", "内饰", "安全", "空间", "配置/舒适", "价格/性价比"],
+      "description": "受访者主动提及的关注因素，可多选。",
+      "qualified": "至少 2 项；须来自受访者原话，不是访问员归纳。"
+    },
+    {
+      "id": "attention_top5",
+      "name": "关注因素 TOP5 排序",
+      "group": "purchase_decision",
+      "type": "text",
+      "required": true,
+      "description": "按重要性从高到低排序的前五项，用「1.xx 2.xx」格式。",
+      "qualified": "恰好 5 项且顺序明确；与 attention_factors 不冲突。"
+    },
+    {
+      "id": "price_anchor",
+      "name": "价格锚点",
+      "group": "purchase_decision",
+      "type": "number",
+      "required": true,
+      "description": "受访者心中的心理价位（万元），对应报告「15 万为普遍价格锚点」。",
+      "qualified": "数值单位为万元，保留 1 位小数；须有原话或明确选择依据。"
+    },
+    {
+      "id": "churn_redline",
+      "name": "流失红线",
+      "group": "purchase_decision",
+      "type": "text",
+      "required": true,
+      "description": "一旦触发就会放弃购买的条件，对应报告 P10「试驾体验不达预期 100% 流失」。",
+      "qualified": "至少 1 条具体条件（价格/试驾/交付/配置），不能只写「看情况」。"
+    },
+    {
+      "id": "previous_energy",
+      "name": "前车能源类型",
+      "group": "user_source",
+      "type": "enum",
+      "required": false,
+      "options": ["传统燃油", "PHEV", "BEV", "无前车"],
+      "description": "增换购用户的前车能源类型；首购填「无前车」。",
+      "qualified": "取值为枚举之一；与 purchase_stage 一致。"
+    },
+    {
+      "id": "previous_level",
+      "name": "前车级别",
+      "group": "user_source",
+      "type": "enum",
+      "required": false,
+      "options": ["A00", "A0", "A", "B", "C+", "无前车"],
+      "description": "前车级别，口径对齐报告 P2/P3 的 A00/A0/A/B/C+。",
+      "qualified": "取值为枚举之一；不确定时留空，不猜测。"
+    },
+    {
+      "id": "previous_brand",
+      "name": "前车品牌",
+      "group": "user_source",
+      "type": "text",
+      "required": false,
+      "description": "前车具体品牌与车型。",
+      "qualified": "品牌名可核验；只写「合资车」不合格。"
+    },
+    {
+      "id": "previous_brand_origin",
+      "name": "前车品牌属性",
+      "group": "user_source",
+      "type": "enum",
+      "required": false,
+      "options": ["自主", "合资", "豪华", "无前车"],
+      "description": "前车品牌属性，对齐报告 P2/P3 的自主/合资/豪华占比口径。",
+      "qualified": "取值为枚举之一；与 previous_brand 不矛盾。"
+    },
+    {
+      "id": "considered_models",
+      "name": "对比车型清单",
+      "group": "user_source",
+      "type": "text",
+      "required": true,
+      "description": "受访者实际对比过的车型，用「、」分隔，可含本品。",
+      "qualified": "至少 2 个车型；车型名可识别，不写「几个竞品」。"
+    },
+    {
+      "id": "core_comparison_model",
+      "name": "核心对比车型",
+      "group": "competitor_compare",
+      "type": "text",
+      "required": true,
+      "description": "最终决策时最主要的对比车型，对应报告 P5「核心对比车型」。",
+      "qualified": "唯一车型；须出现在 considered_models 中。"
+    },
+    {
+      "id": "first_choice_model",
+      "name": "首选车型",
+      "group": "competitor_compare",
+      "type": "text",
+      "required": true,
+      "description": "受访者在对比后的第一选择，对应报告 P6 首选率表。",
+      "qualified": "唯一车型；若「尚未决定」，写「未定」并说明还差什么信息。"
+    },
+    {
+      "id": "win_reasons",
+      "name": "战胜原因",
+      "group": "competitor_compare",
+      "type": "multi",
+      "required": true,
+      "options": ["智驾", "外观", "底盘/操控", "三电/续航", "品牌信任", "价格/性价比", "空间", "内饰", "服务/渠道"],
+      "description": "本品（或首选车型）胜出的原因，可多选。",
+      "qualified": "至少 1 项，且 win_reason_detail 有对应原话。"
+    },
+    {
+      "id": "win_reason_detail",
+      "name": "战胜原因说明",
+      "group": "competitor_compare",
+      "type": "text",
+      "required": true,
+      "description": "对战胜原因的具体说明与用户原话。",
+      "qualified": "每个被选中的 win_reasons 至少有一句说明或原话。"
+    },
+    {
+      "id": "competitor_win_logic",
+      "name": "竞品胜出逻辑",
+      "group": "competitor_compare",
+      "type": "text",
+      "required": false,
+      "description": "若首选不是本品，说明竞品靠什么胜出，对应报告 P6「竞品胜出逻辑」。",
+      "qualified": "首选为竞品时必填；须落到具体卖点组合，不能只写「更好」。"
+    },
+    {
+      "id": "satisfaction_score",
+      "name": "总体满意度",
+      "group": "satisfaction",
+      "type": "number",
+      "required": true,
+      "description": "对首选/已购车型的总体满意度，0-10 分。",
+      "qualified": "0-10 的整数或 1 位小数；与满意点/不满意点不矛盾。"
+    },
+    {
+      "id": "satisfaction_points",
+      "name": "满意点",
+      "group": "satisfaction",
+      "type": "text",
+      "required": true,
+      "description": "受访者明确认可的点，对应报告 P7「满意点」列。",
+      "qualified": "至少 1 条；每条含具体场景或体验，不写「整体不错」。"
+    },
+    {
+      "id": "dissatisfaction_points",
+      "name": "不满意点",
+      "group": "satisfaction",
+      "type": "text",
+      "required": true,
+      "description": "受访者明确抱怨的点，对应报告 P7「不满意点」列。",
+      "qualified": "至少 1 条；须区分「产品缺陷」与「个人偏好」。"
+    },
+    {
+      "id": "attack_direction",
+      "name": "本品进攻方向",
+      "group": "satisfaction",
+      "type": "text",
+      "required": false,
+      "description": "由不满意点推导出的本品可进攻方向，对应报告 P7「埃安RT 进攻点」。",
+      "qualified": "须与本条不满意点一一对应；无对应关系时留空。"
+    },
+    {
+      "id": "awareness_channels",
+      "name": "认知种草触点",
+      "group": "channels",
+      "type": "multi",
+      "required": true,
+      "options": ["抖音", "小红书", "B站", "官方渠道", "朋友推荐", "其他"],
+      "description": "第一次知道该车型的渠道，对应报告 P8「认知种草」。",
+      "qualified": "至少 1 项；须能说出具体内容或账号类型。"
+    },
+    {
+      "id": "research_channels",
+      "name": "对比研究触点",
+      "group": "channels",
+      "type": "multi",
+      "required": true,
+      "options": ["懂车帝", "汽车之家", "小红书", "AI问答", "抖音评论", "其他"],
+      "description": "做参数与口碑对比时使用的渠道，对应报告 P8「对比研究」。",
+      "qualified": "至少 1 项；与 awareness_channels 区分开。"
+    },
+    {
+      "id": "decision_touchpoint",
+      "name": "决策成交触点",
+      "group": "channels",
+      "type": "multi",
+      "required": true,
+      "options": ["线下试驾", "4S店体验", "真实车主口碑", "其他"],
+      "description": "最终促成决策的触点，对应报告 P8「决策成交」。",
+      "qualified": "至少 1 项；试驾相关须说明试驾车型与时长。"
+    },
+    {
+      "id": "content_preference",
+      "name": "内容形式偏好",
+      "group": "channels",
+      "type": "multi",
+      "required": false,
+      "options": ["真实车主口碑", "长视频深度测评", "参数对比", "智驾/续航实测", "其他"],
+      "description": "更愿意看/更信赖的内容形式，对应报告 P8「内容形式偏好」。",
+      "qualified": "至少 1 项；「其他」需说明具体形式。"
+    },
+    {
+      "id": "kol_influence",
+      "name": "KOL 影响程度",
+      "group": "channels",
+      "type": "enum",
+      "required": false,
+      "options": ["高", "中", "低", "无"],
+      "description": "KOL/达人内容对决策的影响程度，对应报告「KOL 影响小」。",
+      "qualified": "取值为枚举之一；填「高/中」须举例。"
+    },
+    {
+      "id": "attraction_points",
+      "name": "本品吸引点",
+      "group": "attraction",
+      "type": "multi",
+      "required": true,
+      "options": ["超级底盘", "超高颜值", "超级智能", "超级三电", "其他"],
+      "description": "本品最吸引受访者的能力项，对应报告 P9「四核均衡」。",
+      "qualified": "至少 1 项；与 attention_factors 的对应关系可解释。"
+    },
+    {
+      "id": "attraction_detail",
+      "name": "吸引点说明",
+      "group": "attraction",
+      "type": "text",
+      "required": false,
+      "description": "吸引点的具体配置或体验依据。",
+      "qualified": "每个被选中的 attraction_points 至少一句依据；可引用配置名。"
+    },
+    {
+      "id": "ride_hailing_label",
+      "name": "网约车标签影响",
+      "group": "attraction",
+      "type": "enum",
+      "required": false,
+      "options": ["正面", "无影响", "负面"],
+      "description": "网约车同款是否影响购买意愿，对应报告 P9「网约车标签影响不大」。",
+      "qualified": "取值为枚举之一；填「负面」须说明具体顾虑。"
+    },
+    {
+      "id": "conversion_trigger",
+      "name": "转化触发条件",
+      "group": "conversion",
+      "type": "text",
+      "required": true,
+      "description": "在什么条件下会转而购买本品，对应报告 P10「抢竞品转化」。",
+      "qualified": "至少 1 条可执行条件（价格/配置/权益/交付）；不能只写「价格合适」。"
+    },
+    {
+      "id": "churn_risks",
+      "name": "流失风险",
+      "group": "conversion",
+      "type": "multi",
+      "required": true,
+      "options": ["价格超线", "试驾不达预期", "交付周期过长", "补贴窗口", "其他"],
+      "description": "导致放弃本品的主要风险，对应报告 P10「防本品流失」。",
+      "qualified": "至少 1 项；与 churn_redline 一致。"
+    },
+    {
+      "id": "quote_evidence",
+      "name": "原话证据",
+      "group": "conversion",
+      "type": "text",
+      "required": true,
+      "description": "能支撑本档案关键结论的受访者原话，1-3 句。",
+      "qualified": "原话需加引号；不得改写为访问员总结。"
+    },
+    {
+      "id": "interview_date",
+      "name": "访谈日期",
+      "group": "conversion",
+      "type": "date",
+      "required": true,
+      "description": "本次深访执行日期。",
+      "qualified": "YYYY-MM-DD，且不晚于档案建档日期。"
+    },
+    {
+      "id": "interviewer",
+      "name": "访问员",
+      "group": "conversion",
+      "type": "text",
+      "required": false,
+      "description": "执行访谈与整理档案的人员。",
+      "qualified": "填写姓名或工号，便于回溯。"
+    }
+  ]
+}

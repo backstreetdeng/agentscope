@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "task_id": "20261106-harness-adoption",
+  "purpose": "BCI-005 证据：把 Harness 第 1、5、6 条落到任务机制（契约 reader/verify、三态计数、冻结路径与端口隔离），并按用户 2026-11-06 硬原则追加 TASK-COMMITTED（任务入库才能算完成）；记录逐条反向验证（故意破坏应 FAIL、恢复应 PASS）",
+  "created_by": "TRAE / BCI-005",
+  "status": "completed",
+  "scope": "只改任务机制文件（check_board.py、config/、tasks/_TEMPLATE、任务文档与证据）；未改业务代码、未重启 7860、未执行 git add/commit/push",
+  "changed_files": [
+    "competitor_insight/check_board.py（协议 reader/verify 校验、敷衍项拦截、三态计数、frozen_paths、port、--freeze）",
+    "competitor_insight/config/bci_protocol.json（新增，5 条约束：TPL-SOURCE / TPL-READY / SCOPE-PERSIST / SCOPE-KEYS / TASK-COMMITTED）",
+    "competitor_insight/config/verify/verify_constraints.py（新增，只读真断言；check_task_committed 用 git status --porcelain 判定入库）",
+    "competitor_insight/tasks/_TEMPLATE/TASK.md（增加 port / frozen_paths / commit_paths 与用法）",
+    "competitor_insight/tasks/BCI-005/TASK.md、tasks/BCI-005/frozen.sha256（新增）",
+    "competitor_insight/tasks/BCI-001..004/TASK.md（各补 commit_paths；001/002 遗留项注明 TASK-COMMITTED 未通过）",
+    "competitor_insight/tasks/tasks.md、BOARD.md（含新增「入库状态」栏）、HANDOFF.md、RULES.md（§5 字段、§6 入库硬条件、§12 说明）"
+  ],
+  "reproduce": [
+    "../Scripts/python.exe -B competitor_insight/check_board.py",
+    "../Scripts/python.exe -B competitor_insight/config/verify/verify_constraints.py --check TASK-COMMITTED",
+    "../Scripts/python.exe -B temp/20261106-bci005/reverse_verify.py",
+    "../Scripts/python.exe -B temp/20261106-bci005/reverse_committed.py",
+    "../Scripts/python.exe -B scripts/workspace_hygiene.py"
+  ],
+  "files": [
+    {
+      "path": "verify.log",
+      "purpose": "正常路径：5 条约束 + check_board 三态输出 + 目录卫生检查的完整输出与退出码；TASK-COMMITTED 当前为 failed（存量未入库）",
+      "rebuildable": true,
+      "retention": "保留（A5/A6/A11/A12 证据）"
+    },
+    {
+      "path": "reverse-verify.log",
+      "purpose": "反向验证：4 条 verify、reader 缺失、敷衍 verify、冻结越界、port 非法/冲突共 9 个用例的破坏与恢复记录",
+      "rebuildable": true,
+      "retention": "保留（A2/A3/A4/A8/A9 证据）"
+    },
+    {
+      "path": "reverse-verify-committed.log",
+      "purpose": "TASK-COMMITTED 在独立临时 git 仓库上的 6 个用例：干净 PASS / 已跟踪未提交 FAIL / 未跟踪 FAIL / 提交后 PASS / LIVE 无上游 FAIL / 未声明路径 FAIL",
+      "rebuildable": true,
+      "retention": "保留（A12 证据）"
+    },
+    {
+      "path": "git-status.txt",
+      "purpose": "Git 状态快照、TASK-COMMITTED 实测明细、冻结基线哈希，证明未改业务代码且未提交",
+      "rebuildable": true,
+      "retention": "保留（A10/A12 证据）"
+    }
+  ],
+  "cleanup_conditions": "反向验证脚本在 temp/20261106-bci005/，可随时清理；本目录日志需保留到 BCI-005 转 TESTED 且统一入库完成",
+  "restore": "全部为可重跑日志；按 reproduce 命令重建"
+}

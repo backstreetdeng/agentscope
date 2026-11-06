@@ -1128,6 +1128,16 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
             self.send_error(HTTPStatus.NOT_FOUND)
             return
 
+        # 竞品洞察专属前端资源统一放在 competitor_insight/web/，不再散落在 assets/。
+        if request_path.startswith('/competitor-insight/'):
+            relative = unquote(request_path[len('/competitor-insight/'):])
+            asset_path = PROJECT_DIR / 'competitor_insight' / 'web' / relative
+            if asset_path.is_file():
+                self._send_file('/' + str(asset_path.relative_to(PROJECT_DIR)).replace('\\', '/'))
+                return
+            self.send_error(HTTPStatus.NOT_FOUND)
+            return
+
         if request_path == "/api/config":
             config = load_json_config()
             provider_name = config.get("active_provider", "")
@@ -1991,6 +2001,7 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
         output_root = (PROJECT_DIR / "outputs").resolve()
         skill_asset_root = (PROJECT_DIR / "skills" / "html-ppt-skill" / "assets").resolve()
         home_asset_root = (PROJECT_DIR / "assets").resolve()
+        competitor_web_root = (PROJECT_DIR / "competitor_insight" / "web").resolve()
         file_path = (PROJECT_DIR / relative).resolve()
         allowed = False
         try:
@@ -1999,6 +2010,8 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
             if skill_asset_root in file_path.parents:
                 allowed = True
             if home_asset_root in file_path.parents:
+                allowed = True
+            if competitor_web_root in file_path.parents:
                 allowed = True
         except Exception:
             allowed = False

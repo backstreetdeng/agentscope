@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "task_id": "20261106-harness-study",
+  "purpose": "BCI-003 学习材料原文快照：证明 DeepSeek Harness 官方文档确已取回（HTTP 200），并列清同事工程本次读到的文件，供复核第 2 节的引用是否属实",
+  "created_by": "TRAE / BCI-003",
+  "status": "completed",
+  "reproduce": "sources 下三份官方文档可用 PowerShell 重取：Invoke-WebRequest https://raw.githubusercontent.com/deepseek-ai/deepseek-harness/master/<path>；colleague-file-index.txt 由 Get-Item 读取 D:\\colleague\\炫琪\\CATARC_业务组监测交接\\02_工程\\workspace\\projects\\industry-tracking-v2 下列文件字节数生成，只读不改",
+  "files": [
+    {
+      "path": "sources/deepseek-harness-README.zh.md",
+      "purpose": "官方 README 中文版原文（HTTP 200，2511 字符），对应学习材料 1",
+      "source": "https://raw.githubusercontent.com/deepseek-ai/deepseek-harness/master/README.zh.md",
+      "rebuildable": true,
+      "retention": "保留（结论引用依据）"
+    },
+    {
+      "path": "sources/deepseek-harness-AGENTS.md",
+      "purpose": "官方仓库级工程规范原文（HTTP 200，19315 字符），Q1 的规则类结论均出自此文件",
+      "source": "https://raw.githubusercontent.com/deepseek-ai/deepseek-harness/master/AGENTS.md",
+      "rebuildable": true,
+      "retention": "保留（结论引用依据）"
+    },
+    {
+      "path": "sources/deepseek-harness-architecture.zh.md",
+      "purpose": "官方架构文档中文版原文（HTTP 200，11326 字符），Q1 插件/Cordis/seam/轮次流程结论出处",
+      "source": "https://raw.githubusercontent.com/deepseek-ai/deepseek-harness/master/docs/architecture.zh.md",
+      "rebuildable": true,
+      "retention": "保留（结论引用依据）"
+    },
+    {
+      "path": "sources/colleague-file-index.txt",
+      "purpose": "本次实际读到的同事工程文件路径、字节数与目录统计。注：该文件当时记录「.cursor 目录不存在」有误——该项目 AGENTS.md 的 Skill 指针是相对 workspace 根，SKILL.md 实际在 workspace/.cursor/skills/ 下，已在 20261106-workspace-rescan 复核更正",
+      "source": "D:\\colleague\\炫琪\\CATARC_业务组监测交接\\02_工程\\workspace\\projects\\industry-tracking-v2（只读）",
+      "rebuildable": true,
+      "retention": "保留"
+    }
+  ],
+  "cleanup_conditions": "用户验收 BCI-003 结论并被引用进后续任务设计后可归档；官方原文快照可直接重取，但保留以便离线复核",
+  "restore": "无需恢复；本目录为只读证据，不含凭据与业务正文"
+}

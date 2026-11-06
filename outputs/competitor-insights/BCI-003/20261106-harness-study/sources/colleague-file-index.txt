@@ -1,0 +1,17 @@
+# industry-tracking-v2 读取清单（BCI-003，2026-11-06，只读）
+# path<TAB>bytes
+AGENTS.md	3919
+WORKFLOW.md	5886
+docs\HARNESS.md	12473
+config\tracking_v2_protocol.json	2585
+scripts\verify_harness.py	8493
+src\industry_tracking_v2\hard_gates.py	15075
+src\industry_tracking_v2\cost_gate.py	2668
+src\industry_tracking_v2\services\jobs.py	9227
+src\industry_tracking_v2\services\provenance.py	4884
+
+# 目录统计
+tests/*.py 数量`t11
+config/*.json`tproject-reproducibility.json,search_grid.v1.json,tianluo_clues.v1.json,tracking_v2_protocol.json
+docs/*.md`tDEPLOYMENT.md,FOUNDATION-ALIGN.md,HARNESS.md,PRODUCT-DESIGN.md,WEB-SEARCH.md
+.cursor 目录存在`tFalse

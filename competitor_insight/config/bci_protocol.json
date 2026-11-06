@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "updated": "2026-11-06",
+  "owner": "TRAE",
+  "task": "BCI-005",
+  "purpose": "把竞品洞察的关键工程约束登记成机器可读契约：每条约束必须指明哪份代码在读它（reader）以及如何自动验证（verify）。check_board.py 会逐条执行 verify，reader 指向的符号不存在或 verify 失败都判 FAIL。",
+  "rules": [
+    "不允许登记没有 reader 的约束：文档写了开关但没有代码消费方，属于装饰性条目。",
+    "verify 必须真断言：禁止 echo ok / exit 0 / python -c \"pass\" 这类永远成功的命令；每条 verify 都应在被破坏时失败（反向验证见 outputs/competitor-insights/BCI-005/）。",
+    "verify 不允许调用 check_board.py 本身，避免递归；跨任务的看板一致性由 check_board 自身负责。",
+    "verify 命令中的 {python} 由 check_board 替换为当前解释器，避免依赖 PATH。"
+  ],
+  "constraints": [
+    {
+      "id": "TPL-SOURCE",
+      "statement": "前端模板下拉的选项只能来自 web/templates.json；bci.js 不得内联任何模板 id，pending 模板必须写明不可用原因。",
+      "reader": "competitor_insight/web/bci.js:loadTemplates",
+      "verify": ["{python}", "-B", "competitor_insight/config/verify/verify_constraints.py", "--check", "TPL-SOURCE"],
+      "note": "对应 BCI-002 把模板选项从写死改为运行时加载的改动。"
+    },
+    {
+      "id": "TPL-READY",
+      "statement": "templates.json 中每个 ready 模板的 definition 必须存在且可解析，维度 id 唯一、分组引用有效，且 note 声明的维度数与实际维度数一致。",
+      "reader": "competitor_insight/web/bci.js:templateOptionsFrom",
+      "verify": ["{python}", "-B", "competitor_insight/config/verify/verify_constraints.py", "--check", "TPL-READY"],
+      "note": "防止“下拉写着 43 维、实际不是 43 维”这类声明漂移。"
+    },
+    {
+      "id": "SCOPE-PERSIST",
+      "statement": "口径选择必须写入 localStorage['bci.scope'] 并派发 bci:scope-applied，刷新后由 restore 读回。",
+      "reader": "competitor_insight/web/bci.js:persist",
+      "verify": ["{python}", "-B", "competitor_insight/config/verify/verify_constraints.py", "--check", "SCOPE-PERSIST"],
+      "note": "对应 BCI-001 的 bci.scope 持久化；后端消费方仍未落地，见 BCI-001-L07。"
+    },
+    {
+      "id": "SCOPE-KEYS",
+      "statement": "bci.scope 的结构必须包含 version 与 datasources 下的四类键（quant_structured / interview_parsed / insight_template / flow_data）。",
+      "reader": "competitor_insight/web/bci.js:buildScope",
+      "verify": ["{python}", "-B", "competitor_insight/config/verify/verify_constraints.py", "--check", "SCOPE-KEYS"],
+      "note": "四类键与数据源筛选 tab 的四张卡片一一对应。"
+    },
+    {
+      "id": "TASK-COMMITTED",
+      "statement": "任务到达 TESTED 前必须本地提交、到达 LIVE 前必须推送远程；处于 TESTED/LIVE 的任务，其声明的 commit_paths 不得存在未提交或未跟踪改动。未入库的任务不得标为完成。",
+      "reader": "competitor_insight/config/verify/verify_constraints.py:check_task_committed",
+      "verify": ["{python}", "-B", "competitor_insight/config/verify/verify_constraints.py", "--check", "TASK-COMMITTED"],
+      "note": "对 TESTED/LIVE 任务执行 git status --porcelain -- <commit_paths>；未跟踪文件同样计为未入库。LIVE 追加校验是否已推送远程。"
+    }
+  ]
+}

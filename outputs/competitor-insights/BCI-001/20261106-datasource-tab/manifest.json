@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "task_id": "BCI-001",
+  "purpose": "竞品洞察【数据源筛选】首轮交付的浏览器级验收证据：19 项断言、2 张页面截图与可重跑脚本。该轮按「5 台车 × 5 类数据可用性矩阵」实现，已被用户驳回并作废，仅作历史追溯；当前口径见 20261106-datasource-selector-r2。对应 competitor_insight/tasks/BCI-001/TASK.md 第 2 节。",
+  "created_by": "TRAE（2026-11-06）",
+  "status": "superseded",
+  "reproduce": "cd myproject && ../Scripts/python.exe -B outputs/competitor-insights/BCI-001/20261106-datasource-tab/verify_browser.py  （前置：7860 已加载最新 home.html 且 /api/bci/datasource/availability 可用；脚本只读页面，不写业务数据）",
+  "files": [
+    {
+      "path": "verify_browser.py",
+      "purpose": "Playwright 浏览器验收脚本，含 A1-A7 全部断言，失败时退出码 1",
+      "source": "由 temp/20261106-bci/verify_browser.py 定稿后随证据保留，截图与日志改为写本目录",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "verify.log",
+      "purpose": "本次运行的完整断言输出与退出码（EXIT=0，19/19 PASS）",
+      "source": "2026-11-06 运行 verify_browser.py 的 stdout/stderr",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "screenshots/bci-datasource-default.png",
+      "purpose": "默认口径（本品 埃安RT、竞品 4 台、未应用）的整页截图",
+      "source": "同一运行中的 page.screenshot(full_page=True)",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "screenshots/bci-datasource-applied.png",
+      "purpose": "切到 小鹏M03 并应用口径后的整页截图，用于核对告警重算与口径回显",
+      "source": "同一运行中的 page.screenshot(full_page=True)",
+      "rebuildable": true,
+      "retention": "保留"
+    }
+  ],
+  "cleanup_conditions": "仅当 BCI-001 验收完成、任务记录中不再引用本目录，且后续任务已有替代证据时可整体归档；不按文件年龄清理。",
+  "restore": "非归档目录，无需恢复。若删除后需重建，按 reproduce 命令重跑；页面截图依赖当时的前端实现与库内样本量，重建结果可能与本次不同，属预期。"
+}

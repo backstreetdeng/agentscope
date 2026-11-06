@@ -18,7 +18,7 @@
     TOAST_TTL_MS: 3000,
     MOBILE_BREAKPOINT: 960,
     VIEW_TRANSITION_MS: 150,
-    MAIN_NAV_KEYS: ['intel', 'projects', 'analysis', 'forecast', 'forecast-engine', 'benchmark', 'insight', 'skills', 'plugins'],
+    MAIN_NAV_KEYS: ['intel', 'projects', 'analysis', 'forecast', 'forecast-engine', 'benchmark', 'bci', 'insight', 'skills', 'plugins'],
     DETAIL_VIEW_KEYS: ['policy-detail', 'rights-detail'],
     LEGACY_WORKBENCH: '/legacy/workbench.html',
   });
@@ -3360,6 +3360,13 @@
   })();
 
   // ────────────────────────────────────────────────────────────────────────
+  //  BCI 竞品洞察：模块与样式已迁至 competitor_insight/web/，本文件只负责挂载。
+  // ────────────────────────────────────────────────────────────────────────
+  const BciWorkspace = {
+    init() { if (window.BciWorkspace) window.BciWorkspace.init(); },
+  };
+
+  // ────────────────────────────────────────────────────────────────────────
   //  Bootstrap
   // ────────────────────────────────────────────────────────────────────────
   function initializeNewAnalysisLinks() {
@@ -3406,6 +3413,7 @@
     Plugins.init();
     Agents.init();
     InsightQA.init();
+    BciWorkspace.init();
     ForecastView.init();
     Shortcuts.init();
     Pulse.init();

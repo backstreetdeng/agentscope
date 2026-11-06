@@ -1,0 +1,33 @@
+{
+  "_comment": "竞品洞察①数据源筛选 · 深访用户洞察档案模板清单。前端只读本文件渲染下拉，新增模板改这里 + 在 templates/ 放定义文件，不改 JS。status=ready 才可选；pending 必须写 reason，说明卡在谁身上。",
+  "version": 1,
+  "updated": "2026-11-06",
+  "templates": [
+    {
+      "id": "nev_user_insight",
+      "label": "新能源用户洞察模板",
+      "version": "v1",
+      "status": "ready",
+      "note": "8 组 43 维度",
+      "definition": "competitor_insight/templates/nev_user_insight_template.json",
+      "doc": "competitor_insight/templates/nev_user_insight_template.md"
+    },
+    {
+      "id": "user_insight_archive",
+      "label": "用户洞察档案模板",
+      "version": "v1",
+      "status": "ready",
+      "note": "12 组 43 维度 · 对齐原型档案表",
+      "definition": "competitor_insight/templates/user_insight_archive_template.json",
+      "doc": "competitor_insight/templates/user_insight_archive_template.md"
+    },
+    {
+      "id": "new_model_user_insight",
+      "label": "新车型用户洞察模板",
+      "version": "",
+      "status": "pending",
+      "note": "待业务提供",
+      "reason": "待业务提供模板文件，不是开发待办；收到后登记到本清单并改为 ready"
+    }
+  ]
+}

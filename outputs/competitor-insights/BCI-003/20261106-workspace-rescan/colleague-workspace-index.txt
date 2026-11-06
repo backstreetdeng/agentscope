@@ -1,0 +1,75 @@
+BCI-003 · 全 workspace 复核读取索引
+扫描对象: D:\colleague\炫琪\CATARC_业务组监测交接\02_工程\workspace
+扫描时间: 2026-11-06 (Asia/Shanghai)
+扫描方式: 只读（os.listdir / os.walk / 逐文件读取），未创建、修改或删除任何文件
+说明: 行数为本次实测（按 "\n" 计），与此前单项目读取可能相差 1 行（末尾换行计法），以本次为准
+
+== 1. 顶层结构 ==
+.cursor
+AGENTS.md
+PROJECTS.md
+README.md
+WORKSPACE-MIGRATION.md
+h5
+h5-board
+hub
+projects
+
+== 2. projects/ 实测（10 个在场目录） ==
+项目\t文件数\t其中docs文件数\tAGENTS.md\tWORKFLOW.md\tconfig 下状态类 JSON
+auto-opinion-daily\t993\t6\tyes\tyes\t-
+catarc-board\t4\t0\tyes\tyes\trequirement_audit_status.json
+catarc-content\t223\t1\tyes\tyes\tstatus.v1.json
+catarc-h5\t4\t0\tyes\tyes\t-
+catarc-hub\t16\t4\tyes\tyes\tdeploy_status.json
+data-foundation\t87\t19\tyes\tyes\tsandbox_access_status.json
+industry-tracking-v2\t68\t5\tyes\tyes\t-
+policy-crawler\t510\t28\tyes\tyes\tintranet_deploy_status.json, site_fetcher_status.json
+policy-library\t164\t11\tyes\tyes\t-
+site-collect-cli\t56\t4\tyes\tyes\tstatus.v1.json
+（文件数统计已排除 .git / .venv / node_modules / __pycache__ / .runtime）
+
+== 3. PROJECTS.md 注册 vs 实际在场 ==
+注册项目数: 15（PROJECTS.md:14-28）
+在场目录数: 10
+缺失: daily-work, ppt-auto, sales-forecast, catarc-engagement, auto-opinion-daily-layout-lab
+另缺: projects/_template/（`.cursor/rules/_template.mdc` 指向它）
+AGENTS.md 引用但副本不存在: docs/PROJECT-AUDIT.md, config/project-requirement-audit.v1.json
+状态真源形态（按 PROJECTS.md "状态"列）: 9 个指机器 JSON / 6 个指活文档
+  机器 JSON: catarc-h5, catarc-board, ppt-auto, sales-forecast, data-foundation,
+             catarc-hub, catarc-engagement, catarc-content, site-collect-cli
+  活文档:    policy-crawler, policy-library, daily-work, industry-tracking-v2,
+             auto-opinion-daily, auto-opinion-daily-layout-lab
+
+== 4. .cursor 实测（17 个文件） ==
+rules/ (17, 含 00-workspace-hub.mdc 与 _template.mdc)
+  auto-opinion-daily-layout-lab.mdc, auto-opinion-daily.mdc, catarc-board.mdc,
+  catarc-content.mdc, catarc-engagement.mdc, catarc-h5.mdc, catarc-hub.mdc,
+  daily-work.mdc, data-foundation.mdc, industry-tracking-v2.mdc, policy-crawler.mdc,
+  policy-library.mdc, ppt-auto.mdc, sales-forecast.mdc, site-collect-cli.mdc, _template.mdc
+skills/ (8 个 SKILL.md)
+  auto-opinion-daily, catarc-build-share, catarc-weekly-data, data-foundation,
+  industry-tracking-v2, policy-crawler, policy-library, site-collect-cli
+
+== 5. 本轮实际读取的文件与行数 ==
+AGENTS.md                                              205 行  20357 B
+PROJECTS.md                                            226 行  29427 B
+WORKSPACE-MIGRATION.md                                 272 行  24493 B
+README.md                                               87 行   5837 B
+.cursor/rules/00-workspace-hub.mdc                      16 行   1829 B
+.cursor/skills/industry-tracking-v2/SKILL.md             38 行   1854 B
+projects/policy-crawler/AGENTS.md                       112 行  12619 B
+projects/policy-crawler/docs/HARNESS.md                 176 行  11755 B
+projects/site-collect-cli/AGENTS.md                      57 行   3531 B
+projects/site-collect-cli/config/status.v1.json          89 行   2914 B
+projects/industry-tracking-v2/AGENTS.md                  46 行   3919 B
+projects/industry-tracking-v2/WORKFLOW.md                79 行   5886 B
+projects/industry-tracking-v2/docs/HARNESS.md           120 行  12473 B
+projects/industry-tracking-v2/config/tracking_v2_protocol.json  77 行  2585 B
+（industry-tracking-v2 的 4 个文件为上一轮已读，本轮用于对照，不重复计入新结论）
+
+== 6. 未读取（因此不作断言） ==
+- 缺失的 5 个项目与 _template/：副本中不存在
+- 其余 6 个 SKILL.md 正文：只确认存在与命名
+- 其余 4 个项目规则 .mdc 正文：未逐篇读
+- 复制目录 stats 之外的业务代码：本轮不涉及行为判断，未读

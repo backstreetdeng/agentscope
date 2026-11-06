@@ -1,0 +1,25 @@
+== git 状态快照（2026-11-06，项目根） ==
+git log -1 --oneline: f168f06 feat: 油价/SARIMAX 预测与稀疏检索脚本、权益部署更新、CHRONOS-003 任务文档
+git ls-files competitor_insight | count: 0
+git status --porcelain -- competitor_insight: ?? competitor_insight/
+
+结论：competitor_insight/ 整体未纳入版本跟踪，本目录无任何文件被跟踪，
+      TASK-COMMITTED 因此对所有 TESTED/LIVE 任务判定为“未入库”。
+      未执行 git add / commit / push（用户将在 BCI-004 完成后统一入库）。
+
+== TASK-COMMITTED 实测（--check TASK-COMMITTED） ==
+status: failed
+counts: 应查 7 / 实查 7 / 命中 2
+  - BCI-001: 7 处未入库（app.py、docs/root-files.json、home.html 已修改未提交；
+    competitor_insight/web/bci.js、web/bci.css、tasks/BCI-001/、outputs/competitor-insights/BCI-001/ 未跟踪）
+  - BCI-002: 6 处未入库（competitor_insight/templates/、web/templates.json、web/bci.js、
+    docs/template-vs-prototype-mapping.md、tasks/BCI-002/、outputs/competitor-insights/BCI-002/ 未跟踪）
+
+== 冻结基线 tasks/BCI-005/frozen.sha256（本轮追加协议后已重新 freeze） ==
+d008dfaed2fffc0fe662b8f85f310a04f155a4a0972a75176d97f0a8098654f1	competitor_insight/templates/nev_user_insight_template.json
+fa18993922d61de3f28c96b60c660fecf224a57992f1fed7d93fd1b77dbda756	competitor_insight/config/bci_protocol.json
+
+== 备注 ==
+- 协议文件在本轮追加 TASK-COMMITTED 后重新执行了 --freeze BCI-005，基线与当前文件一致。
+- 未改业务代码：app.py / home.html / web/bci.js / web/bci.css / web/templates.json /
+  templates/* 均未在本轮改动（前三者与 bci.js 的改动来自 BCI-001/002）。

@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "BCI-004",
+  "purpose": "「用户洞察档案」tab 技术实施方案的证据目录：记录只读数据探查结果与限制，方案正文在 competitor_insight/docs/archive-tab-design.md。",
+  "created_by": "TRAE",
+  "status": "completed",
+  "reproduce": "无自动重建命令。db-probe.log 记录 2026-11-06 的只读连接尝试；方案文档为人工撰写。",
+  "files": [
+    {
+      "path": "db-probe.log",
+      "purpose": "只读数据库探查的目的、语句范围、失败现象与替代事实来源；不含凭据与业务正文",
+      "source": "2026-11-06 本机对 192.168.3.146:5432 的只读连接尝试",
+      "rebuildable": false,
+      "retention": "保留"
+    }
+  ],
+  "cleanup_conditions": "方案确认并完成 S1 覆盖率盘点后，本目录仍作为决策留痕保留；不自动清理。",
+  "restore": "不适用（非备份目录）"
+}

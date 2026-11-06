@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "task_id": "BCI-002",
+  "purpose": "新能源用户洞察档案模板 v1 的静态校验证据：模板标识、8 组 43 维完整性、类型/选项、填写说明与合格标准、人读镜像一致性、下拉清单与前端不写死。对应 competitor_insight/tasks/BCI-002/TASK.md 的 A1-A5、A8-A9。",
+  "created_by": "TRAE（2026-11-06）",
+  "status": "completed",
+  "reproduce": "cd myproject && ../Scripts/python.exe -B outputs/competitor-insights/BCI-002/20261106-template-v1/validate_template.py  （只读校验，不改业务文件）",
+  "results": {
+    "command": "../Scripts/python.exe -B outputs/competitor-insights/BCI-002/20261106-template-v1/validate_template.py",
+    "exit_code": 0,
+    "passed": 25,
+    "failed": 0,
+    "known_baseline": "浏览器侧 A6/A7/A10 由 BCI-001 的 verify_selector.py 覆盖（39/39 PASS）",
+    "not_run": "后端按 dimensions 校验档案写入（消费方未落地，见 BCI-002-L02）"
+  },
+  "files": [
+    {
+      "path": "validate_template.py",
+      "purpose": "模板结构与前端接线静态校验脚本（可重跑）",
+      "source": "2026-11-06 随 BCI-002 交付编写",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "validate.log",
+      "purpose": "本次运行的完整断言输出（25/25 PASS，EXIT=0）",
+      "source": "2026-11-06 运行 validate_template.py 的 stdout/stderr",
+      "rebuildable": true,
+      "retention": "保留"
+    }
+  ],
+  "deliverables": [
+    "competitor_insight/templates/nev_user_insight_template.json",
+    "competitor_insight/templates/nev_user_insight_template.md",
+    "competitor_insight/templates/README.md",
+    "competitor_insight/web/templates.json"
+  ],
+  "cleanup_conditions": "仅当 BCI-002 上线且任务记录不再引用本目录，或后续 run-id 已提供等价证据时可整体归档；不按文件年龄清理。",
+  "restore": "非归档目录，无需恢复。若删除后按 reproduce 命令重跑即可重建。"
+}

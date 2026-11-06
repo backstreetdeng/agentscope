@@ -1,0 +1,34 @@
+{
+  "task_id": "BCI-004",
+  "run_id": "20261106-coverage",
+  "purpose": "竞品洞察「用户洞察档案」43 维覆盖率只读实测与 10 人试点选样",
+  "date": "2026-11-06",
+  "scope": {
+    "database": "192.168.3.146:5432/vectordb",
+    "schemas_read": ["user_insight"],
+    "operations": "只读 SELECT；未建表、未写库、未改代码",
+    "subjects": 63,
+    "dimensions": 43
+  },
+  "deliverables": [
+    "competitor_insight/docs/coverage.csv",
+    "competitor_insight/docs/archive-tab-design.md §6（v2 实测替换预判）"
+  ],
+  "artifacts": {
+    "coverage.py": "43 维覆盖率测量与试点选样脚本（含 CONN 常量，只读）",
+    "coverage.log": "43 维逐维三态结果与 10 人试点名单",
+    "tag-inventory.log": "85 个标签的名称、命中人数、可信/不可信、映射题号",
+    "probe-llm-calibration.log": "LLM 维度的原料校准（按内容特征而非“有答案”）",
+    "probe-derive-calibration.log": "关注 TOP5 可派生性、年龄可得性、可信度过滤损失"
+  },
+  "reproduce": "..\\Scripts\\python.exe -B outputs\\competitor-insights\\BCI-004\\20261106-coverage\\coverage.py",
+  "key_results": {
+    "status_summary": {"success": 19, "partial": 16, "failed": 8},
+    "required_summary": {"success": 17, "partial": 14, "failed": 7},
+    "aion_mentions": 3,
+    "aion_owners": 0,
+    "satisfaction_score_explicit": 13
+  },
+  "cleanup": "temp/20261106-bci004-coverage 为一次性工作目录，已删除；可保留本目录作为证据",
+  "restore": "脚本重跑即可重建 coverage.csv；无状态写入，无需回滚"
+}

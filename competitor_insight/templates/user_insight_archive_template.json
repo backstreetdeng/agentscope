@@ -1,0 +1,422 @@
+{
+  "template_id": "user_insight_archive",
+  "name": "用户洞察档案模板",
+  "version": "v1",
+  "status": "ready",
+  "updated": "2026-11-06",
+  "scenario": "面向单个受访者的深访洞察档案归档。维度集合对齐交互原型「用户洞察档案」43 维表（P.TROWS），用于模块①按模板归档、单人输出与多人合并导出；与 nev_user_insight 并列，互不替代。",
+  "source_baseline": {
+    "prototype": "目标车型本竞品洞察智能体_交互原型v2.html",
+    "path": "D:/work/2026/7.1 同事 义欣/用户洞察需求/目标车型本竞品洞察智能体_交互原型v2.html",
+    "line": 386,
+    "data_key": "P.TROWS",
+    "usage": "43 个子项的名称、顺序与归属以原型为准；模块分组按用户提供的梳理表（购车对比合并 3 组、老车主再购独立成组）。示例内容取自柏君谕案例，只作为 MD 中的填写示例，不进入本 schema。"
+  },
+  "groups": [
+    {"id": "summary", "name": "用户简要总结", "description": "一句话概括用户是谁、为什么买/不买、核心结论；多人合并导出时作为首行摘要。"},
+    {"id": "profile", "name": "用户画像", "description": "人口统计、家庭、性格兴趣与消费观。"},
+    {"id": "ownership", "name": "拥车与购车情况", "description": "当前拥车状态、已购/下定车型、预算、购车属性与动机。"},
+    {"id": "consideration", "name": "购车考虑", "description": "考虑项的优先级，以及选择某种燃料类型的原因。"},
+    {"id": "attention", "name": "购车关注", "description": "品牌/产品/服务的排序与具体关注点、关注 TOP5 及细项。"},
+    {"id": "channels", "name": "信息渠道", "description": "信息获取渠道、内容形式偏好与 KOL/KOC 影响。"},
+    {"id": "comparison", "name": "购车对比", "description": "核心对比车型、首选排序、已购车型、战胜原因、妥协点与放弃车型/原因。"},
+    {"id": "brand_impression", "name": "对埃安品牌的印象和了解（网约车的影响）", "description": "对埃安品牌的既有印象、了解程度，以及网约车标签的影响。"},
+    {"id": "rt_cognition", "name": "对埃安RT的认知与态度", "description": "了解渠道、吸引力排序、顾虑、期望与转化机会/风险。"},
+    {"id": "usage_scenario", "name": "用车场景", "description": "高频用车场景、场景需求、充电需求与续航需求。"},
+    {"id": "satisfaction", "name": "满意度评价", "description": "满意度评分、满意点、不满意点与接待期待。"},
+    {"id": "loyal_repurchase", "name": "作为埃安老车主 为什么继续再买埃安的车", "description": "仅埃安老车主适用；非老车主留空。"}
+  ],
+  "dimensions": [
+    {
+      "id": "archive_summary",
+      "name": "用户简要总结",
+      "group": "summary",
+      "type": "text",
+      "required": true,
+      "description": "整份档案的摘要：人群特征、购车动机、最关注的 3-5 个点、对本品的态度与转化条件。",
+      "qualified": "80-200 字，须同时含「为什么买/不买」「最关注什么」「对本品结论」三部分；不得只复述画像。"
+    },
+    {
+      "id": "age_gender",
+      "name": "年龄/性别",
+      "group": "profile",
+      "type": "text",
+      "required": true,
+      "description": "受访者年龄与性别，原型为同一格，按「NN岁，男/女」写法。",
+      "qualified": "年龄为周岁整数，性别明确；不接受「30 左右」这类模糊值。"
+    },
+    {
+      "id": "occupation",
+      "name": "行业/职业",
+      "group": "profile",
+      "type": "text",
+      "required": true,
+      "description": "所在行业与职业身份，个体经营需说明经营内容。",
+      "qualified": "写到可识别的行业与角色（如「建材/装修材料行业/个体老板」）；「自由职业」须补做什么。"
+    },
+    {
+      "id": "household_income",
+      "name": "个人/家庭年收入",
+      "group": "profile",
+      "type": "text",
+      "required": true,
+      "description": "个人或家庭年收入，注明口径与是否含同住成员。",
+      "qualified": "须写明是个人还是家庭口径、大致区间；含父母等成员时注明。"
+    },
+    {
+      "id": "family_structure",
+      "name": "家庭结构",
+      "group": "profile",
+      "type": "text",
+      "required": true,
+      "description": "婚育状态与同住情况。",
+      "qualified": "至少写明婚否与是否与父母/子女同住。"
+    },
+    {
+      "id": "personality_interest_social",
+      "name": "性格/兴趣/社交",
+      "group": "profile",
+      "type": "text",
+      "required": false,
+      "description": "性格倾向、兴趣爱好、社交角色（组局者/跟随者）。",
+      "qualified": "至少覆盖其中两项；仅写「外向」不合格。"
+    },
+    {
+      "id": "consumption_values",
+      "name": "消费观念",
+      "group": "profile",
+      "type": "text",
+      "required": true,
+      "description": "大件与小件的消费决策方式、价值观取向、尝鲜意愿。",
+      "qualified": "须区分大件/小件的决策差异，并给出尝鲜或保守的判断依据。"
+    },
+    {
+      "id": "ownership_status",
+      "name": "拥车情况",
+      "group": "ownership",
+      "type": "text",
+      "required": true,
+      "description": "当前名下车辆、本次是首购/增购/换购、家中是否有充电条件。",
+      "qualified": "写明现有车型（可多台）与本次购车性质；有家充须注明。"
+    },
+    {
+      "id": "purchased_model_owned",
+      "name": "已购/下定车型",
+      "group": "ownership",
+      "type": "text",
+      "required": true,
+      "description": "已购或已下定的具体车型、年款与配置，含时间。",
+      "qualified": "车型名可识别、含年款或版本；只写「买了小鹏」不合格。"
+    },
+    {
+      "id": "purchase_budget",
+      "name": "购车预算",
+      "group": "ownership",
+      "type": "text",
+      "required": true,
+      "description": "可接受的裸车价格区间及理由。",
+      "qualified": "给出区间或上限，并说明为什么是这个数。"
+    },
+    {
+      "id": "purchase_attribute",
+      "name": "购车属性",
+      "group": "ownership",
+      "type": "enum",
+      "required": true,
+      "options": ["首购", "增购", "换购"],
+      "description": "本次购车的性质。",
+      "qualified": "取值为枚举之一；与拥车情况不矛盾。"
+    },
+    {
+      "id": "purchase_motivation",
+      "name": "购车动机",
+      "group": "ownership",
+      "type": "text",
+      "required": true,
+      "description": "为什么现在买车：工作需求、家庭需求、出游需求等。",
+      "qualified": "至少 1 条具体触发场景，不能只写「想换车」。"
+    },
+    {
+      "id": "consideration_priority",
+      "name": "购车考虑优先级",
+      "group": "consideration",
+      "type": "text",
+      "required": true,
+      "description": "按重要性排序的考虑项，通常为价格、燃料类型、车身形式/级别。",
+      "qualified": "有序号或先后关系；至少 2 项且顺序明确。"
+    },
+    {
+      "id": "fuel_type_reason",
+      "name": "燃料类型考虑原因",
+      "group": "consideration",
+      "type": "text",
+      "required": true,
+      "description": "为什么选纯电/混动/增程，以及为什么不选其它类型。",
+      "qualified": "须同时含「选它的原因」与「不选其它的原因」。"
+    },
+    {
+      "id": "brand_product_service_rank",
+      "name": "品牌/产品/服务排序",
+      "group": "attention",
+      "type": "text",
+      "required": true,
+      "description": "品牌、产品、服务三者的重要性排序。",
+      "qualified": "三项齐全并给出「>」关系或序号。"
+    },
+    {
+      "id": "brand_attention",
+      "name": "品牌关注",
+      "group": "attention",
+      "type": "text",
+      "required": true,
+      "description": "首先想到的品牌，以及在意的品牌属性（背书、保值率等）。",
+      "qualified": "至少 2 个具体品牌 + 1 条品牌属性诉求。"
+    },
+    {
+      "id": "product_attention_top5",
+      "name": "产品关注TOP5及细项",
+      "group": "attention",
+      "type": "text",
+      "required": true,
+      "description": "产品侧关注点 TOP5，每项后跟具体细项（如智驾要高速/城区 NOA）。",
+      "qualified": "恰好 5 项且有序；每项至少 1 个细项，不接受只有大类的罗列。"
+    },
+    {
+      "id": "sales_marketing_attention",
+      "name": "营销/销售关注",
+      "group": "attention",
+      "type": "text",
+      "required": false,
+      "description": "对售前、售后、政策、试驾安排的关注点。",
+      "qualified": "至少 1 条可执行诉求（网点距离、试驾形式、报价透明度等）。"
+    },
+    {
+      "id": "info_channels",
+      "name": "信息获取渠道",
+      "group": "channels",
+      "type": "multi",
+      "required": true,
+      "options": ["抖音", "小红书", "B站", "懂车帝", "汽车之家", "豆包/AI问答", "车展", "商场展车", "到店咨询", "朋友推荐", "其他"],
+      "description": "认知、对比、到店各阶段实际使用的渠道。",
+      "qualified": "至少 1 项；须说明各渠道用来做什么（看内容/查参数/问政策）。"
+    },
+    {
+      "id": "content_format_preference",
+      "name": "内容形式偏好",
+      "group": "channels",
+      "type": "multi",
+      "required": true,
+      "options": ["车评人视频", "车主发帖答疑", "长视频深度测评", "垂媒测评", "参数对比", "其他"],
+      "description": "更愿意看、更信任的内容形式，以及不信任的形式。",
+      "qualified": "至少 1 项；若明确不信任某类内容须写出（如不信任垂媒续航测评）。"
+    },
+    {
+      "id": "kol_influence",
+      "name": "KOL/KOC影响力",
+      "group": "channels",
+      "type": "enum",
+      "required": true,
+      "options": ["强", "中", "弱", "无"],
+      "description": "达人对决策的影响程度。",
+      "qualified": "取值为枚举之一；填「强/中」须举例说明影响了哪个决策。"
+    },
+    {
+      "id": "core_comparison_models",
+      "name": "核心对比车型",
+      "group": "comparison",
+      "type": "text",
+      "required": true,
+      "description": "决策期实际对比的 2-4 个车型。",
+      "qualified": "至少 2 个可识别车型；不写「几个竞品」。"
+    },
+    {
+      "id": "first_choice_ranking",
+      "name": "首选率",
+      "group": "comparison",
+      "type": "text",
+      "required": true,
+      "description": "按维度给出的首选排序（外观/续航/舒适/智驾等分别排），聚合后即首选率。",
+      "qualified": "至少 1 个维度的完整排序，且车型包含本品；分维度时须标清维度名。"
+    },
+    {
+      "id": "purchased_model_compared",
+      "name": "已购/下定车型",
+      "group": "comparison",
+      "type": "text",
+      "required": false,
+      "description": "对比结论中最终落定的车型；与拥车组同名字段互为正本与结论引用。",
+      "qualified": "与拥车组取值一致；不一致须说明（如改单）。"
+    },
+    {
+      "id": "win_reasons",
+      "name": "战胜原因",
+      "group": "comparison",
+      "type": "text",
+      "required": true,
+      "description": "最终所选车型胜出的原因，按重要性排列。",
+      "qualified": "至少 2 条，每条落到具体能力或价格数字，不写「更好开」。"
+    },
+    {
+      "id": "compromise_points",
+      "name": "妥协点",
+      "group": "comparison",
+      "type": "text",
+      "required": false,
+      "description": "明知不足但接受的点。",
+      "qualified": "至少 1 条具体妥协项；确无妥协点时写「无」并说明。"
+    },
+    {
+      "id": "abandoned_models",
+      "name": "放弃车型",
+      "group": "comparison",
+      "type": "text",
+      "required": true,
+      "description": "进入过候选但最终放弃的车型清单。",
+      "qualified": "车型名可识别；空清单须说明「未形成候选」。"
+    },
+    {
+      "id": "abandonment_reasons",
+      "name": "放弃原因",
+      "group": "comparison",
+      "type": "text",
+      "required": true,
+      "description": "逐车型给出放弃原因。",
+      "qualified": "放弃车型与原因一一对应，不得有车无因。"
+    },
+    {
+      "id": "aion_brand_impression",
+      "name": "对埃安品牌的印象和了解（网约车的影响）",
+      "group": "brand_impression",
+      "type": "text",
+      "required": true,
+      "description": "对埃安品牌的既有印象、了解程度，以及网约车同款带来的正负影响。",
+      "qualified": "须分别写「印象」与「网约车影响」两部分；无印象时写「无印象」并说明信息不足。"
+    },
+    {
+      "id": "rt_awareness_channel",
+      "name": "了解渠道",
+      "group": "rt_cognition",
+      "type": "text",
+      "required": true,
+      "description": "第一次知道埃安RT的渠道与时间。",
+      "qualified": "写明渠道 + 大致时间（月份即可）。"
+    },
+    {
+      "id": "rt_attraction_ranking",
+      "name": "埃安RT吸引力排序",
+      "group": "rt_cognition",
+      "type": "text",
+      "required": true,
+      "description": "本品各项能力对受访者的吸引力排序及理由。",
+      "qualified": "有序号；每项附一句理由或对应用户原话。"
+    },
+    {
+      "id": "rt_concerns",
+      "name": "顾虑",
+      "group": "rt_cognition",
+      "type": "text",
+      "required": true,
+      "description": "对本品的具体顾虑。",
+      "qualified": "至少 2 条；须区分「需验证」与「硬伤」。"
+    },
+    {
+      "id": "rt_expectations",
+      "name": "期望",
+      "group": "rt_cognition",
+      "type": "text",
+      "required": true,
+      "description": "对定价、配置、上市节奏、交付等的期望。",
+      "qualified": "至少 1 条带数值或可判定条件（如「16-18 万」）。"
+    },
+    {
+      "id": "conversion_opportunity_risk",
+      "name": "转化机会/风险",
+      "group": "rt_cognition",
+      "type": "text",
+      "required": true,
+      "description": "在什么条件下会买本品，什么情况下不会。",
+      "qualified": "机会与风险各至少 1 条，且条件可判定。"
+    },
+    {
+      "id": "high_frequency_scenarios",
+      "name": "高频场景",
+      "group": "usage_scenario",
+      "type": "text",
+      "required": true,
+      "description": "日常最高频的用车场景，含里程与频次。",
+      "qualified": "至少 2 个场景，含单程/往返里程或频次。"
+    },
+    {
+      "id": "scenario_needs",
+      "name": "场景需求",
+      "group": "usage_scenario",
+      "type": "text",
+      "required": true,
+      "description": "由场景衍生的具体功能与体验需求。",
+      "qualified": "至少 2 条，且能与高频场景对应。"
+    },
+    {
+      "id": "charging_needs",
+      "name": "充电需求",
+      "group": "usage_scenario",
+      "type": "text",
+      "required": true,
+      "description": "充电条件、充电频率、对快充时长的敏感度。",
+      "qualified": "须写明是否有家充、剩余多少电量时充、多久一次。"
+    },
+    {
+      "id": "range_needs",
+      "name": "续航需求",
+      "group": "usage_scenario",
+      "type": "text",
+      "required": true,
+      "description": "对实际续航的最低要求与达成率预期。",
+      "qualified": "给出可判定的里程或达成率（如「实际 400km 以上」）。"
+    },
+    {
+      "id": "satisfaction_score",
+      "name": "满意度评分",
+      "group": "satisfaction",
+      "type": "number",
+      "required": true,
+      "description": "对当前车辆/首选车型的总体满意度，0-10 分。",
+      "qualified": "0-10 的整数或 1 位小数；与满意点/不满意点不矛盾。"
+    },
+    {
+      "id": "satisfaction_points",
+      "name": "满意点",
+      "group": "satisfaction",
+      "type": "text",
+      "required": true,
+      "description": "明确认可的点。",
+      "qualified": "至少 1 条，含具体体验或数字。"
+    },
+    {
+      "id": "dissatisfaction_points",
+      "name": "不满意点",
+      "group": "satisfaction",
+      "type": "text",
+      "required": true,
+      "description": "明确抱怨或体验不佳的点。",
+      "qualified": "至少 1 条；须区分产品缺陷与个人偏好。"
+    },
+    {
+      "id": "reception_expectation",
+      "name": "接待期待",
+      "group": "satisfaction",
+      "type": "text",
+      "required": true,
+      "description": "对销售接待、试驾安排与报价透明度的期待。",
+      "qualified": "至少 2 条，落到可执行动作（试驾路线、权益讲解等）。"
+    },
+    {
+      "id": "loyal_repurchase_reason",
+      "name": "作为埃安老车主 为什么继续再买埃安的车",
+      "group": "loyal_repurchase",
+      "type": "text",
+      "required": false,
+      "description": "仅埃安老车主适用的复购理由。",
+      "qualified": "非老车主填「不适用」；老车主须写出具体复购理由与原话。"
+    }
+  ]
+}

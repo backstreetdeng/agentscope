@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "task_id": "20261106-workspace-rescan",
+  "purpose": "BCI-003 范围扩大后的全 workspace 只读复核证据：记录同事 workspace 的结构地图依据（注册项目 vs 在场项目、状态真源形态、.cursor 路由与技能）、本轮实际读取的文件与行数，以及被更正的两处上一版事实错误，供 docs/harness-study.md §5 复核",
+  "created_by": "TRAE / BCI-003",
+  "status": "completed",
+  "scope": "D:\\colleague\\炫琪\\CATARC_业务组监测交接\\02_工程\\workspace（只读，未修改任何文件）",
+  "reproduce": "在同事 workspace 根执行只读统计：os.listdir 列顶层与 projects/；os.walk 统计各项目文件数与 docs 数（排除 .git/.venv/node_modules/__pycache__/.runtime）；os.path.getsize 与逐行计数得到关键文件行数。本轮统计使用 ../Scripts/python.exe -B -c 内联脚本，无落盘脚本",
+  "files": [
+    {
+      "path": "colleague-workspace-index.txt",
+      "purpose": "本轮读取索引：10 个在场项目统计、15 个注册项目与 5 个缺失项、9/6 状态真源形态、.cursor 17 个 rules 与 8 个 skills、14 个已读文件的行数与字节数、未读取清单",
+      "source": "D:\\colleague\\炫琪\\CATARC_业务组监测交接\\02_工程\\workspace（只读）",
+      "rebuildable": true,
+      "retention": "保留（harness-study.md §5.2/§5.8 的证据）"
+    }
+  ],
+  "corrections": [
+    "上一版称 .cursor/skills/industry-tracking-v2/SKILL.md 不存在 → 实际存在，位于 workspace 根 .cursor/skills/",
+    "上一版称 PROJECTS.md 注册 17 个项目 → 实际 15 个注册、10 个在场、5 个缺失（17 是 .cursor/rules 下 .mdc 文件数）"
+  ],
+  "cleanup_conditions": "BCI-003 结论被后续任务引用后可归档；本目录无凭据、无业务正文，可随时按索引重建",
+  "restore": "无需恢复；纯只读证据"
+}

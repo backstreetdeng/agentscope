@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "task_id": "BCI-001",
+  "purpose": "竞品洞察【数据源筛选】的浏览器级验收证据：四类数据源与模板选择器、默认全部不选、不可选原因、模板清单来源、bci.scope 写入与清空、四卡 2×2/窄屏单列布局。对应 competitor_insight/tasks/BCI-001/TASK.md 的 A1-A11 验收项。",
+  "created_by": "TRAE（2026-11-06）",
+  "status": "completed",
+  "reproduce": "cd myproject && ../Scripts/python.exe -B outputs/competitor-insights/BCI-001/20261106-datasource-selector-r2/verify_selector.py  （前置：7860 已加载最新 home.html，且 /competitor-insight/templates.json 可访问；脚本只读页面，不写业务数据）",
+  "results": {
+    "command": "../Scripts/python.exe -B outputs/competitor-insights/BCI-001/20261106-datasource-selector-r2/verify_selector.py",
+    "exit_code": 0,
+    "passed": 39,
+    "failed": 0,
+    "known_baseline": "GET /api/health 返回 404（既有基线问题，与本次改动无关）",
+    "not_run": "多用户/并发口径验证、后续 tab ②③④（未开发）、全项目回归"
+  },
+  "files": [
+    {
+      "path": "verify_selector.py",
+      "purpose": "Playwright 浏览器验收脚本，含四类选择器、默认不选、不可选原因、模板可选/清单来源、作用域读写、旧实现清零、2×2 与窄屏单列布局等断言",
+      "source": "由 temp/20261106-bci 下的验证脚本定稿后随证据保留，截图与日志写本目录",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "verify.log",
+      "purpose": "本次运行的完整断言输出（39/39 PASS，EXIT=0）",
+      "source": "2026-11-06 运行 verify_selector.py 的 stdout/stderr",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "screenshots/bci-selector-open.png",
+      "purpose": "定量下拉展开态整页截图（四类分组与下拉入口）",
+      "source": "同一运行中的 page.screenshot(full_page=True)",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "screenshots/bci-selector-selected.png",
+      "purpose": "已选 2023+2025、2025年_定性解析 与 新能源用户洞察模板 后的口径回显与作用域预览",
+      "source": "同一运行中的 page.screenshot(full_page=True)",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "screenshots/bci-layout-desktop.png",
+      "purpose": "桌面 1440px 下四类卡片 2 列 × 2 行、等宽等高的布局证据（A10）",
+      "source": "同一运行中清空口径后的 page.screenshot(full_page=True)",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "screenshots/bci-layout-narrow.png",
+      "purpose": "窄屏 1000px（≤1100px 断点）下四类卡片回落单列的布局证据（A10）",
+      "source": "同一运行中 page.set_viewport_size(1000×1000) 后的 page.screenshot(full_page=True)",
+      "rebuildable": true,
+      "retention": "保留"
+    }
+  ],
+  "cleanup_conditions": "仅当 BCI-001 上线且任务记录不再引用本目录，或后续 run-id 已提供等价证据时可整体归档；不按文件年龄清理。",
+  "restore": "非归档目录，无需恢复。若删除后需重建，按 reproduce 命令重跑；页面截图依赖当时的前端实现与页面文案，重建结果可能与本次不同，属预期。"
+}

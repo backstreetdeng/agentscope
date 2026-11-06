@@ -1,0 +1,44 @@
+﻿dimension_id,dimension_name,group_id,group_name,required,type,fill_mode,should_check,checked,hit,coverage_rate,status,direct_hit,llm_material_hit,evidence_basis,note
+archive_summary,用户简要总结,summary,用户简要总结,True,text,llm,63,63,63,1.0,partial,0,63,db-measured,全部答案齐全；摘要必须 LLM 生成并绑定证据，不能直取
+age_gender,年龄/性别,profile,用户画像,True,text,tag,63,63,45,0.7143,partial,45,45,db-measured,年龄 tag 45/63 可用；性别 tag 全量 not_asked（0/63），原题 Q68 未问性别
+occupation,行业/职业,profile,用户画像,True,text,tag,63,63,62,0.9841,success,62,62,db-measured,行业/岗位 tag（Q68/Q77）
+household_income,个人/家庭年收入,profile,用户画像,True,text,tag,63,63,59,0.9365,success,59,59,db-measured,家庭/个人年收入 tag（Q72）
+family_structure,家庭结构,profile,用户画像,True,text,tag,63,63,60,0.9524,success,60,60,db-measured,婚姻/子女 tag 可用；同住人数 tag 全量未提及
+personality_interest_social,性格/兴趣/社交,profile,用户画像,False,text,tag,63,63,61,0.9683,success,61,61,db-measured,性格特点 + 兴趣爱好 tag（Q82/Q79）
+consumption_values,消费观念,profile,用户画像,True,text,tag,63,63,62,0.9841,success,62,62,db-measured,消费观 + 支出结构 tag（Q83/Q84/Q73）
+ownership_status,拥车情况,ownership,拥车与购车情况,True,text,tag,63,63,63,1.0,success,63,63,db-measured,当前/增购前/换购前/保有车型 + 充电桩安装 tag
+purchased_model_owned,已购/下定车型,ownership,拥车与购车情况,True,text,metadata,63,63,63,1.0,success,63,63,db-measured,interview.vehicle_model
+purchase_budget,购车预算,ownership,拥车与购车情况,True,text,tag,63,63,60,0.9524,success,60,60,db-measured,购车预算/裸车价 tag；63 行有值，3 行被可信度过滤
+purchase_attribute,购车属性,ownership,拥车与购车情况,True,enum,tag,63,63,63,1.0,success,63,63,db-measured,首增换购属性 tag（Q1）
+purchase_motivation,购车动机,ownership,拥车与购车情况,True,text,tag,63,63,45,0.7143,partial,45,45,db-measured,购车原因 tag；18 人因「Q4 必须标最重要」格式失败被过滤
+consideration_priority,购车考虑优先级,consideration,购车考虑,True,text,llm,63,63,62,0.9841,partial,62,62,db-measured,有 TOP5 关注原料，但「价格>燃料>车身」三轴严格排序仅 2/63，须重排
+fuel_type_reason,燃料类型考虑原因,consideration,购车考虑,True,text,tag,63,63,63,1.0,success,63,63,db-measured,能源偏好 6 类原因 tag（Q10-Q19）
+brand_product_service_rank,品牌/产品/服务排序,attention,购车关注,True,text,llm,63,63,52,0.8254,partial,0,52,db-measured,无任何题项问「品牌/产品/服务」三轴；Q20 含三词者 0/63，只能推断
+brand_attention,品牌关注,attention,购车关注,True,text,tag,63,63,62,0.9841,success,62,62,db-measured,具体品牌/品牌类型/品牌看法 tag（Q37-42）
+product_attention_top5,产品关注TOP5及细项,attention,购车关注,True,text,tag,63,63,48,0.7619,partial,48,60,db-measured,本次购车关注 tag 有 ≥5 项者 48/63；「恰好 5 项 + 每项细项」须 LLM 补
+sales_marketing_attention,营销/销售关注,attention,购车关注,False,text,llm,63,63,52,0.8254,partial,0,52,db-measured,Q63 售前售后的评述 52/63；无标签，须归纳为关注诉求
+info_channels,信息获取渠道,channels,信息渠道,True,multi,tag,63,63,60,0.9524,success,60,60,db-measured,汽车触媒偏好 + APP偏好 tag（Q80/Q81）
+content_format_preference,内容形式偏好,channels,信息渠道,True,multi,llm,63,63,18,0.2857,partial,0,18,db-measured,Q81 只到「垂媒 vs 短视频」，车评人/长视频/参数对比等形式仅 18/63 有原料
+kol_influence,KOL/KOC影响力,channels,信息渠道,True,enum,none,63,63,0,0.0,failed,0,0,db-measured,85 题无 KOL/KOC 题；全库仅 6 人偶然提到达人/博主，无法成维
+core_comparison_models,核心对比车型,comparison,购车对比,True,text,tag,63,63,63,1.0,success,63,63,db-measured,核心对比车型/最终核心对比车型 tag（Q26）
+first_choice_ranking,首选率,comparison,购车对比,True,text,none,63,63,0,0.0,failed,0,0,db-measured,85 题无「按维度首选排序」题；Q26 只有车型清单，无法算首选率
+purchased_model_compared,已购/下定车型,comparison,购车对比,False,text,metadata,63,63,63,1.0,success,63,63,db-measured,interview.vehicle_model（与拥车组同源）
+win_reasons,战胜原因,comparison,购车对比,True,text,tag,63,63,62,0.9841,success,62,62,db-measured,选择当前车辆的原因 tag（Q29）
+compromise_points,妥协点,comparison,购车对比,False,text,llm,63,63,6,0.0952,partial,0,6,db-measured,无标签；Q29/Q59 明确提「妥协/接受/牺牲」者仅 6/63
+abandoned_models,放弃车型,comparison,购车对比,True,text,derived,63,63,63,1.0,success,63,63,db-measured,核心对比车型 − 最终车型，可确定性派生（需 Q26 两项同人齐全）
+abandonment_reasons,放弃原因,comparison,购车对比,True,text,tag,63,63,21,0.3333,partial,21,21,db-measured,放弃原因 tag；42 人因串题/格式失败被可信度过滤，仅 21/63 可用
+aion_brand_impression,对埃安品牌的印象和了解（网约车的影响）,brand_impression,对埃安品牌的印象和了解（网约车的影响）,True,text,llm,63,63,3,0.0476,partial,3,3,db-measured,全库仅 3 人（R003/R050/R057）提及埃安；无埃安专有题
+rt_awareness_channel,了解渠道,rt_cognition,对埃安RT的认知与态度,True,text,none,63,63,0,0.0,failed,0,0,db-measured,85 题无埃安 RT 题
+rt_attraction_ranking,埃安RT吸引力排序,rt_cognition,对埃安RT的认知与态度,True,text,none,63,63,0,0.0,failed,0,0,db-measured,同上
+rt_concerns,顾虑,rt_cognition,对埃安RT的认知与态度,True,text,none,63,63,0,0.0,failed,0,0,db-measured,同上
+rt_expectations,期望,rt_cognition,对埃安RT的认知与态度,True,text,none,63,63,0,0.0,failed,0,0,db-measured,同上
+conversion_opportunity_risk,转化机会/风险,rt_cognition,对埃安RT的认知与态度,True,text,llm,63,63,63,1.0,partial,0,63,db-measured,无 RT 题；只能用再购意向 tag 外推，不能视为 RT 转化结论
+high_frequency_scenarios,高频场景,usage_scenario,用车场景,True,text,tag,63,63,63,1.0,success,63,63,db-measured,用车场景 tag 63；单程/日均里程 53、行驶区域 52
+scenario_needs,场景需求,usage_scenario,用车场景,True,text,llm,63,63,58,0.9206,partial,58,58,db-measured,用车过程关注 tag 58/63，须归纳为「场景→需求」
+charging_needs,充电需求,usage_scenario,用车场景,True,text,tag,63,63,63,1.0,success,63,63,db-measured,充电桩/频次/地点/方式 tag 并集；单项 59
+range_needs,续航需求,usage_scenario,用车场景,True,text,tag,63,63,61,0.9683,success,61,61,db-measured,纯电续航需求 tag（Q50）
+satisfaction_score,满意度评分,satisfaction,满意度评价,True,number,llm,63,63,13,0.2063,partial,13,13,db-measured,Q59 明确给出数字分者 13/63；其余只能编，必须落 no_data
+satisfaction_points,满意点,satisfaction,满意度评价,True,text,tag,63,63,55,0.873,partial,55,55,db-measured,满意点 tag；8 人被可信度过滤
+dissatisfaction_points,不满意点,satisfaction,满意度评价,True,text,tag,63,63,54,0.8571,partial,54,54,db-measured,不满意点 tag；9 人被可信度过滤
+reception_expectation,接待期待,satisfaction,满意度评价,True,text,none,63,63,0,0.0,failed,0,0,db-measured,Q63 只问「评价」不问「期待」；含期待/希望/建议者 0/63
+loyal_repurchase_reason,作为埃安老车主 为什么继续再买埃安的车,loyal_repurchase,作为埃安老车主 为什么继续再买埃安的车,False,text,none,63,63,0,0.0,failed,0,0,db-measured,63 人购买车型无埃安（0/63），该维对当前样本不适用

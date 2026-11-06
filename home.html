@@ -7,6 +7,7 @@
   <meta name='color-scheme' content='light'>
   <title>乘用车市场战略决策AI智能体系统 · Strategy Cockpit</title>
   <link rel='stylesheet' href='/assets/home.css?v=20261102e'>
+  <link rel='stylesheet' href='/competitor-insight/bci.css?v=20261106'>
   <link rel='stylesheet' href='/assets/home-workspace.css?v=20261012'>
   <link rel='icon' type='image/svg+xml' href='/assets/brand-mark.svg?v=20261012'>
   <link rel='stylesheet' href='/assets/intel-overview.css'>
@@ -67,6 +68,11 @@
             <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='3' width='7' height='7' rx='1'/><rect x='14' y='14' width='7' height='7' rx='1'/><path d='M10 10 L14 14 M14 10 L10 14'/></svg></span>
             <span class='nav-label'>竞品对标</span>
             <span class='nav-badge nav-badge--ai'>AI</span>
+          </a>
+          <a class='nav-item' data-view='bci' href='#bci' aria-label='竞品洞察，目标车型本竞品四步洞察'>
+            <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='8'/><circle cx='12' cy='12' r='3'/><path d='M12 2 v4 M12 18 v4 M2 12 h4 M18 12 h4'/></svg></span>
+            <span class='nav-label'>竞品洞察</span>
+            <span class='nav-badge nav-badge--ai'>NEW</span>
           </a>
           <a class='nav-item' data-view='insight' href='#insight' aria-label='用户洞察，智能问答与证据回源'>
             <span class='nav-item__icon' aria-hidden='true'><svg viewBox='0 0 24 24' width='20' height='20' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><circle cx='9' cy='8' r='3'/><circle cx='17' cy='9' r='2.5'/><path d='M3 20 c0-3 3-5 6-5 s6 2 6 5 M14 20 c0-2 2-4 5-4'/></svg></span>
@@ -1127,6 +1133,73 @@
            ============================================================ -->
       <div class='view' data-view='forecast-engine' hidden><div id='forecast-engine-mount'>正在加载新版市场预测工作区…</div></div>
       <div class='view' data-view='benchmark' hidden><div id='benchmark-mount'>正在加载竞品对标工作区…</div></div>
+
+      <!-- ============================================================
+           VIEW: 竞品洞察 bci — 4 个 tab；本轮交付 ① 数据源筛选
+           ============================================================ -->
+      <div class='view bci-view' data-view='bci' hidden>
+        <section class='bci' aria-labelledby='bci-title'>
+          <header class='section-head bci-head'>
+            <div class='section-head__text'>
+              <h2 id='bci-title' class='section-head__title section-head__title--ai'>竞品洞察</h2>
+              <p class='section-head__desc'>标准化数据与洞察档案模板由后台接入。这里只选择本次分析要用的数据源与模板；某类不选，即该类数据不参与后续洞察。</p>
+            </div>
+            <div class='bci-head__scope'>
+              <span class='bci-head__scope-label'>当前口径</span>
+              <strong id='bci-scope-text'>未选择</strong>
+            </div>
+          </header>
+
+          <nav class='bci-tabs' role='tablist' aria-label='竞品洞察步骤'>
+            <button type='button' class='bci-tab is-active' role='tab' aria-selected='true' data-bci-tab='datasource'>
+              <span class='bci-tab__index'>①</span><span class='bci-tab__label'>数据源筛选</span>
+            </button>
+            <button type='button' class='bci-tab' role='tab' aria-selected='false' data-bci-tab='profile' disabled>
+              <span class='bci-tab__index'>②</span><span class='bci-tab__label'>洞察档案</span><span class='bci-tab__soon'>下一步</span>
+            </button>
+            <button type='button' class='bci-tab' role='tab' aria-selected='false' data-bci-tab='analyze' disabled>
+              <span class='bci-tab__index'>③</span><span class='bci-tab__label'>即时分析</span><span class='bci-tab__soon'>下一步</span>
+            </button>
+            <button type='button' class='bci-tab' role='tab' aria-selected='false' data-bci-tab='report' disabled>
+              <span class='bci-tab__index'>④</span><span class='bci-tab__label'>报告输出</span><span class='bci-tab__soon'>下一步</span>
+            </button>
+          </nav>
+
+          <div class='bci-panel' data-bci-panel='datasource'>
+            <div class='bci-hero'>
+              <div class='bci-hero__main'>
+                <h3 class='bci-hero__title'>本次分析的数据源与模板</h3>
+                <p class='bci-hero__desc'>标准化数据与洞察档案模板由后台统一接入。这里只做一件事：选择本次分析要用的数据源与模板。四类默认都不选，不选即该类数据不参与后续洞察。</p>
+              </div>
+              <div class='bci-hero__meta'>
+                <span class='bci-hero__meta-row'><span>可用性核对</span><b id='bci-checked-at'>2026-11-06</b></span>
+                <button type='button' class='btn btn--ghost' id='bci-reset'>清空全部</button>
+              </div>
+            </div>
+
+            <div class='bci-groups' id='bci-groups'></div>
+
+            <section class='bci-block bci-block--scope'>
+              <header class='bci-block__head'>
+                <h4 class='bci-block__title'>本次分析口径</h4>
+                <p class='bci-block__desc'>选择结果实时写入 <span class='bci-code'>bci.scope</span>，供后续 tab 读取。本页不规定下游怎么用；空数组或空字符串表示该类数据不参与。</p>
+              </header>
+              <pre class='bci-scope' id='bci-scope-preview'></pre>
+              <p class='bci-scope__foot' id='bci-scope-status'>尚未选择，四类数据均不参与</p>
+            </section>
+          </div>
+          <div class='bci-panel' data-bci-panel='profile' hidden>
+            <div class='bci-soon'><b>② 洞察档案</b><p>按本次口径生成深访用户洞察档案。本轮未开发。</p></div>
+          </div>
+          <div class='bci-panel' data-bci-panel='analyze' hidden>
+            <div class='bci-soon'><b>③ 即时分析</b><p>复用用户洞察智能问答，按本次口径落地的四类分析。本轮未开发。</p></div>
+          </div>
+          <div class='bci-panel' data-bci-panel='report' hidden>
+            <div class='bci-soon'><b>④ 报告输出</b><p>按所选模板生成报告并导出 HTML / PPT。本轮未开发。</p></div>
+          </div>
+        </section>
+      </div>
+
       <div class='view' data-view='insight' hidden>
 
         <section id='insight' class='insight' aria-labelledby='insight-title'>
@@ -1719,6 +1792,7 @@
 
   <div class='toast-container' id='toast-container' aria-live='polite' aria-atomic='true'></div>
 
+  <script src='/competitor-insight/bci.js?v=20261106' defer></script>
   <script src='/assets/home.js?v=20261102e' defer></script>
   <script src='/assets/intel-overview.js' defer></script>
   <script src='/assets/forecast-engine.js' defer></script>

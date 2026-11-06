@@ -16,6 +16,10 @@
 | CHRONOS-002 | 第一阶段功能开发及技术验证已归档；真实数据回测参考门槛未达，业务精度和用户验收未完成 | 保留历史记录和遗留问题，业务验收按后续安排继续 | [TASK.md](tasks/CHRONOS-002/TASK.md) |
 | CHRONOS-003 | 基线与油价v2内部试验、完整12起点数值复验及网页验证完成；业务精度不通过 | 四模型12/12数值成功，油价12月WAPE120.46%，不建议正式使用；保留研究结果，等待业务验收。价格历史/历史版本仍待数据支持 | [TASK.md](tasks/CHRONOS-003/TASK.md) |
 | MKT-001 | 竞品对标能力（市场板块新增）；**已接入**（skill-integration-standard 12 项全部满足：S0–S8 完成，引擎/数据工具/规则库/agent+API+页面/skill runtime 隔离运行+run_id 恢复+回放/独立验收全部落地；双引擎共存冒烟 + 真实模型执行验收 PASS；月报 git 零改动已核查） | 已完成 | [TASK.md](tasks/MKT-001/TASK.md) |
+| BCI-001 | 竞品洞察线首个任务（数据源筛选 tab）；四类数据源与模板选择器，浏览器验收 39/39 通过，2026-11-06 首批入库 | 测试通过（待上线）；后续阶段与遗留以 [competitor_insight/BOARD.md](../../competitor_insight/BOARD.md) 为准 | [TASK.md](../../competitor_insight/tasks/BCI-001/TASK.md) |
+| BCI-002 | 深访用户洞察档案模板两份（新能源 v1：8 组 43 维；用户洞察档案），浏览器验收 39/39 通过，2026-11-06 首批入库 | 测试通过（待上线）；后续以 [competitor_insight/BOARD.md](../../competitor_insight/BOARD.md) 为准 | [TASK.md](../../competitor_insight/tasks/BCI-002/TASK.md) |
+
+**竞品洞察线（BCI 系列）自 2026-11-06 起采用独立任务制**：任务、看板、规范、交接统一在 [competitor_insight/](../../competitor_insight/README.md)，任务总表为 [tasks/tasks.md](../../competitor_insight/tasks/tasks.md)；本清单只保留指针，具体阶段与遗留不在两处重复维护。
 
 CHRONOS-001 的 T001、C001 已关闭；C002 的 GPU、并发、资源及精确 revision 未验证。历史结果见原 [TRAE_REPORT.md](tasks/CHRONOS-001/TRAE_REPORT.md) 和 [CODEX_REPLY.md](tasks/CHRONOS-001/CODEX_REPLY.md)，这些文件不再是强制交接材料。
 

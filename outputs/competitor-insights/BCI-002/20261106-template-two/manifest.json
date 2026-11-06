@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "task_id": "20261106-template-two",
+  "purpose": "BCI-002 第二轮：交付第二份模板 user_insight_archive，并验证它与原型 P.TROWS 43 项对齐、下拉两条模板均可选",
+  "created_by": "TRAE / BCI-002",
+  "status": "completed",
+  "reproduce": "在 myproject 根执行：..\\Scripts\\python.exe -B outputs/competitor-insights/BCI-002/20261106-template-two/validate_archive_template.py；浏览器验收见 screenshots/ 与 validate.log",
+  "files": [
+    {
+      "path": "validate_archive_template.py",
+      "purpose": "只读校验：原型 43 子项名称/顺序比对、模板结构完整性、清单 ready/pending 规则、nev 模板未被改动",
+      "rebuildable": true,
+      "retention": "保留（可重复验收入口）"
+    },
+    {
+      "path": "validate.log",
+      "purpose": "本轮运行输出：43/43 一致、12 组、必填 38、PASS、退出码 0",
+      "rebuildable": true,
+      "retention": "保留"
+    }
+  ],
+  "cleanup_conditions": "任务转 LIVE 后可归档；脚本建议长期保留",
+  "restore": "无需恢复；不含凭据与业务正文"
+}
