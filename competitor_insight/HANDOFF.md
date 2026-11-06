@@ -11,6 +11,7 @@
 - **日志去向**：`*.log` 被 `.gitignore` 第 20 条排除（`apply.log`/`pilot.log`/`check.log` 只在本机 `outputs/competitor-insights/BCI-004/`）；是否调整 `.gitignore` 由用户决定。
 - **顺带修正**：`20261106-coverage/coverage.py` 硬编码口令改为读 `.env.new-car`；历史提交 `1bd7eee` 中仍有旧值，已记入 TASK §8 L11。
 - **检查**：`unittest` 81/81；`check_board.py` 内容一致性通过，`TASK-COMMITTED` 仅剩他任务的 `competitor_insight/tasks/BCI-002/TASK.md` 未提交。
+- **7860 已重启**：先跑 `scripts/start_agent.ps1 -NoOpen`（未打开浏览器；核验时无月报专用 Chrome 进程），但其子进程随会话结束被回收，遂改用 `Win32_Process.Create` 分离启动 `python -u app.py`（工作目录 `myproject`，日志 `logs/app-20261107-bci.out.log`）。实测 `/api/bci/archive/template` 43 维/12 组、`respondents` 63 人其中 10 人有档案、`detail?interview_id=R003` 43 维、首页已引入 `bci-profile.js|css`。若明早 7860 无响应，按 `start_agent.cmd` 常规启动即可。
 
 ## 2026-11-07 · BCI-004 D7/D8 完成，状态 TESTED
 
