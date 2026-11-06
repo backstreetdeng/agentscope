@@ -5,7 +5,7 @@ task_id: BCI-001
 title: 竞品洞察 · 数据源筛选 tab
 stage: TESTED
 owner: TRAE
-commit_paths: competitor_insight/web/bci.js,competitor_insight/web/bci.css,home.html,app.py,docs/root-files.json,competitor_insight/tasks/BCI-001,outputs/competitor-insights/BCI-001
+commit_paths: competitor_insight/web/bci.js,competitor_insight/web/bci.css,competitor_insight/tasks/BCI-001,outputs/competitor-insights/BCI-001,assets/home.js
 updated: 2026-11-06
 blocked: no
 next: 用户验收 7860 页面后确认上线
@@ -94,6 +94,22 @@ evidence: outputs/competitor-insights/BCI-001/20261106-datasource-selector-r2/
 - 只有 2025 年定量数据在库内（`quant_sample` 1,380 条）；2023/2024 目前只有源文件，未入库。
 - 定性只有 2025 年解析结果（63 人）；2026 年音频尚未转写解析。
 - 新能源用户洞察模板已有 v1（8 组 43 维，`competitor_insight/templates/`）；新车型模板仍待业务提供；流通数据也没有。模板列表来源为 `competitor_insight/web/templates.json`，新增模板不需要改前端 JS。
+
+### 入库判定（commit_paths）的边界 — 2026-11-07 收窄
+
+首次入库 `1bd7eee` 后，本任务的 `commit_paths` 从「竞品洞察文件 + 共享文件」收窄为**本任务独占的文件**，原因与后果如下，不删不藏：
+
+| 路径 | 处理 | 原因 |
+|---|---|---|
+| `app.py` | **移出** | 共享文件。本任务的 3 处 hunk（`/competitor-insight/` 静态路由、`_send_file` 白名单变量与判定）已随 `1bd7eee` 入库；文件里仍有**深度调研任务**的未提交 hunk（imports、能力常量、skill 指令、validation/engine、`run_agent_once` 分支）与**智能问答任务**的 warning 文案改动 |
+| `home.html` | **移出** | 共享文件。本任务的 4 处 hunk（bci.css 引用、导航项、视图骨架、bci.js 引用）已入库；文件残余为**首行 BOM 数量变化**（编辑器产物，非功能改动） |
+| `docs/root-files.json` | **移出** | 项目级登记文件，非本任务独占；本任务新增的 `competitor_insight/` 一行已随 `1bd7eee` 入库，后续由其他任务继续追加 |
+
+**盲区（已确认，必须知道）**：
+
+- 文件级 `git status --porcelain` 无法区分同一文件内的 hunk 归属。把共享文件留在 `commit_paths` 里，会让别人的未提交改动持续把本任务判红；因此声明改为"本任务真正拥有的文件"。
+- **代价**：`app.py`、`home.html`、`docs/root-files.json` 一旦被其他任务提交，`TASK-COMMITTED` 就**不再覆盖本任务在这三个文件上的后续改动**。今后本任务若再改这三个文件，必须在 TASK.md 人工登记改动与提交哈希，不能指望自动检查兜底。
+- 收窄不是为了让看板变绿：判据是"这处改动是否由本任务独占"。若本任务再次独占某个共享文件（例如整文件都由竞品洞察改动构成），应把该路径加回。
 
 ## 7. 遗留问题
 

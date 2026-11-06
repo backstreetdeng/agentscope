@@ -65,6 +65,7 @@ evidence: outputs/competitor-insights/BCI-005/20261106-harness-adoption/
 | S9 | 反向验证（逐条破坏→FAIL→恢复→PASS） | 完成 | 4 条 verify + reader 缺失 + 敷衍 verify + 冻结越界 + port 非法/冲突，全部按预期失败 | `reverse-verify.log` |
 | S10 | 同步 RULES / tasks.md / BOARD / HANDOFF | 完成 | 字段说明与登记行落地 | 见第 4 节 |
 | S11 | 追加 `TASK-COMMITTED`（用户硬原则：TESTED 前本地提交、LIVE 前推送） | 完成 | `bci_protocol.json` 增第 5 条；`verify_constraints.py` 增 `check_task_committed()`；`RULES.md` §6/§12 写入硬规则；5 个 TASK.md 补 `commit_paths`；临时 git 仓库 6/6 用例符合预期；真实仓库当前 `status: failed`（BCI-001 7 处、BCI-002 6 处未入库） | `reverse-verify-committed.log`、`verify.log` |
+| S12 | 首次入库（用户 2026-11-06 授权）：本地提交 + 推送远程 | 完成 | 提交 `1bd7eee`（60 文件，+7340/−1），已推 `origin/feature/user-insight-t0-t4`，远端 ref 与本地一致、behind/ahead 0/0；`TASK-COMMITTED` 复跑后 BCI-002 转 PASS，仅 BCI-001 因 `app.py`/`home.html` 仍有他任务 hunk 保持红 | `git log`、`git ls-remote`、第 7 节 |
 
 ## 4. 证据索引
 
@@ -94,10 +95,11 @@ evidence: outputs/competitor-insights/BCI-005/20261106-harness-adoption/
 |---|---|---|---|---|
 | BCI-005-L01 | 业务接口未带三态与计数 | 页面仍可能把"未覆盖"显示成 0 条 | 在 BCI-004 后端查询层落地时统一加 `status` + counts | TRAE |
 | BCI-005-L02 | reader 仅为词法存在性检查 | 无法证明调用关系 | 需要时引入 AST/调用图检查 | TRAE |
-| BCI-005-L03 | 冻结基线是本地文件，未纳入 Git | 换机器需重新 `--freeze` | 用户授权提交后一并入库 | 用户 / TRAE |
-| BCI-005-L04 | 改动未提交 Git | 成果只在工作区，无法回滚 | 用户授权后按文件粒度提交 | 用户 |
-| BCI-005-L05 | 存量任务全部未入库：BCI-001/002（`TESTED`）各 7/6 处未提交，BCI-003/004/005（`DEV_DONE`）整体未跟踪；`check_board.py` 当前如实 `status: failed` | 看板为红；BCI-001/002 不得视为完成，不得转 `LIVE` | 用户计划在 BCI-004 完成后统一提交（本地提交 + 推送远程）；提交后 `TASK-COMMITTED` 应转 PASS，届时把本 TASK 与 BOARD「入库状态」同步为已入库 | 用户 / TRAE |
+| BCI-005-L03 | 冻结基线是本地文件，未纳入 Git | 换机器需重新 `--freeze` | **已关闭**（2026-11-06）：`tasks/BCI-005/frozen.sha256` 随 `1bd7eee` 入库 | TRAE |
+| BCI-005-L04 | 改动未提交 Git | 成果只在工作区，无法回滚 | **已关闭**（2026-11-06）：提交 `1bd7eee` 并推送远程 | TRAE |
+| BCI-005-L05 | 存量任务入库：BCI-002/003/004/005 已随 `1bd7eee` 入库；BCI-001 曾因共享文件未提交判红 | 收窄前 `TASK-COMMITTED` 为 `failed` | **已关闭**（2026-11-07）：BCI-001 的 `commit_paths` 按"只声明本任务独占文件"收窄，`app.py`/`home.html`/`docs/root-files.json` 移出并在其 TASK §6 记录盲区；`check_board.py` 转 PASS | TRAE |
 | BCI-005-L06 | `commit_paths` 由任务人工声明，声明不全即漏判 | 机制可被"少写路径"绕过 | 改为按实际 diff 推断或强制覆盖 `competitor_insight/` 全量 | TRAE |
+| BCI-005-L07 | `*.log` 被 `.gitignore` 排除，验证日志未入库（`verify.log`、`reverse-verify.log` 等） | 证据可追溯性缺口：换机器或清理后日志不可从仓库恢复，只剩 TASK 摘要 | **已决策：不修**（2026-11-07 用户决定）。日志不当文物入库，不改 `.gitignore`；缺口在此挂账承认，关键结论固化进 TASK 摘要与 `manifest.json` | 用户 / TRAE |
 
 ## 7. 阶段流转
 

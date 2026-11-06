@@ -73,7 +73,7 @@ TASK.md 第一个代码块必须是状态块，字段如下（`check_board.py` �
 | `owner` | 当前执行者 | `TRAE` / `Codex` / 用户名 |
 | `port` | 本任务占用的端口（可选） | 整数；不占用写 `none`。两个非终态任务（CREATED/EXECUTING/QA）不得声明同一端口 |
 | `frozen_paths` | 本任务禁止改动的文件（可选） | 逗号分隔的相对路径；不限制写 `none`。声明后先运行 `check_board.py --freeze BCI-NNN` 建立 sha256 基线 |
-| `commit_paths` | 本任务的文件集，用于入库判定（可选，`TESTED`/`LIVE` 时必填） | 逗号分隔的相对路径（可含目录）；建议包含 `tasks/<编号>`、交付文件与 `outputs/competitor-insights/<编号>` |
+| `commit_paths` | 本任务的文件集，用于入库判定（可选，`TESTED`/`LIVE` 时必填） | 逗号分隔的相对路径（可含目录）；建议包含 `tasks/<编号>`、交付文件与 `outputs/competitor-insights/<编号>`。**只声明本任务生成并拥有的文件**；与别的任务共用的文件（如 `app.py`、`home.html`）不写进来，其中属于本任务的 hunk 由人工在 TASK 记录——文件级检查无法区分同一文件内的 hunk 归属，这是已知边界。**共享目录（`templates/`、`web/`、`config/` 等）不得整目录声明**，须逐个列出本任务产出的具体文件 |
 | `updated` | 最后更新时间 | `YYYY-MM-DD` |
 | `blocked` | 是否阻塞 | `yes` / `no` |
 | `blocker` | 阻塞原因 | `blocked: yes` 时必填：现象 + 已试过的替代方案 + 解除条件/人 |
@@ -160,6 +160,7 @@ TASK.md 第一个代码块必须是状态块，字段如下（`check_board.py` �
 
 - `check_board.py` 只读：校验状态块字段、阶段合法性、task_id 与目录一致、阻塞必填、证据目录存在、`tasks.md`/BOARD/HANDOFF 编号双向一致、三方阶段一致、看板分栏归属正确；另校验协议契约（`config/bci_protocol.json` 的 reader 符号存在、verify 真执行）、`frozen_paths` 越界与 `port` 冲突。
 - `TASK-COMMITTED` 约束会对 `TESTED`/`LIVE` 任务检查 `commit_paths` 是否已全部入库（未跟踪文件同样算未入库）；因此看板可能因"任务未提交"而不是文档不一致变红，这是真实状态，不得为了变绿去删约束或改阶段。
+- `commit_paths` 只声明本任务生成并拥有的文件。共享文件（`app.py`、`home.html`、`docs/root-files.json` 等）里属于本任务的 hunk 若因其他任务仍在改同一文件而无法纳入，应在该任务 TASK.md 的「入库判定边界」中记录：移出了哪些路径、残余 hunk 各属哪个任务、以及该文件被其他任务提交后本检查不再覆盖本任务的后续改动。**共享目录（`templates/`、`web/`、`config/` 等）不得整目录声明**——其他任务会往同一目录写入自己的产物（如 BCI-004 写 `templates/*.source-map.json`），整目录声明会把别人的在途文件算成本任务未入库；应按本任务实际产出的具体文件逐个声明。**收窄声明是因为归属不独占，不是因为想变绿**。
 - 检查器统一输出 `status: success|partial|failed` 与「应查 / 实查 / 命中」计数；`partial` 必须单列未覆盖原因，不得把"未覆盖"显示成 0 条。
 - 需要冻结文件时先运行 `../Scripts/python.exe -B competitor_insight/check_board.py --freeze BCI-NNN`；基线写在 `tasks/BCI-NNN/frozen.sha256`。
 - 文件落点、备份与清理继续按根 AGENTS.md 与 [docs/directory-hygiene.md](../docs/directory-hygiene.md)；`competitor_insight` 已在 [docs/root-files.json](../docs/root-files.json) 登记为正式根目录。
