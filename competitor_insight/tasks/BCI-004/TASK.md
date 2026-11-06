@@ -132,9 +132,11 @@ evidence: outputs/competitor-insights/BCI-004/
 ## 7. Git 状态
 
 - 首次入库已完成：`1bd7eee` 已推送到 `origin/feature/user-insight-t0-t4`。
-- D1 新增文件（`server/`、`tests/`、`templates/*.source-map.json`）与本次文档改动**未暂存、未提交**；工作区另有 `app.py`、`home.html`、`RULES.md`、BCI-001/005 TASK 等他处改动，不得整体暂存。
-- D2–D5 新增 `server/`、`tests/`、`ops/`、`web/bci-profile.*`、`outputs/` 文件同样**未暂存、未提交**。
-- 本轮未执行 `git add` / `commit` / `push`。
+- 本轮入库：`7dc91aa`（59 个文件，D1–D8 全部新增文件、`ops/` DDL、BCI 文档、`outputs/competitor-insights/BCI-004/` 证据），已推送 `origin/feature/user-insight-t0-t4`。
+- `app.py` / `home.html` / `web/bci.js` 只提交竞品洞察相关 hunk：`app.py` 用「HEAD + 4 处 BCI 代码块」构造索引内容（141 行），工作区仍留有深度调研等他处改动，**未纳入本提交**。
+- 未纳入（白名单外）：`.gitignore`、`AGENTS.md`、`competitor_insight/tasks/BCI-002/TASK.md`（他任务的 commit_paths 收窄）、`customer_insight/*`、`forecast-engine/*`、`skills/*` 等既有改动。
+- `*.log` 按 `.gitignore` 第 20 条不随提交入库：`20261107-d2-ddl/apply.log`、`20261107-d7-pilot/pilot.log`、`20261107-d8-browser/check.log` 等执行日志只留在本机 `outputs/competitor-insights/BCI-004/`。
+- 顺带修正：`20261106-coverage/coverage.py` 原硬编码数据库口令已改为读 `.env.new-car`（历史提交中仍可见旧值，见 §8 L11）。
 
 ## 8. 遗留问题
 
@@ -149,7 +151,8 @@ evidence: outputs/competitor-insights/BCI-004/
 | BCI-004-L07 | 性别、同住人数、用户类型、再购车型尺寸 4 个标签全量未提及 | 年龄/性别只能出年龄 | 已实测 0/63 | 按 Q11 原则本期如实标注，下周业务决定是否补题 | 业务 | 方案 §6.2 |
 | BCI-004-L08 | 满意度评分仅 13/63 有明确分数 | 该维仅 13 人有值 | **Q12 已拍板**：只对有分数者生成，其余醒目提示实际情况 | 下周与业务对接 | 业务 | 方案 §5.7、§8.1 Q12 |
 | BCI-004-L09 | ~~共用文件被另一会话占用~~ 已解除 | — | 2026-11-07 用户确认入库完成（`1bd7eee` 已推送），D6 闸门解除 | 无需处理 | 用户 | 方案 §7.1 |
-| BCI-004-L06 | 改动未提交 git | 成果只在工作区 | 另一会话正在做首次入库 | 用户授权后按文件粒度提交 | 用户/TRAE | 本文件 §7 |
+| BCI-004-L06 | ~~改动未提交 git~~ 已解除 | — | 2026-11-07 已按白名单提交 `7dc91aa` 并推送；`*.log` 受 `.gitignore` 限制仍只在本机 | 如需日志入库，需先由用户决定是否调整 `.gitignore` | 用户/TRAE | 本文件 §7 |
+| BCI-004-L11 | 历史提交 `1bd7eee` 内的 `20261106-coverage/coverage.py` 曾硬编码数据库口令 | 旧口令仍在 Git 历史中 | 本次已将工作区脚本改为读 `.env.new-car`，但历史无法用普通提交抹除 | 如需彻底清除，需改写历史或轮换该数据库口令（由用户决定） | 用户/DBA | 本文件 §7 |
 
 ## 9. 阶段流转记录
 

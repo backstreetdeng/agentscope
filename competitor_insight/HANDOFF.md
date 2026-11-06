@@ -2,6 +2,16 @@
 
 更新：2026-11-07（Asia/Shanghai）。新条目追加在最上面。写法见 [RULES.md](RULES.md) 第 9 节；本文件与 TASK.md 冲突时以 TASK.md 为准。
 
+## 2026-11-07 · BCI-004 入库提交（`7dc91aa` 已推送）
+
+- **当前任务与阶段**：[BCI-004](tasks/BCI-004/TASK.md) 保持 `TESTED`，等用户验收 7860 页面与 10 人试点数据。
+- **提交内容**：59 个文件——`competitor_insight/server/`（10 个模块）、`tests/`（4 套 41 项）、`web/bci-profile.js|css`、`templates/user_insight_archive.source-map.json`、`ops/`（3 个 DDL/执行脚本）、BCI 文档、`outputs/competitor-insights/BCI-004/` 证据。
+- **共用文件**：`app.py` 仅 4 处 BCI hunk（141 行，用 HEAD + BCI 块构造索引，深度调研等他处改动留在工作区）；`home.html`、`web/bci.js` 只含 tab ② 接线。
+- **未纳入**：`.gitignore`、`AGENTS.md`、`competitor_insight/tasks/BCI-002/TASK.md`、`customer_insight/*`、`forecast-engine/*`、`skills/*` 等白名单外改动。
+- **日志去向**：`*.log` 被 `.gitignore` 第 20 条排除（`apply.log`/`pilot.log`/`check.log` 只在本机 `outputs/competitor-insights/BCI-004/`）；是否调整 `.gitignore` 由用户决定。
+- **顺带修正**：`20261106-coverage/coverage.py` 硬编码口令改为读 `.env.new-car`；历史提交 `1bd7eee` 中仍有旧值，已记入 TASK §8 L11。
+- **检查**：`unittest` 81/81；`check_board.py` 内容一致性通过，`TASK-COMMITTED` 仅剩他任务的 `competitor_insight/tasks/BCI-002/TASK.md` 未提交。
+
 ## 2026-11-07 · BCI-004 D7/D8 完成，状态 TESTED
 
 - **当前任务与阶段**：[BCI-004](tasks/BCI-004/TASK.md) 已推进到 `TESTED`；D1–D8 全部完成，待用户验收上线。
@@ -9,7 +19,7 @@
 - **D8 浏览器验收**：真实服务跑在 `127.0.0.1:7861`（未重启 7860、未触碰月报浏览器），Playwright 18/18 PASS：63 人列表、R003 43 维、8 个无来源维、R010 9 分、R003 评分缺失、找原话 50 条、勾选 2 人下载 xlsx（45 行/3 Sheet/证据页含两人）、模板切换重载、0 JS 错误。
 - **回归**：`unittest` 81/81；`check_board.py` 仅剩跨任务约束（BCI-002 的 TASK.md 未提交）与本次 next 文本已同步；`workspace_hygiene.py` 仅报既存 `debug.log`。
 - **遗留**：`bci` schema 属主仍是 `vectordb`（需 DBA 才能转给 loader）；`debug.log` 属他处产物未处理。
-- **未执行**：未 `git add` / `commit` / `push`（除非用户明确授权）。
+- **入库**：见上一条（`7dc91aa`）。
 
 ## 2026-11-07 · BCI-004 D6 完成（共用文件接线，临时端口探针 19/19）
 
