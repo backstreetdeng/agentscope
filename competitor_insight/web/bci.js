@@ -371,6 +371,7 @@
           qsa('[data-bci-panel]', root).forEach((p) => {
             p.hidden = p.getAttribute('data-bci-panel') !== key;
           });
+          if (key === 'profile') initProfile(root);
         }
       });
 
@@ -381,6 +382,12 @@
       on(document, 'keydown', (ev) => {
         if (ev.key === 'Escape') closePanels(null);
       });
+    }
+
+    // tab ② 首次进入时才初始化档案模块，避免首页加载即查询数据库。
+    function initProfile(root) {
+      const host = qs('[data-bci-profile]', root);
+      if (host && window.BciProfile) window.BciProfile.init(host);
     }
 
     let entering = null;

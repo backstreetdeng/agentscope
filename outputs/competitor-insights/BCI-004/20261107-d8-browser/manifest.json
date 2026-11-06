@@ -1,0 +1,24 @@
+{
+  "task_id": "BCI-004",
+  "step": "D8",
+  "purpose": "洞察档案 tab 浏览器验收：真实服务 + 真实库 + 已落库 10 份档案",
+  "created": "2026-11-07",
+  "inputs": [
+    "temp/20261107-bci-d8/serve_7861.py（127.0.0.1:7861，复用 app.py）",
+    "bci.* 已生成的 10 份档案",
+    "月报浏览器会话未运行，未触碰 7860"
+  ],
+  "outputs": [
+    "check_d8.py",
+    "check.log",
+    "pilot-export.xlsx",
+    "profile-r003.png",
+    "profile-r010.png",
+    "profile-quote.png",
+    "profile-template-switch.png"
+  ],
+  "rebuild": "先启动 temp/20261107-bci-d8/serve_7861.py，再设置 PLAYWRIGHT_BROWSERS_PATH=%USERPROFILE%\\.cache\\ms-playwright 运行 check_d8.py",
+  "side_effects": "浏览器只读页面并下载导出文件；不重启 7860",
+  "cleanable": true,
+  "restore": "重跑脚本即可重建截图与导出；无需恢复业务数据"
+}

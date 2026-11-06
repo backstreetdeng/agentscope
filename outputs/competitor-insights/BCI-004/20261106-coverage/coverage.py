@@ -5,9 +5,15 @@ import psycopg2
 import psycopg2.extras
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
-ROOT = Path(__file__).resolve().parents[2]
-CONN = dict(host="192.168.3.146", port=5432, dbname="vectordb",
-            user="vectordb", password="vectordb123", connect_timeout=10)
+ROOT = Path(__file__).resolve().parents[4]
+sys.path.insert(0, str(ROOT))
+from customer_insight.quant_service import _load_env  # noqa: E402
+
+_cfg = _load_env()
+CONN = dict(host=_cfg.get("NEW_CAR_PG_HOST", ""), port=int(_cfg.get("NEW_CAR_PG_PORT", "5432")),
+            dbname=_cfg.get("NEW_CAR_PG_DATABASE", ""),
+            user=_cfg.get("NEW_CAR_PG_USER", ""), password=_cfg.get("NEW_CAR_PG_PASSWORD", ""),
+            connect_timeout=10)
 TPL = json.loads((ROOT / "competitor_insight/templates/user_insight_archive_template.json").read_text(encoding="utf-8"))
 GROUPS = {g["id"]: g["name"] for g in TPL["groups"]}
 

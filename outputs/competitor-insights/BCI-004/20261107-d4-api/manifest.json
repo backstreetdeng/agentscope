@@ -1,0 +1,22 @@
+{
+  "task_id": "BCI-004",
+  "step": "D4",
+  "purpose": "洞察档案接口 / 原话 / 导出服务的真实库只读探针与执行证据",
+  "created": "2026-11-07",
+  "inputs": [
+    "competitor_insight/server/archive_api.py",
+    "competitor_insight/server/quote_service.py",
+    "competitor_insight/server/export_service.py",
+    "competitor_insight/server/archive_store.py",
+    "user_insight.interview / answer / evidence / tag / tag_evidence（只读）",
+    "bci.archive / bci.archive_run（只读）"
+  ],
+  "outputs": [
+    "probe_api.py",
+    "probe.log"
+  ],
+  "rebuild": "../Scripts/python.exe -B outputs/competitor-insights/BCI-004/20261107-d4-api/probe_api.py",
+  "side_effects": "无写入；不启动 7860；不打印凭据",
+  "cleanable": true,
+  "restore": "无需恢复；重跑探针即可重建结果"
+}

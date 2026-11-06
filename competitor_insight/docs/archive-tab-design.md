@@ -173,7 +173,7 @@ CREATE TABLE bci.archive_field (
     archive_id          bigint NOT NULL REFERENCES bci.archive(archive_id) ON DELETE CASCADE,
     dimension_id        text NOT NULL,
     group_id            text NOT NULL,
-    fill_mode           text NOT NULL CHECK (fill_mode IN ('metadata','tag','llm','none')),
+    fill_mode           text NOT NULL CHECK (fill_mode IN ('metadata','tag','derived','llm','none')),
     value_text          text,
     value_json          jsonb,
     source_ref          jsonb NOT NULL DEFAULT '{}'::jsonb, -- 确定性来源：metadata 字段名 / tag_id
@@ -273,52 +273,72 @@ runtime/competitor-insight/runs/<run_id>.json
 1. 读 `competitor_insight/web/templates.json`，取 `status=ready` 且 `id` 匹配的条目。
 2. 校验 `definition` 路径必须位于 `competitor_insight/templates/` 下（`Path.resolve()` 后前缀比对），拒绝任意路径。
 3. 加载模板定义 JSON，做结构 + 语义校验（见 3.4）。
-4. 加载同名 `*.source-map.json`，校验每个维度恰好一条映射。
+4. 加载同目录的 `<template_id>.source-map.json`，校验每个维度恰好一条映射。
 5. 进程内按文件 `mtime + size` 缓存；文件变化自动重载，无需重启服务。
 
 ### 3.2 题项映射文件（新增，不改模板本体）
 
-`competitor_insight/templates/user_insight_archive.source-map.json`：
+`competitor_insight/templates/user_insight_archive.source-map.json`（D1 已实现，43 维逐维一条）：
 
 ```json
 {
+  "source_map_version": 1,
   "template_id": "user_insight_archive",
   "template_version": "v1",
-  "dimensions": {
-    "purchase_attribute": {
-      "mode": "metadata",
-      "field": "purchase_type",
-      "allowed_columns": ["purchase_type"]
+  "evidence_basis": "db-measured",
+  "dimensions": [
+    {
+      "dimension_id": "purchased_model_owned",
+      "group_id": "ownership",
+      "fill_mode": "metadata",
+      "scope": "questions",
+      "metadata_fields": ["vehicle_model"]
     },
-    "purchased_model_owned": {
-      "mode": "metadata",
-      "field": "vehicle_model"
+    {
+      "dimension_id": "purchase_budget",
+      "group_id": "ownership",
+      "fill_mode": "tag",
+      "scope": "questions",
+      "question_ids": [2, 3, 5, 6],
+      "tag_names": ["购车预算", "裸车价"]
     },
-    "purchase_budget": {
-      "mode": "tag",
-      "question_ids": [12],
-      "tag_names": ["购车预算"]
+    {
+      "dimension_id": "archive_summary",
+      "group_id": "summary",
+      "fill_mode": "llm",
+      "scope": "interview"
     },
-    "archive_summary": {
-      "mode": "llm",
-      "question_ids": [1, 7, 20, 21, 68],
-      "max_evidence": 5
+    {
+      "dimension_id": "abandoned_models",
+      "group_id": "comparison",
+      "fill_mode": "derived",
+      "scope": "questions",
+      "question_ids": [26],
+      "tag_names": ["核心对比车型", "最终核心对比车型"],
+      "derivation": "core_minus_final"
     },
-    "first_choice_ranking": {
-      "mode": "none",
-      "reason": "85 题中无首选排序题，不推断顺序"
+    {
+      "dimension_id": "first_choice_ranking",
+      "group_id": "comparison",
+      "fill_mode": "none",
+      "scope": "questions",
+      "no_source_reason": "85 题无「按维度给出首选排序」题；Q26 仅记录核心对比车型清单，无法计算首选率。"
     }
-  }
+  ]
 }
 ```
 
-规则：
+规则（`server/source_map.py` 实现，测试见 `tests/test_source_map.py`）：
 
-- `mode=metadata`：只允许 `interview` 表白名单字段（`city` / `vehicle_model` / `purchase_type`），不接受任意 SQL 字段名。
-- `mode=tag`：优先用 `tag.mapped_question_ids` 与 `question_ids` 求交集；`question_ids` 必须 1–85；`tag_names` 必须在 `user_insight.tag` 中出现过（S1 盘点时校验）。
-- `mode=llm`：只把 `question_ids` 对应的答案/标签/证据送入模型，不喂整份转写。
-- `mode=none`：直接生成 `no_data_reason`，不调用模型，不猜。
-- 每个维度必须恰好出现一次；缺映射或多映射都视为模板不可用。
+- `dimensions` 是**数组且顺序必须与模板定义一致**；维度集合必须与模板完全相等，缺维/多维/重复维均拒绝。
+- `fill_mode` 取值 `tag|metadata|derived|llm|none`；`scope` 取值 `interview|questions`。
+- `fill_mode=metadata`：只允许 `interview` 表白名单字段（`city` / `vehicle_model` / `purchase_type`），不接受任意 SQL 字段名。
+- `fill_mode=tag`：必须给 `tag_names`；题号必须是 1–85 的正整数且不重复；标签名与题号在 D1 已用真实库校验（61 个题号、56 个标签全部命中）。
+- `fill_mode=derived`：必须给 `derivation`（当前只有 `core_minus_final`）。
+- `fill_mode=llm`：`scope=questions` 时必须给出可引用的题号或标签；`scope=interview` 表示整场访谈内检索，不得再声明题号/标签。
+- `fill_mode=none`：必须写 `no_source_reason`，且不得再声明任何来源，避免用模型兜底（Q11）。
+- 只有 `fill_mode=none` 允许出现 `no_source_reason`；其余维度出现即判错。
+- 模板注册表 `server/template_registry.py` 只读 `web/templates.json`，source-map 路径固定为同目录 `<template_id>.source-map.json`。
 
 ### 3.3 前端如何被模板驱动
 

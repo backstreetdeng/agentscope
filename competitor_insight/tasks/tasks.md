@@ -10,7 +10,7 @@
 | [BCI-001](BCI-001/TASK.md) | 竞品洞察 · 数据源筛选 tab | TESTED | TRAE | 2026-11-06 | 用户验收 7860 页面后确认上线 |
 | [BCI-002](BCI-002/TASK.md) | 深访用户洞察档案模板（两份：新能源 / 用户洞察档案） | TESTED | TRAE | 2026-11-06 | 用户验收 7860 页面下拉两条模板均可选后确认上线 |
 | [BCI-003](BCI-003/TASK.md) | 学习 DeepSeek Harness 工程方法并评估对竞品洞察的适用性 | DEV_DONE | TRAE | 2026-11-06 | 用户阅读 docs/harness-study.md 的 Q3/Q5 与 §5 全 workspace 复核（含 5 条建议修正 + 新增 #6/#7），确认是否立项落地 |
-| [BCI-004](BCI-004/TASK.md) | 竞品洞察 · 用户洞察档案 tab | EXECUTING | TRAE | 2026-11-06 | 按 TASK §10 执行 D1（source-map 契约层）；共用文件接线等「入库完成」 |
+| [BCI-004](BCI-004/TASK.md) | 竞品洞察 · 用户洞察档案 tab | TESTED | TRAE | 2026-11-07 | 用户验收 7860 页面与 10 人试点数据后确认上线 |
 | [BCI-005](BCI-005/TASK.md) | 竞品洞察 · 任务机制 Harness 化（契约 reader/verify、三态计数、冻结路径） | DEV_DONE | TRAE | 2026-11-06 | 用户复核 TASK-COMMITTED 与反向验证记录；存量任务须先统一入库，本任务才能转 TESTED |
 
 ## 维护约定

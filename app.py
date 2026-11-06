@@ -994,6 +994,32 @@ def build_intelligence_export(domain: str, record_ids: list[str]) -> tuple[bytes
     workbook.save(output)
     return output.getvalue(), filename
 
+BCI_ARCHIVE_SERVICE: Any = None
+BCI_ARCHIVE_SERVICE_LOCK = Lock()
+
+
+def bci_archive_service() -> Any:
+    """惰性构造洞察档案服务；数据库只在首次请求时连接，不阻塞服务启动。"""
+    global BCI_ARCHIVE_SERVICE
+    if BCI_ARCHIVE_SERVICE is not None:
+        return BCI_ARCHIVE_SERVICE
+    with BCI_ARCHIVE_SERVICE_LOCK:
+        if BCI_ARCHIVE_SERVICE is None:
+            from competitor_insight.server import db as bci_db
+            from competitor_insight.server.archive_api import ArchiveService
+            from competitor_insight.server.archive_store import PostgresArchiveStore
+
+            BCI_ARCHIVE_SERVICE = ArchiveService(PostgresArchiveStore(bci_db.connect))
+    return BCI_ARCHIVE_SERVICE
+
+
+def bci_query_int(value: str, default: int) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
 HTML = (PROJECT_DIR / 'home.html').read_text(encoding='utf-8')
 LEGACY_WORKBENCH_HTML = (PROJECT_DIR / 'legacy_workbench.html').read_text(encoding='utf-8')
 STRATEGY_ANALYSIS_HTML = (PROJECT_DIR / 'strategy-analysis.html').read_text(encoding='utf-8')
@@ -1136,6 +1162,10 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
                 self._send_file('/' + str(asset_path.relative_to(PROJECT_DIR)).replace('\\', '/'))
                 return
             self.send_error(HTTPStatus.NOT_FOUND)
+            return
+
+        if request_path.startswith('/api/bci/archive/'):
+            self._handle_bci_archive_get(parsed)
             return
 
         if request_path == "/api/config":
@@ -1485,6 +1515,9 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
                 self._send_json({'error': str(exc)}, status=400)
             except Exception as exc:
                 self._send_json({'error': type(exc).__name__ + ': ' + str(exc)}, status=500)
+            return
+        if parsed.path.startswith('/api/bci/archive/'):
+            self._handle_bci_archive_post(parsed)
             return
         if self.path not in {"/api/assistant/chat", "/api/chat", "/api/ppt", "/api/audio-tags/run", "/api/quality-gate", "/api/market-skill/validate", "/api/intelligence/export", "/api/projects/update", "/api/macro-ledger", "/api/monthly-report/jobs", "/api/monthly-report/jobs/cancel", "/api/monthly-report/jobs/resume", "/api/macro-report/jobs", "/api/macro-report/jobs/cancel", "/api/macro-report/jobs/resume", "/api/insight/interview/query", "/api/insight/battle/analyze", "/api/insight/quant/stat", "/api/insight/quant/options", "/api/insight/joint/analyze", "/api/insight/segment/clusters", "/api/insight/satisfaction/painpoints", "/api/insight/repurchase/intent", "/api/insight/matrix/match", "/api/insight/compare", "/api/insight/cross/validate", "/api/insight/agent/query", "/api/insight/agent/stream"}:
             self.send_error(HTTPStatus.NOT_FOUND)
@@ -2120,6 +2153,114 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(data)))
         self.end_headers()
         self.wfile.write(data)
+
+    # ------------------------------------------------------------ 洞察档案 API
+
+    def _handle_bci_archive_get(self, parsed: Any) -> None:
+        """GET /api/bci/archive/*：模板、受访者、详情、运行状态、找原话。"""
+        from competitor_insight.server.archive_api import ApiError
+        from competitor_insight.server.db import DatabaseUnavailable
+
+        query = parse_qs(parsed.query)
+        operation = parsed.path[len('/api/bci/archive/'):]
+
+        def one(name: str) -> str:
+            return (query.get(name) or [''])[0]
+
+        try:
+            service = bci_archive_service()
+            if operation == 'template':
+                payload = service.template(one('template_id') or None)
+            elif operation == 'respondents':
+                payload = service.respondents(
+                    one('template_id') or None,
+                    one('keyword') or None,
+                    bci_query_int(one('limit'), 50),
+                    bci_query_int(one('offset'), 0),
+                )
+            elif operation == 'detail':
+                payload = service.detail(
+                    one('interview_id'),
+                    one('template_id') or None,
+                    one('version') or None,
+                    bci_query_int(one('revision'), 0) or None,
+                )
+            elif operation == 'run':
+                payload = service.run_status(one('run_id'))
+            elif operation == 'quote':
+                payload = service.quote(
+                    one('interview_id'),
+                    one('keyword'),
+                    bci_query_int(one('limit'), 50),
+                    one('template_id') or None,
+                )
+            else:
+                self._send_json({'ok': False, 'error': {'code': 'not_found', 'message': '未找到档案接口。'}}, status=404)
+                return
+        except ApiError as exc:
+            self._send_json(exc.to_payload(), status=exc.status)
+            return
+        except DatabaseUnavailable as exc:
+            self._send_json({'ok': False, 'error': {'code': 'database_unavailable', 'message': str(exc)}}, status=503)
+            return
+        except (ValueError, OSError) as exc:
+            self._send_json({'ok': False, 'error': {'code': 'invalid_request', 'message': str(exc)}}, status=400)
+            return
+        except Exception as exc:  # noqa: BLE001
+            self._send_json({'ok': False, 'error': {'code': 'internal_error', 'message': exc.__class__.__name__}}, status=500)
+            return
+        self._send_json(payload)
+
+    def _handle_bci_archive_post(self, parsed: Any) -> None:
+        """POST /api/bci/archive/*：生成档案（后台任务）与 xlsx / md 导出。"""
+        from competitor_insight.server.archive_api import ApiError
+        from competitor_insight.server.db import DatabaseUnavailable
+
+        operation = parsed.path[len('/api/bci/archive/'):]
+        if operation not in {'generate', 'export'}:
+            self._send_json({'ok': False, 'error': {'code': 'not_found', 'message': '未找到档案接口。'}}, status=404)
+            return
+        length = int(self.headers.get('Content-Length', '0'))
+        if length <= 0 or length > 64000:
+            self._send_json({'ok': False, 'error': {'code': 'invalid_request', 'message': '请求为空或过大。'}}, status=413)
+            self.close_connection = True
+            return
+        try:
+            payload = json.loads(self.rfile.read(length).decode('utf-8'))
+            if not isinstance(payload, dict):
+                raise ValueError('请求必须为 JSON 对象。')
+            interview_ids = payload.get('interview_ids') or []
+            if not isinstance(interview_ids, list):
+                raise ValueError('interview_ids 必须为数组。')
+            service = bci_archive_service()
+            if operation == 'generate':
+                result = service.generate(
+                    interview_ids,
+                    payload.get('template_id') or None,
+                    str(payload.get('mode') or 'selected'),
+                    bool(payload.get('force')),
+                )
+                self._send_json(result, status=202)
+                return
+            bundle = service.export(
+                interview_ids,
+                payload.get('template_id') or None,
+                payload.get('version') or None,
+                str(payload.get('format') or 'xlsx'),
+            )['data']
+        except ApiError as exc:
+            self._send_json(exc.to_payload(), status=exc.status)
+            return
+        except DatabaseUnavailable as exc:
+            self._send_json({'ok': False, 'error': {'code': 'database_unavailable', 'message': str(exc)}}, status=503)
+            return
+        except (ValueError, OSError) as exc:
+            self._send_json({'ok': False, 'error': {'code': 'invalid_request', 'message': str(exc)}}, status=400)
+            return
+        except Exception as exc:  # noqa: BLE001
+            self._send_json({'ok': False, 'error': {'code': 'internal_error', 'message': exc.__class__.__name__}}, status=500)
+            return
+        self._send_binary(bundle['data'], bundle['content_type'], bundle['filename'])
 
 
 def extract_report_search_text(path: Path) -> str:

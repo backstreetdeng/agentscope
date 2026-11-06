@@ -1,6 +1,77 @@
 # 竞品洞察 · 最近交接
 
-更新：2026-11-06（Asia/Shanghai）。新条目追加在最上面。写法见 [RULES.md](RULES.md) 第 9 节；本文件与 TASK.md 冲突时以 TASK.md 为准。
+更新：2026-11-07（Asia/Shanghai）。新条目追加在最上面。写法见 [RULES.md](RULES.md) 第 9 节；本文件与 TASK.md 冲突时以 TASK.md 为准。
+
+## 2026-11-07 · BCI-004 D7/D8 完成，状态 TESTED
+
+- **当前任务与阶段**：[BCI-004](tasks/BCI-004/TASK.md) 已推进到 `TESTED`；D1–D8 全部完成，待用户验收上线。
+- **D7 真实入库**：新增 `competitor_insight/server/llm_client.py`（固定 `api.deepseek.com`，优先读 `.env` 的 DeepSeek 凭证，避免误用进程里另一把阿里云 key）。10 人（R003/R050/R057/R030/R025/R037/R046/R005/R010/R062）生成 10/10 成功，每人 43 维；19 个 success 维 183/190 命中（12 维满员、7 维 9/10，缺口均写 `no_data_reason`）；8 个无来源维全部「本期无来源」；LLM 值证据 ID 全部有效；R046 购车属性因「换购；增购」互斥标 `suspect`。覆盖率 65.79%–76.32%。
+- **D8 浏览器验收**：真实服务跑在 `127.0.0.1:7861`（未重启 7860、未触碰月报浏览器），Playwright 18/18 PASS：63 人列表、R003 43 维、8 个无来源维、R010 9 分、R003 评分缺失、找原话 50 条、勾选 2 人下载 xlsx（45 行/3 Sheet/证据页含两人）、模板切换重载、0 JS 错误。
+- **回归**：`unittest` 81/81；`check_board.py` 仅剩跨任务约束（BCI-002 的 TASK.md 未提交）与本次 next 文本已同步；`workspace_hygiene.py` 仅报既存 `debug.log`。
+- **遗留**：`bci` schema 属主仍是 `vectordb`（需 DBA 才能转给 loader）；`debug.log` 属他处产物未处理。
+- **未执行**：未 `git add` / `commit` / `push`（除非用户明确授权）。
+
+## 2026-11-07 · BCI-004 D6 完成（共用文件接线，临时端口探针 19/19）
+
+- **当前任务与阶段**：[BCI-004](tasks/BCI-004/TASK.md) 保持 `EXECUTING`；D1–D6 完成，下一步 D7（10 人试点生成写库）。
+- **路由**：`app.py` 新增 `/api/bci/archive/template|respondents|detail|run|quote`（GET）与 `/generate|export`（POST，导出二进制）。`ArchiveService` 惰性单例，数据库首次请求才连接；`ApiError` 保留状态码（400/404/409），`DatabaseUnavailable` → 503；生成走服务自身线程，不占 `AGENT_RUN_LOCK`。
+- **前端**：`home.html` 启用 tab ②、新增 `[data-bci-profile]` 容器、引入 `bci-profile.css/js`；`bci.js` 切到 tab ② 时才 `BciProfile.init`；`bci-profile.js` 面板未展开不预加载，避免首页立即查库。
+- **验收**：临时端口（非 7860、未动浏览器会话）探针 19/19 PASS：模板 43 维/12 组、真实库 63 人、R001 详情空态、找原话命中、缺档案导出 409、非法 mode 400、未知接口 404、静态资源与首页接线。`unittest` 81/81。证据：`outputs/competitor-insights/BCI-004/20261107-d6-wiring/probe.log`。
+- **下一步**：D7 按 §6.3 名单生成 10 人档案并写 `bci.*`；写库前确认 loader 仍具 USAGE/CREATE，失败不留半份。**未执行 `git add` / `commit` / `push`。**
+
+## 2026-11-07 · BCI-004 D5 完成（洞察档案前端模块，离线浏览器验收 17/17）
+
+- **当前任务与阶段**：[BCI-004](tasks/BCI-004/TASK.md) 保持 `EXECUTING`；D1–D5 完成，下一步 D6（共用文件接线）。
+- **代码**：`web/bci-profile.js`（`window.BciProfile.init/destroy`，支持 `[data-bci-profile]` 自动初始化；模板驱动 43 行、模块列按连续同组 `rowspan`、无来源 / 评分缺失行、证据浮层、找原话、搜索、生成轮询、xlsx/md 下载）、`web/bci-profile.css`（本地 token + 两栏布局 + 响应式）。
+- **契约要点**：scope 统一按完整对象 `{version,datasources}` 解析（`localStorage['bci.scope']` → `window.BCI_SCOPE` → `bci:scope-applied`）；档案值 / 原话只用 `textContent`，高亮走文本节点 + `<mark>`；导出走二进制响应，与 D4 `POST /export` 对齐。
+- **验收**：Playwright 加载 `file://` 夹具（不启 7860、不连库），17 项断言全 PASS；截图 `profile.png`（43 行档案表）与 `profile-run.png`（生成完成态）。证据：`outputs/competitor-insights/BCI-004/20261107-d5-frontend/`。
+- **环境**：Playwright 浏览器已安装到 `%USERPROFILE%\.cache\ms-playwright`（默认 `AppData\Local\ms-playwright` 不存在）；`check_frontend.py` 启动前设置 `PLAYWRIGHT_BROWSERS_PATH`。
+- **下一步**：D6 接线 `app.py` 路由（`/api/bci/archive/*` GET/POST、白名单、二进制响应）、`home.html` tab 启用与静态引入、`web/bci.js` 最小联动；动共用文件前先核对工作区。**未执行 `git add` / `commit` / `push`。**
+
+## 2026-11-07 · BCI-004 D4 完成（接口 / 原话 / 导出服务，真实库只读验证）
+
+- **当前任务与阶段**：[BCI-004](tasks/BCI-004/TASK.md) 保持 `EXECUTING`；D1–D4 完成，下一步 D5（前端新模块）。
+- **代码**：`server/archive_api.py`（模板 / 受访者 / 详情 / 生成 / 轮询 / 原话 / 导出，可直接调用，未挂路由）、`server/quote_service.py`（答案 / 证据 / 标签证据 / 档案值检索；`tag_evidence` 经 `JOIN tag` 归属过滤；按 ID 刷新原话，失效标 `source_missing`）、`server/export_service.py`（openpyxl 真 xlsx 三 Sheet + 单人 md，全内存 bytes）。
+- **导出口径**：无来源维保留整行写「本期无来源：原因」；满意度缺失写原因并带 `score_source=missing`；`md` 多人返回 `md_single_only`，缺档案返回 `archive_missing` 并列出编号。
+- **测试**：`tests/test_archive_service.py` 25 项（模板、受访者、详情三态、生成跳过/失败/运行锁/轮询、xlsx 结构、md 单人、缺档案、关键词校验、真实库找原话）；全量 `unittest` 81/81 通过。
+- **真实库（只读，不写库）**：模板 43 维 / 12 组；63 人；R001 详情空态；`空间` 找原话命中 5 条。证据：`outputs/competitor-insights/BCI-004/20261107-d4-api/probe.log`。
+- **下一步**：D5 `web/bci-profile.js` / `web/bci-profile.css`（自包含，不 import `bci.js`，不碰共用文件）。**未执行 `git add` / `commit` / `push`。**
+
+## 2026-11-07 · BCI-004 D3 完成（生成器 + 证据硬门，真实库单人已验证）
+
+- **当前任务与阶段**：[BCI-004](tasks/BCI-004/TASK.md) 保持 `EXECUTING`；D1–D3 完成，下一步 D4。
+- **代码**：`server/evidence_gate.py`（只索引本受访者、去重、最多 5 条、quote 截 300 字、枚举校验；新增公开 `ids_for_question()`）；`server/archive_generator.py`（`PostgresInterviewSource` 只读 interview/answer/tag/evidence/tag_evidence；tag/metadata/derived 直取不调模型；llm 维只接受证据 ID）。
+- **实现约定（D4/D5 需遵守）**：个人层面无值也落 `fill_mode=none` + `no_data_reason`；用 `source_ref.no_source_scope` 区分 `template`（8 个「本期无来源」维）与 `interview`（该受访者未提及）；`coverage_required` 只统计真实值，`satisfaction_score` 成功时 `fill_mode=derived`。
+- **测试**：`tests/test_archive_generator.py` 24 项（43 行、8 个无来源、伪造 ID / 跨人证据 / 非法枚举 / 超 5 条 / 非 JSON 全部拒绝、满意度三态、quote 截断）；全量 `unittest` 56/56 通过。
+- **真实库（只读，不落库）**：R003/R001/R002 各生成 43 维，coverage 68.42/78.95/76.32；R001 满意度 `7-8分`→7.5 并保留区间，R002/R003 落描述性原因。证据：`outputs/competitor-insights/BCI-004/20261107-d3-generator/generate-probe.log`。
+- **检查**：`workspace_hygiene.py` PASS。**未执行 `git add` / `commit` / `push`。**
+
+## 2026-11-07 · BCI-004 D2 完成（bci schema + 存储层，真实库已验证）
+
+- **当前任务与阶段**：[BCI-004](tasks/BCI-004/TASK.md) 保持 `EXECUTING`；D1、D2 完成，下一步 D3。
+- **schema 与表**：`bci` schema 已建；`archive_run`、`archive_run_item`、`archive`、`archive_field` 四表、主键/唯一/外键/CHECK 与 3 个索引、`archive_archive_id_seq` 全部在真实库核对通过。
+- **权限实测**：`vectordb` 有 database CREATE；但**不是** `user_insight_loader` 成员、也非 superuser，`CREATE SCHEMA ... AUTHORIZATION user_insight_loader` 报 `must be member of role`。已改为 `CREATE SCHEMA bci` + `GRANT USAGE, CREATE ON SCHEMA bci TO user_insight_loader`；表由 loader 创建并持有。loader 实测 `has_database_create=False`、`has_schema_usage/create(bci)=True`。记录为 BCI-004-L10（若必须 loader 持有 schema 属主，需 DBA 执行 `ALTER SCHEMA ... OWNER TO`）。
+- **冒烟**：loader 完成 insert/select/delete，级联清理后 4 表残留均为 0。
+- **代码**：`server/db.py`（loader 连接 + 事务）、`server/archive_store.py`（`PostgresArchiveStore` + `FileArchiveStore`，revision 递增、旧档案 stale、单事务、三态 `QueryResult`）、`tests/test_archive_store.py`（9 项，含真实库）。
+- **脚本**：`ops/bci_archive_ddl_owner.sql`、`ops/bci_archive_ddl.sql`、`ops/apply_bci_archive_ddl.py`（可重复执行，含权限/结构/冒烟校验）。
+- **测试**：`unittest` 32/32 通过（D1 23 + D2 9，含 2 项真实库用例）。
+- **下一步**：D3 生成器与证据硬门（`archive_generator.py`、`evidence_gate.py`）。**未执行 `git add` / `commit` / `push`。**
+
+## 2026-11-07 · BCI-004 D1 完成（source-map 契约层）
+
+- **当前任务与阶段**：[BCI-004](tasks/BCI-004/TASK.md) 保持 `EXECUTING`；D1 完成，下一步 D2。用户已确认首次入库完成（`1bd7eee` 已推送），D6 共用文件闸门解除。
+- **本次改动（只新增，未碰共用文件）**：
+  - `templates/user_insight_archive.source-map.json`：43 维逐维映射；fill_mode = tag 22 / metadata 2 / derived 1 / llm 10 / none 8。
+  - `server/source_map.py`：结构校验（缺维/重复维/顺序/分组/非法题号/`none` 必须带原因且不得声明来源）。
+  - `server/template_registry.py`：只读 `web/templates.json`，加载定义 + `<template_id>.source-map.json` 并交叉校验。
+  - `tests/test_source_map.py`：23 项，全部通过。
+  - `docs/archive-tab-design.md`：§2.1 `fill_mode` 增加 `derived`；§3.1/§3.2 改为实际契约。
+- **库侧校验**：61 个 distinct 题号、56 个 distinct 标签全部命中真实库（`user_insight.question` 85 行、`user_insight.tag` 85 个标签）。证据：`outputs/competitor-insights/BCI-004/20261107-d1-sourcemap/validate.log`。
+- **8 个无来源维**：`kol_influence`、`first_choice_ranking`、`rt_awareness_channel`、`rt_attraction_ranking`、`rt_concerns`、`rt_expectations`、`reception_expectation`、`loyal_repurchase_reason`，每维均带具体 `no_source_reason`，且未声明任何题号/标签。
+- **新阻塞**：实测 `user_insight_loader` 无 database CREATE 权限（`has_database_create=False`），`CREATE SCHEMA bci` 会失败；D2 的 DDL 需有权限账号执行。证据：`20261107-d1-sourcemap/db-privilege.log`。
+- **已运行检查**：`unittest` 23/23 OK；`check_board.py` 仍 failed，但仅剩 BCI-001/002 的 TASK.md 入库后又被改动（非本任务）；`workspace_hygiene.py` 见下条执行结果。
+- **下一步**：D2 先写 `ops/` DDL 与存储层（文件后端契约测试），数据库路径待权限到位再验收。**未执行 `git add` / `commit` / `push`。**
+
 
 ## 2026-11-06 · BCI-005 追加 TASK-COMMITTED（任务必须入库）
 
@@ -11,6 +82,15 @@
 - **未解决问题**：L05 存量任务全部未入库、看板为红（用户将在 BCI-004 完成后统一入库）；L06 `commit_paths` 靠人工声明，写窄会漏判；L01~L04 见 TASK.md §6。
 - **下一步与负责人**：用户复核并通过后，先完成统一入库，再让 BCI-005 转 `TESTED`；BCI-001/002 在入库前不得转 `LIVE`。
 - **Git**：全部未提交；`competitor_insight/` 整体未跟踪；未执行 `git add` / `commit` / `push`。
+
+## 2026-11-06 · BCI-004 进入开发（Q11/Q12 已拍板）
+
+- **阶段**：BCI-004 → `EXECUTING`；本轮只改 `docs/` 与 `tasks/`，**未写业务代码、未建表**。
+- **Q11**：8 个无来源维不补题、不补访；页面照常显示，标「本期无来源」+ 具体原因，不用模型兜。下周与业务对接。
+- **Q12**：满意度评分只对有明确分数的 13 人生成，其余留空并显示「访谈中未给出明确评分 / 仅有描述性评价」，醒目色标注，不用中性灰。
+- **文档**：`docs/archive-tab-design.md` 增 §5.7（呈现规则）、§7.1（实施顺序与共用文件闸门），并更新 §0 D9/D10、§6.4、§8.1 Q4/Q11/Q12；`tasks/BCI-004/TASK.md` §10 新增 D0–D8 步骤、依赖与验收。
+- **共用文件闸门**：D6 之前禁止改 `app.py`、`home.html`、`home.css`、`home.js`、`web/bci.js`、`web/templates.json`；D1–D5 只新增文件，不启动 7860。需用户确认「入库完成」后接线。
+- **下一步**：TRAE 执行 D1（source-map 契约层），完成即回报。
 
 ## 2026-11-06 · BCI-004 43 维覆盖率只读实测（续）
 

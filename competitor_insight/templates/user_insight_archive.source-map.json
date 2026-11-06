@@ -1,0 +1,358 @@
+{
+  "source_map_version": 1,
+  "template_id": "user_insight_archive",
+  "template_version": "v1",
+  "updated": "2026-11-07",
+  "evidence_basis": "db-measured",
+  "note": "43 维逐维来源映射。question_ids 与 tag_names 均取自 2026-11-07 只读实测（user_insight.question / user_insight.tag）；fill_mode=none 的 8 维按 Q11 决议如实标注，不用模型兜底。",
+  "dimensions": [
+    {
+      "dimension_id": "archive_summary",
+      "group_id": "summary",
+      "fill_mode": "llm",
+      "scope": "interview",
+      "note": "摘要必须综合整场访谈，不能由单题直取；模型只能引用证据 ID。"
+    },
+    {
+      "dimension_id": "age_gender",
+      "group_id": "profile",
+      "fill_mode": "tag",
+      "scope": "questions",
+      "question_ids": [68],
+      "tag_names": ["年龄"],
+      "note": "年龄 tag 实测 45/63 可用；无「性别」标签，Q68 题干也未问性别，性别部分须走 no_data_reason。"
+    },
+    {
+      "dimension_id": "occupation",
+      "group_id": "profile",
+      "fill_mode": "tag",
+      "scope": "questions",
+      "question_ids": [68, 77],
+      "tag_names": ["行业", "岗位"]
+    },
+    {
+      "dimension_id": "household_income",
+      "group_id": "profile",
+      "fill_mode": "tag",
+      "scope": "questions",
+      "question_ids": [72],
+      "tag_names": ["家庭年收入", "个人年收入"]
+    },
+    {
+      "dimension_id": "family_structure",
+      "group_id": "profile",
+      "fill_mode": "tag",
+      "scope": "questions",
+      "question_ids": [70],
+      "tag_names": ["婚姻状况", "子女数量"],
+      "note": "无「同住人数」标签（该标签全量未提及），同住情况只能由 Q70 答案原文补充。"
+    },
+    {
+      "dimension_id": "personality_interest_social",
+      "group_id": "profile",
+      "fill_mode": "tag",
+      "scope": "questions",
+      "question_ids": [82, 79],
+      "tag_names": ["性格特点", "兴趣爱好"]
+    },
+    {
+      "dimension_id": "consumption_values",
+      "group_id": "profile",
+      "fill_mode": "tag",
+      "scope": "questions",
+      "question_ids": [83, 84, 73],
+      "tag_names": ["消费观", "支出结构"]
+    },
+    {
+      "dimension_id": "ownership_status",
+      "group_id": "ownership",
+      "fill_mode": "tag",
+      "scope": "questions",
+      "question_ids": [1, 7, 8, 9, 51, 52],
+      "tag_names": ["当前车型", "增购前车型", "换购前车型", "保有车型（除了增购前车型外的）", "充电桩安装情况"]
+    },
+    {
+      "dimension_id": "purchased_model_owned",
+      "group_id": "ownership",
+      "fill_mode": "metadata",
+      "scope": "questions",
+      "metadata_fields": ["vehicle_model"]
+    },
+    {
+      "dimension_id": "purchase_budget",
+      "group_id": "ownership",
+      "fill_mode": "tag",
+      "scope": "questions",
+      "question_ids": [2, 3, 5, 6],
+      "tag_names": ["购车预算", "裸车价"]
+    },
+    {
+      "dimension_id": "purchase_attribute",
+      "group_id": "ownership",
+      "fill_mode": "tag",
+      "scope": "questions",
+      "question_ids": [1],
+      "tag_names": ["首增换购属性"],
+      "note": "枚举取值必须落在 首购/增购/换购；interview.purchase_type 可作为一致性交叉校验。"
+    },
+    {
+      "dimension_id": "purchase_motivation",
+      "group_id": "ownership",
+      "fill_mode": "tag",
+      "scope": "questions",
+      "question_ids": [1, 4, 5, 6],
+      "tag_names": ["购车原因"],
+      "note": "实测仅 45/63 可信（18 人因「Q4 须标最重要」格式失败被过滤）。"
+    },
+    {
+      "dimension_id": "consideration_priority",
+      "group_id": "consideration",
+      "fill_mode": "llm",
+      "scope": "questions",
+      "question_ids": [20, 21],
+      "tag_names": ["本次购车关注", "上次购车关注"],
+      "note": "标签只给 TOP5 关注项；「价格>燃料>车身」三轴严格排序实测仅 2/63，须由模型重排。"
+    },
+    {
+      "dimension_id": "fuel_type_reason",
+      "group_id": "consideration",
+      "fill_mode": "tag",
+      "scope": "questions",
+      "question_ids": [10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+      "tag_names": ["燃料类型偏好", "购买新能源车的原因", "买纯电不买插混/增程的原因", "买插混/增程不买纯电的原因", "买增程不买插混原因", "买插混不买增程原因", "买燃油不买新能源原因", "购买燃油车的原因", "对HEV的态度及原因"]
+    },
+    {
+      "dimension_id": "brand_product_service_rank",
+      "group_id": "attention",
+      "fill_mode": "llm",
+      "scope": "questions",
+      "question_ids": [20],
+      "tag_names": ["本次购车关注"],
+      "note": "无任何题项直接询问「品牌/产品/服务」三轴排序；Q20 同时含三词者实测 0/63，只能归纳，属高风险维。"
+    },
+    {
+      "dimension_id": "brand_attention",
+      "group_id": "attention",
+      "fill_mode": "tag",
+      "scope": "questions",
+      "question_ids": [32, 33, 37, 39, 40, 41, 42],
+      "tag_names": ["购车考虑的具体品牌", "购车考虑的品牌类型", "偏好的具体品牌", "偏好的品牌类型", "对不同品牌的看法及原因", "对不同类型品牌的看法及原因"]
+    },
+    {
+      "dimension_id": "product_attention_top5",
+      "group_id": "attention",
+      "fill_mode": "tag",
+      "scope": "questions",
+      "question_ids": [20],
+      "tag_names": ["本次购车关注"],
+      "note": "≥5 项者 48/63；「恰好 5 项 + 每项细项」须在此基础上归纳，不得虚构第 5 项。"
+    },
+    {
+      "dimension_id": "sales_marketing_attention",
+      "group_id": "attention",
+      "fill_mode": "llm",
+      "scope": "questions",
+      "question_ids": [63],
+      "note": "Q63 是售前售后「服务评价」，不是「关注诉求」；须归纳且标为推断，实测原料 52/63。"
+    },
+    {
+      "dimension_id": "info_channels",
+      "group_id": "channels",
+      "fill_mode": "tag",
+      "scope": "questions",
+      "question_ids": [80, 81],
+      "tag_names": ["汽车触媒偏好", "APP偏好"],
+      "note": "multi 维：选项须映射到模板 options，未覆盖渠道不要臆测。"
+    },
+    {
+      "dimension_id": "content_format_preference",
+      "group_id": "channels",
+      "fill_mode": "llm",
+      "scope": "questions",
+      "question_ids": [81],
+      "tag_names": ["汽车触媒偏好"],
+      "note": "Q81 只到「垂媒 vs 短视频」，车评人/长视频/参数对比等形式实测仅 18/63 有原料，属高风险维。"
+    },
+    {
+      "dimension_id": "kol_influence",
+      "group_id": "channels",
+      "fill_mode": "none",
+      "scope": "questions",
+      "no_source_reason": "85 个访谈题项均未询问 KOL/KOC 对购车决策的影响；全库仅 6 人偶然提到达人/博主，无法成维。"
+    },
+    {
+      "dimension_id": "core_comparison_models",
+      "group_id": "comparison",
+      "fill_mode": "tag",
+      "scope": "questions",
+      "question_ids": [26],
+      "tag_names": ["核心对比车型", "最终核心对比车型"]
+    },
+    {
+      "dimension_id": "first_choice_ranking",
+      "group_id": "comparison",
+      "fill_mode": "none",
+      "scope": "questions",
+      "no_source_reason": "85 题无「按维度给出首选排序」题；Q26 仅记录核心对比车型清单，无法计算首选率。"
+    },
+    {
+      "dimension_id": "purchased_model_compared",
+      "group_id": "comparison",
+      "fill_mode": "metadata",
+      "scope": "questions",
+      "metadata_fields": ["vehicle_model"],
+      "note": "与拥车组同源；值必须与 purchased_model_owned 一致，不一致须以访谈原文说明改单。"
+    },
+    {
+      "dimension_id": "win_reasons",
+      "group_id": "comparison",
+      "fill_mode": "tag",
+      "scope": "questions",
+      "question_ids": [29],
+      "tag_names": ["选择当前车辆的原因"]
+    },
+    {
+      "dimension_id": "compromise_points",
+      "group_id": "comparison",
+      "fill_mode": "llm",
+      "scope": "questions",
+      "question_ids": [29, 59],
+      "note": "无对应标签；Q29/Q59 明确提「妥协/接受/牺牲」者仅 6/63，无原料即落 no_data_reason。"
+    },
+    {
+      "dimension_id": "abandoned_models",
+      "group_id": "comparison",
+      "fill_mode": "derived",
+      "scope": "questions",
+      "question_ids": [26],
+      "tag_names": ["核心对比车型", "最终核心对比车型"],
+      "derivation": "core_minus_final",
+      "note": "确定性派生：核心对比车型集合 − 最终核心对比车型；两项缺一即 no_data_reason。"
+    },
+    {
+      "dimension_id": "abandonment_reasons",
+      "group_id": "comparison",
+      "fill_mode": "tag",
+      "scope": "questions",
+      "question_ids": [27, 28],
+      "tag_names": ["放弃核心对比车型的原因"],
+      "note": "实测仅 21/63 可信（42 人因串题/格式失败被过滤）。"
+    },
+    {
+      "dimension_id": "aion_brand_impression",
+      "group_id": "brand_impression",
+      "fill_mode": "llm",
+      "scope": "interview",
+      "note": "无埃安专有题；全库仅 3 人（R003/R050/R057）提及埃安。有原料者生成并绑证据，无原料者落 no_data_reason。"
+    },
+    {
+      "dimension_id": "rt_awareness_channel",
+      "group_id": "rt_cognition",
+      "fill_mode": "none",
+      "scope": "questions",
+      "no_source_reason": "85 题无埃安 RT 相关题项，无「第一次知道 RT 的渠道与时间」记录。"
+    },
+    {
+      "dimension_id": "rt_attraction_ranking",
+      "group_id": "rt_cognition",
+      "fill_mode": "none",
+      "scope": "questions",
+      "no_source_reason": "85 题无埃安 RT 相关题项，无 RT 各能力对受访者吸引力排序的记录。"
+    },
+    {
+      "dimension_id": "rt_concerns",
+      "group_id": "rt_cognition",
+      "fill_mode": "none",
+      "scope": "questions",
+      "no_source_reason": "85 题无埃安 RT 相关题项，无针对 RT 的具体顾虑记录。"
+    },
+    {
+      "dimension_id": "rt_expectations",
+      "group_id": "rt_cognition",
+      "fill_mode": "none",
+      "scope": "questions",
+      "no_source_reason": "85 题无埃安 RT 相关题项，无对 RT 定价/配置/上市节奏的期望记录。"
+    },
+    {
+      "dimension_id": "conversion_opportunity_risk",
+      "group_id": "rt_cognition",
+      "fill_mode": "llm",
+      "scope": "questions",
+      "question_ids": [65, 66],
+      "tag_names": ["再购燃料类型", "再购考虑的品牌类型", "再购对不同品牌的看法"],
+      "note": "只能用再购意向外推，不能当作 RT 转化结论；输出须标注为推断并绑原话。"
+    },
+    {
+      "dimension_id": "high_frequency_scenarios",
+      "group_id": "usage_scenario",
+      "fill_mode": "tag",
+      "scope": "questions",
+      "question_ids": [44, 45, 47, 48],
+      "tag_names": ["用车场景", "单程行驶里程", "行驶区域"]
+    },
+    {
+      "dimension_id": "scenario_needs",
+      "group_id": "usage_scenario",
+      "fill_mode": "llm",
+      "scope": "questions",
+      "question_ids": [46, 50, 55, 56, 60],
+      "tag_names": ["用车过程关注"],
+      "note": "须归纳为「场景→需求」，不得直接罗列关注点；实测原料 58/63。"
+    },
+    {
+      "dimension_id": "charging_needs",
+      "group_id": "usage_scenario",
+      "fill_mode": "tag",
+      "scope": "questions",
+      "question_ids": [51, 52, 53, 54, 57],
+      "tag_names": ["充电桩安装情况", "充电频次", "充电地点", "充电方式"]
+    },
+    {
+      "dimension_id": "range_needs",
+      "group_id": "usage_scenario",
+      "fill_mode": "tag",
+      "scope": "questions",
+      "question_ids": [50],
+      "tag_names": ["纯电续航需求"]
+    },
+    {
+      "dimension_id": "satisfaction_score",
+      "group_id": "satisfaction",
+      "fill_mode": "llm",
+      "scope": "questions",
+      "question_ids": [59],
+      "tag_names": ["满意点", "不满意点"],
+      "note": "Q12：仅对答题原文出现明确数字分的 13/63 生成；服务端须校验数字确实出现在 Q59 答案中，否则落 no_data_reason，不许插值。"
+    },
+    {
+      "dimension_id": "satisfaction_points",
+      "group_id": "satisfaction",
+      "fill_mode": "tag",
+      "scope": "questions",
+      "question_ids": [46, 59],
+      "tag_names": ["满意点"]
+    },
+    {
+      "dimension_id": "dissatisfaction_points",
+      "group_id": "satisfaction",
+      "fill_mode": "tag",
+      "scope": "questions",
+      "question_ids": [46, 59, 60],
+      "tag_names": ["不满意点"]
+    },
+    {
+      "dimension_id": "reception_expectation",
+      "group_id": "satisfaction",
+      "fill_mode": "none",
+      "scope": "questions",
+      "no_source_reason": "Q63 只问售前售后「服务评价」，未问接待/试驾/报价的期待；全库含期待/希望/建议表述者 0/63。"
+    },
+    {
+      "dimension_id": "loyal_repurchase_reason",
+      "group_id": "loyal_repurchase",
+      "fill_mode": "none",
+      "scope": "questions",
+      "no_source_reason": "63 位受访者当前购买车型均非埃安（埃安车主 0/63），该维对当前样本不适用。"
+    }
+  ]
+}

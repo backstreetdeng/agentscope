@@ -1,0 +1,19 @@
+{
+  "task_id": "BCI-004",
+  "step": "D6",
+  "purpose": "共用文件接线验收：路由注册、静态资源、首页挂载点与真实库只读请求",
+  "created": "2026-11-07",
+  "inputs": [
+    "app.py",
+    "home.html",
+    "competitor_insight/web/bci.js",
+    "competitor_insight/web/bci-profile.js",
+    "competitor_insight/server/archive_api.py",
+    "真实库 user_insight.interview / bci.*（只读）"
+  ],
+  "outputs": ["probe_wiring.py", "probe.log"],
+  "rebuild": "../Scripts/python.exe -B outputs/competitor-insights/BCI-004/20261107-d6-wiring/probe_wiring.py",
+  "side_effects": "临时端口启动一个应用实例，不占用 7860；只读数据库，不写档案",
+  "cleanable": true,
+  "restore": "无需恢复；重跑 probe_wiring.py 可重建日志"
+}

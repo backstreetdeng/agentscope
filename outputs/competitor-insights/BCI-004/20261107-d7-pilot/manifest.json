@@ -1,0 +1,17 @@
+{
+  "task_id": "BCI-004",
+  "step": "D7",
+  "purpose": "10 人试点生成并写入 bci.* 的真实验收证据",
+  "created": "2026-11-07",
+  "inputs": [
+    "competitor_insight/server/archive_generator.py",
+    "competitor_insight/server/llm_client.py",
+    "competitor_insight/templates/user_insight_archive.source-map.json",
+    "真实库 user_insight.*（只读）与 bci.*（读写）"
+  ],
+  "outputs": ["probe_pilot.py", "pilot.log"],
+  "rebuild": "../Scripts/python.exe -B outputs/competitor-insights/BCI-004/20261107-d7-pilot/probe_pilot.py --verify-only",
+  "side_effects": "首次运行会调用 DeepSeek 并写入 10 份档案；--verify-only 仅复核对账",
+  "cleanable": false,
+  "restore": "业务数据保留在 bci.*；日志可由 --verify-only 重跑重建"
+}

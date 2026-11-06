@@ -1,0 +1,19 @@
+{
+  "task_id": "BCI-004",
+  "title": "竞品洞察 · 用户洞察档案 tab — 证据目录",
+  "updated": "2026-11-07",
+  "purpose": "汇总 BCI-004 的只读实测与开发阶段证据；本目录只放证据与探查脚本，不放业务代码。",
+  "subdirs": {
+    "20261106-archive-design": "首轮方案阶段的数据库探查日志与 manifest。",
+    "20261106-coverage": "43 维覆盖率实测：coverage.py、4 份日志、manifest.json；产出 competitor_insight/docs/coverage.csv。",
+    "20261107-d1-sourcemap": "D1 source-map 契约层的题号/标签探查、库侧校验与权限探查。"
+  },
+  "reproduce": [
+    "..\\Scripts\\python.exe -B outputs\\competitor-insights\\BCI-004\\20261107-d1-sourcemap\\probe_questions.py",
+    "..\\Scripts\\python.exe -B outputs\\competitor-insights\\BCI-004\\20261107-d1-sourcemap\\probe_validate_source_map.py",
+    "..\\Scripts\\python.exe -B outputs\\competitor-insights\\BCI-004\\20261107-d1-sourcemap\\probe_db_privilege.py",
+    "..\\Scripts\\python.exe -B -m unittest discover -s competitor_insight/tests -t ."
+  ],
+  "side_effects": "仅只读 SELECT；不写数据库、不改业务文件。",
+  "retention": "长期保留，作为 BCI-004 的验收证据；不随代码清理。"
+}

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>BCI-004 D5 · 档案 tab 离线夹具</title>
+  <link rel="stylesheet" href="../../../../competitor_insight/web/bci-profile.css">
+  <style>
+    body { margin: 0; padding: 18px; background: #F4F7FC; font-family: "Microsoft YaHei", sans-serif; }
+    .fixture { max-width: 1280px; margin: 0 auto; background: #fff; padding: 16px; border-radius: 14px; }
+    .fixture h1 { font-size: 15px; margin: 0 0 12px; color: #16233A; }
+  </style>
+  <script>
+    window.BCI_SCOPE = { datasources: { insight_template: 'user_insight_archive', interview_parsed: '2025' } };
+
+    const GROUPS = [
+      { id: 'basic', name: '基础信息' },
+      { id: 'need', name: '需求与场景' },
+      { id: 'exp', name: '体验评价' },
+      { id: 'buy', name: '购买决策' }
+    ];
+    const DIMS = [];
+    for (let i = 0; i < 43; i += 1) {
+      const id = i === 10 ? 'satisfaction_score' : (i === 5 ? 'kol_influence' : 'dim_' + (i + 1));
+      const name = i === 10 ? '满意度评分' : (i === 5 ? 'KOL 影响' : '维度 ' + (i + 1));
+      DIMS.push({ id: id, name: name, group: GROUPS[Math.floor(i / 11)].id, type: 'text', required: i !== 5 });
+    }
+
+    function buildFields(scoreMissing) {
+      return DIMS.map(function (dim) {
+        if (dim.id === 'kol_influence') {
+          return {
+            dimension_id: dim.id, group_id: dim.group, fill_mode: 'none',
+            no_data_reason: '本期问卷未覆盖该维度',
+            source_ref: { no_source_scope: 'template' },
+            display_value: '本期无来源：本期问卷未覆盖该维度',
+            evidence_refs: [], score_source: null
+          };
+        }
+        if (dim.id === 'satisfaction_score') {
+          if (scoreMissing) {
+            return {
+              dimension_id: dim.id, group_id: dim.group, fill_mode: 'none',
+              no_data_reason: '访谈中未给出明确评分',
+              source_ref: { no_source_scope: 'interview' },
+              display_value: '访谈中未给出明确评分',
+              evidence_refs: [], score_source: 'missing'
+            };
+          }
+          return {
+            dimension_id: dim.id, group_id: dim.group, fill_mode: 'derived',
+            value_text: '8 分', value_json: { score: 8 },
+            source_ref: { question_id: 59 },
+            display_value: '8 分', score_source: 'explicit',
+            evidence_refs: [{ kind: 'evidence', id: 'E-SCORE', question_id: 59, speaker: '受访者', quote: '综合 8 分。', source_missing: false }]
+          };
+        }
+        return {
+          dimension_id: dim.id, group_id: dim.group, fill_mode: 'llm',
+          value_text: '测试值 ' + dim.name,
+          display_value: '测试值 ' + dim.name,
+          source_ref: { question_ids: [20] },
+          evidence_refs: [{ kind: 'evidence', id: 'E-' + dim.id, question_id: 20, speaker: '受访者', quote: '这是关于' + dim.name + '的原话。', source_missing: false }],
+          score_source: null
+        };
+      });
+    }
+
+    const RESPONDENTS = [
+      { interview_id: 'R001', respondent_code: 'R001', city: '广州', vehicle_model: '唐L', purchase_type: '换购', archive: { status: 'ready', version: 'v1', coverage_required: 78.95, completeness: 100, field_count: 43, generated_at: '2026-11-07T10:00:00+08:00' } },
+      { interview_id: 'R002', respondent_code: 'R002', city: '重庆', vehicle_model: '理想L7', purchase_type: '增购', archive: { status: 'ready', version: 'v1', coverage_required: 76.32, completeness: 100, field_count: 43, generated_at: '2026-11-07T10:05:00+08:00' } },
+      { interview_id: 'R003', respondent_code: 'R003', city: '深圳', vehicle_model: 'Model Y', purchase_type: '首购', archive: null }
+    ];
+
+    function envelope(data) {
+      return {
+        ok: true,
+        status: 200,
+        headers: { get: function (name) { return String(name).toLowerCase() === 'content-type' ? 'application/json' : null; } },
+        json: async function () { return { ok: true, data: data }; }
+      };
+    }
+
+    window.fetch = async function (url, options) {
+      const text = String(url);
+      const parsed = new URL(text, 'http://fixture.local');
+      if (text.indexOf('/template') >= 0) {
+        return envelope({
+          template_id: 'user_insight_archive', label: '用户洞察档案模板', version: 'v1',
+          status: 'ready', dimension_count: 43, source_map_ready: true,
+          groups: GROUPS, dimensions: DIMS
+        });
+      }
+      if (text.indexOf('/respondents') >= 0) {
+        const keyword = (parsed.searchParams.get('keyword') || '').trim();
+        const items = RESPONDENTS.filter(function (row) {
+          return !keyword || (row.interview_id + row.city + row.vehicle_model).indexOf(keyword) >= 0;
+        });
+        return envelope({ template_id: 'user_insight_archive', template_version: 'v1', total: items.length, limit: 200, offset: 0, items: items });
+      }
+      if (text.indexOf('/detail') >= 0) {
+        const id = parsed.searchParams.get('interview_id');
+        if (id === 'R003') {
+          return envelope({ template: { template_id: 'user_insight_archive', version: 'v1', name: '用户洞察档案模板' }, archive: null, fields: [] });
+        }
+        return envelope({
+          template: { template_id: 'user_insight_archive', version: 'v1', name: '用户洞察档案模板' },
+          archive: { archive_id: 1, status: 'ready', revision: 1, coverage_required: 78.95, completeness: 100, generated_at: '2026-11-07T10:00:00+08:00', model: 'deepseek-v4-flash', prompt_version: 'p1', run_id: 'run-0' },
+          fields: buildFields(id === 'R002')
+        });
+      }
+      if (text.indexOf('/quote') >= 0) {
+        return envelope({
+          interview_id: 'R001', keyword: '空间', total: 2,
+          counts: { answer: 1, evidence: 1, tag_evidence: 0, archive: 0 },
+          items: [
+            { kind: 'answer', id: 'A1', question_id: 3, speaker: null, quote: '后排空间很大，孩子坐着舒服。' },
+            { kind: 'evidence', id: 'E1', question_id: 20, speaker: '受访者', quote: '空间是核心需求。' }
+          ]
+        });
+      }
+      if (text.indexOf('/generate') >= 0) {
+        return envelope({ run_id: 'run-1', status: 'queued', mode: 'missing', total: 1, skipped: 0 });
+      }
+      if (text.indexOf('/run') >= 0) {
+        return envelope({
+          run_id: 'run-1', status: 'completed', mode: 'missing', total: 1, done: 1, failed: 0,
+          progress: 100, error_text: null,
+          items: [{ interview_id: 'R003', status: 'done', error_text: null }]
+        });
+      }
+      return envelope(null);
+    };
+  </script>
+</head>
+<body>
+  <div class="fixture">
+    <h1>BCI-004 D5 · 用户洞察档案 tab（离线夹具）</h1>
+    <div id="profile" data-bci-profile></div>
+  </div>
+  <script src="../../../../competitor_insight/web/bci-profile.js"></script>
+</body>
+</html>

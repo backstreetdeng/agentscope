@@ -1,6 +1,6 @@
 # 竞品洞察看板 · BOARD
 
-- 更新：2026-11-06（Asia/Shanghai）
+- 更新：2026-11-07（Asia/Shanghai）
 - 状态源：各 `tasks/<编号>/TASK.md`；`tasks/tasks.md` 与各 TASK.md 同步。三者冲突时以 TASK.md 为准，并同时回改总表与本文件。
 - 一致性检查：`../Scripts/python.exe -B competitor_insight/check_board.py`（校验 `tasks.md` ↔ `BOARD.md` ↔ 各 `TASK.md` 三方一致；不通过不得声称阶段完成）。
 - 阶段定义与准入条件见 [RULES.md](RULES.md) 第 6 节。
@@ -17,7 +17,7 @@
 
 | 任务 | 标题 | 负责人 | 下一步 | 更新 |
 |---|---|---|---|---|
-| [BCI-004](tasks/BCI-004/TASK.md) | 竞品洞察 · 用户洞察档案 tab | TRAE | 按 TASK §10 执行 D1（source-map 契约层）；共用文件接线等「入库完成」 | 2026-11-06 |
+| 暂无 | | | | |
 
 ### 3. 开发完成 · 待验证（DEV_DONE）
 
@@ -38,6 +38,7 @@
 |---|---|---|---|---|
 | [BCI-001](tasks/BCI-001/TASK.md) | 竞品洞察 · 数据源筛选 tab | TRAE | 用户验收 7860 页面后确认上线 | 2026-11-06 |
 | [BCI-002](tasks/BCI-002/TASK.md) | 深访用户洞察档案模板（两份：新能源 / 用户洞察档案） | TRAE | 用户验收 7860 页面下拉两条模板均可选后确认上线 | 2026-11-06 |
+| [BCI-004](tasks/BCI-004/TASK.md) | 竞品洞察 · 用户洞察档案 tab | TRAE | 用户验收 7860 页面与 10 人试点数据后确认上线 | 2026-11-07 |
 
 ### 6. 已上线（LIVE）
 
@@ -69,24 +70,24 @@
 | BCI-002-L06 | 「① 洞察档案」tab 未开发 | 模板选了没有消费方 | 由 [BCI-004](tasks/BCI-004/TASK.md) 实现档案表与导出 | TRAE | [BCI-001](tasks/BCI-001/TASK.md) L05 |
 | BCI-004-L01 | 未答开放问题：Q3/Q5/Q6/Q7/Q8/Q10/Q11/Q12 | 不阻塞试点骨架，影响 UI 与导出细节 | 用户逐条确认（Q1/Q2/Q9 已拍板） | 用户 | [BCI-004](tasks/BCI-004/TASK.md) |
 | BCI-004-L02 | ~~访谈库 192.168.3.146:5432 超时~~ 已解除 | — | 2026-11-06 已连通并完成 43 维实测 | TRAE | [BCI-004](tasks/BCI-004/TASK.md) |
-| BCI-004-L03 | `bci` schema DDL 已批准未执行 | 开发前需建表 | 开发阶段由有 DDL 权限账号执行 | 用户/TRAE | [BCI-004](tasks/BCI-004/TASK.md) |
+| BCI-004-L03 | ~~`bci` schema DDL 已批准未执行~~ 已解除 | — | 2026-11-07 已建 schema 与 4 表并冒烟通过 | TRAE | [BCI-004](tasks/BCI-004/TASK.md) |
 | BCI-004-L05 | 8 维无来源（KOL/首选率/RT 四维/接待期待/老车主复购） | 档案出现空列 | 业务决定留空、补题或补访 | 用户/业务 | [BCI-004](tasks/BCI-004/TASK.md) |
 | BCI-004-L07 | 性别/同住人数/用户类型/再购尺寸标签全量未提及 | 年龄/性别只能出年龄 | 补题或留空 | 业务 | [BCI-004](tasks/BCI-004/TASK.md) |
 | BCI-004-L08 | 满意度评分仅 13/63 有明确分数 | 无法全员覆盖 | 补问 0–10 分题或接受空值 | 业务 | [BCI-004](tasks/BCI-004/TASK.md) |
 
 ## 入库状态（TASK-COMMITTED）
 
-`competitor_insight/` 整体尚未纳入 Git；仓库里也没有任何本目录文件被跟踪。因此 `check_board.py` 的 `TASK-COMMITTED` 当前如实判红，这是真实状态，不得为了变绿去删约束或改阶段。
+2026-11-06 已完成首次入库：提交 `1bd7eee`，已推送 `origin/feature/user-insight-t0-t4`。`competitor_insight/` 全部内容与 `outputs/competitor-insights/` 证据（`*.log` 被 .gitignore 排除）已纳入版本跟踪。
 
-| 任务 | 阶段 | 入库状态 | 实测依据 | 解除条件 |
+| 任务 | 阶段 | 入库状态 | 实测依据 | 剩余动作 |
 |---|---|---|---|---|
-| [BCI-001](tasks/BCI-001/TASK.md) | TESTED | **未入库** | `commit_paths` 命中 7 处：`app.py`、`home.html`、`docs/root-files.json` 已修改未提交；`competitor_insight/web/bci.{js,css}`、`tasks/BCI-001/`、`outputs/.../BCI-001/` 未跟踪 | 用户统一提交并推送后转已入库 |
-| [BCI-002](tasks/BCI-002/TASK.md) | TESTED | **未入库** | 命中 6 处：`templates/`、`web/templates.json`、`web/bci.js`、`docs/template-vs-prototype-mapping.md`、`tasks/BCI-002/`、`outputs/.../BCI-002/` 均未跟踪 | 同上 |
-| [BCI-003](tasks/BCI-003/TASK.md) | DEV_DONE | **未入库** | 仍处于 DEV_DONE，`TASK-COMMITTED` 不覆盖；`git status` 显示 `competitor_insight/` 整体未跟踪 | 完成前提交 |
-| [BCI-004](tasks/BCI-004/TASK.md) | DEV_DONE | **未入库** | 同上 | 完成前提交 |
-| [BCI-005](tasks/BCI-005/TASK.md) | DEV_DONE | **未入库** | 同上；本任务实现的就是该约束，转 `TESTED` 前必须先提交 | 用户统一提交并推送 |
+| [BCI-001](tasks/BCI-001/TASK.md) | TESTED | **已入库** | `commit_paths` 已按「只声明本任务独占文件」收窄（移出 `app.py`/`home.html`/`docs/root-files.json`），`TASK-COMMITTED` 通过；移出理由与盲区见该任务 §6「入库判定边界」 | 今后再改这三个共享文件需人工登记 |
+| [BCI-002](tasks/BCI-002/TASK.md) | TESTED | **已入库** | `TASK-COMMITTED` 通过（0 处未入库） | 无 |
+| [BCI-003](tasks/BCI-003/TASK.md) | DEV_DONE | **已入库** | 目录与证据随本次提交入库 | 转 TESTED 前复核 |
+| [BCI-004](tasks/BCI-004/TASK.md) | EXECUTING | **已入库（基线 `1bd7eee`）** | D1–D5 新增 `server/`、`tests/`、`templates/*.source-map.json`、`ops/`、`web/bci-profile.*` 与文档改动尚未提交 | 由该任务执行者提交后续改动 |
+| [BCI-005](tasks/BCI-005/TASK.md) | DEV_DONE | **已入库** | 机制文件与证据随本次提交入库 | 用户复核后转 TESTED |
 
-> 用户 2026-11-06 决定：在 BCI-004 完成后统一做一次入库（本地提交 + 推送远程），届时一并处理以上全部任务；在此之前 BCI-001/002 不得视为完成，也不得转 `LIVE`。
+> 首次入库范围与排除项见 [BCI-005/TASK.md](tasks/BCI-005/TASK.md) 第 4 节 S12；`app.py` / `home.html` / `home.css` / `share-files/TASKS.md` 里其他任务的 hunk 一律未带入。
 
 ## 看板维护约定
 

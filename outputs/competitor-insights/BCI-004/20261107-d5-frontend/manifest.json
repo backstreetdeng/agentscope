@@ -1,0 +1,22 @@
+{
+  "task_id": "BCI-004",
+  "step": "D5",
+  "purpose": "洞察档案 tab 前端离线验收夹具与截图证据",
+  "created": "2026-11-07",
+  "inputs": [
+    "competitor_insight/web/bci-profile.js",
+    "competitor_insight/web/bci-profile.css",
+    "competitor_insight/templates/user_insight_archive.json（43 维结构，夹具内 mock）"
+  ],
+  "outputs": [
+    "fixture.html",
+    "check_frontend.py",
+    "check.log",
+    "profile.png",
+    "profile-run.png"
+  ],
+  "rebuild": "../Scripts/python.exe -B outputs/competitor-insights/BCI-004/20261107-d5-frontend/check_frontend.py",
+  "side_effects": "仅本地 file:// 加载，不启动 7860，不访问真实库；Playwright 浏览器来自 %USERPROFILE%\\.cache\\ms-playwright",
+  "cleanable": true,
+  "restore": "无需恢复；重跑 check_frontend.py 即可重建截图与日志"
+}
