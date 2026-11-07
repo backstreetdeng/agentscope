@@ -1,0 +1,41 @@
+{
+  "R063": {
+    "raw_tag": [
+      "实际增购。"
+    ],
+    "purchase_type": "增购",
+    "fill_mode": "tag",
+    "value_text": "增购",
+    "review_status": "auto",
+    "no_data_reason": null,
+    "source_ref": {
+      "tag_ids": [
+        "TAG-9e59d2b158076516b755"
+      ],
+      "tag_names": [
+        "首增换购属性"
+      ],
+      "normalized_from": "实际增购。",
+      "normalized_rule": "口语/修饰写法归一：实际增购 → 增购"
+    }
+  },
+  "R046": {
+    "raw_tag": [
+      "换购；增购。"
+    ],
+    "purchase_type": "增购",
+    "fill_mode": "none",
+    "value_text": null,
+    "review_status": "suspect",
+    "no_data_reason": "标签含多个互斥取值：换购；增购，无法确定单一选项",
+    "source_ref": {
+      "tag_ids": [
+        "TAG-377357cc173d61c8ce47"
+      ],
+      "tag_names": [
+        "首增换购属性"
+      ],
+      "raw_tag_value": "换购；增购。"
+    }
+  }
+}

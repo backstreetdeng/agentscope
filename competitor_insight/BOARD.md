@@ -7,7 +7,7 @@
 
 ## 晨间速览（2026-11-07）
 
-> 按实际 Git 与代码状态整理；`check_board.py` 当前 `status: success`（应查 173 / 实查 173 / 命中 0）。7860 已运行，`GET /api/bci/archive/template` 实测 200（43 维 / 12 组）；若明早访问无响应，按 `start_agent.cmd` 常规启动即可。
+> 按实际 Git 与代码状态整理；`check_board.py` 当前 `status: failed`（应查 199 / 实查 199 / 命中 1）：三方一致性与 BCI-006 字段均通过，唯一失败是 `TASK-COMMITTED`——BCI-004 的 `commit_paths` 覆盖 `BOARD.md`/`HANDOFF.md`/`server/` 目录，本次 BCI-006 文档改动与另一任务在途的 `server/archive_generator.py` 被计入 BCI-004 未入库。7860 已运行，`GET /api/bci/archive/template` 实测 200（43 维 / 12 组）；若明早访问无响应，按 `start_agent.cmd` 常规启动即可。
 >
 > **安全提醒（2026-11-07）**：仓库 `backstreetdeng/agentscope` 为**公开**仓库；`1bd7eee` 中 `20261106-coverage/coverage.py` 硬编码的 `vectordb` 口令与当前生效口令相同，属有效凭据暴露，建议尽快轮换（见 BCI-004-L11）。
 
@@ -18,6 +18,7 @@
 | [BCI-003](tasks/BCI-003/TASK.md) Harness 学习 | DEV_DONE | 已入库 | L01 Q3 五条未落地；L02 官方 23 份 `SKILL.md` 正文未读；L04 交接副本缺 5 项目；L05 §5.6 建议未落地 | 用户决定是否立项 |
 | [BCI-004](tasks/BCI-004/TASK.md) 洞察档案 tab | TESTED | 已入库（`7dc91aa`） | L01 Q3/Q5–Q8/Q10 未答；L04 分析指令框未做；L05/L07/L08 数据缺口（**已决策维持现状**）；L10 schema 属主仍为 `vectordb`（`vectordb` 执行 ALTER 失败，需 DBA 或维持现状）；L11 历史口令 | 用户验收 / 业务补数 / DBA 执行 ALTER / **轮换 `vectordb` 口令（仓库公开且口令仍有效）** |
 | [BCI-005](tasks/BCI-005/TASK.md) 任务机制 | DEV_DONE | 已入库 | L01 业务接口无三态；L02 reader 仅词法检查；L06 `commit_paths` 靠人工声明（L07 已决策不修） | 用户复核后转 TESTED；增强按需立项 |
+| [BCI-006](tasks/BCI-006/TASK.md) 即时分析 tab | CREATED | 未入库 | L01 关注第一排序无题；L02 `Q5_5` 0 作答；L03 竞品胜出逻辑无观测题；L04 车型名称多源不一致；L05 级别字段缺失 | 业务补题/确认口径；TRAE 建别名映射 |
 
 **下一步最该做的一件事**：**先轮换 `vectordb` 数据库口令**——`1bd7eee` 历史里硬编码的该口令与本机 `.env.new-car` 仍相同，而仓库是公开的（`api.github.com` 匿名返回 `private=false`）；随后验收 7860 上竞品洞察的三处（数据源筛选 / 洞察档案 10 人试点 / 模板下拉），并拍板 BCI-004-L01 与 BCI-003 的五条建议是否立项；BCI-005 复核后可转 TESTED。
 
@@ -29,7 +30,7 @@
 
 | 任务 | 标题 | 负责人 | 下一步 | 更新 |
 |---|---|---|---|---|
-| 暂无 | | | | |
+| [BCI-006](tasks/BCI-006/TASK.md) | 竞品洞察 · 即时分析 tab | TRAE | 用户确认可行性测评 §1.2 五款车型范围后，按 S3 开始 analysis_service 实现 | 2026-11-07 |
 
 ### 2. 执行中（EXECUTING）
 
@@ -92,7 +93,7 @@
 | BCI-004-L05 | 8 维无来源（KOL/首选率/RT 四维/接待期待/老车主复购） | 档案出现空列 | 业务决定留空、补题或补访 | 用户/业务 | [BCI-004](tasks/BCI-004/TASK.md) |
 | BCI-004-L07 | 性别/同住人数/用户类型/再购尺寸标签全量未提及 | 年龄/性别只能出年龄 | 补题或留空 | 业务 | [BCI-004](tasks/BCI-004/TASK.md) |
 | BCI-004-L08 | 满意度评分仅 13/63 有明确分数 | 无法全员覆盖 | 补问 0–10 分题或接受空值 | 业务 | [BCI-004](tasks/BCI-004/TASK.md) |
-| BCI-004-L12 | 标签「首增换购属性」非标准取值：`R063 = 实际增购。`（`R046 = 换购；增购。` 已核实修正为「增购」） | R063 若生成会触发 `invalid_enum`，按契约导致整人失败 | 业务确认「实际增购」是否等同「增购」，或在枚举校验前做规范化 | 业务/TRAE | [BCI-004](tasks/BCI-004/TASK.md) |
+| BCI-004-L12 | ~~标签「首增换购属性」非标准取值~~ 已解除 | 归一前 `实际增购。` 会触发 `invalid_enum` 整人失败 | 用户拍板「实际增购=增购」；D7c 已建集中归一层（`server/value_normalizer.py`），全库 2 条非标准已分流：`实际增购。`→增购、`换购；增购。`→suspect（R046 已按原话修正） | TRAE | [BCI-004](tasks/BCI-004/TASK.md) |
 
 ## 入库状态（TASK-COMMITTED）
 

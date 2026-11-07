@@ -2,6 +2,26 @@
 
 更新：2026-11-07（Asia/Shanghai）。新条目追加在最上面。写法见 [RULES.md](RULES.md) 第 9 节；本文件与 TASK.md 冲突时以 TASK.md 为准。
 
+## 2026-11-07 · BCI-004 D7c：枚举值归一集中层完成（L12 解除）
+
+- **结论**：用户拍板「实际增购」算「增购」。全库「首增换购属性」63 条实测：`换购。`31 / `增购。`20 / `首购。`10 直通（仅句号，去标点即标准）；`实际增购。`1 → `增购`（归一，`source_ref` 记原值与规则）；`换购；增购。`1 → 不取值、`review_status=suspect` + `no_data_reason`（R046 已按原话人工修正，档案值保留 `增购`）。
+- **规则位置**：新增 `competitor_insight/server/value_normalizer.py`，单一入口 `resolve_enum` / `resolve_enum_or_raise`；`archive_generator._tag_field` 的 enum 分支改为调用，不再在生成器内散落判断；`unknown` 仍按 `invalid_enum` 整人失败。
+- **同类标签**：模板仅 `purchase_attribute` 是 tag 驱动单选枚举；`kol_influence` 无来源；`info_channels`（汽车触媒偏好/APP偏好）是多值列表；其余 82 个带 `allowed_values` 的标签为自由文本，参考词表不参与单选归一。**发现**：`info_channels` 多值实际出现 66 种写法、60 种不在模板 options 内（如「哔哩哔哩」「视频号」「微信」），当前按原词入列表未映射，是否做词表映射待用户决定。
+- **测试**：新增 `tests/test_value_normalizer.py` 9 项；全量 `unittest` 90/90 通过。只读联调：R063 生成 `增购` + 归一记录、R046 生成 `suspect` + 原因。
+- **证据**：[enum_mapping.md](outputs/competitor-insights/BCI-004/20261107-enum-normalize/enum_mapping.md)（映射表）、`enum_mapping.json`、`generator_dryrun.json`。
+- **注意**：`user_insight.tag` 源数据只读未改；R046 若强制重生成会回到 `suspect`，需人工复核或等标签侧修数。
+
+## 2026-11-07 · BCI-006 即时分析 tab：可行性测评完成，车型范围待用户确认
+
+- **当前任务与阶段**：[BCI-006](tasks/BCI-006/TASK.md)，`CREATED`；S1（数据探查）与 S2（可行性测评）完成，S3 起未开始。
+- **结论文档**：[docs/analysis-tab-feasibility.md](docs/analysis-tab-feasibility.md)。核心结论：原型五车三项数据为零（埃安RT/深蓝L06/银河TT/MG07 定量均为 0，小鹏M03 深访为 0），改用五款 10–15 万 SUV（零跑B10 41/4/392/6、铂智3X 39/3/66/10、奇瑞iCAR V23 30/3/78/14、海狮05 EV 31/3/39/4、钛3 30/3/730/3，口径为定量/深访/口碑提及/配置款型）。
+- **不可做项**：关注「第一排序」结构无排序题；`Q5_5` 推荐意愿 0 条作答；竞品侧胜出逻辑无直接观测题。均已写入 §8 与遗留 L01–L03。
+- **已改文件**：新增 `competitor_insight/tasks/BCI-006/TASK.md`、`competitor_insight/docs/analysis-tab-feasibility.md`、`outputs/competitor-insights/BCI-006/20261107-feasibility/`；修改 `tasks/tasks.md`、`BOARD.md`、本文件。**未执行 `git add`/`commit`/`push`。**
+- **测试**：只读探查 11 个脚本（`temp/20261107-bci006/`）；未运行应用测试（无业务代码）。
+- **未解决问题**：BCI-006-L01（排序题缺失）、L02（Q5_5）、L03（竞品胜出逻辑）、L04（车型名称多源不一致）、L05（级别字段缺失）。
+- **下一步**：用户确认五款车型范围与「战败」口径后，进入 `EXECUTING`，按 S3 实现 `analysis_service`。负责人：用户确认 → TRAE 实现。
+- **最后更新**：2026-11-07。
+
 ## 2026-11-07 · BCI-004 D7b：R046 购车属性互斥值已核实修正
 
 - **结论**：R046（腾势N9，深圳）按模板题 1「已婚以小家庭（不含父母）为单位」应为**增购**。链路为 `fill_mode=tag` ← 标签「首增换购属性」`TAG-377357cc173d61c8ce47`（原值「换购；增购。」）；原话 `TEI-91315ed80cf5faca5d12`（3055.8–3089.4）说明旧车本田雅阁购入当时仍由妻子使用、没有卖掉，家庭口径是添置；`interview.purchase_type=增购` 交叉一致。个人视角的「换购」不适用于该口径。

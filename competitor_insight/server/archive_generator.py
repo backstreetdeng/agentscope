@@ -27,6 +27,7 @@ from competitor_insight.server.evidence_gate import (
 )
 from competitor_insight.server.source_map import DimensionSource, SourceMap
 from competitor_insight.server.template_registry import ARCHIVE_TEMPLATE_ID, TemplateRegistry
+from competitor_insight.server.value_normalizer import resolve_enum_or_raise
 
 LlmClient = Callable[[str], str]
 
@@ -252,39 +253,39 @@ class ArchiveGenerator:
 
         value_text: str | None = joined
         value_json: Any = None
+        normalized_ref: dict = {}
         if dim_type == "enum":
             options = tpl.get("options", [])
-            parts = [
-                normalize_value(part)
-                for part in re.split(r"[；;、]", tags[0].value)
-                if normalize_value(part)
-            ]
-            resolved: list[str] = []
-            if len(parts) > 1:
-                try:
-                    resolved = [_enum_value(dim.dimension_id, part, options) for part in parts]
-                except GenerationError:
-                    resolved = []
-                distinct = list(dict.fromkeys(resolved))
-                if len(distinct) > 1:
-                    # 单选维遇到多个互斥选项：不臆断取第一个，留待人工复核。
-                    return ArchiveFieldRecord(
-                        dimension_id=dim.dimension_id,
-                        group_id=dim.group_id,
-                        fill_mode="none",
-                        no_data_reason=f"标签含多个互斥取值：{'；'.join(parts)}，无法确定单一选项",
-                        source_ref={
-                            "tag_ids": [tag.tag_id for tag in tags],
-                            "tag_names": list(dim.tag_names),
-                        },
-                        review_status="suspect",
-                    )
-                if distinct:
-                    value_text = distinct[0]
-                else:
-                    value_text = _enum_value(dim.dimension_id, tags[0].value, options)
-            else:
-                value_text = _enum_value(dim.dimension_id, tags[0].value, options)
+            try:
+                resolved = resolve_enum_or_raise(dim.dimension_id, tags[0].value, options)
+            except EvidenceGateError as exc:
+                raise GenerationError(exc.code, str(exc)) from exc
+            source_base = {
+                "tag_ids": [tag.tag_id for tag in tags],
+                "tag_names": list(dim.tag_names),
+            }
+            if resolved.status == "no_value":
+                source_base["raw_tag_value"] = tags[0].value
+                return ArchiveFieldRecord(
+                    dimension_id=dim.dimension_id,
+                    group_id=dim.group_id,
+                    fill_mode="none",
+                    no_data_reason=resolved.reason,
+                    source_ref={**source_base, "no_source_scope": "interview"},
+                    review_status="missing",
+                )
+            if resolved.status == "ambiguous":
+                # 单选维遇到多个互斥选项：不臆断取第一个，留待人工复核。
+                return ArchiveFieldRecord(
+                    dimension_id=dim.dimension_id,
+                    group_id=dim.group_id,
+                    fill_mode="none",
+                    no_data_reason=resolved.reason,
+                    source_ref={**source_base, "raw_tag_value": tags[0].value},
+                    review_status="suspect",
+                )
+            value_text = resolved.value
+            normalized_ref = resolved.as_source_ref()
         elif dim_type == "multi":
             merged: list[str] = []
             for tag in tags:
@@ -301,7 +302,11 @@ class ArchiveGenerator:
             fill_mode="tag",
             value_text=value_text,
             value_json=value_json,
-            source_ref={"tag_ids": [tag.tag_id for tag in tags], "tag_names": list(dim.tag_names)},
+            source_ref={
+                "tag_ids": [tag.tag_id for tag in tags],
+                "tag_names": list(dim.tag_names),
+                **normalized_ref,
+            },
         )
 
     def _derived_field(self, dim: DimensionSource, bundle: InterviewBundle) -> ArchiveFieldRecord:
@@ -490,13 +495,6 @@ class ArchiveGenerator:
             source_ref={"no_source_scope": "interview"},
             review_status="missing",
         )
-
-
-def _enum_value(dimension_id: str, raw: str, options: list[str]) -> str:
-    try:
-        return validate_enum(dimension_id, raw, options)
-    except EvidenceGateError as exc:
-        raise GenerationError(exc.code, str(exc)) from exc
 
 
 def _has_value(field: ArchiveFieldRecord) -> bool:

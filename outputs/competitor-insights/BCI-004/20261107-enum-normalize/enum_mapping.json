@@ -1,0 +1,1002 @@
+{
+  "enum_tags": [
+    {
+      "tag_name": "APP偏好",
+      "allowed_values": "抖音、B站、视频号、小红书、微博、公众号、汽车之家、懂车帝……",
+      "total": 63,
+      "values": [
+        {
+          "raw": "抖音。",
+          "count": 11
+        },
+        {
+          "raw": "未提及。",
+          "count": 7
+        },
+        {
+          "raw": "抖音；懂车帝。",
+          "count": 4
+        },
+        {
+          "raw": "抖音；视频号。",
+          "count": 4
+        },
+        {
+          "raw": "小红书。",
+          "count": 3
+        },
+        {
+          "raw": "B站；抖音。",
+          "count": 2
+        },
+        {
+          "raw": "抖音；小红书。",
+          "count": 2
+        },
+        {
+          "raw": "抖音；微信。",
+          "count": 2
+        },
+        {
+          "raw": "京东；抖音；腾讯视频；爱奇艺。",
+          "count": 1
+        },
+        {
+          "raw": "哔哩哔哩。",
+          "count": 1
+        },
+        {
+          "raw": "哔哩哔哩；抖音；微信；QQ。",
+          "count": 1
+        },
+        {
+          "raw": "哔哩哔哩、抖音精选、西瓜视频、优酷、今日头条、大众点评及多种财经资讯应用。",
+          "count": 1
+        },
+        {
+          "raw": "小红书；抖音；头条。",
+          "count": 1
+        },
+        {
+          "raw": "小红书；抖音；腾讯。",
+          "count": 1
+        },
+        {
+          "raw": "小红书；汽车之家；懂车帝；公众号。",
+          "count": 1
+        },
+        {
+          "raw": "微信；懂车帝；酷安；淘宝；抖音。",
+          "count": 1
+        },
+        {
+          "raw": "微信视频号；淘宝。",
+          "count": 1
+        },
+        {
+          "raw": "微信读书；懂车帝。",
+          "count": 1
+        },
+        {
+          "raw": "微博；小红书；微信朋友圈。",
+          "count": 1
+        },
+        {
+          "raw": "快手；微信推送；百度；腾讯新闻。",
+          "count": 1
+        },
+        {
+          "raw": "懂车帝。",
+          "count": 1
+        },
+        {
+          "raw": "懂车帝；汽车之家；小红书；微博。",
+          "count": 1
+        },
+        {
+          "raw": "抖音；B站。",
+          "count": 1
+        },
+        {
+          "raw": "抖音；B站；闲鱼、拼多多、淘宝。",
+          "count": 1
+        },
+        {
+          "raw": "抖音；今日头条。",
+          "count": 1
+        },
+        {
+          "raw": "抖音；大众点评、淘宝。",
+          "count": 1
+        },
+        {
+          "raw": "抖音；小红书；快手；听书应用。",
+          "count": 1
+        },
+        {
+          "raw": "抖音；小红书；视频号。",
+          "count": 1
+        },
+        {
+          "raw": "抖音；微信；今日头条；腾讯新闻；股票类应用；王者荣耀。",
+          "count": 1
+        },
+        {
+          "raw": "抖音；微博。",
+          "count": 1
+        },
+        {
+          "raw": "抖音；快手。",
+          "count": 1
+        },
+        {
+          "raw": "抖音；汽车之家；微信；京东；拼多多。",
+          "count": 1
+        },
+        {
+          "raw": "抖音；视频号；微信。",
+          "count": 1
+        },
+        {
+          "raw": "直播吧；懂车帝。",
+          "count": 1
+        },
+        {
+          "raw": "知乎；抖音；微信。",
+          "count": 1
+        },
+        {
+          "raw": "视频号；微信；支付宝。",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "tag_name": "上次购车关注",
+      "allowed_values": "品牌、外观、内饰、舒适、空间、使用经济性、操控性、动力性……",
+      "total": 63,
+      "distinct_values": 47,
+      "values": null
+    },
+    {
+      "tag_name": "不满意点",
+      "allowed_values": "外观、内饰、舒适、空间、使用经济性、智能座舱、智能驾驶……",
+      "total": 63,
+      "distinct_values": 63,
+      "values": null
+    },
+    {
+      "tag_name": "个人年收入",
+      "allowed_values": "10万以下、10-20万、20-30万……",
+      "total": 63,
+      "distinct_values": 25,
+      "values": null
+    },
+    {
+      "tag_name": "买增程不买插混原因",
+      "allowed_values": "不在意只看车型、增程技术更先进、预算内无插混车型……",
+      "total": 63,
+      "distinct_values": 6,
+      "values": null
+    },
+    {
+      "tag_name": "买插混不买增程原因",
+      "allowed_values": "不在意只看车型、预算内无增程车、增程保有量小、增程技术落后……",
+      "total": 63,
+      "distinct_values": 20,
+      "values": null
+    },
+    {
+      "tag_name": "买插混/增程不买纯电的原因",
+      "allowed_values": "价格相对低、可油可电没有续航焦虑、喜欢的车正好是插混/增程……",
+      "total": 63,
+      "distinct_values": 26,
+      "values": null
+    },
+    {
+      "tag_name": "买燃油不买新能源原因",
+      "allowed_values": "续航短不满足、保值率低、公共充电设施少、充电效率低不如油车便捷……",
+      "total": 63,
+      "distinct_values": 2,
+      "values": null
+    },
+    {
+      "tag_name": "买纯电不买插混/增程的原因",
+      "allowed_values": "纯电使用成本更低、不认可插混/增程技术、纯电驾乘体验更好……",
+      "total": 63,
+      "distinct_values": 18,
+      "values": null
+    },
+    {
+      "tag_name": "保有车型（除了增购前车型外的）",
+      "allowed_values": "家里一共几个车、什么时候买的、什么车型、谁在用、哪个车是增购前的……",
+      "total": 63,
+      "distinct_values": 51,
+      "values": null
+    },
+    {
+      "tag_name": "偏好的具体品牌",
+      "allowed_values": "",
+      "total": 63,
+      "distinct_values": 52,
+      "values": null
+    },
+    {
+      "tag_name": "偏好的品牌类型",
+      "allowed_values": "",
+      "total": 63,
+      "distinct_values": 50,
+      "values": null
+    },
+    {
+      "tag_name": "充电地点",
+      "allowed_values": "家里、公司、商场、公共充电桩……",
+      "total": 63,
+      "distinct_values": 14,
+      "values": null
+    },
+    {
+      "tag_name": "充电方式",
+      "allowed_values": "慢充、快充、换电……",
+      "total": 63,
+      "distinct_values": 9,
+      "values": null
+    },
+    {
+      "tag_name": "充电桩安装情况",
+      "allowed_values": "家里不能安装充电桩、家里能安装充电桩但不打算安装、家里已安装充电桩……",
+      "total": 63,
+      "distinct_values": 10,
+      "values": null
+    },
+    {
+      "tag_name": "充电频次",
+      "allowed_values": "每天一次、每2~3天充一次、每4~5天充一次……",
+      "total": 63,
+      "distinct_values": 25,
+      "values": null
+    },
+    {
+      "tag_name": "兴趣爱好",
+      "allowed_values": "钓鱼、打球、游泳……",
+      "total": 63,
+      "distinct_values": 60,
+      "values": null
+    },
+    {
+      "tag_name": "再购偏好的具体品牌",
+      "allowed_values": "",
+      "total": 63,
+      "distinct_values": 38,
+      "values": null
+    },
+    {
+      "tag_name": "再购关注的因素",
+      "allowed_values": "空间/后排座椅舒适度……",
+      "total": 63,
+      "distinct_values": 59,
+      "values": null
+    },
+    {
+      "tag_name": "再购对不同品牌的看法",
+      "allowed_values": "",
+      "total": 63,
+      "distinct_values": 58,
+      "values": null
+    },
+    {
+      "tag_name": "再购座位数需求",
+      "allowed_values": "5座/6座/7座……",
+      "total": 63,
+      "distinct_values": 25,
+      "values": null
+    },
+    {
+      "tag_name": "再购时间",
+      "allowed_values": "2年内、2~5年、5~8年……",
+      "total": 63,
+      "distinct_values": 41,
+      "values": null
+    },
+    {
+      "tag_name": "再购燃料类型",
+      "allowed_values": "纯电、插电混、增程式、燃油、油电混",
+      "total": 63,
+      "distinct_values": 62,
+      "values": null
+    },
+    {
+      "tag_name": "再购考虑的品牌类型",
+      "allowed_values": "合资、自主、新势力……",
+      "total": 63,
+      "distinct_values": 19,
+      "values": null
+    },
+    {
+      "tag_name": "再购车型类别",
+      "allowed_values": "轿车/SUV/MPV……",
+      "total": 63,
+      "distinct_values": 16,
+      "values": null
+    },
+    {
+      "tag_name": "再购车型车型尺寸",
+      "allowed_values": "",
+      "total": 63,
+      "distinct_values": 1,
+      "values": null
+    },
+    {
+      "tag_name": "再购造型风格",
+      "allowed_values": "经典、可爱、复古、运动……",
+      "total": 63,
+      "distinct_values": 20,
+      "values": null
+    },
+    {
+      "tag_name": "再购预算",
+      "allowed_values": "10万以内、10-15万、15-20万……",
+      "total": 63,
+      "distinct_values": 45,
+      "values": null
+    },
+    {
+      "tag_name": "单程行驶里程",
+      "allowed_values": "10km以下、10-20km、20-30km……",
+      "total": 63,
+      "distinct_values": 38,
+      "values": null
+    },
+    {
+      "tag_name": "同住人数",
+      "allowed_values": "独居、2人、3人……",
+      "total": 63,
+      "distinct_values": 1,
+      "values": null
+    },
+    {
+      "tag_name": "增换购前后换品牌的原因",
+      "allowed_values": "",
+      "total": 63,
+      "distinct_values": 46,
+      "values": null
+    },
+    {
+      "tag_name": "增购前车型",
+      "allowed_values": "卡罗拉、速腾、迈腾、雷凌……",
+      "total": 63,
+      "distinct_values": 22,
+      "values": null
+    },
+    {
+      "tag_name": "婚姻状况",
+      "allowed_values": "未婚、已婚、离异或丧偶",
+      "total": 63,
+      "distinct_values": 4,
+      "values": null
+    },
+    {
+      "tag_name": "子女数量",
+      "allowed_values": "无孩、1孩、2孩、3孩……",
+      "total": 63,
+      "distinct_values": 6,
+      "values": null
+    },
+    {
+      "tag_name": "学历",
+      "allowed_values": "初中或以下、高中、大专、本科……",
+      "total": 63,
+      "distinct_values": 21,
+      "values": null
+    },
+    {
+      "tag_name": "家庭年收入",
+      "allowed_values": "10万以下、10-20万、20-30万……",
+      "total": 63,
+      "distinct_values": 23,
+      "values": null
+    },
+    {
+      "tag_name": "对800V态度",
+      "allowed_values": "希望有且愿意付费、希望有但不愿付费、不希望有",
+      "total": 63,
+      "distinct_values": 54,
+      "values": null
+    },
+    {
+      "tag_name": "对HEV的态度及原因",
+      "allowed_values": "没考虑过/考虑过，但放弃了/考虑过，最终买了……",
+      "total": 63,
+      "distinct_values": 29,
+      "values": null
+    },
+    {
+      "tag_name": "对不同品牌的看法及原因",
+      "allowed_values": "",
+      "total": 63,
+      "distinct_values": 62,
+      "values": null
+    },
+    {
+      "tag_name": "对不同类型品牌的看法及原因",
+      "allowed_values": "",
+      "total": 63,
+      "distinct_values": 63,
+      "values": null
+    },
+    {
+      "tag_name": "居住地",
+      "allowed_values": "城区、郊区、县城、乡村……",
+      "total": 63,
+      "distinct_values": 33,
+      "values": null
+    },
+    {
+      "tag_name": "岗位",
+      "allowed_values": "基层员工、基层管理人员、中层管理人员……",
+      "total": 63,
+      "distinct_values": 37,
+      "values": null
+    },
+    {
+      "tag_name": "年龄",
+      "allowed_values": "20-25岁、26-30岁、31-35岁……",
+      "total": 63,
+      "distinct_values": 24,
+      "values": null
+    },
+    {
+      "tag_name": "当前车型",
+      "allowed_values": "海豚、海鸥、问界M9、理想L6……",
+      "total": 63,
+      "distinct_values": 33,
+      "values": null
+    },
+    {
+      "tag_name": "影响预算变化的原因",
+      "allowed_values": "",
+      "total": 63,
+      "distinct_values": 25,
+      "values": null
+    },
+    {
+      "tag_name": "必备配置",
+      "allowed_values": "座椅加热/通风/按摩、零重力座椅、HUD……",
+      "total": 63,
+      "distinct_values": 57,
+      "values": null
+    },
+    {
+      "tag_name": "性别",
+      "allowed_values": "男、女",
+      "total": 63,
+      "distinct_values": 1,
+      "values": null
+    },
+    {
+      "tag_name": "性格特点",
+      "allowed_values": "活泼、内向、外向……",
+      "total": 63,
+      "distinct_values": 41,
+      "values": null
+    },
+    {
+      "tag_name": "换购前车型",
+      "allowed_values": "卡罗拉、速腾、迈腾、雷凌……",
+      "total": 63,
+      "distinct_values": 35,
+      "values": null
+    },
+    {
+      "tag_name": "搭载人员",
+      "allowed_values": "父母、子女、爱人、朋友、领导",
+      "total": 63,
+      "distinct_values": 35,
+      "values": null
+    },
+    {
+      "tag_name": "支出结构",
+      "allowed_values": "家庭总支出占收入的比例、各类消费在支出中的占比、舍得花钱的方面……",
+      "total": 63,
+      "distinct_values": 53,
+      "values": null
+    },
+    {
+      "tag_name": "放弃核心对比车型的原因",
+      "allowed_values": "品牌形象档次不够、质量不好、储物空间小、内饰设计差……",
+      "total": 63,
+      "distinct_values": 63,
+      "values": null
+    },
+    {
+      "tag_name": "日均行驶里程",
+      "allowed_values": "10km以下、10-20km、20-30km……",
+      "total": 63,
+      "distinct_values": 48,
+      "values": null
+    },
+    {
+      "tag_name": "是否本地人",
+      "allowed_values": "本地人/非本地人/来现有城市时间/居住年限",
+      "total": 63,
+      "distinct_values": 9,
+      "values": null
+    },
+    {
+      "tag_name": "最终核心对比车型",
+      "allowed_values": "小米SU7、理想L7、问界M7……",
+      "total": 63,
+      "distinct_values": 49,
+      "values": null
+    },
+    {
+      "tag_name": "本次购车关注",
+      "allowed_values": "品牌、外观、内饰、舒适、空间、使用经济性、智能座舱、智能驾驶……",
+      "total": 63,
+      "distinct_values": 63,
+      "values": null
+    },
+    {
+      "tag_name": "核心对比车型",
+      "allowed_values": "小米SU7、理想L7、问界M7……",
+      "total": 63,
+      "distinct_values": 63,
+      "values": null
+    },
+    {
+      "tag_name": "汽车观",
+      "allowed_values": "交通工具、个性表达、身份地位、科技体验、私人空间",
+      "total": 63,
+      "distinct_values": 54,
+      "values": null
+    },
+    {
+      "tag_name": "汽车触媒偏好",
+      "allowed_values": "汽车之家、懂车帝、B站、抖音、视频号、线下门店、朋友推荐……",
+      "total": 63,
+      "values": [
+        {
+          "raw": "抖音；懂车帝。",
+          "count": 6
+        },
+        {
+          "raw": "懂车帝；抖音。",
+          "count": 5
+        },
+        {
+          "raw": "懂车帝。",
+          "count": 4
+        },
+        {
+          "raw": "未提及。",
+          "count": 3
+        },
+        {
+          "raw": "B站；抖音。",
+          "count": 2
+        },
+        {
+          "raw": "懂车帝；抖音；视频号。",
+          "count": 2
+        },
+        {
+          "raw": "懂车帝；汽车之家；小红书。",
+          "count": 2
+        },
+        {
+          "raw": "抖音；汽车之家。",
+          "count": 2
+        },
+        {
+          "raw": "抖音；视频号；线下门店。",
+          "count": 2
+        },
+        {
+          "raw": "汽车之家；抖音。",
+          "count": 2
+        },
+        {
+          "raw": "主要由对象获取，对象每天看汽车视频、说车内容及工信部新车信息。",
+          "count": 1
+        },
+        {
+          "raw": "偏好网上综合信息、科普视频与新闻发布会。",
+          "count": 1
+        },
+        {
+          "raw": "公众号；哔哩哔哩。",
+          "count": 1
+        },
+        {
+          "raw": "小红书；汽车之家；懂车帝。",
+          "count": 1
+        },
+        {
+          "raw": "微信朋友圈；朋友分享；车展活动；小红书；B站。",
+          "count": 1
+        },
+        {
+          "raw": "微博；小红书；微信朋友圈；朋友推荐。",
+          "count": 1
+        },
+        {
+          "raw": "微博；汽车之家；哔哩哔哩。",
+          "count": 1
+        },
+        {
+          "raw": "懂车帝；小红书；抖音；汽车之家。",
+          "count": 1
+        },
+        {
+          "raw": "懂车帝；汽车之家；小红书；视频平台；汽车博主/大咖测评。",
+          "count": 1
+        },
+        {
+          "raw": "懂车帝；汽车之家；抖音。",
+          "count": 1
+        },
+        {
+          "raw": "懂车帝、汽车之家、车友群、论坛、车主实际用车分享和车展。",
+          "count": 1
+        },
+        {
+          "raw": "懂车帝；虎扑车区；抖音。",
+          "count": 1
+        },
+        {
+          "raw": "抖音。",
+          "count": 1
+        },
+        {
+          "raw": "抖音；哔哩哔哩；汽车之家；懂车帝。",
+          "count": 1
+        },
+        {
+          "raw": "抖音；官方发布。",
+          "count": 1
+        },
+        {
+          "raw": "抖音；快手。",
+          "count": 1
+        },
+        {
+          "raw": "抖音；懂车帝；B站。",
+          "count": 1
+        },
+        {
+          "raw": "抖音；懂车帝；汽车之家。",
+          "count": 1
+        },
+        {
+          "raw": "抖音；懂车帝；汽车之家；线下门店；朋友推荐。",
+          "count": 1
+        },
+        {
+          "raw": "抖音；汽车之家；懂车帝。",
+          "count": 1
+        },
+        {
+          "raw": "抖音；线下门店；朋友推荐；论坛；快手；小红书。",
+          "count": 1
+        },
+        {
+          "raw": "收音机；懂车帝。",
+          "count": 1
+        },
+        {
+          "raw": "汽车之家；懂车帝。",
+          "count": 1
+        },
+        {
+          "raw": "汽车之家；懂车帝；抖音。",
+          "count": 1
+        },
+        {
+          "raw": "汽车之家；抖音；B站；快手；百度。",
+          "count": 1
+        },
+        {
+          "raw": "汽车之家；抖音；小红书。",
+          "count": 1
+        },
+        {
+          "raw": "汽车之家；视频平台；官网。",
+          "count": 1
+        },
+        {
+          "raw": "瓜子二手车。",
+          "count": 1
+        },
+        {
+          "raw": "线下门店、朋友介绍、抖音搜索车型视频。",
+          "count": 1
+        },
+        {
+          "raw": "线下门店；视频号。",
+          "count": 1
+        },
+        {
+          "raw": "网上看车型信息、关注新款配置。",
+          "count": 1
+        },
+        {
+          "raw": "自媒体/视频号；懂车帝。",
+          "count": 1
+        },
+        {
+          "raw": "车友群；主动定向检索。",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "tag_name": "消费观",
+      "allowed_values": "理性、感性、超前消费、追求性价比……",
+      "total": 63,
+      "distinct_values": 63,
+      "values": null
+    },
+    {
+      "tag_name": "满意点",
+      "allowed_values": "外观、内饰、舒适、空间、使用经济性、智能座舱、智能驾驶……",
+      "total": 63,
+      "distinct_values": 63,
+      "values": null
+    },
+    {
+      "tag_name": "用户类型",
+      "allowed_values": "个人、家庭、商务",
+      "total": 63,
+      "distinct_values": 1,
+      "values": null
+    },
+    {
+      "tag_name": "用车场景",
+      "allowed_values": "上下班通勤、周末郊游、家庭出行、长途、商务等",
+      "total": 63,
+      "distinct_values": 41,
+      "values": null
+    },
+    {
+      "tag_name": "用车过程关注",
+      "allowed_values": "产品质量稳定性、舒适性（包含内饰异味、悬架软硬等）、使用成本（油耗、电耗、电价）……",
+      "total": 63,
+      "distinct_values": 59,
+      "values": null
+    },
+    {
+      "tag_name": "纯电续航需求",
+      "allowed_values": "实际纯电续航/理想纯电续航/增加续航付费意愿",
+      "total": 63,
+      "distinct_values": 63,
+      "values": null
+    },
+    {
+      "tag_name": "自动驾驶愿意付费程度",
+      "allowed_values": "是否愿意为高阶自动驾驶付费，愿意付多少……",
+      "total": 63,
+      "distinct_values": 41,
+      "values": null
+    },
+    {
+      "tag_name": "自动驾驶接受度",
+      "allowed_values": "没有体验过、体验过但有使用顾虑、期待更高阶的自动驾驶……",
+      "total": 63,
+      "distinct_values": 61,
+      "values": null
+    },
+    {
+      "tag_name": "行业",
+      "allowed_values": "建筑、交通、制造、采矿……",
+      "total": 63,
+      "distinct_values": 41,
+      "values": null
+    },
+    {
+      "tag_name": "行驶区域",
+      "allowed_values": "城市、高速、高架、市郊、乡镇、农村",
+      "total": 63,
+      "distinct_values": 12,
+      "values": null
+    },
+    {
+      "tag_name": "裸车价",
+      "allowed_values": "",
+      "total": 63,
+      "distinct_values": 21,
+      "values": null
+    },
+    {
+      "tag_name": "购买新能源车的原因",
+      "allowed_values": "想体验新能源技术、牌照因素不用摇号、不限行不限号、使用成本低……",
+      "total": 63,
+      "distinct_values": 42,
+      "values": null
+    },
+    {
+      "tag_name": "购买燃油车的原因",
+      "allowed_values": "",
+      "total": 63,
+      "distinct_values": 2,
+      "values": null
+    },
+    {
+      "tag_name": "购车原因",
+      "allowed_values": "收入增加，经济实力强、家庭需求场景变化、因为居住地或工作地变更、担心后边涨价，就提前买了……",
+      "total": 63,
+      "distinct_values": 51,
+      "values": null
+    },
+    {
+      "tag_name": "购车考虑的具体品牌",
+      "allowed_values": "大众、丰田、本田、比亚迪、小米、理想……",
+      "total": 63,
+      "distinct_values": 61,
+      "values": null
+    },
+    {
+      "tag_name": "购车考虑的品牌类型",
+      "allowed_values": "合资、自主、新势力……",
+      "total": 63,
+      "distinct_values": 31,
+      "values": null
+    },
+    {
+      "tag_name": "购车预算",
+      "allowed_values": "10万以下、10-15万、15-20万……",
+      "total": 63,
+      "distinct_values": 39,
+      "values": null
+    },
+    {
+      "tag_name": "追求的事业状态",
+      "allowed_values": "在本岗位上稳步上升、要创立自己的事业、自由的工作状态……",
+      "total": 63,
+      "distinct_values": 38,
+      "values": null
+    },
+    {
+      "tag_name": "选择当前版本的原因",
+      "allowed_values": "为什么选这个版本、关键配置、续航、价格取舍……",
+      "total": 63,
+      "distinct_values": 61,
+      "values": null
+    },
+    {
+      "tag_name": "选择当前车辆的原因",
+      "allowed_values": "品牌形象好、质量可靠性好、储物空间更大、操控更好……",
+      "total": 63,
+      "distinct_values": 63,
+      "values": null
+    },
+    {
+      "tag_name": "长途出行距离",
+      "allowed_values": "200km、200-300km、300-400km",
+      "total": 63,
+      "distinct_values": 37,
+      "values": null
+    },
+    {
+      "tag_name": "首增换购属性",
+      "allowed_values": "首购、换购、增购",
+      "total": 63,
+      "values": [
+        {
+          "raw": "换购。",
+          "count": 31
+        },
+        {
+          "raw": "增购。",
+          "count": 20
+        },
+        {
+          "raw": "首购。",
+          "count": 10
+        },
+        {
+          "raw": "实际增购。",
+          "count": 1
+        },
+        {
+          "raw": "换购；增购。",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "tag_name": "驱动形式及原因",
+      "allowed_values": "两驱/四驱",
+      "total": 63,
+      "distinct_values": 47,
+      "values": null
+    },
+    {
+      "tag_name": "高端品牌必备条件",
+      "allowed_values": "有引领行业的技术、尊享的服务、良好的口碑、高度的社会责任感……",
+      "total": 63,
+      "distinct_values": 38,
+      "values": null
+    },
+    {
+      "tag_name": "高速充电体验",
+      "allowed_values": "不太方便，经常没有充电桩、很方便，即到即充……",
+      "total": 63,
+      "distinct_values": 32,
+      "values": null
+    },
+    {
+      "tag_name": "燃料类型偏好",
+      "allowed_values": "纯电、插电混、增程式、燃油、油电混；除本次购买燃料类型外，选择原文提及次数最多且论述最充分的唯一类型标注“重要程度=最重要”；文本出现顺序不代表重要程度。",
+      "total": 62,
+      "distinct_values": 47,
+      "values": null
+    },
+    {
+      "tag_name": "燃料类型偏好",
+      "allowed_values": "纯电（最重要）、插电混、增程式、燃油、油电混；按原文出现顺序列出，最先出现的标记为最重要",
+      "total": 1,
+      "distinct_values": 47,
+      "values": null
+    }
+  ],
+  "template_enum_dims": [
+    {
+      "dimension_id": "purchase_attribute",
+      "options": [
+        "首购",
+        "增购",
+        "换购"
+      ],
+      "rows": [
+        {
+          "tag_name": "首增换购属性",
+          "raw": "换购。",
+          "count": 31,
+          "suggested": "换购",
+          "status": "exact",
+          "reason": "",
+          "candidates": []
+        },
+        {
+          "tag_name": "首增换购属性",
+          "raw": "增购。",
+          "count": 20,
+          "suggested": "增购",
+          "status": "exact",
+          "reason": "",
+          "candidates": []
+        },
+        {
+          "tag_name": "首增换购属性",
+          "raw": "首购。",
+          "count": 10,
+          "suggested": "首购",
+          "status": "exact",
+          "reason": "",
+          "candidates": []
+        },
+        {
+          "tag_name": "首增换购属性",
+          "raw": "实际增购。",
+          "count": 1,
+          "suggested": "增购",
+          "status": "normalized",
+          "reason": "口语/修饰写法归一：实际增购 → 增购",
+          "candidates": []
+        },
+        {
+          "tag_name": "首增换购属性",
+          "raw": "换购；增购。",
+          "count": 1,
+          "suggested": null,
+          "status": "ambiguous",
+          "reason": "标签含多个互斥取值：换购；增购，无法确定单一选项",
+          "candidates": [
+            "换购",
+            "增购"
+          ]
+        }
+      ]
+    }
+  ]
+}

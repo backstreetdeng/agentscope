@@ -60,6 +60,7 @@ evidence: outputs/competitor-insights/BCI-004/
 | D6 | 共用文件接线 | 完成（2026-11-07） | `app.py` 新增 `/api/bci/archive/{template,respondents,detail,run,quote}` GET 与 `{generate,export}` POST（惰性单例 `ArchiveService`，独立线程，不占 `AGENT_RUN_LOCK`）；`home.html` 启用 tab ②、挂载 `[data-bci-profile]`、引入 `bci-profile.css/js`；`bci.js` 切到 tab ② 时才 `BciProfile.init`，面板未展开不预加载；临时端口探针 19/19（真实库只读：43 维/12 组/63 人/R001 空态/找原话命中；静态资源与首页接线 PASS） | `outputs/competitor-insights/BCI-004/20261107-d6-wiring/probe.log` |
 | D7 | 10 人试点生成写库 | 完成（2026-11-07） | 真实 DeepSeek（`deepseek-v4-flash`，新增 `server/llm_client.py`）生成并写入 `bci.*`：10/10 成功、每人 43 维；19 个 success 维 183/190 命中（12 维满员，7 维 9/10），7 个缺口均落 `no_data_reason`；8 个无来源维全部标注「本期无来源」；LLM 值证据 ID 全部有效；R046 购车属性因「换购；增购」互斥标为 `suspect` 待复核；覆盖率 65.79%–76.32% | `outputs/competitor-insights/BCI-004/20261107-d7-pilot/pilot.log` |
 | D7b | R046「购车属性」互斥值核实与修正 | 完成（2026-11-07） | 链路：`fill_mode=tag` ← 标签「首增换购属性」`TAG-377357cc173d61c8ce47`（原值「换购；增购。」，可信）。回到原话 `TEI-91315ed80cf5faca5d12`（3055.8–3089.4）与证据 `EV-978feb41abc39345abbd`：旧车本田雅阁购入当时仍由妻子开、没有卖掉，按模板题 1「已婚以小家庭（不含父母）为单位」应判**增购**，`interview.purchase_type=增购` 交叉一致。已改为 `value_text=增购`/`fill_mode=tag`/`review_status=ok`，原值、原原因、判断依据、证据 ID 与时间段保存在 `source_ref.correction`；覆盖率 68.42→71.05（27/38），状态仍 partial。全库仅此 1 条互斥；`R046` 与 `RE010` 非同一人，库中不存在 `RE010`（早前报告为笔误，实为 `R010`） | `outputs/competitor-insights/BCI-004/20261107-r046-verify/` |
+| D7c | 枚举取值归一集中层（L12） | 完成（2026-11-07） | 新增 `server/value_normalizer.py`（唯一归一处：空值/无数据标记 → `no_value`；否定 → `unknown`；多片段 → `ambiguous`/`normalized`；单片精确 → `exact`，去修饰前缀或唯一包含 → `normalized`）；`archive_generator._tag_field` 的 enum 分支改为调用归一层：`no_value`→`fill_mode=none`+`missing`、`ambiguous`→`no_data_reason`+`suspect`（不取第一个值）、`unknown`→`invalid_enum` 整人失败、`normalized` 写 `source_ref.normalized_from/normalized_rule`。全库扫描 63 条：「换购。」31/「增购。」20/「首购。」10 直通，「实际增购。」1 → 增购（用户拍板），「换购；增购。」1 → suspect（R046 已按原文人工修正）。只读联调：R063 生成 `增购`+归一记录，R046 生成 `suspect`+原因。新增 `tests/test_value_normalizer.py` 9 项，全量 90/90 通过 | `outputs/competitor-insights/BCI-004/20261107-enum-normalize/` |
 | D8 | 浏览器验收 | 完成（2026-11-07） | 真实服务（127.0.0.1:7861，不动 7860）+ 真实库 + Playwright：63 人列表、R003 43 维、8 个无来源维、R010 9 分、R003 评分缺失、找原话 50 条、勾选 2 人下载 xlsx（45 行/3 Sheet/证据页含两人）、模板切换后重载、0 JS 错误，共 18/18 PASS | `outputs/competitor-insights/BCI-004/20261107-d8-browser/check.log` |
 | S5 | 模板注册与校验 | 由 D1 承接 | 方案 §3.4 已给规则 | 见 §10 |
 | S6 | 存储层与生成器 | 由 D2/D3 承接 | 方案 §2、§4 已给契约 | 见 §10 |
@@ -154,7 +155,7 @@ evidence: outputs/competitor-insights/BCI-004/
 | BCI-004-L09 | ~~共用文件被另一会话占用~~ 已解除 | — | 2026-11-07 用户确认入库完成（`1bd7eee` 已推送），D6 闸门解除 | 无需处理 | 用户 | 方案 §7.1 |
 | BCI-004-L06 | ~~改动未提交 git~~ 已解除 | — | 2026-11-07 已按白名单提交 `7dc91aa` 并推送；`*.log` 受 `.gitignore` 限制仍只在本机；**2026-11-07 用户决定：日志不入库，不修改 `.gitignore`（已决策）**，缺口在 BCI-005-L07 挂账 | 已决策，无需等待 | 用户/TRAE | 本文件 §7、BCI-005-L07 |
 | BCI-004-L11 | 历史提交 `1bd7eee` 内的 `20261106-coverage/coverage.py` 曾硬编码数据库口令 | **仓库为公开**（匿名访问 `api.github.com/repos/backstreetdeng/agentscope` 返回 `private=false`、`visibility=public`），且实测历史口令与本机 `.env.new-car` 的 `NEW_CAR_PG_PASSWORD`（即 `vectordb` 账号）**仍然相同**，属有效凭据暴露 | 工作区脚本已改为读 `.env.new-car`，但历史提交无法用普通提交抹除 | **建议轮换 `vectordb` 口令**（或改写历史）；按用户要求本轮不自行处理 | 用户/DBA | 本文件 §7、GitHub 公开 API 返回 |
-| BCI-004-L12 | 标签「首增换购属性」存在非标准取值：`R063 = 实际增购。`（`R046 = 换购；增购。` 已核实修正） | R063 不在本轮试点；若按同一规则生成，`validate_enum` 会报 `invalid_enum`，按 D3 契约导致**整人失败** | 已实测 63 人中仅这 2 个非标准值，多值仅 1 条 | 生成全量前需业务确认「实际增购」是否等同「增购」；或在枚举校验前做值规范化（另立改动，不在本轮范围） | 业务/TRAE | `20261107-r046-verify/ids.log` |
+| BCI-004-L12 | ~~标签「首增换购属性」存在非标准取值~~ 已解除 | 归一前「实际增购。」会触发 `invalid_enum` 整人失败 | 用户 2026-11-07 拍板「实际增购」算「增购」；D7c 已建集中归一层并接生成器，全库 63 条实测仅 2 条非标准：`实际增购。`→增购（已归一）、`换购；增购。`→suspect（R046 已按原话人工修正） | 无需再决定；全量生成前只需注意 R046 若强制重生成会回到 suspect（标签侧源数据仍为多值，源库只读不改） | TRAE | `20261107-enum-normalize/enum_mapping.md` |
 
 ## 9. 阶段流转记录
 
@@ -170,6 +171,7 @@ evidence: outputs/competitor-insights/BCI-004/
 - 2026-11-07：`EXECUTING` 继续（D7 完成：真实 DeepSeek 生成 10 人写库 10/10、183/190 success 维命中；D8 完成：真实服务 + Playwright 18/18）。
 - 2026-11-07：`EXECUTING` → `TESTED`（D1–D8 全部完成；单测 81/81、D6 探针 19/19、D8 浏览器 18/18；待用户验收后上线）。
 - 2026-11-07：`TESTED` 维持（D7b：R046 购车属性互斥值回原话核实，按家庭口径定为「增购」并保留修正记录；覆盖率 71.05%；发现 R063 非标准标签值，记 L12）。
+- 2026-11-07：`TESTED` 维持（D7c：用户拍板「实际增购=增购」，建 `value_normalizer.py` 集中归一并接生成器；全库 63 条仅 2 条非标准，`实际增购。`→增购、`换购；增购。`→suspect；新增单测 9 项，全量 90/90；L12 解除）。
 
 ## 10. 开发阶段步骤（2026-11-06 起）
 

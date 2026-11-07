@@ -1,0 +1,30 @@
+{
+  "task_id": "BCI-004",
+  "step": "D7c",
+  "purpose": "枚举取值全库扫描与归一：把「首增换购属性」等枚举标签的非标准写法整理成映射表，归一层落到单一模块并由单测覆盖（对应 BCI-004-L12）",
+  "created": "2026-11-07",
+  "inputs": [
+    "user_insight.tag（tag_name, tag_value, allowed_values；全库 63 人）",
+    "competitor_insight/templates/user_insight_archive_template.json（purchase_attribute options）",
+    "competitor_insight/templates/user_insight_archive.source-map.json（fill_mode=tag 维度）",
+    "competitor_insight/server/value_normalizer.py（本次新增规则）"
+  ],
+  "outputs": [
+    "probe_enum_tags.py",
+    "probe_tag_distribution.py",
+    "probe_enum_mapping.py",
+    "summarize_enum_mapping.py",
+    "probe_generator_dryrun.py",
+    "enum_mapping.json",
+    "enum_mapping.md",
+    "generator_dryrun.json",
+    "tag_dims.log"
+  ],
+  "conclusion": "全库「首增换购属性」63 条：换购。31 / 增购。20 / 首购。10 直通；实际增购。1→增购（用户拍板）；换购；增购。1→suspect（不取第一个值，R046 已按原话人工修正）。无空值、无「未提及/不适用」写法。模板中 tag 驱动的单选枚举仅此一维；info_channels 为多值列表，未做词表映射。",
+  "rule_location": "competitor_insight/server/value_normalizer.py（resolve_enum / resolve_enum_or_raise）；archive_generator._tag_field 的 enum 分支调用",
+  "tests": "competitor_insight/tests/test_value_normalizer.py 9 项；全量 unittest 90/90 通过",
+  "rebuild": "../Scripts/python.exe -B outputs/competitor-insights/BCI-004/20261107-enum-normalize/probe_enum_mapping.py && ../Scripts/python.exe -B outputs/competitor-insights/BCI-004/20261107-enum-normalize/summarize_enum_mapping.py",
+  "side_effects": "全部只读：不改 user_insight 源数据、不写 bci、不调模型、不打印凭据",
+  "cleanable": false,
+  "restore": "无需恢复（无写操作）；如需重新扫描直接重跑 rebuild 命令"
+}
