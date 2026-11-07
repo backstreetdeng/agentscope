@@ -1,0 +1,893 @@
+{
+  "generated_at": "2026-11-08T00:03:57",
+  "source": "http://127.0.0.1:7860/api/bci/analysis",
+  "note": "全部数字来自运行中的只读接口；每项同时给分子/分母。",
+  "models": [
+    {
+      "model": "零跑B10",
+      "key": "leapmotor-b10",
+      "sources": {
+        "quant": 41,
+        "interview": 4,
+        "reputation": 392,
+        "miit": 6
+      },
+      "tiles": {
+        "profile": {
+          "n": 41,
+          "age_top": [
+            {
+              "label": "26-30岁",
+              "count": 12,
+              "n": 41,
+              "ratio": 29.3
+            }
+          ],
+          "gender_top": [
+            {
+              "label": "男性",
+              "count": 30,
+              "n": 41,
+              "ratio": 73.2
+            }
+          ],
+          "city_top": [
+            {
+              "label": "成都",
+              "count": 9,
+              "n": 41,
+              "ratio": 22.0
+            }
+          ],
+          "purchase_type": [
+            {
+              "label": "首购",
+              "count": 25,
+              "n": 41,
+              "ratio": 61.0
+            },
+            {
+              "label": "换购（卖掉旧车）",
+              "count": 10,
+              "n": 41,
+              "ratio": 24.4
+            },
+            {
+              "label": "增购",
+              "count": 6,
+              "n": 41,
+              "ratio": 14.6
+            }
+          ]
+        },
+        "attention": {
+          "n": 41,
+          "answered": 41,
+          "top3": [
+            {
+              "label": "纯电续航里程",
+              "count": 25,
+              "n": 41,
+              "ratio": 61.0
+            },
+            {
+              "label": "外观",
+              "count": 17,
+              "n": 41,
+              "ratio": 41.5
+            },
+            {
+              "label": "安全性",
+              "count": 15,
+              "n": 41,
+              "ratio": 36.6
+            }
+          ]
+        },
+        "winloss": {
+          "n": 41,
+          "select_top3": [
+            {
+              "label": "纯电续航里程",
+              "count": 21,
+              "n": 41,
+              "ratio": 51.2
+            },
+            {
+              "label": "舒适性",
+              "count": 18,
+              "n": 41,
+              "ratio": 43.9
+            },
+            {
+              "label": "外观",
+              "count": 16,
+              "n": 41,
+              "ratio": 39.0
+            }
+          ],
+          "abandon_top3": [
+            {
+              "label": "外观",
+              "count": 15,
+              "n": 41,
+              "ratio": 36.6
+            },
+            {
+              "label": "空间",
+              "count": 12,
+              "n": 41,
+              "ratio": 29.3
+            },
+            {
+              "label": "内饰",
+              "count": 11,
+              "n": 41,
+              "ratio": 26.8
+            }
+          ],
+          "quotes": {
+            "win_quotes": {
+              "people": 4,
+              "answered": 4
+            },
+            "abandon_quotes": {
+              "people": 4,
+              "answered": 8
+            }
+          }
+        },
+        "satisfaction": {
+          "n": 41,
+          "overall_mean": 8.24,
+          "overall_answered": 41,
+          "best": {
+            "label": "外观",
+            "mean": 8.68,
+            "n": 41
+          },
+          "worst": {
+            "label": "智能座舱",
+            "mean": 7.68,
+            "n": 41
+          },
+          "recommendation_mean": 8.2,
+          "recommendation_answered": 41
+        }
+      },
+      "empty_states": [
+        {
+          "tile": "购车关注",
+          "metric": "产品 / 品牌 / 服务 第一排序",
+          "question": null,
+          "reason": "库内无排序题：quant_question 检索「排序」0 条；Q3_13 为多选勾选，答案不含第一顺位权重，无法计算三类第一排序占比。"
+        },
+        {
+          "tile": "选择与放弃",
+          "metric": "对手为什么赢",
+          "question": null,
+          "reason": "库内无对手视角的观测题；本库样本均为最终购车者，没有未购车用户样本，「对手为什么赢」无法实测。v1 不做推断，避免把近似值混进实测结论。"
+        }
+      ],
+      "summary": [
+        "零跑B10：定量样本 41 人，深访 4 人，口碑提及 392 条，配置 6 个款型。",
+        "画像：年龄段以「26-30岁」为主（12/41）；性别以「男性」为主（30/41）；城市以「成都」为主（9/41）。",
+        "购车关注 TOP3：纯电续航里程 25/41（61.0%）、外观 17/41（41.5%）、安全性 15/41（36.6%）；本题实际作答 41/41。",
+        "选择当前车辆的原因 TOP3：纯电续航里程 21/41（51.2%）、舒适性 18/41（43.9%）、外观 16/41（39.0%）；本题实际作答 41/41。",
+        "深访定性：Q29 选择原因 4 人、Q27/Q28 放弃原因 4 人；逐人原话，不做比例。",
+        "放弃核心对比车型的原因 TOP3：外观 15/41（36.6%）、空间 12/41（29.3%）、内饰 11/41（26.8%）；本题实际作答 41/41。",
+        "整体满意度 8.24 分（41/41）；最高维度 外观 8.68 分（n=41），最低维度 智能座舱 7.68 分（n=41）；推荐意愿均分 8.2 分（n=41）。"
+      ]
+    },
+    {
+      "model": "铂智3X",
+      "key": "toyota-bz3x",
+      "sources": {
+        "quant": 39,
+        "interview": 3,
+        "reputation": 66,
+        "miit": 10
+      },
+      "tiles": {
+        "profile": {
+          "n": 39,
+          "age_top": [
+            {
+              "label": "36-40岁",
+              "count": 10,
+              "n": 39,
+              "ratio": 25.6
+            }
+          ],
+          "gender_top": [
+            {
+              "label": "男性",
+              "count": 27,
+              "n": 39,
+              "ratio": 69.2
+            }
+          ],
+          "city_top": [
+            {
+              "label": "郑州",
+              "count": 10,
+              "n": 39,
+              "ratio": 25.6
+            }
+          ],
+          "purchase_type": [
+            {
+              "label": "首购",
+              "count": 24,
+              "n": 39,
+              "ratio": 61.5
+            },
+            {
+              "label": "换购（卖掉旧车）",
+              "count": 11,
+              "n": 39,
+              "ratio": 28.2
+            },
+            {
+              "label": "增购",
+              "count": 2,
+              "n": 39,
+              "ratio": 5.1
+            },
+            {
+              "label": "换购（报废旧车）",
+              "count": 2,
+              "n": 39,
+              "ratio": 5.1
+            }
+          ]
+        },
+        "attention": {
+          "n": 39,
+          "answered": 39,
+          "top3": [
+            {
+              "label": "外观",
+              "count": 15,
+              "n": 39,
+              "ratio": 38.5
+            },
+            {
+              "label": "品牌",
+              "count": 14,
+              "n": 39,
+              "ratio": 35.9
+            },
+            {
+              "label": "纯电续航里程",
+              "count": 12,
+              "n": 39,
+              "ratio": 30.8
+            }
+          ]
+        },
+        "winloss": {
+          "n": 39,
+          "select_top3": [
+            {
+              "label": "品牌",
+              "count": 17,
+              "n": 39,
+              "ratio": 43.6
+            },
+            {
+              "label": "安全性",
+              "count": 17,
+              "n": 39,
+              "ratio": 43.6
+            },
+            {
+              "label": "空间",
+              "count": 15,
+              "n": 39,
+              "ratio": 38.5
+            }
+          ],
+          "abandon_top3": [
+            {
+              "label": "品牌",
+              "count": 13,
+              "n": 39,
+              "ratio": 33.3
+            },
+            {
+              "label": "服务",
+              "count": 9,
+              "n": 39,
+              "ratio": 23.1
+            },
+            {
+              "label": "空间",
+              "count": 9,
+              "n": 39,
+              "ratio": 23.1
+            }
+          ],
+          "quotes": {
+            "win_quotes": {
+              "people": 3,
+              "answered": 3
+            },
+            "abandon_quotes": {
+              "people": 3,
+              "answered": 6
+            }
+          }
+        },
+        "satisfaction": {
+          "n": 39,
+          "overall_mean": 8.46,
+          "overall_answered": 39,
+          "best": {
+            "label": "空间",
+            "mean": 9.05,
+            "n": 39
+          },
+          "worst": {
+            "label": "智能驾驶",
+            "mean": 7.95,
+            "n": 39
+          },
+          "recommendation_mean": 8.74,
+          "recommendation_answered": 39
+        }
+      },
+      "empty_states": [
+        {
+          "tile": "购车关注",
+          "metric": "产品 / 品牌 / 服务 第一排序",
+          "question": null,
+          "reason": "库内无排序题：quant_question 检索「排序」0 条；Q3_13 为多选勾选，答案不含第一顺位权重，无法计算三类第一排序占比。"
+        },
+        {
+          "tile": "选择与放弃",
+          "metric": "对手为什么赢",
+          "question": null,
+          "reason": "库内无对手视角的观测题；本库样本均为最终购车者，没有未购车用户样本，「对手为什么赢」无法实测。v1 不做推断，避免把近似值混进实测结论。"
+        }
+      ],
+      "summary": [
+        "铂智3X：定量样本 39 人，深访 3 人，口碑提及 66 条，配置 10 个款型。",
+        "画像：年龄段以「36-40岁」为主（10/39）；性别以「男性」为主（27/39）；城市以「郑州」为主（10/39）。",
+        "购车关注 TOP3：外观 15/39（38.5%）、品牌 14/39（35.9%）、纯电续航里程 12/39（30.8%）；本题实际作答 39/39。",
+        "选择当前车辆的原因 TOP3：品牌 17/39（43.6%）、安全性 17/39（43.6%）、空间 15/39（38.5%）；本题实际作答 39/39。",
+        "深访定性：Q29 选择原因 3 人、Q27/Q28 放弃原因 3 人；逐人原话，不做比例。",
+        "放弃核心对比车型的原因 TOP3：品牌 13/39（33.3%）、服务 9/39（23.1%）、空间 9/39（23.1%）；本题实际作答 39/39。",
+        "整体满意度 8.46 分（39/39）；最高维度 空间 9.05 分（n=39），最低维度 智能驾驶 7.95 分（n=39）；推荐意愿均分 8.74 分（n=39）。"
+      ]
+    },
+    {
+      "model": "奇瑞iCAR V23",
+      "key": "chery-icar-v23",
+      "sources": {
+        "quant": 30,
+        "interview": 3,
+        "reputation": 78,
+        "miit": 14
+      },
+      "tiles": {
+        "profile": {
+          "n": 30,
+          "age_top": [
+            {
+              "label": "36-40岁",
+              "count": 8,
+              "n": 30,
+              "ratio": 26.7
+            }
+          ],
+          "gender_top": [
+            {
+              "label": "男性",
+              "count": 21,
+              "n": 30,
+              "ratio": 70.0
+            }
+          ],
+          "city_top": [
+            {
+              "label": "沈阳",
+              "count": 7,
+              "n": 30,
+              "ratio": 23.3
+            }
+          ],
+          "purchase_type": [
+            {
+              "label": "首购",
+              "count": 20,
+              "n": 30,
+              "ratio": 66.7
+            },
+            {
+              "label": "增购",
+              "count": 5,
+              "n": 30,
+              "ratio": 16.7
+            },
+            {
+              "label": "换购（卖掉旧车）",
+              "count": 5,
+              "n": 30,
+              "ratio": 16.7
+            }
+          ]
+        },
+        "attention": {
+          "n": 30,
+          "answered": 30,
+          "top3": [
+            {
+              "label": "安全性",
+              "count": 17,
+              "n": 30,
+              "ratio": 56.7
+            },
+            {
+              "label": "纯电续航里程",
+              "count": 17,
+              "n": 30,
+              "ratio": 56.7
+            },
+            {
+              "label": "操控性",
+              "count": 14,
+              "n": 30,
+              "ratio": 46.7
+            }
+          ]
+        },
+        "winloss": {
+          "n": 30,
+          "select_top3": [
+            {
+              "label": "舒适性",
+              "count": 15,
+              "n": 30,
+              "ratio": 50.0
+            },
+            {
+              "label": "外观",
+              "count": 12,
+              "n": 30,
+              "ratio": 40.0
+            },
+            {
+              "label": "动力性",
+              "count": 11,
+              "n": 30,
+              "ratio": 36.7
+            }
+          ],
+          "abandon_top3": [
+            {
+              "label": "内饰",
+              "count": 10,
+              "n": 30,
+              "ratio": 33.3
+            },
+            {
+              "label": "舒适性",
+              "count": 10,
+              "n": 30,
+              "ratio": 33.3
+            },
+            {
+              "label": "外观",
+              "count": 9,
+              "n": 30,
+              "ratio": 30.0
+            }
+          ],
+          "quotes": {
+            "win_quotes": {
+              "people": 3,
+              "answered": 3
+            },
+            "abandon_quotes": {
+              "people": 3,
+              "answered": 6
+            }
+          }
+        },
+        "satisfaction": {
+          "n": 30,
+          "overall_mean": 8.13,
+          "overall_answered": 30,
+          "best": {
+            "label": "外观",
+            "mean": 8.5,
+            "n": 30
+          },
+          "worst": {
+            "label": "智能驾驶",
+            "mean": 7.3,
+            "n": 30
+          },
+          "recommendation_mean": 7.83,
+          "recommendation_answered": 30
+        }
+      },
+      "empty_states": [
+        {
+          "tile": "购车关注",
+          "metric": "产品 / 品牌 / 服务 第一排序",
+          "question": null,
+          "reason": "库内无排序题：quant_question 检索「排序」0 条；Q3_13 为多选勾选，答案不含第一顺位权重，无法计算三类第一排序占比。"
+        },
+        {
+          "tile": "选择与放弃",
+          "metric": "对手为什么赢",
+          "question": null,
+          "reason": "库内无对手视角的观测题；本库样本均为最终购车者，没有未购车用户样本，「对手为什么赢」无法实测。v1 不做推断，避免把近似值混进实测结论。"
+        }
+      ],
+      "summary": [
+        "奇瑞iCAR V23：定量样本 30 人，深访 3 人，口碑提及 78 条，配置 14 个款型。",
+        "画像：年龄段以「36-40岁」为主（8/30）；性别以「男性」为主（21/30）；城市以「沈阳」为主（7/30）。",
+        "购车关注 TOP3：安全性 17/30（56.7%）、纯电续航里程 17/30（56.7%）、操控性 14/30（46.7%）；本题实际作答 30/30。",
+        "选择当前车辆的原因 TOP3：舒适性 15/30（50.0%）、外观 12/30（40.0%）、动力性 11/30（36.7%）；本题实际作答 30/30。",
+        "深访定性：Q29 选择原因 3 人、Q27/Q28 放弃原因 3 人；逐人原话，不做比例。",
+        "放弃核心对比车型的原因 TOP3：内饰 10/30（33.3%）、舒适性 10/30（33.3%）、外观 9/30（30.0%）；本题实际作答 30/30。",
+        "整体满意度 8.13 分（30/30）；最高维度 外观 8.5 分（n=30），最低维度 智能驾驶 7.3 分（n=30）；推荐意愿均分 7.83 分（n=30）。"
+      ]
+    },
+    {
+      "model": "海狮05 EV",
+      "key": "byd-sealion-05-ev",
+      "sources": {
+        "quant": 31,
+        "interview": 3,
+        "reputation": 39,
+        "miit": 4
+      },
+      "tiles": {
+        "profile": {
+          "n": 31,
+          "age_top": [
+            {
+              "label": "31-35岁",
+              "count": 7,
+              "n": 31,
+              "ratio": 22.6
+            }
+          ],
+          "gender_top": [
+            {
+              "label": "男性",
+              "count": 24,
+              "n": 31,
+              "ratio": 77.4
+            }
+          ],
+          "city_top": [
+            {
+              "label": "深圳",
+              "count": 5,
+              "n": 31,
+              "ratio": 16.1
+            }
+          ],
+          "purchase_type": [
+            {
+              "label": "首购",
+              "count": 15,
+              "n": 31,
+              "ratio": 48.4
+            },
+            {
+              "label": "增购",
+              "count": 8,
+              "n": 31,
+              "ratio": 25.8
+            },
+            {
+              "label": "换购（卖掉旧车）",
+              "count": 8,
+              "n": 31,
+              "ratio": 25.8
+            }
+          ]
+        },
+        "attention": {
+          "n": 31,
+          "answered": 31,
+          "top3": [
+            {
+              "label": "纯电续航里程",
+              "count": 12,
+              "n": 31,
+              "ratio": 38.7
+            },
+            {
+              "label": "质量",
+              "count": 12,
+              "n": 31,
+              "ratio": 38.7
+            },
+            {
+              "label": "安全性",
+              "count": 11,
+              "n": 31,
+              "ratio": 35.5
+            }
+          ]
+        },
+        "winloss": {
+          "n": 31,
+          "select_top3": [
+            {
+              "label": "纯电续航里程",
+              "count": 11,
+              "n": 31,
+              "ratio": 35.5
+            },
+            {
+              "label": "品牌",
+              "count": 10,
+              "n": 31,
+              "ratio": 32.3
+            },
+            {
+              "label": "舒适性",
+              "count": 10,
+              "n": 31,
+              "ratio": 32.3
+            }
+          ],
+          "abandon_top3": [
+            {
+              "label": "空间",
+              "count": 10,
+              "n": 31,
+              "ratio": 32.3
+            },
+            {
+              "label": "内饰",
+              "count": 8,
+              "n": 31,
+              "ratio": 25.8
+            },
+            {
+              "label": "外观",
+              "count": 8,
+              "n": 31,
+              "ratio": 25.8
+            }
+          ],
+          "quotes": {
+            "win_quotes": {
+              "people": 3,
+              "answered": 3
+            },
+            "abandon_quotes": {
+              "people": 3,
+              "answered": 6
+            }
+          }
+        },
+        "satisfaction": {
+          "n": 31,
+          "overall_mean": 8.32,
+          "overall_answered": 31,
+          "best": {
+            "label": "使用费用",
+            "mean": 8.65,
+            "n": 31
+          },
+          "worst": {
+            "label": "智能驾驶",
+            "mean": 8.06,
+            "n": 31
+          },
+          "recommendation_mean": 8.32,
+          "recommendation_answered": 31
+        }
+      },
+      "empty_states": [
+        {
+          "tile": "购车关注",
+          "metric": "产品 / 品牌 / 服务 第一排序",
+          "question": null,
+          "reason": "库内无排序题：quant_question 检索「排序」0 条；Q3_13 为多选勾选，答案不含第一顺位权重，无法计算三类第一排序占比。"
+        },
+        {
+          "tile": "选择与放弃",
+          "metric": "对手为什么赢",
+          "question": null,
+          "reason": "库内无对手视角的观测题；本库样本均为最终购车者，没有未购车用户样本，「对手为什么赢」无法实测。v1 不做推断，避免把近似值混进实测结论。"
+        }
+      ],
+      "summary": [
+        "海狮05 EV：定量样本 31 人，深访 3 人，口碑提及 39 条，配置 4 个款型。",
+        "画像：年龄段以「31-35岁」为主（7/31）；性别以「男性」为主（24/31）；城市以「深圳」为主（5/31）。",
+        "购车关注 TOP3：纯电续航里程 12/31（38.7%）、质量 12/31（38.7%）、安全性 11/31（35.5%）；本题实际作答 31/31。",
+        "选择当前车辆的原因 TOP3：纯电续航里程 11/31（35.5%）、品牌 10/31（32.3%）、舒适性 10/31（32.3%）；本题实际作答 31/31。",
+        "深访定性：Q29 选择原因 3 人、Q27/Q28 放弃原因 3 人；逐人原话，不做比例。",
+        "放弃核心对比车型的原因 TOP3：空间 10/31（32.3%）、内饰 8/31（25.8%）、外观 8/31（25.8%）；本题实际作答 31/31。",
+        "整体满意度 8.32 分（31/31）；最高维度 使用费用 8.65 分（n=31），最低维度 智能驾驶 8.06 分（n=31）；推荐意愿均分 8.32 分（n=31）。"
+      ]
+    },
+    {
+      "model": "钛3",
+      "key": "fangchengbao-tai3",
+      "sources": {
+        "quant": 30,
+        "interview": 3,
+        "reputation": 730,
+        "miit": 3
+      },
+      "tiles": {
+        "profile": {
+          "n": 30,
+          "age_top": [
+            {
+              "label": "26-30岁",
+              "count": 6,
+              "n": 30,
+              "ratio": 20.0
+            }
+          ],
+          "gender_top": [
+            {
+              "label": "男性",
+              "count": 20,
+              "n": 30,
+              "ratio": 66.7
+            }
+          ],
+          "city_top": [
+            {
+              "label": "成都",
+              "count": 6,
+              "n": 30,
+              "ratio": 20.0
+            }
+          ],
+          "purchase_type": [
+            {
+              "label": "首购",
+              "count": 19,
+              "n": 30,
+              "ratio": 63.3
+            },
+            {
+              "label": "换购（卖掉旧车）",
+              "count": 6,
+              "n": 30,
+              "ratio": 20.0
+            },
+            {
+              "label": "增购",
+              "count": 5,
+              "n": 30,
+              "ratio": 16.7
+            }
+          ]
+        },
+        "attention": {
+          "n": 30,
+          "answered": 30,
+          "top3": [
+            {
+              "label": "安全性",
+              "count": 15,
+              "n": 30,
+              "ratio": 50.0
+            },
+            {
+              "label": "外观",
+              "count": 14,
+              "n": 30,
+              "ratio": 46.7
+            },
+            {
+              "label": "舒适性",
+              "count": 14,
+              "n": 30,
+              "ratio": 46.7
+            }
+          ]
+        },
+        "winloss": {
+          "n": 30,
+          "select_top3": [
+            {
+              "label": "外观",
+              "count": 11,
+              "n": 30,
+              "ratio": 36.7
+            },
+            {
+              "label": "安全性",
+              "count": 11,
+              "n": 30,
+              "ratio": 36.7
+            },
+            {
+              "label": "舒适性",
+              "count": 11,
+              "n": 30,
+              "ratio": 36.7
+            }
+          ],
+          "abandon_top3": [
+            {
+              "label": "质量",
+              "count": 11,
+              "n": 30,
+              "ratio": 36.7
+            },
+            {
+              "label": "空间",
+              "count": 9,
+              "n": 30,
+              "ratio": 30.0
+            },
+            {
+              "label": "内饰",
+              "count": 8,
+              "n": 30,
+              "ratio": 26.7
+            }
+          ],
+          "quotes": {
+            "win_quotes": {
+              "people": 3,
+              "answered": 3
+            },
+            "abandon_quotes": {
+              "people": 3,
+              "answered": 6
+            }
+          }
+        },
+        "satisfaction": {
+          "n": 30,
+          "overall_mean": 8.1,
+          "overall_answered": 30,
+          "best": {
+            "label": "动力性",
+            "mean": 8.87,
+            "n": 30
+          },
+          "worst": {
+            "label": "智能驾驶",
+            "mean": 7.87,
+            "n": 30
+          },
+          "recommendation_mean": 8.13,
+          "recommendation_answered": 30
+        }
+      },
+      "empty_states": [
+        {
+          "tile": "购车关注",
+          "metric": "产品 / 品牌 / 服务 第一排序",
+          "question": null,
+          "reason": "库内无排序题：quant_question 检索「排序」0 条；Q3_13 为多选勾选，答案不含第一顺位权重，无法计算三类第一排序占比。"
+        },
+        {
+          "tile": "选择与放弃",
+          "metric": "对手为什么赢",
+          "question": null,
+          "reason": "库内无对手视角的观测题；本库样本均为最终购车者，没有未购车用户样本，「对手为什么赢」无法实测。v1 不做推断，避免把近似值混进实测结论。"
+        }
+      ],
+      "summary": [
+        "钛3：定量样本 30 人，深访 3 人，口碑提及 730 条，配置 3 个款型。",
+        "画像：年龄段以「26-30岁」为主（6/30）；性别以「男性」为主（20/30）；城市以「成都」为主（6/30）。",
+        "购车关注 TOP3：安全性 15/30（50.0%）、外观 14/30（46.7%）、舒适性 14/30（46.7%）；本题实际作答 30/30。",
+        "选择当前车辆的原因 TOP3：外观 11/30（36.7%）、安全性 11/30（36.7%）、舒适性 11/30（36.7%）；本题实际作答 30/30。",
+        "深访定性：Q29 选择原因 3 人、Q27/Q28 放弃原因 3 人；逐人原话，不做比例。",
+        "放弃核心对比车型的原因 TOP3：质量 11/30（36.7%）、空间 9/30（30.0%）、内饰 8/30（26.7%）；本题实际作答 30/30。",
+        "整体满意度 8.1 分（30/30）；最高维度 动力性 8.87 分（n=30），最低维度 智能驾驶 7.87 分（n=30）；推荐意愿均分 8.13 分（n=30）。"
+      ]
+    }
+  ]
+}

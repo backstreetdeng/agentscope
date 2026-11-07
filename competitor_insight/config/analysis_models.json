@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "updated": "2026-11-07",
+  "default_model": "leapmotor-b10",
+  "note": "五款默认车型与多源别名集中在此文件。换车组只改 models，不改代码；别名必须覆盖定量、深访、口碑、配置四个数据源。",
+  "models": [
+    {
+      "key": "leapmotor-b10",
+      "label": "零跑B10",
+      "price_note": "10–15 万（37/41）",
+      "body_note": "紧凑型纯电 SUV（公开定位推断，库内无级别字段）",
+      "quant_models": ["零跑B10"],
+      "interview_models": ["零跑B10"],
+      "reputation_models": ["零跑B10"],
+      "miit_models": ["零跑B10"]
+    },
+    {
+      "key": "toyota-bz3x",
+      "label": "铂智3X",
+      "price_note": "10–15 万（36/39）",
+      "body_note": "紧凑型纯电 SUV（公开定位推断，库内无级别字段）",
+      "quant_models": ["铂智3X"],
+      "interview_models": ["铂智3X"],
+      "reputation_models": ["铂智3X"],
+      "miit_models": ["铂智3X"]
+    },
+    {
+      "key": "chery-icar-v23",
+      "label": "奇瑞iCAR V23",
+      "price_note": "10–15 万（27/30）",
+      "body_note": "紧凑型纯电 SUV（公开定位推断，库内无级别字段）",
+      "quant_models": ["奇瑞iCAR V23", "iCAR V23"],
+      "interview_models": ["奇瑞iCAR V23", "iCAR V23"],
+      "reputation_models": ["iCAR 超级V23"],
+      "miit_models": ["iCAR 超级V23"]
+    },
+    {
+      "key": "byd-sealion-05-ev",
+      "label": "海狮05 EV",
+      "price_note": "10–15 万（31/31）",
+      "body_note": "紧凑型纯电 SUV（公开定位推断，库内无级别字段）",
+      "quant_models": ["海狮05 EV"],
+      "interview_models": ["海狮05 EV"],
+      "reputation_models": ["海狮05 EV"],
+      "miit_models": ["海狮05 EV"]
+    },
+    {
+      "key": "fangchengbao-tai3",
+      "label": "钛3",
+      "price_note": "10–20 万（10–15 万 19 人、15–20 万 11 人）",
+      "body_note": "紧凑型纯电 SUV（公开定位推断，库内无级别字段）",
+      "quant_models": ["钛3"],
+      "interview_models": ["钛3"],
+      "reputation_models": ["钛3"],
+      "miit_models": ["钛3"]
+    }
+  ],
+  "competitor_aliases": {
+    "比亚迪宋PlUS": "比亚迪宋PLUS",
+    "比亚迪宋plus": "比亚迪宋PLUS",
+    "海狮05EV": "海狮05 EV",
+    "海狮05ev": "海狮05 EV",
+    "iCAR 超级V23": "奇瑞iCAR V23",
+    "iCAR超级V23": "奇瑞iCAR V23",
+    "奇瑞iCARV23": "奇瑞iCAR V23",
+    "小鹏MONA M03": "小鹏M03",
+    "MG 07": "MG07"
+  }
+}

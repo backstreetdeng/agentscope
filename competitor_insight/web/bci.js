@@ -372,6 +372,7 @@
             p.hidden = p.getAttribute('data-bci-panel') !== key;
           });
           if (key === 'profile') initProfile(root);
+          if (key === 'analyze') initAnalysis(root);
         }
       });
 
@@ -388,6 +389,12 @@
     function initProfile(root) {
       const host = qs('[data-bci-profile]', root);
       if (host && window.BciProfile) window.BciProfile.init(host);
+    }
+
+    // tab ③ 首次进入时才初始化即时分析，避免首页加载即查询四类数据源。
+    function initAnalysis(root) {
+      const host = qs('[data-bci-analysis]', root);
+      if (host && window.BciAnalysis) window.BciAnalysis.init(host);
     }
 
     let entering = null;

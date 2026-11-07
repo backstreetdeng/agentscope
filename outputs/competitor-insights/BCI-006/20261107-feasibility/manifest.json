@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "task_id": "20261107-bci006-feasibility",
+  "purpose": "BCI-006 即时分析 tab 落地可行性测评的只读证据：四源逐车型计数、逐指标样本量、原型五车覆盖。",
+  "created_by": "TRAE（BCI-006）",
+  "status": "completed",
+  "reproduce": "E:/AI/data/envs/helloagent/Scripts/python.exe -B temp/20261107-bci006/probe_data.py（其余 probe_*.py 同理，均在项目根执行，只读）",
+  "files": [
+    {
+      "path": "README.md",
+      "purpose": "本证据目录说明与结论索引",
+      "source": "BCI-006 测评会话",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "four_source_counts.csv",
+      "purpose": "库内全部定量车型 × 四源计数（定量/深访/口碑正负/配置款型与配置行/价格段众数）",
+      "source": "temp/20261107-bci006/probe_pool.py 输出",
+      "rebuildable": true,
+      "retention": "保留"
+    }
+  ],
+  "cleanup_conditions": "测评文档与 TASK.md 已固化结论；证据目录保留至 BCI-006 进入 TESTED，之后按 RULES 第 8 节保留。",
+  "restore": "无需恢复；重新运行 reproduce 命令即可重建。"
+}

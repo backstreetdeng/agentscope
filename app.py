@@ -996,6 +996,8 @@ def build_intelligence_export(domain: str, record_ids: list[str]) -> tuple[bytes
 
 BCI_ARCHIVE_SERVICE: Any = None
 BCI_ARCHIVE_SERVICE_LOCK = Lock()
+BCI_ANALYSIS_SERVICE: Any = None
+BCI_ANALYSIS_SERVICE_LOCK = Lock()
 
 
 def bci_archive_service() -> Any:
@@ -1018,6 +1020,13 @@ def bci_query_int(value: str, default: int) -> int:
         return int(value)
     except (TypeError, ValueError):
         return default
+
+
+def bci_analysis_service() -> Any:
+    """惰性构造竞品洞察即时分析服务；首次请求才连接只读数据源。"""
+    global BCI_ANALYSIS_SERVICE
+    if BCI_ANALYSIS_SERVICE is not None:
+        return BCI_ANALYSIS_SERVICE
 
 
 HTML = (PROJECT_DIR / 'home.html').read_text(encoding='utf-8')
@@ -1166,6 +1175,10 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
 
         if request_path.startswith('/api/bci/archive/'):
             self._handle_bci_archive_get(parsed)
+            return
+
+        if request_path.startswith('/api/bci/analysis/'):
+            self._handle_bci_analysis_get(parsed)
             return
 
         if request_path == "/api/config":
@@ -2210,6 +2223,48 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
             self._send_json({'ok': False, 'error': {'code': 'internal_error', 'message': exc.__class__.__name__}}, status=500)
             return
         self._send_json(payload)
+
+    def _handle_bci_analysis_get(self, parsed: Any) -> None:
+        """GET /api/bci/analysis/*：车型清单与即时分析四磁贴。"""
+        from competitor_insight.server.analysis_service import AnalysisError
+        from competitor_insight.server.db import DatabaseUnavailable
+
+        query = parse_qs(parsed.query)
+        operation = parsed.path[len('/api/bci/analysis/'):]
+        try:
+            service = bci_analysis_service()
+            if operation == 'models':
+                payload = service.models()
+            elif operation == 'analyze':
+                payload = service.analyze((query.get('model') or [''])[0])
+            else:
+                self._send_json(
+                    {'ok': False, 'error': {'code': 'not_found', 'message': '未找到即时分析接口。'}},
+                    status=404,
+                )
+                return
+        except AnalysisError as exc:
+            self._send_json(exc.to_payload(), status=exc.status)
+            return
+        except DatabaseUnavailable as exc:
+            self._send_json(
+                {'ok': False, 'error': {'code': 'database_unavailable', 'message': str(exc)}},
+                status=503,
+            )
+            return
+        except (ValueError, OSError) as exc:
+            self._send_json(
+                {'ok': False, 'error': {'code': 'invalid_request', 'message': str(exc)}},
+                status=400,
+            )
+            return
+        except Exception as exc:  # noqa: BLE001
+            self._send_json(
+                {'ok': False, 'error': {'code': 'internal_error', 'message': exc.__class__.__name__}},
+                status=500,
+            )
+            return
+        self._send_json({'ok': True, 'data': payload})
 
     def _handle_bci_archive_post(self, parsed: Any) -> None:
         """POST /api/bci/archive/*：生成档案（后台任务）与 xlsx / md 导出。"""

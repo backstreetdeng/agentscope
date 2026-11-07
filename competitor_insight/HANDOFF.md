@@ -2,6 +2,18 @@
 
 更新：2026-11-07（Asia/Shanghai）。新条目追加在最上面。写法见 [RULES.md](RULES.md) 第 9 节；本文件与 TASK.md 冲突时以 TASK.md 为准。
 
+## 2026-11-07 · BCI-006 即时分析 tab 完成（S3–S7，TESTED）
+
+- **当前任务与阶段**：[BCI-006](tasks/BCI-006/TASK.md) → `TESTED`，等用户 7860 业务验收；五车范围与「放弃核心对比车型的原因」口径已由用户确认。
+- **实现**：`config/analysis_models.json`（五车 + 跨源别名，换组只改配置）；`server/analysis_service.py`（四磁贴 + 确定性结论 + 空态原因 + 样本基数）；`app.py` 仅新增 `/api/bci/analysis/*` 两路由与惰性单例；`home.html` 启用 tab ③；`web/bci-analysis.js|css` 自包含渲染；`web/bci.js` 仅加 tab ③ 初始化。
+- **口径**：Q1 只作人群分类；Q29 ↔ `Q3_23__1..16`；Q27/Q28 ↔ `Q3_24_1__1..16`；两边同名同序 16 维，实测无对不上的维度。页面主标签为「选择当前车辆的原因」「放弃核心对比车型的原因」，并注明本库无未购车样本。
+- **更正**：`Q5_5` 推荐意愿并非 0 作答，实为文本分值（如「9十分推荐」），已实现均值/分档；`Q3_13/Q3_23` 的 `601/1380`、`521/1380` 是单选项人数，16 键并集作答为 1380/1380。
+- **验收**：`unittest` 18/18；真实库 API E2E `ALL PASS`；Playwright 浏览器 E2E `ALL PASS`（四磁贴、五车下拉、n=41/30、空态原因、无比例为引语、逐人人数）。截图与五车数字见 `outputs/competitor-insights/BCI-006/20261107-analysis/`。
+- **数据缺失未做**：关注第一排序（无排序题）、对手为什么赢（无对手视角题/无未购车样本）、进攻点/被进攻点（需跨车推导）、生活状态分型占比与定性强度比例（深访 3–4 人，只出原话）。详见 TASK.md §8。
+- **检查**：`check_board.py` 仍 failed，唯一原因是 BCI-004 的 `commit_paths` 覆盖 `BOARD.md`/`HANDOFF.md`/`server/` 整目录；**按用户指示未修改他人声明**。
+- **服务**：7860 由后台 `python -u app.py` 提供，`/api/bci/analysis/models` 与 `analyze` 实测 200；若进程被回收，按 `start_agent.cmd` 常规启动。
+- **Git**：本任务文件与证据按显式路径提交，不夹带 `customer_insight/`、`forecast-engine/` 等其他在途改动。
+
 ## 2026-11-07 · BCI-004 D7d：互斥回退 + 信息渠道呈现层归并
 
 - **互斥回退（用户认可 R046=增购）**：`value_normalizer.resolve_enum_with_fallback` 在标签多值互斥时查 `interview.purchase_type`，与候选唯一一致才取值、`review_status=ok`，并在 `source_ref.correction` 记 `from_raw_tag_value/metadata/rule/basis`；元数据缺失或与候选都不一致时保持 `suspect`，不猜。实测 R046 重跑为「增购 / ok」，不会再打回 suspect。
