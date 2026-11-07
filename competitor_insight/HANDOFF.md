@@ -2,6 +2,13 @@
 
 更新：2026-11-07（Asia/Shanghai）。新条目追加在最上面。写法见 [RULES.md](RULES.md) 第 9 节；本文件与 TASK.md 冲突时以 TASK.md 为准。
 
+## 2026-11-07 · BCI-004 D7b：R046 购车属性互斥值已核实修正
+
+- **结论**：R046（腾势N9，深圳）按模板题 1「已婚以小家庭（不含父母）为单位」应为**增购**。链路为 `fill_mode=tag` ← 标签「首增换购属性」`TAG-377357cc173d61c8ce47`（原值「换购；增购。」）；原话 `TEI-91315ed80cf5faca5d12`（3055.8–3089.4）说明旧车本田雅阁购入当时仍由妻子使用、没有卖掉，家庭口径是添置；`interview.purchase_type=增购` 交叉一致。个人视角的「换购」不适用于该口径。
+- **改动**：`bci.archive_field(R046, purchase_attribute)` → `value_text=增购`、`fill_mode=tag`、`review_status=ok`；原值（含标签原值）、原原因、判断依据、证据 ID 与时间段写入 `source_ref.correction`，可回溯。该档案覆盖率 68.42→71.05（27/38），状态仍 `partial`。
+- **影响面**：全库仅 1 条多值互斥（R046）；`R046` 与 `RE010` 不是同一人，库中无 `RE010`（早前报告笔误，实为 `R010`）。另发现 `R063 = 实际增购。` 非标准枚举，若生成会触发 `invalid_enum` 导致整人失败 → 记 [BCI-004-L12](tasks/BCI-004/TASK.md)。
+- **脚本**：`ops/fix_bci_r046_purchase_attribute.py`（幂等，可重跑）；证据 `outputs/competitor-insights/BCI-004/20261107-r046-verify/`。
+
 ## 2026-11-07 · BCI-004 入库提交（`7dc91aa` 已推送）
 
 - **当前任务与阶段**：[BCI-004](tasks/BCI-004/TASK.md) 保持 `TESTED`，等用户验收 7860 页面与 10 人试点数据。

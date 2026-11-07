@@ -1,0 +1,31 @@
+{
+  "task_id": "BCI-004",
+  "step": "D7b",
+  "purpose": "R046「购车属性（首增换购）」互斥值回原始访谈核实、可追溯修正与影响面统计",
+  "created": "2026-11-07",
+  "inputs": [
+    "bci.archive / bci.archive_field（R046, purchase_attribute）",
+    "user_insight.interview（R046 purchase_type）",
+    "user_insight.answer（A-R046-Q001）",
+    "user_insight.tag（TAG-377357cc173d61c8ce47）",
+    "user_insight.tag_evidence（TEI-91315ed80cf5faca5d12）",
+    "user_insight.evidence（Q1 原话）",
+    "competitor_insight/templates/user_insight_archive.source-map.json"
+  ],
+  "outputs": [
+    "probe_r046.py",
+    "probe_schema.py",
+    "probe_r046_chain.py",
+    "probe_ids.py",
+    "field.log",
+    "chain.log",
+    "ids.log",
+    "fix.log"
+  ],
+  "conclusion": "按模板题 1「已婚以小家庭（不含父母）为单位」，R046 应为增购；原「换购；增购」为个人/家庭双视角表述，个人视角不适用该口径。",
+  "db_change": "bci.archive_field(R046, purchase_attribute): value_text=增购, fill_mode=tag, review_status=ok；原值/原原因/依据/证据 ID/时间段写入 source_ref.correction；coverage_required 68.42→71.05",
+  "rebuild": "../Scripts/python.exe -B ops/fix_bci_r046_purchase_attribute.py（幂等，已修正则跳过或补齐 from_tag_value）",
+  "side_effects": "仅更新该档案字段与该档案 coverage/status；不改 user_insight 源数据、不改标签、不打印凭据",
+  "cleanable": false,
+  "restore": "如需回滚：把 value_text 置空、fill_mode=none、review_status=suspect，并恢复 source_ref.correction.from_no_data_reason 的原因文本"
+}
