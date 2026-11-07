@@ -20,9 +20,9 @@
     "generator_dryrun.json",
     "tag_dims.log"
   ],
-  "conclusion": "全库「首增换购属性」63 条：换购。31 / 增购。20 / 首购。10 直通；实际增购。1→增购（用户拍板）；换购；增购。1→suspect（不取第一个值，R046 已按原话人工修正）。无空值、无「未提及/不适用」写法。模板中 tag 驱动的单选枚举仅此一维；info_channels 为多值列表，未做词表映射。",
-  "rule_location": "competitor_insight/server/value_normalizer.py（resolve_enum / resolve_enum_or_raise）；archive_generator._tag_field 的 enum 分支调用",
-  "tests": "competitor_insight/tests/test_value_normalizer.py 9 项；全量 unittest 90/90 通过",
+  "conclusion": "全库「首增换购属性」63 条：换购。31 / 增购。20 / 首购。10 直通；实际增购。1→增购（用户拍板）；换购；增购。1→由 interview.purchase_type 交叉校验取值（D7d，R046=增购/ok；元数据缺失或冲突才 suspect）。无空值、无「未提及/不适用」写法。模板中 tag 驱动的单选枚举仅此一维。",
+  "rule_location": "competitor_insight/server/value_normalizer.py（resolve_enum / resolve_enum_or_raise / resolve_enum_with_fallback）；archive_generator._tag_field 的 enum 分支调用",
+  "tests": "tests/test_value_normalizer.py（归一 + 回退三分支）+ tests/test_archive_generator.py（回退 review_status/修正记录）；全量 unittest 104/104 通过",
   "rebuild": "../Scripts/python.exe -B outputs/competitor-insights/BCI-004/20261107-enum-normalize/probe_enum_mapping.py && ../Scripts/python.exe -B outputs/competitor-insights/BCI-004/20261107-enum-normalize/summarize_enum_mapping.py",
   "side_effects": "全部只读：不改 user_insight 源数据、不写 bci、不调模型、不打印凭据",
   "cleanable": false,

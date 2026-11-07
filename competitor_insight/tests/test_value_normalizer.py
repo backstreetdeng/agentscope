@@ -10,8 +10,10 @@ import unittest
 
 from competitor_insight.server.evidence_gate import EvidenceGateError
 from competitor_insight.server.value_normalizer import (
+    FALLBACK_RULE,
     resolve_enum,
     resolve_enum_or_raise,
+    resolve_enum_with_fallback,
 )
 
 OPTIONS = ["首购", "增购", "换购"]
@@ -86,6 +88,61 @@ class ResolveEnumTest(unittest.TestCase):
             resolve_enum_or_raise("purchase_attribute", "未提及", OPTIONS).status,
             "no_value",
         )
+
+
+class AmbiguousMetadataFallbackTest(unittest.TestCase):
+    """互斥多值 → interview.purchase_type 交叉校验，不允许猜。"""
+
+    def test_metadata_consistent_with_candidate_is_used(self):
+        resolved = resolve_enum_with_fallback(
+            "purchase_attribute", "换购；增购。", OPTIONS, {"purchase_type": "增购"}
+        )
+        self.assertEqual(resolved.status, "fallback")
+        self.assertEqual(resolved.value, "增购")
+        self.assertEqual(resolved.candidates, ["换购", "增购"])
+        self.assertEqual(resolved.correction["from_raw_tag_value"], "换购；增购。")
+        self.assertEqual(resolved.correction["metadata"], {"field": "purchase_type", "value": "增购"})
+        self.assertEqual(resolved.correction["rule"], FALLBACK_RULE)
+        self.assertIn("增购", resolved.correction["basis"])
+        self.assertEqual(resolved.as_source_ref(), {})
+
+    def test_missing_metadata_stays_ambiguous(self):
+        for metadata in ({}, {"purchase_type": None}, {"purchase_type": ""}):
+            with self.subTest(metadata=metadata):
+                resolved = resolve_enum_with_fallback(
+                    "purchase_attribute", "换购；增购。", OPTIONS, metadata
+                )
+                self.assertEqual(resolved.status, "ambiguous")
+                self.assertIsNone(resolved.value)
+                self.assertIsNone(resolved.correction)
+
+    def test_conflicting_metadata_stays_ambiguous(self):
+        for meta_value in ("首购", "四个字乱码"):
+            with self.subTest(purchase_type=meta_value):
+                resolved = resolve_enum_with_fallback(
+                    "purchase_attribute", "换购；增购。", OPTIONS, {"purchase_type": meta_value}
+                )
+                self.assertEqual(resolved.status, "ambiguous")
+                self.assertIsNone(resolved.value)
+
+    def test_non_ambiguous_paths_are_unchanged(self):
+        self.assertEqual(
+            resolve_enum_with_fallback(
+                "purchase_attribute", "实际增购。", OPTIONS, {"purchase_type": "换购"}
+            ).status,
+            "normalized",
+        )
+        self.assertEqual(
+            resolve_enum_with_fallback(
+                "purchase_attribute", "未提及", OPTIONS, {"purchase_type": "增购"}
+            ).status,
+            "no_value",
+        )
+        with self.assertRaises(EvidenceGateError) as ctx:
+            resolve_enum_with_fallback(
+                "purchase_attribute", "四个字乱码", OPTIONS, {"purchase_type": "增购"}
+            )
+        self.assertEqual(ctx.exception.code, "invalid_enum")
 
 
 if __name__ == "__main__":

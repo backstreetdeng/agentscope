@@ -5,6 +5,7 @@
 - `normalized` 口语/修饰写法能唯一推出选项 → 归一使用，并在来源里记录原值；
 - `no_value`   明确表示没有数据（空值、「未提及」「不适用」等）→ 落 no_data_reason；
 - `ambiguous`  多个互斥选项同时出现 → 不臆断，落 no_data_reason + suspect；
+- `fallback`   互斥时由 `interview.purchase_type` 交叉校验唯一命中 → 取值并留修正记录；
 - `unknown`    既非标准值也不是可识别的同义写法 → 抛 invalid_enum，不硬猜。
 """
 
@@ -51,6 +52,10 @@ MODIFIER_PREFIXES = (
 
 SPLIT_PATTERN = re.compile(r"[；;、,，/]")
 
+# 互斥多值时的元数据回退字段（目前只有购车属性有对应元数据）。
+METADATA_FALLBACK_FIELD = "purchase_type"
+FALLBACK_RULE = "ambiguous_tag_metadata_fallback"
+
 
 @dataclass
 class EnumResolution:
@@ -59,6 +64,7 @@ class EnumResolution:
     status: str
     reason: str = ""
     candidates: list[str] = field(default_factory=list)
+    correction: dict | None = None
 
     def as_source_ref(self) -> dict:
         """写进 source_ref 的归一记录，保证可追溯。"""
@@ -148,5 +154,49 @@ def resolve_enum_or_raise(dimension_id: str, raw: str, options: list[str]) -> En
         raise EvidenceGateError(
             "invalid_enum",
             f"{dimension_id}：取值 {raw!r} 不在模板选项 {list(options)} 中，且无法归一",
+        )
+    return resolved
+
+
+def resolve_enum_with_fallback(
+    dimension_id: str,
+    raw: str,
+    options: list[str],
+    metadata: dict,
+) -> EnumResolution:
+    """互斥多值时回退查 `interview.purchase_type`。
+
+    只有元数据恰好等于其中一个候选才采用；元数据缺失或与候选都不一致时
+    保持 `ambiguous`，由调用方落 suspect，不猜。
+    """
+    resolved = resolve_enum(raw, options)
+    if resolved.status == "unknown":
+        raise EvidenceGateError(
+            "invalid_enum",
+            f"{dimension_id}：取值 {raw!r} 不在模板选项 {list(options)} 中，且无法归一",
+        )
+    if resolved.status != "ambiguous":
+        return resolved
+
+    meta_value = normalize_value(str(metadata.get(METADATA_FALLBACK_FIELD) or ""))
+    if meta_value and meta_value in resolved.candidates:
+        return EnumResolution(
+            raw=raw,
+            value=meta_value,
+            status="fallback",
+            reason=(
+                f"标签含多个互斥取值（{'、'.join(resolved.candidates)}），"
+                f"按 {METADATA_FALLBACK_FIELD}={meta_value} 交叉校验采用"
+            ),
+            candidates=resolved.candidates,
+            correction={
+                "from_raw_tag_value": raw,
+                "metadata": {"field": METADATA_FALLBACK_FIELD, "value": meta_value},
+                "rule": FALLBACK_RULE,
+                "basis": (
+                    f"标签「{raw}」含互斥候选 {'、'.join(resolved.candidates)}；"
+                    f"interview.{METADATA_FALLBACK_FIELD}={meta_value} 恰为其一"
+                ),
+            },
         )
     return resolved

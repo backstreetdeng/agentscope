@@ -2,14 +2,22 @@
 
 更新：2026-11-07（Asia/Shanghai）。新条目追加在最上面。写法见 [RULES.md](RULES.md) 第 9 节；本文件与 TASK.md 冲突时以 TASK.md 为准。
 
+## 2026-11-07 · BCI-004 D7d：互斥回退 + 信息渠道呈现层归并
+
+- **互斥回退（用户认可 R046=增购）**：`value_normalizer.resolve_enum_with_fallback` 在标签多值互斥时查 `interview.purchase_type`，与候选唯一一致才取值、`review_status=ok`，并在 `source_ref.correction` 记 `from_raw_tag_value/metadata/rule/basis`；元数据缺失或与候选都不一致时保持 `suspect`，不猜。实测 R046 重跑为「增购 / ok」，不会再打回 suspect。
+- **信息渠道归并（仅呈现/统计层）**：`server/channel_normalizer.py` + `templates/info_channel_aliases.json`。表覆盖全库 64 种写法（原报告 66 系同一条标签内重复计数，已更正），逐条含原写法、目标渠道、次数、依据（标准值/同义简称/子频道/模板未单列→其他/无法归并→未归类）。未知写法落「未归类」不丢弃；原始写法完整保留在 `archive_field.source_ref.raw_values/raw_parts`，未改 `value_json` 以外任何数据。
+- **测试**：全量 `unittest` 104/104；只读联调 R003/R046 渠道归并与原始写法保留、R063/R046 枚举取值符合预期。
+- **当前状态**：仍为 10 人试点，**全量 63 人未跑**；代码已就绪，等用户放开。
+- **待用户决定**：① 全量 63 人是否放开；② 渠道归并口径（「其他 vs 未归类」划线）是否认可。
+
 ## 2026-11-07 · BCI-004 D7c：枚举值归一集中层完成（L12 解除）
 
 - **结论**：用户拍板「实际增购」算「增购」。全库「首增换购属性」63 条实测：`换购。`31 / `增购。`20 / `首购。`10 直通（仅句号，去标点即标准）；`实际增购。`1 → `增购`（归一，`source_ref` 记原值与规则）；`换购；增购。`1 → 不取值、`review_status=suspect` + `no_data_reason`（R046 已按原话人工修正，档案值保留 `增购`）。
 - **规则位置**：新增 `competitor_insight/server/value_normalizer.py`，单一入口 `resolve_enum` / `resolve_enum_or_raise`；`archive_generator._tag_field` 的 enum 分支改为调用，不再在生成器内散落判断；`unknown` 仍按 `invalid_enum` 整人失败。
-- **同类标签**：模板仅 `purchase_attribute` 是 tag 驱动单选枚举；`kol_influence` 无来源；`info_channels`（汽车触媒偏好/APP偏好）是多值列表；其余 82 个带 `allowed_values` 的标签为自由文本，参考词表不参与单选归一。**发现**：`info_channels` 多值实际出现 66 种写法、60 种不在模板 options 内（如「哔哩哔哩」「视频号」「微信」），当前按原词入列表未映射，是否做词表映射待用户决定。
+- **同类标签**：模板仅 `purchase_attribute` 是 tag 驱动单选枚举；`kol_influence` 无来源；`info_channels`（汽车触媒偏好/APP偏好）是多值列表；其余 82 个带 `allowed_values` 的标签为自由文本，参考词表不参与单选归一。**发现**：`info_channels` 多值实际出现 64 种写法（去重后口径）、多数不在模板 options 内（如「哔哩哔哩」「视频号」「微信」），已在 D7d 做呈现层归并。
 - **测试**：新增 `tests/test_value_normalizer.py` 9 项；全量 `unittest` 90/90 通过。只读联调：R063 生成 `增购` + 归一记录、R046 生成 `suspect` + 原因。
 - **证据**：[enum_mapping.md](outputs/competitor-insights/BCI-004/20261107-enum-normalize/enum_mapping.md)（映射表）、`enum_mapping.json`、`generator_dryrun.json`。
-- **注意**：`user_insight.tag` 源数据只读未改；R046 若强制重生成会回到 `suspect`，需人工复核或等标签侧修数。
+- **注意**：`user_insight.tag` 源数据只读未改；D7d 起互斥值由 `purchase_type` 回退裁决，重跑不再回到 `suspect`。
 
 ## 2026-11-07 · BCI-006 即时分析 tab：可行性测评完成，车型范围待用户确认
 

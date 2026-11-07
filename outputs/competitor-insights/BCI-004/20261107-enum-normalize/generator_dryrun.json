@@ -24,10 +24,10 @@
       "换购；增购。"
     ],
     "purchase_type": "增购",
-    "fill_mode": "none",
-    "value_text": null,
-    "review_status": "suspect",
-    "no_data_reason": "标签含多个互斥取值：换购；增购，无法确定单一选项",
+    "fill_mode": "tag",
+    "value_text": "增购",
+    "review_status": "ok",
+    "no_data_reason": null,
     "source_ref": {
       "tag_ids": [
         "TAG-377357cc173d61c8ce47"
@@ -35,7 +35,15 @@
       "tag_names": [
         "首增换购属性"
       ],
-      "raw_tag_value": "换购；增购。"
+      "correction": {
+        "from_raw_tag_value": "换购；增购。",
+        "metadata": {
+          "field": "purchase_type",
+          "value": "增购"
+        },
+        "rule": "ambiguous_tag_metadata_fallback",
+        "basis": "标签「换购；增购。」含互斥候选 换购、增购；interview.purchase_type=增购 恰为其一"
+      }
     }
   }
 }

@@ -17,6 +17,7 @@ from dataclasses import dataclass
 from typing import Any, Callable, Protocol
 
 from competitor_insight.server.archive_store import ArchiveDraft, ArchiveFieldRecord
+from competitor_insight.server.channel_normalizer import normalize_channels
 from competitor_insight.server.evidence_gate import (
     MAX_EVIDENCE_PER_FIELD,
     EvidenceCandidate,
@@ -27,7 +28,7 @@ from competitor_insight.server.evidence_gate import (
 )
 from competitor_insight.server.source_map import DimensionSource, SourceMap
 from competitor_insight.server.template_registry import ARCHIVE_TEMPLATE_ID, TemplateRegistry
-from competitor_insight.server.value_normalizer import resolve_enum_or_raise
+from competitor_insight.server.value_normalizer import resolve_enum_with_fallback
 
 LlmClient = Callable[[str], str]
 
@@ -254,10 +255,13 @@ class ArchiveGenerator:
         value_text: str | None = joined
         value_json: Any = None
         normalized_ref: dict = {}
+        review_status = "auto"
         if dim_type == "enum":
             options = tpl.get("options", [])
             try:
-                resolved = resolve_enum_or_raise(dim.dimension_id, tags[0].value, options)
+                resolved = resolve_enum_with_fallback(
+                    dim.dimension_id, tags[0].value, options, bundle.interview
+                )
             except EvidenceGateError as exc:
                 raise GenerationError(exc.code, str(exc)) from exc
             source_base = {
@@ -275,7 +279,7 @@ class ArchiveGenerator:
                     review_status="missing",
                 )
             if resolved.status == "ambiguous":
-                # 单选维遇到多个互斥选项：不臆断取第一个，留待人工复核。
+                # 单选维遇到多个互斥选项且元数据无法裁决：不臆断取第一个，留待人工复核。
                 return ArchiveFieldRecord(
                     dimension_id=dim.dimension_id,
                     group_id=dim.group_id,
@@ -285,16 +289,27 @@ class ArchiveGenerator:
                     review_status="suspect",
                 )
             value_text = resolved.value
-            normalized_ref = resolved.as_source_ref()
+            if resolved.status == "fallback":
+                # 元数据交叉校验取值：留完整修正记录，重跑结果稳定。
+                normalized_ref = {"correction": resolved.correction}
+                review_status = "ok"
+            else:
+                normalized_ref = resolved.as_source_ref()
         elif dim_type == "multi":
-            merged: list[str] = []
+            raw_parts: list[str] = []
             for tag in tags:
                 for part in re.split(r"[；;、]", tag.value):
                     cleaned = normalize_value(part)
-                    if cleaned and cleaned not in merged:
-                        merged.append(cleaned)
+                    if cleaned and cleaned not in raw_parts:
+                        raw_parts.append(cleaned)
             value_text = None
-            value_json = merged
+            # 展示/统计层归并；原始写法完整保留在 source_ref，便于回溯与重新归并。
+            value_json = normalize_channels(raw_parts, dim.dimension_id)
+            normalized_ref = {
+                "raw_values": [tag.value for tag in tags],
+                "raw_parts": raw_parts,
+                "channel_normalization": "presentation",
+            }
 
         return ArchiveFieldRecord(
             dimension_id=dim.dimension_id,
@@ -307,6 +322,7 @@ class ArchiveGenerator:
                 "tag_names": list(dim.tag_names),
                 **normalized_ref,
             },
+            review_status=review_status,
         )
 
     def _derived_field(self, dim: DimensionSource, bundle: InterviewBundle) -> ArchiveFieldRecord:

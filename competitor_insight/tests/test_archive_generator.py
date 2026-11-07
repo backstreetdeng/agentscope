@@ -360,5 +360,68 @@ class NoDataTest(unittest.TestCase):
         self.assertEqual(field.no_data_reason, NO_SCORE_ABSENT)
 
 
+class EnumFallbackTest(unittest.TestCase):
+    """互斥多值 → purchase_type：一致才取值，缺失/冲突保持 suspect。"""
+
+    @staticmethod
+    def _bundle(purchase_type):
+        tags = [
+            ("T02", "首增换购属性", "换购；增购。", "可信", "matched_option")
+            if name == "首增换购属性"
+            else (tag_id, name, value, trust, status)
+            for tag_id, name, value, trust, status in BASE_TAGS
+        ]
+        bundle = build_bundle(tags=tags)
+        bundle.interview["purchase_type"] = purchase_type
+        return bundle
+
+    def test_metadata_match_takes_value_and_records_correction(self):
+        generator, _ = make_generator(self._bundle("增购"), RecordingLlm())
+        field = field_of(generator.generate(INTERVIEW_ID), "purchase_attribute")
+        self.assertEqual(field.fill_mode, "tag")
+        self.assertEqual(field.value_text, "增购")
+        self.assertEqual(field.review_status, "ok")
+        self.assertIsNone(field.no_data_reason)
+        correction = field.source_ref["correction"]
+        self.assertEqual(correction["from_raw_tag_value"], "换购；增购。")
+        self.assertEqual(correction["metadata"], {"field": "purchase_type", "value": "增购"})
+        self.assertEqual(correction["rule"], "ambiguous_tag_metadata_fallback")
+        self.assertIn("换购", correction["basis"])
+
+    def test_metadata_conflict_stays_suspect(self):
+        generator, _ = make_generator(self._bundle("首购"), RecordingLlm())
+        field = field_of(generator.generate(INTERVIEW_ID), "purchase_attribute")
+        self.assertEqual(field.fill_mode, "none")
+        self.assertEqual(field.review_status, "suspect")
+        self.assertIn("多个互斥取值", field.no_data_reason)
+        self.assertEqual(field.source_ref["raw_tag_value"], "换购；增购。")
+
+    def test_metadata_missing_stays_suspect(self):
+        generator, _ = make_generator(self._bundle(None), RecordingLlm())
+        field = field_of(generator.generate(INTERVIEW_ID), "purchase_attribute")
+        self.assertEqual(field.fill_mode, "none")
+        self.assertEqual(field.review_status, "suspect")
+
+
+class MultiChannelNormalizationTest(unittest.TestCase):
+    """信息渠道只在展示层归并，原始写法必须留在 source_ref。"""
+
+    def test_channels_merged_for_display_and_raw_preserved(self):
+        tags = [
+            ("T10", "汽车触媒偏好", "哔哩哔哩；视频号；未提及；怪渠道。", "可信", "matched_option")
+            if name == "汽车触媒偏好"
+            else (tag_id, name, value, trust, status)
+            for tag_id, name, value, trust, status in BASE_TAGS
+        ]
+        generator, _ = make_generator(build_bundle(tags=tags), RecordingLlm())
+        field = field_of(generator.generate(INTERVIEW_ID), "info_channels")
+        self.assertEqual(field.fill_mode, "tag")
+        self.assertEqual(field.value_json, ["B站", "其他", "未归类"])
+        source = field.source_ref
+        self.assertEqual(source["raw_values"], ["哔哩哔哩；视频号；未提及；怪渠道。"])
+        self.assertEqual(source["raw_parts"], ["哔哩哔哩", "视频号", "未提及", "怪渠道"])
+        self.assertEqual(source["channel_normalization"], "presentation")
+
+
 if __name__ == "__main__":
     unittest.main()

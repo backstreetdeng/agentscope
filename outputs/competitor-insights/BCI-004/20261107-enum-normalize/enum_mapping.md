@@ -11,7 +11,7 @@
 | 增购。 | 20 | 增购 | 直通 | 去标点即命中模板选项 | 保留 |
 | 首购。 | 10 | 首购 | 直通 | 去标点即命中模板选项 | 保留 |
 | 实际增购。 | 1 | 增购 | 归一（同义/修饰） | 口语/修饰写法归一：实际增购 → 增购 | 保留归一值，source_ref 记原值 |
-| 换购；增购。 | 1 | — | 互斥多值 → suspect | 标签含多个互斥取值：换购；增购，无法确定单一选项（候选：换购、增购） | 不取值；review=suspect + no_data_reason，人工复核 |
+| 换购；增购。 | 1 | — | 互斥多值（回退元数据） | 标签含多个互斥取值：换购；增购，无法确定单一选项（候选：换购、增购） | 先回退 `interview.purchase_type`：与候选唯一一致取值 + `source_ref.correction`；缺失/冲突落 suspect |
 
 合计 63 条；无空值/「未提及」/「不适用」写法。
 
@@ -35,5 +35,5 @@
 ## 规则与测试
 
 - 判定顺序：空值/无数据标记 → `no_value`；否定表述 → `unknown`；多片段 → 互斥 `ambiguous` / 同选项 `normalized` / 含未识别片段 `unknown`；单片 → 精确 `exact`、去修饰前缀或唯一包含 `normalized`、否则 `unknown`。
-- 生成器分流：`exact`/`normalized` 取值并写 `source_ref.normalized_from`；`no_value` 落 `fill_mode=none`+`review_status=missing`；`ambiguous` 落 `no_data_reason`+`review_status=suspect`；`unknown` 抛 `invalid_enum` 整人失败。
-- 单测：`competitor_insight/tests/test_value_normalizer.py` 9 项；全量 90 项通过。
+- 生成器分流：`exact`/`normalized` 取值并写 `source_ref.normalized_from`；`no_value` 落 `fill_mode=none`+`review_status=missing`；`ambiguous` 先回退 `interview.purchase_type`（一致取值 + `correction`，缺失/冲突仍 `suspect`）；`unknown` 抛 `invalid_enum` 整人失败。
+- 单测：`tests/test_value_normalizer.py`（含回退三分支）+ `tests/test_channel_normalizer.py`；全量 104 项通过。

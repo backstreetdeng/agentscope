@@ -30,7 +30,7 @@ enum_report = {item["dimension_id"]: item for item in data["template_enum_dims"]
 STATUS_LABEL = {
     "exact": "直通",
     "normalized": "归一（同义/修饰）",
-    "ambiguous": "互斥多值 → suspect",
+    "ambiguous": "互斥多值（回退元数据）",
     "no_value": "无数据 → missing",
     "unknown": "无法归一 → invalid_enum",
 }
@@ -61,7 +61,7 @@ for dim_id, item in enum_report.items():
         action = {
             "exact": "保留",
             "normalized": "保留归一值，source_ref 记原值",
-            "ambiguous": "不取值；review=suspect + no_data_reason，人工复核",
+            "ambiguous": "先回退 `interview.purchase_type`：与候选唯一一致取值 + `source_ref.correction`；缺失/冲突落 suspect",
             "no_value": "fill_mode=none，review=missing",
             "unknown": "整人失败，不落库",
         }[r["status"]]
@@ -110,8 +110,8 @@ for dim_id, dim in multi_dims.items():
 add("## 规则与测试")
 add("")
 add("- 判定顺序：空值/无数据标记 → `no_value`；否定表述 → `unknown`；多片段 → 互斥 `ambiguous` / 同选项 `normalized` / 含未识别片段 `unknown`；单片 → 精确 `exact`、去修饰前缀或唯一包含 `normalized`、否则 `unknown`。")
-add("- 生成器分流：`exact`/`normalized` 取值并写 `source_ref.normalized_from`；`no_value` 落 `fill_mode=none`+`review_status=missing`；`ambiguous` 落 `no_data_reason`+`review_status=suspect`；`unknown` 抛 `invalid_enum` 整人失败。")
-add("- 单测：`competitor_insight/tests/test_value_normalizer.py` 9 项；全量 90 项通过。")
+add("- 生成器分流：`exact`/`normalized` 取值并写 `source_ref.normalized_from`；`no_value` 落 `fill_mode=none`+`review_status=missing`；`ambiguous` 先回退 `interview.purchase_type`（一致取值 + `correction`，缺失/冲突仍 `suspect`）；`unknown` 抛 `invalid_enum` 整人失败。")
+add("- 单测：`tests/test_value_normalizer.py`（含回退三分支）+ `tests/test_channel_normalizer.py`；全量 104 项通过。")
 add("")
 
 (BASE / "enum_mapping.md").write_text("\n".join(lines), encoding="utf-8")

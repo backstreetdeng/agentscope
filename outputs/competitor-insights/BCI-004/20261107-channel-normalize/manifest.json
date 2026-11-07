@@ -1,0 +1,26 @@
+{
+  "task_id": "BCI-004",
+  "step": "D7d",
+  "purpose": "信息渠道（info_channels）呈现/统计层归并：导出全库写法与次数，生成标准渠道归并表；原始写法不覆盖",
+  "created": "2026-11-07",
+  "inputs": [
+    "user_insight.tag（tag_name in 汽车触媒偏好/APP偏好，trust_status=可信；全库 123 条标签记录）",
+    "competitor_insight/templates/user_insight_archive_template.json（info_channels 11 个 options）",
+    "competitor_insight/templates/user_insight_archive.source-map.json"
+  ],
+  "outputs": [
+    "probe_channels.py",
+    "channel_distribution.json",
+    "build_channel_aliases.py",
+    "probe_channel_dryrun.py",
+    "channel_dryrun.json",
+    "../../../../competitor_insight/templates/info_channel_aliases.json"
+  ],
+  "conclusion": "全库去重后 64 种写法（此前报告 66 为同一条标签内重复计数），归并表 64/64 覆盖；标准值/同义简称/平台子频道归并到模板渠道，模板未单列的具体渠道归「其他」，非渠道描述与复合短语归「未归类」。只读联调 R003/R046：value_json 已归并，source_ref.raw_values/raw_parts 保留原写法。",
+  "rule_location": "competitor_insight/server/channel_normalizer.py；归并表 competitor_insight/templates/info_channel_aliases.json",
+  "tests": "competitor_insight/tests/test_channel_normalizer.py 6 项 + 生成器多值用例；全量 unittest 104/104",
+  "rebuild": "../Scripts/python.exe -B outputs/competitor-insights/BCI-004/20261107-channel-normalize/probe_channels.py && ../Scripts/python.exe -B outputs/competitor-insights/BCI-004/20261107-channel-normalize/build_channel_aliases.py",
+  "side_effects": "全部只读：不改 user_insight 源数据、不写 bci、不调模型；仅生成模板目录下的归并表 JSON",
+  "cleanable": false,
+  "restore": "无需恢复（无数据库写入）；重新生成归并表执行 rebuild"
+}
