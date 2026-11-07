@@ -145,14 +145,14 @@ evidence: outputs/competitor-insights/BCI-004/
 | BCI-004-L01 | 开放问题 Q3/Q5/Q6/Q7/Q8/Q10 未答复 | 不阻塞开发；按建议默认实现并在页面留出开关 | Q11/Q12 已拍板；其余按建议默认 | 用户逐条确认（可延后） | 用户 | 方案 §8.1 |
 | BCI-004-L02 | ~~访谈库连接超时~~ 已解除 | — | 2026-11-06 已连通并完成 43 维实测 | 无需处理 | TRAE | `20261106-coverage/` |
 | BCI-004-L03 | ~~DDL 已批准但未执行~~ 已解除 | — | 2026-11-07 已建 `bci` schema 与 4 表，loader 可 USAGE/CREATE；结构、约束、索引与冒烟均通过 | 无需处理 | TRAE | `20261107-d2-ddl/apply.log` |
-| BCI-004-L10 | `bci` schema 属主为 `vectordb`，不是 `user_insight_loader` | 业务账号不能 DROP/ALTER schema，但已具备建表与读写 | owner 账号非 loader 成员且非 superuser，`AUTHORIZATION` 报 `must be member of role`；已改为建 schema + `GRANT USAGE, CREATE`，表由 loader 创建并持有 | 若必须 loader 持有 schema 属主，需 DBA 执行 `ALTER SCHEMA bci OWNER TO user_insight_loader` | 用户/DBA | `20261107-d2-ddl/apply.log` |
+| BCI-004-L10 | `bci` schema 属主为 `vectordb`，不是 `user_insight_loader` | 业务账号不能 DROP/ALTER schema，但已具备建表与读写 | **2026-11-07 用户授权 `vectordb` 执行 ALTER，实测失败**：`InsufficientPrivilege: must be member of role "user_insight_loader"`（SQLSTATE 42501）；`vectordb` 非 superuser、非 loader 成员（`pg_has_role` 双向均 false）。现状：schema 属主仍为 `vectordb`，4 张表属主均为 `user_insight_loader`，loader 读 3/30/10/430 行、建删表冒烟均通过 | 二选一：① 由 `postgres`/DBA 执行 `ALTER SCHEMA bci OWNER TO user_insight_loader;`；② 维持现状（loader 已能建表读写，日常无阻）。本轮未提权、未 GRANT | 用户/DBA | `20261107-owner-alter/apply.log` |
 | BCI-004-L04 | 原型「分析指令」输入框不实现 | 与原型交互有差异 | 方案建议用明确按钮替代 | 用户确认；若要保留则另立 Agent 意图解析任务 | 用户 | 方案 §8.1 Q3 |
-| BCI-004-L05 | 8 维无来源；5 维极稀疏 | 档案出现「本期无来源」行 | **Q11 已拍板**：不补题不补访，标注原因，下周与业务对接 | 下周业务沟通 | 用户/业务 | 方案 §5.7、§6.4 |
+| BCI-004-L05 | 8 维无来源；5 维极稀疏 | 档案出现「本期无来源」行 | **Q11 已拍板**：不补题不补访，标注原因，下周与业务对接；**2026-11-07 用户决定：维持现状（已决策）**，本期不补题、不补访、不改业务口径 | 已决策，无需等待 | 用户/业务 | 方案 §5.7、§6.4 |
 | BCI-004-L07 | 性别、同住人数、用户类型、再购车型尺寸 4 个标签全量未提及 | 年龄/性别只能出年龄 | 已实测 0/63 | 按 Q11 原则本期如实标注，下周业务决定是否补题 | 业务 | 方案 §6.2 |
 | BCI-004-L08 | 满意度评分仅 13/63 有明确分数 | 该维仅 13 人有值 | **Q12 已拍板**：只对有分数者生成，其余醒目提示实际情况 | 下周与业务对接 | 业务 | 方案 §5.7、§8.1 Q12 |
 | BCI-004-L09 | ~~共用文件被另一会话占用~~ 已解除 | — | 2026-11-07 用户确认入库完成（`1bd7eee` 已推送），D6 闸门解除 | 无需处理 | 用户 | 方案 §7.1 |
-| BCI-004-L06 | ~~改动未提交 git~~ 已解除 | — | 2026-11-07 已按白名单提交 `7dc91aa` 并推送；`*.log` 受 `.gitignore` 限制仍只在本机 | 如需日志入库，需先由用户决定是否调整 `.gitignore` | 用户/TRAE | 本文件 §7 |
-| BCI-004-L11 | 历史提交 `1bd7eee` 内的 `20261106-coverage/coverage.py` 曾硬编码数据库口令 | 旧口令仍在 Git 历史中 | 本次已将工作区脚本改为读 `.env.new-car`，但历史无法用普通提交抹除 | 如需彻底清除，需改写历史或轮换该数据库口令（由用户决定） | 用户/DBA | 本文件 §7 |
+| BCI-004-L06 | ~~改动未提交 git~~ 已解除 | — | 2026-11-07 已按白名单提交 `7dc91aa` 并推送；`*.log` 受 `.gitignore` 限制仍只在本机；**2026-11-07 用户决定：日志不入库，不修改 `.gitignore`（已决策）**，缺口在 BCI-005-L07 挂账 | 已决策，无需等待 | 用户/TRAE | 本文件 §7、BCI-005-L07 |
+| BCI-004-L11 | 历史提交 `1bd7eee` 内的 `20261106-coverage/coverage.py` 曾硬编码数据库口令 | **仓库为公开**（匿名访问 `api.github.com/repos/backstreetdeng/agentscope` 返回 `private=false`、`visibility=public`），且实测历史口令与本机 `.env.new-car` 的 `NEW_CAR_PG_PASSWORD`（即 `vectordb` 账号）**仍然相同**，属有效凭据暴露 | 工作区脚本已改为读 `.env.new-car`，但历史提交无法用普通提交抹除 | **建议轮换 `vectordb` 口令**（或改写历史）；按用户要求本轮不自行处理 | 用户/DBA | 本文件 §7、GitHub 公开 API 返回 |
 
 ## 9. 阶段流转记录
 
