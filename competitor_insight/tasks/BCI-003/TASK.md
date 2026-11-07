@@ -91,7 +91,7 @@ evidence: outputs/competitor-insights/BCI-003/20261106-harness-study/
 |---|---|---|---|---|---|---|
 | BCI-003-L01 | 本任务只是评估，Q3 五条均未落地 | 现有痛点（L07/L08/L02 等）不变 | 结论已成文，等用户决定 | 用户确认后按 Q5 另立任务（编号另行确认；BCI-004 已分配给「用户洞察档案」tab），不复用本编号 | 用户 / TRAE | `harness-study.md` §2 Q5 |
 | BCI-003-L02 | 官方 23 个 `SKILL.md` 正文未读（同事 `.cursor/skills/industry-tracking-v2/SKILL.md` 已读，该半已关闭） | "技能机制是否同构"仍缺官方侧证据 | 只确认目录名与声明存在 | 读官方 SKILL.md 正文后补证；不影响 Q3/Q5 结论 | TRAE | §3 未验证清单 3、§6 |
-| BCI-003-L03 | 新增文档与证据未提交 git | 成果只在工作区 | 未提交（用户未授权） | 用户授权后按文件粒度提交，不夹带其他任务改动 | 用户授权 / TRAE | `git status` |
+| BCI-003-L03 | ~~新增文档与证据未提交 git~~ 已解除 | — | **已关闭**（2026-11-07）：`docs/harness-study.md` 与 `outputs/competitor-insights/BCI-003/` 随 `1bd7eee` 入库并推送 | 已完成 | TRAE | `git log`、第 5 节证据索引 |
 | BCI-003-L04 | 交接副本缺 5 个项目与 `_template/`，模板规范正文无法核验 | §5.2 对"模板/骨架"的角色判定只依据三处指针，未见模板正文 | 已标注未验证 | 拿到完整交接包后补核 `_template/` | 用户 / TRAE | `20261106-workspace-rescan/colleague-workspace-index.txt` §3 |
 | BCI-003-L05 | §5.6 新增 #6/#7 与 §5.5 的字段设计尚未落地 | 仍只是建议，任务机制未变 | 等用户决定是否立项 | 用户确认后另立任务（编号另行确认；BCI-004 已分配给「用户洞察档案」tab）统一落地，不逐个打补丁 | 用户 / TRAE | `harness-study.md` §5.5–§5.6 |
 

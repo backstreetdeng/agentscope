@@ -75,7 +75,7 @@ evidence: outputs/competitor-insights/BCI-001/20261106-datasource-selector-r2/
 | S4 | 重做 tab ① 为四类选择器 | 完成 | 四类下拉、默认不选、不可选项带原因、口径预览与清空 |
 | S5 | 前端资源迁入 `competitor_insight/web/` | 完成 | `bci.js`（自包含模块）、`bci.css`；`assets/home.js` 仅保留挂载，`assets/home.css` 不再含 BCI 样式；`app.py` 增 `/competitor-insight/` 静态路由与白名单 |
 | S6 | 浏览器复验 | 完成 | 39/39 PASS，EXIT=0；勾选、单选、模板可选/新车型不可选、清单来源、口径写入与清空、桌面 2×2 / 窄屏单列布局全部通过。期间修复下拉浮层被分组动画层叠上下文覆盖的问题（`.bci-block` 动画填充由 `both` 改 `backwards`）；已知基线：`/api/health` 404 与本次无关 |
-| S7 | 提交 git | 未做 | 按用户要求不提交，见 BCI-001-L06 |
+| S7 | 提交 git | 完成 | 随 `1bd7eee` 入库并推送；`commit_paths` 收窄见 `9cf1c03`，见 BCI-001-L06 |
 | S8 | 用户验收 | 待做 | 见状态块 `next` |
 
 ## 5. 证据索引
@@ -119,8 +119,8 @@ evidence: outputs/competitor-insights/BCI-001/20261106-datasource-selector-r2/
 | BCI-001-L02 | 新车型用户洞察模板缺失 | 该选项标记「待提供」 | 业务未提供 | 业务提供模板文件后登记可用性并改为可选 | 用户/业务 | 页面文案 |
 | BCI-001-L03 | 2026 年定性深访音频未解析 | 2026 选项不可选 | 只有 2025 年 63 人 | 完成音频转写与解析入库，把该选项改为可选 | 业务/数据 | `interview` 表 |
 | BCI-001-L04 | 2023/2024 定量数据未入库 | 选中后下游无表可查，只有源文件 | 仅附件 xlsx | 完成入库并验证题项对齐，再更新本页可用性说明 | TRAE/数据 | `quant_sample` |
-| BCI-001-L05 | tab ①②③④ 未开发（① 洞察档案 = 勾选多人 → 43 维 rowspan 表 → 单人/多人导出，同样未做） | 选完口径没有消费方 | 仅骨架占位 | 逐 tab 建任务并上线 | TRAE | 本任务 S4；核对见 BCI-002 `docs/template-vs-prototype-mapping.md` §7 |
-| BCI-001-L06 | 改动未提交 git | 成果只在工作区；`TASK-COMMITTED` 判定失败，按 RULES §6 不得视为完成 | 未提交（用户要求暂缓，BCI-004 完成后统一入库） | 用户授权后按文件粒度提交并推送，提交后 `check_board.py` 应转 PASS | 用户授权 / TRAE | `git status` |
+| BCI-001-L05 | tab ①②③④ 未开发（① 洞察档案 = 勾选多人 → 43 维 rowspan 表 → 单人/多人导出，同样未做） | 选完口径没有消费方 | 仅骨架占位；**进展（2026-11-07）**：洞察档案已由 BCI-004、即时分析已由 BCI-006 交付，均 `TESTED` 待用户验收，本项剩余未开发 tab 另行立项 | 逐 tab 建任务并上线 | TRAE | 本任务 S4；核对见 BCI-002 `docs/template-vs-prototype-mapping.md` §7 |
+| BCI-001-L06 | ~~改动未提交 git~~ 已解除 | — | **已关闭**（2026-11-07）：随 `1bd7eee` 入库并推送；声明收窄 `9cf1c03`，`check_board.py` 转 PASS | 已完成 | TRAE | `git log`、本文件 §6 |
 | BCI-001-L07 | `bci.scope` 尚无后端消费方 | 多用户覆盖与刷新恢复未验证 | 仅前端写入 | 第二个 tab 落地后由真实读取方验证，并补刷新/多会话用例 | TRAE | `competitor_insight/web/bci.js` |
 | BCI-001-L08 | `competitor_compare` 无车型集合入参 | 后续洞察对比可能跨全库；本 tab 不受影响 | 未修复 | 工具增加车型集合入参并用真实调用证明结果受约束 | TRAE | `customer_insight/tool.py` |
 
