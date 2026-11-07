@@ -93,7 +93,7 @@ evidence: outputs/competitor-insights/BCI-006/20261107-analysis/
 |---|---|---|---|---|
 | 2026-11-07 | CREATED | 用户明确要求先做可行性测评并建 BCI-006；S1/S2 完成，代码未开始 | `outputs/competitor-insights/BCI-006/20261107-feasibility/manifest.json` | TRAE |
 | 2026-11-07 | EXECUTING | 用户确认五款 SUV 与 Q1/Q29/Q27/Q28 口径；S3–S6 实现与三类验收通过 | `competitor_insight/tests/`、`outputs/.../20261107-analysis/` | TRAE |
-| 2026-11-07 | TESTED | 浏览器端到端验收通过；五车实测数字与数据缺失清单归档；待用户业务验收 | `outputs/.../20261107-analysis/manifest.json` | TRAE |
+| 2026-11-07 | TESTED | 浏览器端到端验收通过；五车实测数字与数据缺失清单归档；代码与证据已提交 `5e8f964`，待用户业务验收 | `outputs/.../20261107-analysis/manifest.json` | TRAE |
 
 ## 8. 因数据缺失而未做的指标（可对外说明）
 

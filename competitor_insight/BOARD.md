@@ -18,7 +18,7 @@
 | [BCI-003](tasks/BCI-003/TASK.md) Harness 学习 | DEV_DONE | 已入库 | L01 Q3 五条未落地；L02 官方 23 份 `SKILL.md` 正文未读；L04 交接副本缺 5 项目；L05 §5.6 建议未落地 | 用户决定是否立项 |
 | [BCI-004](tasks/BCI-004/TASK.md) 洞察档案 tab | TESTED | 已入库（`7dc91aa`） | L01 Q3/Q5–Q8/Q10 未答；L04 分析指令框未做；L05/L07/L08 数据缺口（**已决策维持现状**）；L10 schema 属主仍为 `vectordb`（`vectordb` 执行 ALTER 失败，需 DBA 或维持现状）；L11 历史口令 | 用户验收 / 业务补数 / DBA 执行 ALTER / **轮换 `vectordb` 口令（仓库公开且口令仍有效）** |
 | [BCI-005](tasks/BCI-005/TASK.md) 任务机制 | DEV_DONE | 已入库 | L01 业务接口无三态；L02 reader 仅词法检查；L06 `commit_paths` 靠人工声明（L07 已决策不修） | 用户复核后转 TESTED；增强按需立项 |
-| [BCI-006](tasks/BCI-006/TASK.md) 即时分析 tab | TESTED | 已入库（本提交） | L01 关注第一排序无题；L03 对手为什么赢无观测题；L05 级别字段缺失；L06 定性归类为关键词启发式；L07 进攻/被进攻点 v1 不做（L02 已解除） | 业务补题/补未购车样本/确认口径 |
+| [BCI-006](tasks/BCI-006/TASK.md) 即时分析 tab | TESTED | 已入库（`5e8f964`） | L01 关注第一排序无题；L03 对手为什么赢无观测题；L05 级别字段缺失；L06 定性归类为关键词启发式；L07 进攻/被进攻点 v1 不做（L02 已解除） | 业务补题/补未购车样本/确认口径 |
 
 **下一步最该做的一件事**：**先轮换 `vectordb` 数据库口令**——`1bd7eee` 历史里硬编码的该口令与本机 `.env.new-car` 仍相同，而仓库是公开的（`api.github.com` 匿名返回 `private=false`）；随后验收 7860 上竞品洞察的四处（数据源筛选 / 洞察档案 10 人试点 / 模板下拉 / 即时分析五车），并拍板 BCI-004-L01、BCI-006 §8 补数范围与 BCI-003 的五条建议是否立项；BCI-005 复核后可转 TESTED。
 
@@ -112,7 +112,7 @@
 | [BCI-003](tasks/BCI-003/TASK.md) | DEV_DONE | **已入库** | 目录与证据随本次提交入库 | 转 TESTED 前复核 |
 | [BCI-004](tasks/BCI-004/TASK.md) | TESTED | **已入库** | 提交 `7dc91aa`（59 文件：`server/`、`tests/`、`web/bci-profile.*`、`ops/` DDL、BCI 文档与证据）；`app.py` 仅 4 处 BCI hunk，深度调研等改动未纳入；`*.log` 受 `.gitignore` 限制只在本机 | 用户验收后上线；如需日志入库需先决定 `.gitignore` |
 | [BCI-005](tasks/BCI-005/TASK.md) | DEV_DONE | **已入库** | 机制文件与证据随本次提交入库 | 用户复核后转 TESTED |
-| [BCI-006](tasks/BCI-006/TASK.md) | TESTED | **已入库（本提交）** | `analysis_service.py`、配置、前端、6 套测试/脚本、文档与 `outputs/competitor-insights/BCI-006/` 证据；`app.py` 仅 BCI 分析路由 hunk | 用户验收后上线；业务确认 §8 补数范围 |
+| [BCI-006](tasks/BCI-006/TASK.md) | TESTED | **已入库（`5e8f964`）** | `analysis_service.py`、配置、前端、6 套测试/脚本、文档与 `outputs/competitor-insights/BCI-006/` 证据；`app.py` 仅 BCI 分析路由 hunk | 用户验收后上线；业务确认 §8 补数范围 |
 
 > 首次入库范围与排除项见 [BCI-005/TASK.md](tasks/BCI-005/TASK.md) 第 4 节 S12；`app.py` / `home.html` / `home.css` / `share-files/TASKS.md` 里其他任务的 hunk 一律未带入。
 

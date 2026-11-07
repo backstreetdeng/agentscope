@@ -12,7 +12,7 @@
 - **数据缺失未做**：关注第一排序（无排序题）、对手为什么赢（无对手视角题/无未购车样本）、进攻点/被进攻点（需跨车推导）、生活状态分型占比与定性强度比例（深访 3–4 人，只出原话）。详见 TASK.md §8。
 - **检查**：`check_board.py` 仍 failed，唯一原因是 BCI-004 的 `commit_paths` 覆盖 `BOARD.md`/`HANDOFF.md`/`server/` 整目录；**按用户指示未修改他人声明**。
 - **服务**：7860 由后台 `python -u app.py` 提供，`/api/bci/analysis/models` 与 `analyze` 实测 200；若进程被回收，按 `start_agent.cmd` 常规启动。
-- **Git**：本任务文件与证据按显式路径提交，不夹带 `customer_insight/`、`forecast-engine/` 等其他在途改动。
+- **Git**：提交 `5e8f964`（27 文件：服务、配置、前端、测试、文档与证据）。`app.py` 只把 4 处 BCI 片段写入索引，深度调研等他处在途改动仍留在工作区；未夹带 `customer_insight/`、`forecast-engine/`。
 
 ## 2026-11-07 · BCI-004 D7d：互斥回退 + 信息渠道呈现层归并
 
