@@ -7,7 +7,7 @@
 
 ## 晨间速览（2026-11-08 晨）
 
-> **一句话**：六个任务全部有结论、全部入库并已推送（`origin/feature/user-insight-t0-t4` = `ca18f37`，本地与远端 0/0）；`check_board.py` **PASS**（应查 199 / 实查 199 / 命中 0）。今晚只做了把关与收尾，没有新功能。剩下的都是**你验收**和**三件要你拍板的事**，不是开发。
+> **一句话**：六个任务全部有结论、全部入库并已推送（`origin/feature/user-insight-t0-t4` = `6775c56`，本地与远端 0/0）；`check_board.py` **PASS**（应查 199 / 实查 199 / 命中 0）。今晚只做了把关与收尾，没有新功能。剩下的都是**你验收**和**三件要你拍板的事**，不是开发。
 >
 > 7860 仍在运行：`GET /api/bci/analysis/models` 与 `GET /competitor-insight/templates.json` 实测 200。若明早打不开，按 `start_agent.cmd` 常规启动（先看下面「坑」第 6 条）。
 >
@@ -20,7 +20,7 @@
 | [BCI-003](tasks/BCI-003/TASK.md) Harness 学习 | DEV_DONE | 已入库 | `1bd7eee` | L01/L05 五条建议未立项、L02 官方 SKILL 正文未读、L04 交接包缺 5 项目 |
 | [BCI-004](tasks/BCI-004/TASK.md) 洞察档案 tab | TESTED | 已入库 | `7dc91aa` → `01da692`（枚举归一 + 渠道归并） | L01 开放问题、L05/L07/L08 数据缺口（**已决策维持**）、L10 schema 属主、L11 口令 |
 | [BCI-005](tasks/BCI-005/TASK.md) 任务机制 | DEV_DONE | 已入库 | `1bd7eee` | L01 业务接口无三态、L02 reader 仅词法检查、L06 commit_paths 靠人工声明（L07 已决策不修） |
-| [BCI-006](tasks/BCI-006/TASK.md) 即时分析 tab | TESTED | 已入库 | `5e8f964`（文档 `ca18f37`） | L01 无排序题、L03 无胜出观测题、L05 无级别字段、L06 定性归类为启发式、L07 v1 不做 |
+| [BCI-006](tasks/BCI-006/TASK.md) 即时分析 tab | TESTED | 已入库 | `5e8f964`（文档 `ca18f37`；已推送 `6775c56`） | L01 无排序题、L03 无胜出观测题、L05 无级别字段、L06 定性归类为启发式、L07 v1 不做 |
 
 ### 等你拍板的三件事
 

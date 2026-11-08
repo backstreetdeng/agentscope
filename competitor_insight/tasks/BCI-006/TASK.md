@@ -7,8 +7,8 @@ stage: TESTED
 owner: TRAE
 port: 7860
 frozen_paths: none
-commit_paths: competitor_insight/server/analysis_service.py, competitor_insight/config/analysis_models.json, competitor_insight/web/bci-analysis.js, competitor_insight/web/bci-analysis.css, competitor_insight/tests/test_analysis_service.py, competitor_insight/tests/e2e_analysis_api.py, competitor_insight/tests/e2e_analysis_page.py, competitor_insight/docs/analysis-tab-feasibility.md, competitor_insight/tasks/BCI-006/, competitor_insight/tasks/tasks.md, competitor_insight/BOARD.md, competitor_insight/HANDOFF.md, outputs/competitor-insights/BCI-006/20261107-analysis/, outputs/competitor-insights/BCI-006/20261107-feasibility/, home.html, competitor_insight/web/bci.js
-updated: 2026-11-07
+commit_paths: competitor_insight/server/analysis_service.py, competitor_insight/config/analysis_models.json, competitor_insight/web/bci-analysis.js, competitor_insight/web/bci-analysis.css, competitor_insight/tests/test_analysis_service.py, competitor_insight/tests/e2e_analysis_api.py, competitor_insight/tests/e2e_analysis_page.py, competitor_insight/docs/analysis-tab-feasibility.md, competitor_insight/tasks/BCI-006/, outputs/competitor-insights/BCI-006/20261107-analysis/, outputs/competitor-insights/BCI-006/20261107-feasibility/, home.html, competitor_insight/web/bci.js
+updated: 2026-11-08
 blocked: no
 next: 用户明早验收 7860「即时分析」tab；业务确认 §8 数据缺失清单的后续补数范围
 evidence: outputs/competitor-insights/BCI-006/20261107-analysis/
@@ -85,7 +85,7 @@ evidence: outputs/competitor-insights/BCI-006/20261107-analysis/
 | BCI-006-L06 | 定性 16 维归类为关键词启发式 | 个别原话可能漏归或误归 | 未命中原话单列展示，不强行匹配 | 后续可接语义模型或人工校对；当前不改判实测比例 | TRAE/业务 | 测评 §11 C4 |
 | BCI-006-L07 | 满意度「本品进攻点 / 被进攻点」需跨车差值 | v1 未做 | 页面不出现该图，避免小样本推导冒充实测 | 业务确认接受「推导」标记与对比车选择规则 | 业务 | 测评 §5 |
 
-**入库判定边界**：`app.py` 同时承载另一条线（深度调研）的在途改动，`check_board.py` 的 `TASK-COMMITTED` 无法区分 hunk。本任务只把 4 处 BCI-006 片段（全局单例、`bci_analysis_service()`、路由分派、`_handle_bci_analysis_get`）写入索引，因此 `commit_paths` 不声明 `app.py`，与 BCI-001 对共享文件的处理一致；每次改动需人工核对 `git diff --cached -- app.py` 仅含 BCI 片段。`home.html` 与 `web/bci.js` 本次改动全部属于 BCI-006，仍按声明校验。
+**入库判定边界**：`app.py` 同时承载另一条线（深度调研）的在途改动，`check_board.py` 的 `TASK-COMMITTED` 无法区分 hunk。本任务只把 4 处 BCI-006 片段（全局单例、`bci_analysis_service()`、路由分派、`_handle_bci_analysis_get`）写入索引，因此 `commit_paths` 不声明 `app.py`，与 BCI-001 对共享文件的处理一致；每次改动需人工核对 `git diff --cached -- app.py` 仅含 BCI 片段。`BOARD.md`、`HANDOFF.md`、`tasks/tasks.md` 是多任务共用状态文件，同样不声明，避免其他任务在途改动按文件级状态把本任务误判为未入库。`home.html` 与 `web/bci.js` 本次改动全部属于 BCI-006，仍按声明校验。
 
 ## 7. 阶段流转记录
 
@@ -93,7 +93,7 @@ evidence: outputs/competitor-insights/BCI-006/20261107-analysis/
 |---|---|---|---|---|
 | 2026-11-07 | CREATED | 用户明确要求先做可行性测评并建 BCI-006；S1/S2 完成，代码未开始 | `outputs/competitor-insights/BCI-006/20261107-feasibility/manifest.json` | TRAE |
 | 2026-11-07 | EXECUTING | 用户确认五款 SUV 与 Q1/Q29/Q27/Q28 口径；S3–S6 实现与三类验收通过 | `competitor_insight/tests/`、`outputs/.../20261107-analysis/` | TRAE |
-| 2026-11-07 | TESTED | 浏览器端到端验收通过；五车实测数字与数据缺失清单归档；代码与证据已提交 `5e8f964`，待用户业务验收 | `outputs/.../20261107-analysis/manifest.json` | TRAE |
+| 2026-11-07 | TESTED | 浏览器端到端验收通过；五车实测数字与数据缺失清单归档；代码与证据已提交 `5e8f964`、文档 `ca18f37`，均已推送（本地 HEAD 与 `@{u}` 均为 `6775c56`，`@{u}..HEAD` 为 0），待用户业务验收 | `outputs/.../20261107-analysis/manifest.json` | TRAE |
 
 ## 8. 因数据缺失而未做的指标（可对外说明）
 
