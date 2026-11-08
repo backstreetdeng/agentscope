@@ -148,14 +148,14 @@ evidence: outputs/competitor-insights/BCI-004/
 | BCI-004-L01 | 开放问题 Q3/Q5/Q6/Q7/Q8/Q10 未答复 | 不阻塞开发；按建议默认实现并在页面留出开关 | Q11/Q12 已拍板；其余按建议默认 | 用户逐条确认（可延后） | 用户 | 方案 §8.1 |
 | BCI-004-L02 | ~~访谈库连接超时~~ 已解除 | — | 2026-11-06 已连通并完成 43 维实测 | 无需处理 | TRAE | `20261106-coverage/` |
 | BCI-004-L03 | ~~DDL 已批准但未执行~~ 已解除 | — | 2026-11-07 已建 `bci` schema 与 4 表，loader 可 USAGE/CREATE；结构、约束、索引与冒烟均通过 | 无需处理 | TRAE | `20261107-d2-ddl/apply.log` |
-| BCI-004-L10 | `bci` schema 属主为 `vectordb`，不是 `user_insight_loader` | 业务账号不能 DROP/ALTER schema，但已具备建表与读写 | **2026-11-07 用户授权 `vectordb` 执行 ALTER，实测失败**：`InsufficientPrivilege: must be member of role "user_insight_loader"`（SQLSTATE 42501）；`vectordb` 非 superuser、非 loader 成员（`pg_has_role` 双向均 false）。现状：schema 属主仍为 `vectordb`，4 张表属主均为 `user_insight_loader`，loader 读 3/30/10/430 行、建删表冒烟均通过 | 二选一：① 由 `postgres`/DBA 执行 `ALTER SCHEMA bci OWNER TO user_insight_loader;`；② 维持现状（loader 已能建表读写，日常无阻）。本轮未提权、未 GRANT | 用户/DBA | `20261107-owner-alter/apply.log` |
+| BCI-004-L10 | `bci` schema 属主为 `vectordb`，不是 `user_insight_loader`（**未关闭**） | 业务账号不能 DROP/ALTER schema，但已具备建表与读写 | **按用户拍板用 `vectordb` 账号执行，两次均失败**：2026-11-07 首次、2026-11-08T23:43:00+08:00 复测，`ALTER SCHEMA bci OWNER TO user_insight_loader` 均报 `42501 must be member of role "user_insight_loader"`。根因：两角色均非 superuser、均无 CREATEROLE，`pg_auth_members` 中两角色无任何成员关系，`vectordb` 无法自我授权。复测后实测：owner_before=`vectordb`、owner_after=`vectordb`（未变更）；ACL `vectordb=UC`、`user_insight_loader=UC`；4 张表属主均为 `user_insight_loader`；loader 建表/插入/查询/删除/删表冒烟 PASS；`bci.archive` 10 行、`bci.archive_field` 430 行读取正常，**功能不受影响** | 需 DBA/superuser 执行一条 `ALTER SCHEMA bci OWNER TO user_insight_loader;`（或 `GRANT user_insight_loader TO vectordb;` 后由我复跑 `ops/bci_schema_owner.py`）；两条路径应用均无需改代码 | DBA | `20261107-owner-alter/apply.log`、`20261108-owner-alter/apply.log`、`20261108-owner-alter/manifest.json` |
 | BCI-004-L04 | 原型「分析指令」输入框不实现 | 与原型交互有差异 | 方案建议用明确按钮替代 | 用户确认；若要保留则另立 Agent 意图解析任务 | 用户 | 方案 §8.1 Q3 |
 | BCI-004-L05 | 8 维无来源；5 维极稀疏 | 档案出现「本期无来源」行 | **Q11 已拍板**：不补题不补访，标注原因，下周与业务对接；**2026-11-07 用户决定：维持现状（已决策）**，本期不补题、不补访、不改业务口径 | 已决策，无需等待 | 用户/业务 | 方案 §5.7、§6.4 |
 | BCI-004-L07 | 性别、同住人数、用户类型、再购车型尺寸 4 个标签全量未提及 | 年龄/性别只能出年龄 | 已实测 0/63 | 按 Q11 原则本期如实标注，下周业务决定是否补题 | 业务 | 方案 §6.2 |
 | BCI-004-L08 | 满意度评分仅 13/63 有明确分数 | 该维仅 13 人有值 | **Q12 已拍板**：只对有分数者生成，其余醒目提示实际情况 | 下周与业务对接 | 业务 | 方案 §5.7、§8.1 Q12 |
 | BCI-004-L09 | ~~共用文件被另一会话占用~~ 已解除 | — | 2026-11-07 用户确认入库完成（`1bd7eee` 已推送），D6 闸门解除 | 无需处理 | 用户 | 方案 §7.1 |
 | BCI-004-L06 | ~~改动未提交 git~~ 已解除 | — | 2026-11-07 已按白名单提交 `7dc91aa` 并推送；`*.log` 受 `.gitignore` 限制仍只在本机；**2026-11-07 用户决定：日志不入库，不修改 `.gitignore`（已决策）**，缺口在 BCI-005-L07 挂账 | 已决策，无需等待 | 用户/TRAE | 本文件 §7、BCI-005-L07 |
-| BCI-004-L11 | 历史提交 `1bd7eee` 内的 `20261106-coverage/coverage.py` 曾硬编码数据库口令 | **仓库为公开**（匿名访问 `api.github.com/repos/backstreetdeng/agentscope` 返回 `private=false`、`visibility=public`），且实测历史口令与本机 `.env.new-car` 的 `NEW_CAR_PG_PASSWORD`（即 `vectordb` 账号）**仍然相同**，属有效凭据暴露 | 工作区脚本已改为读 `.env.new-car`，但历史提交无法用普通提交抹除 | **建议轮换 `vectordb` 口令**（或改写历史）；按用户要求本轮不自行处理 | 用户/DBA | 本文件 §7、GitHub 公开 API 返回 |
+| BCI-004-L11 | 历史提交 `1bd7eee` 内的 `20261106-coverage/coverage.py` 曾硬编码数据库口令 | **仓库为公开**（匿名访问 `api.github.com/repos/backstreetdeng/agentscope` 返回 `private=false`、`visibility=public`），且实测历史口令与本机 `.env.new-car` 的 `NEW_CAR_PG_PASSWORD`（即 `vectordb` 账号）**仍然相同**，属有效凭据暴露 | 工作区脚本已改为读 `.env.new-car`，但历史提交无法用普通提交抹除 | **已决策（2026-11-08）：不轮换口令，接受风险**，不再作为待决项；如后续要消除，需轮换或改写历史 | 用户（已决策） | 本文件 §7、GitHub 公开 API 返回 |
 | BCI-004-L12 | ~~标签「首增换购属性」存在非标准取值~~ 已解除 | 归一前「实际增购。」会触发 `invalid_enum` 整人失败 | 用户 2026-11-07 拍板「实际增购」算「增购」；D7c 已建集中归一层并接生成器，全库 63 条实测仅 2 条非标准：`实际增购。`→增购（已归一）、`换购；增购。`→suspect（R046 已按原话人工修正） | 无需再决定；D7d 起互斥值回退 `purchase_type` 裁决，R046 重跑稳定为增购/ok（缺失或冲突才 suspect） | TRAE | `20261107-enum-normalize/enum_mapping.md` |
 
 ## 9. 阶段流转记录
@@ -174,6 +174,7 @@ evidence: outputs/competitor-insights/BCI-004/
 - 2026-11-07：`TESTED` 维持（D7b：R046 购车属性互斥值回原话核实，按家庭口径定为「增购」并保留修正记录；覆盖率 71.05%；发现 R063 非标准标签值，记 L12）。
 - 2026-11-07：`TESTED` 维持（D7c：用户拍板「实际增购=增购」，建 `value_normalizer.py` 集中归一并接生成器；全库 63 条仅 2 条非标准，`实际增购。`→增购、`换购；增购。`→suspect；新增单测 9 项，全量 90/90；L12 解除）。
 - 2026-11-07：`TESTED` 维持（D7d：用户补两条决定。互斥回退 `purchase_type` 且一致才取值，R046 重跑稳定为增购/ok；`info_channels` 呈现层归并表覆盖 64 种写法、未知落「未归类」、原始写法留 `source_ref`；单测 104/104）。仍待用户决定：① 全量 63 人是否放开（当前保持 10 人试点，代码已就绪）；② `info_channels` 归并口径是否认可（`templates/info_channel_aliases.json` 中「其他/未归类」划线）。
+- 2026-11-08：`TESTED` 维持（用户拍板 L10/L11。复测 2026-11-08T23:43:00+08:00 仍为 `42501 must be member of role "user_insight_loader"`，属主未变更，loader 冒烟 PASS、10/430 行读取正常；L10 **未关闭**，转 DBA 一条 SQL。L11 按用户决定**不轮换口令**，记为已决策并从待决清单移除）。
 
 ## 10. 开发阶段步骤（2026-11-06 起）
 

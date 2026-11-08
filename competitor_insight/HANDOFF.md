@@ -1,6 +1,15 @@
 # 竞品洞察 · 最近交接
 
-更新：2026-11-07（Asia/Shanghai）。新条目追加在最上面。写法见 [RULES.md](RULES.md) 第 9 节；本文件与 TASK.md 冲突时以 TASK.md 为准。
+更新：2026-11-08（Asia/Shanghai）。新条目追加在最上面。写法见 [RULES.md](RULES.md) 第 9 节；本文件与 TASK.md 冲突时以 TASK.md 为准。
+
+## 2026-11-08 · BCI-004 L10/L11 按用户拍板收口（L10 未关闭，转 DBA）
+
+- **L10（未关闭）**：按用户拍板用 `vectordb` 账号执行 `ALTER SCHEMA bci OWNER TO user_insight_loader`，2026-11-08T23:43:00+08:00 复测仍返回 `42501 must be member of role "user_insight_loader"`。根因：`vectordb` 与 `user_insight_loader` 均非 superuser、均无 CREATEROLE，`pg_auth_members` 中两角色无成员关系，故 `vectordb` 无法自我授权（`ALTER TABLE`/`REASSIGN OWNED` 同样受此限制）。
+- **复测后实测**：`owner_before=vectordb`、`owner_after=vectordb`（未变更）；schema ACL `vectordb=UC`、`user_insight_loader=UC`；4 张表属主均为 `user_insight_loader`；loader 建表/插入/查询/删除/删表冒烟 **PASS**；`bci.archive` 10 行、`bci.archive_field` 430 行读取正常。**转属主未执行，应用功能不受影响**。
+- **解除条件**：DBA/superuser 执行一条 `ALTER SCHEMA bci OWNER TO user_insight_loader;`，或先 `GRANT user_insight_loader TO vectordb;` 后复跑 `ops/bci_schema_owner.py`；两条路径应用均无需改代码。
+- **L11（已决策）**：用户 2026-11-08 决定**不轮换 `vectordb` 口令**，接受公开仓库 `1bd7eee` 暴露风险；从待决清单移除，不再每轮追问。
+- **证据**：[20261108-owner-alter](outputs/competitor-insights/BCI-004/20261108-owner-alter/)（`manifest.json` 入库；`apply.log` 受 `.gitignore` 仅本机）；首次尝试见 `20261107-owner-alter/apply.log`。
+- **状态不变**：BCI-004 仍 `TESTED`；仍为 10 人试点，全量 63 人未跑。
 
 ## 2026-11-07 · BCI-006 即时分析 tab 完成（S3–S7，TESTED）
 

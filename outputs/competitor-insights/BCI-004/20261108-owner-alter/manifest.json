@@ -1,0 +1,31 @@
+{
+  "task_id": "BCI-004",
+  "artifact": "L10 bci schema 属主转交 · 2026-11-08 复测",
+  "created_at": "2026-11-08T23:43:00+08:00",
+  "purpose": "按用户拍板用 vectordb 账号执行 ALTER SCHEMA bci OWNER TO user_insight_loader，并复跑 loader 冒烟；记录实际结果与未关闭原因。",
+  "result": {
+    "alter": "failed",
+    "sqlstate": "42501",
+    "error": "must be member of role \"user_insight_loader\"",
+    "owner_before": "vectordb",
+    "owner_after": "vectordb",
+    "schema_acl": "vectordb=UC/vectordb | user_insight_loader=UC/vectordb",
+    "table_owners": {"user_insight_loader": 4},
+    "loader_ddl_smoke": "PASS",
+    "bci_archive_rows": 10,
+    "bci_archive_field_rows": 430
+  },
+  "root_cause": "vectordb 与 user_insight_loader 均非 superuser、均无 CREATEROLE，两角色间无成员关系；PostgreSQL 要求执行者是新属主角色成员，vectordb 无法自我授权。",
+  "files": [
+    {"path": "apply.log", "kind": "execution log", "committed": false, "note": "*.log 被 .gitignore 排除，仅本机保留"}
+  ],
+  "commands": [
+    "../Scripts/python.exe -B temp/20261108-l10-owner/probe_roles.py",
+    "../Scripts/python.exe -B temp/20261108-l10-owner/probe_schema_acl.py",
+    "../Scripts/python.exe -B ops/bci_schema_owner.py"
+  ],
+  "reproduce": "在项目根执行上述三条命令；脚本只读环境凭据，不打印口令。",
+  "next_action": "需 DBA/superuser 执行 ALTER SCHEMA bci OWNER TO user_insight_loader;（或先 GRANT user_insight_loader TO vectordb; 后复跑 ops/bci_schema_owner.py）。应用无需改代码。",
+  "cleanable": false,
+  "restore_method": "重新执行 reproduce 命令即可再生 apply.log"
+}
