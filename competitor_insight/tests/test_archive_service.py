@@ -300,7 +300,8 @@ class DetailTest(ServiceTestBase):
             background=False,
         )
         payload = service.detail("R001")["data"]
-        self.assertEqual(payload["archive"]["revision"], 2)
+        # 覆盖语义：重跑原地覆盖，revision 保持 1，字段全部重建
+        self.assertEqual(payload["archive"]["revision"], 1)
         self.assertTrue(quotes.refreshed)
         llm_field = next(f for f in payload["fields"] if f["fill_mode"] == "llm")
         self.assertEqual(llm_field["evidence_refs"][0]["quote"], "刷新后的原话")

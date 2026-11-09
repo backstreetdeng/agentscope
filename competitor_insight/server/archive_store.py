@@ -5,7 +5,8 @@
 - `FileArchiveStore`：写本地 JSON 目录（DDL 不可用或单测时的等价实现）。
 
 共同语义：
-- 同一（受访者, 模板, 版本）重跑时 `revision = max + 1`，旧档案标 `stale`，永不覆盖；
+- 同一（受访者, 模板, 版本）重跑时原地覆盖当前档案（revision 不变、字段重建），不留修订历史；
+  重跑过程仍记录于 `bci.archive_run` / `archive_run_item`（用户 2026-11-09 拍板）；
 - 一次保存 = 一个事务，字段写入失败则整份档案不落库；
 - 查询返回三态 `QueryResult`：`success|partial|failed`，并带 应查/实查/命中 计数，
   空结果不会被伪装成成功，也不把「未覆盖」写成 0。
@@ -231,50 +232,70 @@ class PostgresArchiveStore:
         conn = self._new_conn()
         try:
             with transaction(conn) as cur:
-                # 同一受访者+模板+版本串行化，避免并发抢到同一 revision
+                # 同一受访者+模板+版本串行化，避免并发覆盖冲突
                 cur.execute(
                     "SELECT pg_advisory_xact_lock(hashtext(%s))",
                     (f"{draft.interview_id}|{draft.template_id}|{draft.template_version}",),
                 )
+                # 覆盖语义（用户 2026-11-09 拍板）：同键只保留一份当前档案，
+                # 重跑原行更新、字段重建，不留修订历史；重跑过程仍记录于 archive_run。
                 cur.execute(
                     """
-                    SELECT coalesce(max(revision), 0) FROM bci.archive
+                    SELECT archive_id, revision FROM bci.archive
                     WHERE interview_id = %s AND template_id = %s AND template_version = %s
+                    ORDER BY revision DESC LIMIT 1
                     """,
                     (draft.interview_id, draft.template_id, draft.template_version),
                 )
-                revision = int(cur.fetchone()[0]) + 1
-
-                cur.execute(
-                    """
-                    UPDATE bci.archive SET status = 'stale', updated_at = now()
-                    WHERE interview_id = %s AND template_id = %s AND template_version = %s
-                      AND status <> 'stale'
-                    """,
-                    (draft.interview_id, draft.template_id, draft.template_version),
-                )
-                cur.execute(
-                    """
-                    INSERT INTO bci.archive
-                        (interview_id, template_id, template_version, template_snapshot, run_id,
-                         revision, status, coverage_required, model, prompt_version)
-                    VALUES (%s, %s, %s, %s::jsonb, %s, %s, %s, %s, %s, %s)
-                    RETURNING archive_id, generated_at
-                    """,
-                    (
-                        draft.interview_id,
-                        draft.template_id,
-                        draft.template_version,
-                        json.dumps(draft.template_snapshot, ensure_ascii=False),
-                        draft.run_id,
-                        revision,
-                        draft.status,
-                        draft.coverage_required,
-                        draft.model,
-                        draft.prompt_version,
-                    ),
-                )
-                archive_id, generated_at = cur.fetchone()
+                existing = cur.fetchone()
+                if existing:
+                    archive_id = existing[0]
+                    revision = int(existing[1])
+                    cur.execute(
+                        """
+                        UPDATE bci.archive
+                        SET template_snapshot = %s::jsonb, run_id = %s, status = %s,
+                            coverage_required = %s, model = %s, prompt_version = %s,
+                            generated_at = now(), updated_at = now()
+                        WHERE archive_id = %s
+                        RETURNING generated_at
+                        """,
+                        (
+                            json.dumps(draft.template_snapshot, ensure_ascii=False),
+                            draft.run_id,
+                            draft.status,
+                            draft.coverage_required,
+                            draft.model,
+                            draft.prompt_version,
+                            archive_id,
+                        ),
+                    )
+                    generated_at = cur.fetchone()[0]
+                    cur.execute("DELETE FROM bci.archive_field WHERE archive_id = %s", (archive_id,))
+                else:
+                    revision = 1
+                    cur.execute(
+                        """
+                        INSERT INTO bci.archive
+                            (interview_id, template_id, template_version, template_snapshot, run_id,
+                             revision, status, coverage_required, model, prompt_version)
+                        VALUES (%s, %s, %s, %s::jsonb, %s, %s, %s, %s, %s, %s)
+                        RETURNING archive_id, generated_at
+                        """,
+                        (
+                            draft.interview_id,
+                            draft.template_id,
+                            draft.template_version,
+                            json.dumps(draft.template_snapshot, ensure_ascii=False),
+                            draft.run_id,
+                            revision,
+                            draft.status,
+                            draft.coverage_required,
+                            draft.model,
+                            draft.prompt_version,
+                        ),
+                    )
+                    archive_id, generated_at = cur.fetchone()
 
                 for item in draft.fields:
                     cur.execute(
@@ -561,13 +582,9 @@ class FileArchiveStore:
         draft.validate()
         directory = self._archive_dir(draft.template_id, draft.template_version, draft.interview_id)
         directory.mkdir(parents=True, exist_ok=True)
-        revisions = sorted(int(p.stem.split("-r")[-1]) for p in directory.glob("*-r*.json"))
-        revision = (revisions[-1] if revisions else 0) + 1
-        for previous in directory.glob("archive-r*.json"):
-            data = json.loads(previous.read_text(encoding="utf-8"))
-            if data.get("status") != "stale":
-                data["status"] = "stale"
-                previous.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+        # 覆盖语义（用户 2026-11-09 拍板）：同键只保留一份当前档案，重跑原地覆盖不留修订。
+        existing = sorted(int(p.stem.split("-r")[-1]) for p in directory.glob("*-r*.json"))
+        revision = existing[-1] if existing else 1
         payload = {
             "archive_id": f"{draft.template_id}:{draft.template_version}:{draft.interview_id}:{revision}",
             "interview_id": draft.interview_id,
@@ -597,6 +614,9 @@ class FileArchiveStore:
             ],
         }
         target = directory / f"archive-r{revision}.json"
+        for previous in directory.glob("*-r*.json"):
+            if previous != target:
+                previous.unlink()
         tmp = directory / f".tmp-{uuid.uuid4().hex}.json"
         tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
         os.replace(tmp, target)

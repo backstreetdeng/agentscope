@@ -96,19 +96,19 @@ class FileStoreTest(unittest.TestCase):
     def tearDown(self) -> None:
         self._tmp.cleanup()
 
-    def test_revision_increases_and_old_is_stale(self) -> None:
+    def test_rerun_overwrites_in_place(self) -> None:
+        """覆盖语义（用户 2026-11-09 拍板）：重跑原地覆盖，revision 不变，不留修订。"""
         first = self.store.save_archive(build_draft("R900"))
-        second = self.store.save_archive(build_draft("R900"))
-        self.assertEqual((first.revision, second.revision), (1, 2))
+        second = self.store.save_archive(build_draft("R900", status="partial"))
+        self.assertEqual((first.revision, second.revision), (1, 1))
 
         latest = self.store.get_archive("R900", TEMPLATE_ID)
-        self.assertEqual(latest.items[0].revision, 2)
+        self.assertEqual(latest.items[0].revision, 1)
+        self.assertEqual(latest.items[0].status, "partial")
 
-        old = self.store.get_archive("R900", TEMPLATE_ID, revision=1)
-        self.assertEqual(old.items[0].revision, 1)
-
-        active = self.store.list_archives(TEMPLATE_ID)
-        self.assertEqual([item.revision for item in active.items], [2])
+        list_all = self.store.list_archives(TEMPLATE_ID)
+        self.assertEqual([item.revision for item in list_all.items], [1])
+        self.assertEqual(len(list_all.items), 1)
 
     def test_missing_archive_is_failed_not_zero(self) -> None:
         result = self.store.get_archive("R-none", TEMPLATE_ID)
@@ -197,21 +197,14 @@ class PostgresStoreTest(unittest.TestCase):
     def test_save_and_read_back(self) -> None:
         first = self.store.save_archive(build_draft(self.interview_id))
         second = self.store.save_archive(build_draft(self.interview_id, status="partial"))
-        self.assertEqual((first.revision, second.revision), (1, 2))
+        self.assertEqual((first.revision, second.revision), (1, 1))
 
         latest = self.store.get_archive(self.interview_id, TEMPLATE_ID)
         self.assertEqual(latest.status, "success")
         record = latest.items[0]
-        self.assertEqual(record.revision, 2)
+        self.assertEqual(record.revision, 1)
         self.assertEqual(len(record.fields), 43)
         self.assertEqual(record.status, "partial")
-
-        none_dims = [f for f in record.fields if f.fill_mode == "none"]
-        self.assertEqual(len(none_dims), 8)
-        self.assertTrue(all(f.no_data_reason for f in none_dims))
-
-        stale = self.store.get_archive(self.interview_id, TEMPLATE_ID, revision=1)
-        self.assertEqual(stale.items[0].revision, 1)
 
     def test_missing_returns_failed(self) -> None:
         result = self.store.get_archive("__not_exists__", TEMPLATE_ID)
