@@ -49,63 +49,75 @@ class QuoteService:
 
     def search(
         self,
-        interview_id: str,
+        interview_ids: str | list[str] | None,
         keyword: str,
         *,
         limit: int = DEFAULT_LIMIT,
         archive_fields: Iterable[dict[str, Any]] = (),
     ) -> dict[str, Any]:
+        """按关键词检索原话。
+
+        `interview_ids` 为空时检索全部受访者；传列表（或逗号分隔字符串）时仅查这些人。
+        tag_evidence 表本身无受访者列，该类结果经 tag 表关联过滤，item 的 interview_id 恒为 None。
+        """
         cleaned = self._validate_keyword(keyword)
         if not 1 <= int(limit) <= MAX_LIMIT:
             raise QuoteError("invalid_limit", f"limit 必须在 1–{MAX_LIMIT} 之间")
-        if not interview_id:
-            raise QuoteError("invalid_interview", "interview_id 不能为空")
+        if isinstance(interview_ids, str):
+            persons = [p.strip() for p in interview_ids.split(",") if p.strip()]
+        else:
+            persons = [str(p).strip() for p in (interview_ids or []) if str(p).strip()] or None
 
         pattern = f"%{escape_like(cleaned)}%"
         items: list[dict[str, Any]] = []
         counts = {"answer": 0, "evidence": 0, "tag_evidence": 0, "archive": 0}
 
+        # 每类 SQL：persons 过滤可选（= ANY）；tag_evidence 无受访者列，经 tag 表关联。
+        answer_sql = (
+            "SELECT 'answer', answer_id, question_id, NULL, interview_id, answer_text"
+            " FROM user_insight.answer"
+            " WHERE {person}answer_text ILIKE %s ESCAPE '\\'"
+            " ORDER BY question_id LIMIT %s"
+        )
+        evidence_sql = (
+            "SELECT 'evidence', evidence_id, question_id, speaker_label, interview_id, quote_text"
+            " FROM user_insight.evidence"
+            " WHERE {person}quote_text ILIKE %s ESCAPE '\\'"
+            " ORDER BY question_id LIMIT %s"
+        )
+        tag_sql = (
+            "SELECT 'tag_evidence', te.tag_evidence_id, te.question_id, te.speaker_label,"
+            " NULL, te.quote_text"
+            " FROM user_insight.tag_evidence te{join}"
+            " WHERE {person}te.quote_text ILIKE %s ESCAPE '\\'"
+            " ORDER BY te.question_id LIMIT %s"
+        )
+        if persons:
+            answer_sql = answer_sql.format(person="interview_id = ANY(%s) AND ")
+            evidence_sql = evidence_sql.format(person="interview_id = ANY(%s) AND ")
+            tag_sql = tag_sql.format(
+                join=" JOIN user_insight.tag t ON t.tag_id = te.tag_id",
+                person="t.interview_id = ANY(%s) AND ",
+            )
+            base_params: tuple[Any, ...] = (persons,)
+        else:
+            answer_sql = answer_sql.format(person="")
+            evidence_sql = evidence_sql.format(person="")
+            tag_sql = tag_sql.format(join="", person="")
+            base_params = ()
+
         conn = self._connect()
         try:
             with conn.cursor() as cur:
                 for kind, sql in (
-                    (
-                        "answer",
-                        """
-                        SELECT 'answer', answer_id, question_id, NULL, answer_text
-                        FROM user_insight.answer
-                        WHERE interview_id = %s AND answer_text ILIKE %s ESCAPE '\\'
-                        ORDER BY question_id
-                        LIMIT %s
-                        """,
-                    ),
-                    (
-                        "evidence",
-                        """
-                        SELECT 'evidence', evidence_id, question_id, speaker_label, quote_text
-                        FROM user_insight.evidence
-                        WHERE interview_id = %s AND quote_text ILIKE %s ESCAPE '\\'
-                        ORDER BY question_id
-                        LIMIT %s
-                        """,
-                    ),
-                    (
-                        "tag_evidence",
-                        """
-                        SELECT 'tag_evidence', te.tag_evidence_id, te.question_id,
-                               te.speaker_label, te.quote_text
-                        FROM user_insight.tag_evidence te
-                        JOIN user_insight.tag t ON t.tag_id = te.tag_id
-                        WHERE t.interview_id = %s AND te.quote_text ILIKE %s ESCAPE '\\'
-                        ORDER BY te.question_id
-                        LIMIT %s
-                        """,
-                    ),
+                    ("answer", answer_sql),
+                    ("evidence", evidence_sql),
+                    ("tag_evidence", tag_sql),
                 ):
                     remaining = int(limit) - len(items)
                     if remaining <= 0:
                         break
-                    cur.execute(sql, (interview_id, pattern, remaining))
+                    cur.execute(sql, (*base_params, pattern, remaining))
                     for row in cur.fetchall():
                         counts[kind] += 1
                         items.append(
@@ -114,7 +126,8 @@ class QuoteService:
                                 "id": row[1],
                                 "question_id": row[2],
                                 "speaker": row[3],
-                                "quote": _quoted(row[4]),
+                                "interview_id": row[4],
+                                "quote": _quoted(row[5]),
                                 "source": kind,
                             }
                         )
@@ -139,7 +152,7 @@ class QuoteService:
                 )
 
         return {
-            "interview_id": interview_id,
+            "interview_ids": persons,
             "keyword": cleaned,
             "total": len(items),
             "counts": counts,

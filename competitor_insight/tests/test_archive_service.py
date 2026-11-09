@@ -307,6 +307,15 @@ class DetailTest(ServiceTestBase):
 
 
 class GenerateRunTest(ServiceTestBase):
+    def test_template_without_source_map_rejected(self) -> None:
+        """缺题项映射的模板（如 nev_user_insight）必须拒绝生成，防止档案写到错误模板名下。"""
+        with self.assertRaises(ApiError) as ctx:
+            self.service.generate(
+                ["R001"], template_id="nev_user_insight", mode="selected", force=True
+            )
+        self.assertEqual(ctx.exception.code, "template_not_generatable")
+        self.assertEqual(len(self.store.list_archives("user_insight_archive").items), 0)
+
     def test_selected_run_completes(self) -> None:
         result = self.service.generate(["R001", "R002"], mode="selected", force=True)
         run_id = result["data"]["run_id"]
@@ -501,6 +510,30 @@ class RealDatabaseQuoteTest(unittest.TestCase):
             set(data["counts"]), {"answer", "evidence", "tag_evidence", "archive"}
         )
         self.assertEqual(data["keyword"], "空间")
+        for item in data["items"]:
+            self.assertIn("interview_id", item)
+
+    def test_search_without_person_covers_all(self) -> None:
+        """未指定受访者时检索全部人：结果不带单人过滤，且 answer/evidence 附带 interview_id。"""
+        data = QuoteService(db_module.connect).search(None, "空间", limit=8)
+        self.assertLessEqual(data["total"], 8)
+        self.assertIsNone(data["interview_ids"])
+        persons = {
+            item["interview_id"] for item in data["items"] if item["kind"] in ("answer", "evidence")
+        }
+        for item in data["items"]:
+            if item["kind"] in ("answer", "evidence"):
+                self.assertTrue(item["interview_id"])
+        self.assertGreaterEqual(len(persons), 1)
+
+    def test_search_with_person_list_is_scoped(self) -> None:
+        """传多人列表时只返回这些人：answer/evidence 的 interview_id 都在列表内。"""
+        ids = [self.interview_id, "R004"]
+        data = QuoteService(db_module.connect).search(ids, "空间", limit=8)
+        self.assertEqual(data["interview_ids"], ids)
+        for item in data["items"]:
+            if item["kind"] in ("answer", "evidence"):
+                self.assertIn(item["interview_id"], ids)
 
 
 if __name__ == "__main__":

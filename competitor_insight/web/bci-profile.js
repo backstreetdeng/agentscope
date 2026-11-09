@@ -113,13 +113,18 @@
     const empty = el('div', 'bp-empty');
     empty.appendChild(el('strong', '', '尚未生成档案'));
     empty.appendChild(el('p', '', message));
-    const btn = el('button', 'bp-btn bp-btn--primary', '生成本人档案');
-    btn.addEventListener('click', () => {
-      if (!state.currentId) return;
-      if (!state.canGenerate) { showAlert('本次未选入 2025 年定性解析数据，暂不能生成。'); return; }
-      startGenerate([state.currentId], 'single');
-    });
-    empty.appendChild(btn);
+    const noSourceMap = state.template && state.template.source_map_ready === false;
+    if (noSourceMap) {
+      empty.appendChild(el('p', '', '当前模板暂不支持自动生成（缺题项映射），请切换到「用户洞察档案」模板。'));
+    } else {
+      const btn = el('button', 'bp-btn bp-btn--primary', '生成本人档案');
+      btn.addEventListener('click', () => {
+        if (!state.currentId) return;
+        if (!state.canGenerate) { showAlert('本次未选入 2025 年定性解析数据，暂不能生成。'); return; }
+        startGenerate([state.currentId], 'single');
+      });
+      empty.appendChild(btn);
+    }
     body.appendChild(empty);
   }
 
@@ -421,6 +426,8 @@
         const quote = highlight(item.quote || item.value_text || '', data.keyword);
         node.appendChild(quote);
         const metaBits = [];
+        const multiScope = !data.interview_ids || data.interview_ids.length !== 1;
+        if (multiScope && item.interview_id) metaBits.push(item.interview_id);
         if (item.question_id) metaBits.push('Q' + item.question_id);
         if (item.speaker) metaBits.push(item.speaker);
         if (item.dimension_id) metaBits.push('维度：' + dimName(item.dimension_id));
@@ -712,11 +719,24 @@
     if (!actions) return;
     const buttons = qsa('.bp-btn', actions);
     const canGenerate = state.canGenerate && !!state.template && !state.runId;
+    const noSourceMap = !!state.template && state.template.source_map_ready === false;
+    const current = state.respondents.find((r) => r.interview_id === state.currentId) || null;
+    const hasArchive = !!(current && current.archive);
+    const genTitle = !state.canGenerate
+      ? '本次未选入 2025 年定性解析数据'
+      : noSourceMap
+        ? '该模板暂不支持自动生成（缺题项映射），请切换到「用户洞察档案」模板'
+        : hasArchive
+          ? '当前受访者已生成档案；重新生成请用「重新归档当前」'
+          : '';
     if (buttons[0]) {
-      buttons[0].disabled = !canGenerate || !state.currentId;
-      buttons[0].title = state.canGenerate ? '' : '本次未选入 2025 年定性解析数据';
+      buttons[0].disabled = !canGenerate || !state.currentId || noSourceMap || hasArchive;
+      buttons[0].title = genTitle;
     }
-    if (buttons[1]) buttons[1].disabled = !canGenerate || !state.currentId;
+    if (buttons[1]) {
+      buttons[1].disabled = !canGenerate || !state.currentId || noSourceMap;
+      buttons[1].title = noSourceMap ? '该模板暂不支持自动生成（缺题项映射）' : '';
+    }
     if (buttons[2]) buttons[2].disabled = !!state.runId || !state.selected.size;
     if (buttons[3]) buttons[3].disabled = !!state.runId || !state.currentId;
   }
@@ -736,10 +756,10 @@
     toolbar.appendChild(scope);
 
     const actions = el('div', 'bp-actions');
-    actions.appendChild(el('button', 'bp-btn', '生成本人档案'));
+    actions.appendChild(el('button', 'bp-btn bp-btn--primary', '生成本人档案'));
     const regen = el('button', 'bp-btn', '重新归档当前');
     actions.appendChild(regen);
-    const exportBtn = el('button', 'bp-btn bp-btn--primary', '导出 Excel');
+    const exportBtn = el('button', 'bp-btn', '导出 Excel');
     exportBtn.dataset.bpExportCount = '1';
     actions.appendChild(exportBtn);
     actions.appendChild(el('button', 'bp-btn', '下载 MD'));
@@ -782,7 +802,7 @@
     const quote = el('section', 'bp-quote');
     const quoteHead = el('div', 'bp-quote__head');
     quoteHead.appendChild(document.createTextNode('找原话'));
-    quoteHead.appendChild(el('span', '', '按关键词检索答案、证据、标签证据与当前档案值'));
+    quoteHead.appendChild(el('span', '', '按关键词检索答案、证据与标签证据；已勾选受访者时仅查勾选的人（可多选），未勾选时查全部受访者'));
     quote.appendChild(quoteHead);
     const form = el('div', 'bp-quote__form');
     const quoteInput = el('input', 'bp-quote__input');
@@ -802,14 +822,12 @@
     // 事件
     const runQuote = async () => {
       const keyword = quoteInput.value.trim();
-      if (!state.currentId) { showAlert('请先选择一位受访者。'); return; }
       if (!keyword) { showAlert('请输入关键词。'); return; }
       quoteResults.innerHTML = '';
       try {
-        const data = await api(
-          '/quote?interview_id=' + encodeURIComponent(state.currentId) +
-          '&keyword=' + encodeURIComponent(keyword) + '&limit=50'
-        );
+        const params = new URLSearchParams({ keyword: keyword, limit: '50' });
+        if (state.selected.size) params.set('interview_id', Array.from(state.selected).join(','));
+        const data = await api('/quote?' + params.toString());
         renderQuote(quoteResults, data);
       } catch (err) {
         quoteResults.appendChild(el('div', 'bp-quote__empty', err.message));

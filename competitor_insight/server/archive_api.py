@@ -385,6 +385,13 @@ class ArchiveService:
         force: bool = False,
     ) -> dict[str, Any]:
         bundle = self._ready_bundle(template_id)
+        if bundle.source_map is None:
+            raise ApiError(
+                "template_not_generatable",
+                f"模板「{bundle.label}」缺少题项映射（source-map），暂不支持自动生成；"
+                "请切换到「用户洞察档案」模板",
+                400,
+            )
         if mode not in MODES:
             raise ApiError("invalid_mode", f"mode 必须是 {MODES} 之一")
 
@@ -552,23 +559,28 @@ class ArchiveService:
 
     def quote(
         self,
-        interview_id: str,
+        interview_ids: str | list[str] | None,
         keyword: str,
         limit: int = 50,
         template_id: str | None = None,
     ) -> dict[str, Any]:
         bundle = self._ready_bundle(template_id)
+        if isinstance(interview_ids, str):
+            persons = [p.strip() for p in interview_ids.split(",") if p.strip()]
+        else:
+            persons = [str(p).strip() for p in (interview_ids or []) if str(p).strip()] or None
         archive_fields: list[dict[str, Any]] = []
-        detail = self.detail(interview_id, bundle.template_id)["data"]
-        if detail["archive"]:
-            archive_fields = [
-                {"dimension_id": field["dimension_id"], "value_text": field["value_text"]}
-                for field in detail["fields"]
-                if field["value_text"]
-            ]
+        if persons and len(persons) == 1:
+            detail = self.detail(persons[0], bundle.template_id)["data"]
+            if detail["archive"]:
+                archive_fields = [
+                    {"dimension_id": field["dimension_id"], "value_text": field["value_text"]}
+                    for field in detail["fields"]
+                    if field["value_text"]
+                ]
         try:
             data = self._quotes_obj().search(
-                interview_id, keyword, limit=limit, archive_fields=archive_fields
+                persons, keyword, limit=limit, archive_fields=archive_fields
             )
         except QuoteError as exc:
             raise ApiError(exc.code, str(exc)) from exc
