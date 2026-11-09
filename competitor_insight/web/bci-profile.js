@@ -151,6 +151,7 @@
         if (cb.checked) state.selected.add(row.interview_id);
         else state.selected.delete(row.interview_id);
         updateSelectionUI();
+        if (cb.checked && row.interview_id !== state.currentId) selectPerson(row.interview_id);
       });
       li.appendChild(cb);
 
@@ -171,6 +172,8 @@
           stale: '旧版',
         }[row.archive.status] || row.archive.status);
         li.appendChild(badge);
+      } else {
+        li.appendChild(el('span', 'bp-item__status is-none', '未生成'));
       }
       items.appendChild(li);
     });
@@ -710,7 +713,7 @@
     const buttons = qsa('.bp-btn', actions);
     const canGenerate = state.canGenerate && !!state.template && !state.runId;
     if (buttons[0]) {
-      buttons[0].disabled = !canGenerate;
+      buttons[0].disabled = !canGenerate || !state.currentId;
       buttons[0].title = state.canGenerate ? '' : '本次未选入 2025 年定性解析数据';
     }
     if (buttons[1]) buttons[1].disabled = !canGenerate || !state.currentId;
@@ -733,7 +736,7 @@
     toolbar.appendChild(scope);
 
     const actions = el('div', 'bp-actions');
-    actions.appendChild(el('button', 'bp-btn', '生成缺失档案'));
+    actions.appendChild(el('button', 'bp-btn', '生成本人档案'));
     const regen = el('button', 'bp-btn', '重新归档当前');
     actions.appendChild(regen);
     const exportBtn = el('button', 'bp-btn bp-btn--primary', '导出 Excel');
@@ -834,8 +837,11 @@
         btn.addEventListener('click', exportXlsx);
       } else if (btn.textContent === '下载 MD') {
         btn.addEventListener('click', exportMd);
-      } else if (btn.textContent === '生成缺失档案') {
-        btn.addEventListener('click', () => startGenerate([], 'missing'));
+      } else if (btn.textContent === '生成本人档案') {
+        btn.addEventListener('click', () => {
+          if (!state.currentId) { showAlert('请先选择一位受访者。'); return; }
+          startGenerate([state.currentId], 'single');
+        });
       }
     });
     updateActionState();

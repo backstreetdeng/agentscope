@@ -20,7 +20,7 @@
 | [BCI-001](tasks/BCI-001/TASK.md) 数据源筛选 | TESTED | 已入库 | `1bd7eee`（声明收窄 `9cf1c03`；越界修复 `acc8e96`；探活修复本批） | L02/L03/L04 数据缺口、L05 剩余 tab、L07 scope 无消费方、L08 工具无车型入参 |
 | [BCI-002](tasks/BCI-002/TASK.md) 洞察档案模板 | TESTED | 已入库 | `1bd7eee`（收窄 `f432794`；查看模板 `17c2193`） | L01 新车型模板、L02 无后端校验器、L04 12 组 vs 13 组、L05 取值类型为推断、L06 待验收（BCI-004 已交付） |
 | [BCI-003](tasks/BCI-003/TASK.md) Harness 学习 | TESTED | 已入库 | `1bd7eee`；收敛为本批提交 | L02 官方 SKILL 正文未读（不阻塞）、L04 交接包缺 5 项目 |
-| [BCI-004](tasks/BCI-004/TASK.md) 洞察档案 tab | TESTED | 已入库 | `7dc91aa` → `01da692`（枚举归一 + 渠道归并） | L01 开放问题、L05/L07/L08 已决策维持、L11 已决策不轮换；L10 已解除（2026-11-09 属主已转） |
+| [BCI-004](tasks/BCI-004/TASK.md) 洞察档案 tab | TESTED | 已入库 | `7dc91aa` → `01da692`（枚举归一 + 渠道归并） | L01 剩 Q5/Q6/Q7/Q10、L05/L07/L08 已决策维持、L11 已决策不轮换；L10/L04 已解除（2026-11-09） |
 | [BCI-005](tasks/BCI-005/TASK.md) 任务机制 | DEV_DONE | 已入库 | `1bd7eee` | L01 业务接口无三态、L02 reader 仅词法检查、L06 commit_paths 靠人工声明（L07 已决策不修） |
 | [BCI-006](tasks/BCI-006/TASK.md) 即时分析 tab | TESTED | 已入库 | `5e8f964`（文档 `ca18f37`；已推送 `6775c56`） | L01 无排序题、L03 无胜出观测题、L05 无级别字段、L06 定性归类为启发式、L07 v1 不做 |
 | [BCI-007](tasks/BCI-007/TASK.md) 报告输出 tab | CREATED | **未入库（方案轮）** | — | L01 本品无样本、L02 前车来源无数据、L03 无排序题、L06 改稿未做、L08 业务模板未提供 |

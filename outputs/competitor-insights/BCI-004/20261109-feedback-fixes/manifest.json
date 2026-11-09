@@ -1,0 +1,28 @@
+{
+  "task_id": "BCI-004",
+  "artifact": "20261109 用户反馈修复验证（6 点反馈中的 3 处前端改动）",
+  "created_at": "2026-11-09T16:40:00+08:00",
+  "purpose": "验证用户 7860 反馈的三处修复：列表状态标记（未生成也显示）、勾选用户与主区域联动、按钮改名【生成本人档案】（行为同步改为只生成当前人，避免误触发全量批量生成）。",
+  "result": {
+    "checks": "5/5 PASS",
+    "detail": [
+      "R001 状态标记=部分（R001 在 user_insight_archive 模板下 2026-11-08T23:28 生成，11 份档案均属该模板；用户截图所见空态是因页面当时选了「新能源用户洞察模板」nev_user_insight，该模板下 63 人均未生成）",
+      "R002 状态标记=未生成",
+      "勾选 R002 后主区域联动切换",
+      "按钮名=生成本人档案",
+      "无 JS 错误"
+    ]
+  },
+  "files": [
+    {"path": "check_fixes.py", "kind": "verification script", "committed": false},
+    {"path": "verify.log", "kind": "execution log", "committed": false, "note": "*.log 被 .gitignore 排除，仅本机"}
+  ],
+  "commands": [
+    "../Scripts/python.exe -B temp/20261107-bci-d8/serve_7861.py  # 临时 7861，验证后已停止，未触碰 7860",
+    "../Scripts/python.exe -B temp/20261109-bci-feedback/check_fixes.py"
+  ],
+  "reproduce": "先起 7861 临时服务，再跑 check_fixes.py（设置 PLAYWRIGHT_BROWSERS_PATH）。",
+  "next_action": "7860 的 bci-profile.js 按请求从磁盘读取，用户浏览器 Ctrl+F5 强刷即可生效，无需重启服务。",
+  "cleanable": true,
+  "restore_method": "重跑两条命令即可再生结果"
+}
