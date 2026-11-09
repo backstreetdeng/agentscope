@@ -32,3 +32,10 @@
   - 技能页深度调研卡片链接改为 `#analysis`（data-view-trigger）；
   - `legacy_workbench.html` 恢复原状（deep_research 残留 0）。
 - 验证：面板展开/示例填充/输入框/按钮/状态实测通过；API 端到端 82s validation passed（run `skill-20261109-153541-e34fdea9`）；legacy_workbench 与 home.html 无 deep_research→legacy 残留链接。
+
+## 内测修正（2026-11-09，用户报告点【开始调研】无反应）
+
+- 根因排查：用户浏览器加载了旧版 home.js（资源版本参数 v=20261102e 长期未变，触发浏览器启发式缓存；此前 no-store 头已存在但用户页面未刷新）。
+- 修复：① home.html 资源版本参数更新为 v=20261109；② home.js `setBusy(false)` 不再把运行状态覆盖回"待命"（内测真实运行时抓到的第二个 bug：完成态文案被 finally 覆盖）；③ 运行状态文案改业务语言。
+- 内测证据：真实运行链路 PASS（展开→chip 填充→运行→报告 Markdown 渲染→下载链接 /outputs/research/）；API 端到端 82s passed（run `skill-20261109-153541-e34fdea9`）；JS node --check 通过。代理浏览器自身缓存污染导致其误报"连接拒绝/旧版本"，已用本地直连复核排除。
+- 用户侧注意：浏览器需强制刷新一次（Ctrl+F5）加载 v=20261109 资源。
