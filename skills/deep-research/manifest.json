@@ -1,0 +1,34 @@
+{
+  "name": "deep-research",
+  "version": "0.1.0",
+  "task": "MKT-002",
+  "updated": "2026-11-06",
+  "description": "市场板块深度调研能力：意图分类与深度分级 + 多轮联网检索 + 来源分级（P0-P3）交叉验证 + [cite:N] 引用体系的研究报告/对比分析交付",
+  "entry": "SKILL.md",
+  "agent": {
+    "mode": "dedicated",
+    "definition": "agents/deep_research_agent.py",
+    "model_routing": "utils/model_routing.py：L1/L2=deepseek-v4-flash，L3=deepseek-v4-pro"
+  },
+  "dependencies": {
+    "tools": [
+      "any_search / tavily_search（现有，联网搜索）",
+      "web_fetch（现有，网页精读）",
+      "mcp__reputation_data_mcp__*（现有，公开口碑）",
+      "skill runtime 通用工具（skill_plan_tasks / skill_update_task / skill_checkpoint / skill_run_script / skill_validate_run / workspace_*）"
+    ],
+    "runtime": [
+      "skill runtime 隔离运行：run_id / inputs / working / outputs / run-state.json / checkpoints.jsonl"
+    ]
+  },
+  "artifacts": {
+    "contract": "assets/report-contract.json",
+    "acceptance": "scripts/validate_report.py（规则实现见 utils/research_report_validation.py）",
+    "deliverables": ["Markdown 研究报告（带 [cite:N] 引用与参考来源清单）", "缺口声明"]
+  },
+  "references": [
+    "references/comparison-analysis.md",
+    "references/research-report.md"
+  ],
+  "status": "已接入（2026-11-06：确定性编排引擎上线——代码取证+受限模型撰写+独立验收，端到端 78s/验收 passed；12 项 skill-integration-standard 待跨 AI 复核项按轮班规则补齐）"
+}

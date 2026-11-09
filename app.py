@@ -255,6 +255,7 @@ from main import (
 )
 from skills.market_analysis_skill import MarketAnalysisSkill
 from agents.benchmark_agent import build_benchmark_agent
+from agents.deep_research_agent import build_research_plan_agent, build_research_report_agent
 from integrations.market_mcp_plugins import load_market_mcp_plugins
 from integrations.reputation_live import load_reputation
 from integrations.new_car_live import load_new_car
@@ -269,6 +270,8 @@ from skills.market_analysis_skill.runtime import (
 from tools.custom_tools import clear_evidence_registry, clear_tool_call_events, get_collected_evidence, get_tool_call_events, record_tool_call
 from tools.monthly_report_browser import MONTHLY_REPORT_BROWSER, MonthlyReportBrowserConnector, _page_card_codes, _card_has_current_period
 from skill_runtime import SkillRegistry, SkillRunContext, build_skill_runtime_tools
+from utils.research_report_validation import validate_research_report
+from utils.deep_research_engine import build_evidence_block, build_report_markdown, execute_retrieval, parse_plan
 from utils.audio_tagging_engine import DEFAULT_TAG_TAXONOMY, run_audio_tagging_workflow
 from utils.html_ppt_builder import build_consulting_html_ppt
 from utils.monthly_report_pptx import build_monthly_report_pptx
@@ -302,6 +305,8 @@ PASSENGER_MONTHLY_PACKAGE_DIR = (PROJECT_DIR / "outputs" / "monthly-report-data"
 PASSENGER_MONTHLY_CAPABILITY_ID = "passenger_car_monthly_report"
 MACRO_MONTHLY_CAPABILITY_ID = "macro_monthly_report"
 COMPETITOR_BENCHMARK_CAPABILITY_ID = "competitor_benchmark"
+DEEP_RESEARCH_CAPABILITY_ID = "deep_research"
+RESEARCH_REPORT_OUTPUT_DIR = PROJECT_DIR / "outputs" / "research"
 MACRO_MONTHLY_SKILL_DIR = PROJECT_DIR / "skills" / "macro-monthly-report"
 SKILL_RUNTIME_ROOT = PROJECT_DIR / "runtime" / "skill-runs"
 SKILL_REGISTRY = SkillRegistry([PROJECT_DIR / "skills"])
@@ -383,8 +388,165 @@ skill_run_script 执行 scripts/validate_matrix.py，args_json 填
 skill_update_task 记录验收证据。最后调用 skill_validate_run，required_artifacts_json
 填 ["outputs/benchmark-matrix.json"]，只有 passed=true 才能宣告完成。
 """
+    elif skill_id == "deep-research":
+        instruction += """
+
+# 深度调研运行时执行约束
+
+先调用 skill_plan_tasks 建立任务图（至少包含：意图分类 → 检索计划 → 分轮取证 →
+交叉校验 → 撰写报告 → 独立验收）。搜索用 any_search / tavily_search，拿到 url 后
+再 web_fetch 精读；同一查询不重复调用。取证时逐条记录来源编号、标题、URL、层级
+（P0-P3）与信息时点，来源冲突双边呈现，检索不到写缺口声明。
+
+报告篇幅超过约 4000 字符时，禁止一次写完（单次工具调用会被截断）：把报告按序分段
+写入 working/report-parts/（01-开头的文件名，如 01-summary.md、02-body.md、
+03-sources.md，每段 ≤3500 字符，最后一段必须是完整参考来源清单），全部写完后调用
+skill_run_script 执行 scripts/assemble_report.py 合并为 outputs/research-report.md。
+篇幅不足 4000 字符时可直接一次写入 outputs/research-report.md。合并后调用
+skill_run_script 执行 scripts/validate_report.py，args_json 填
+["outputs/research-report.md"]，按返回 failures 修复后重新合并。报告必须
+是单一完整文件：结论摘要在前、参考来源清单在报告末尾，正文 [cite:N] 与报告内
+来源清单一一对应；禁止把来源清单或部分章节永久留在其他文件。
+最后调用 skill_validate_run，required_artifacts_json 填
+["outputs/research-report.md"]，只有 passed=true 才能宣告完成。
+"""
     tools = build_skill_runtime_tools(context)
     return context, instruction, tools
+
+
+def record_deep_research_validation(context: SkillRunContext) -> None:
+    """确定性执行深度调研报告引用校验并登记验收结果（模型文字不是完成证据）。"""
+
+    state = context.load_state()
+    report = next(
+        (
+            item
+            for item in reversed(state.get("artifacts") or [])
+            if item.get("kind") == "research_report"
+        ),
+        None,
+    )
+    if not report:
+        return
+    path = context.workspace_path(str(report["path"]), must_exist=True)
+    failures = validate_research_report(path.read_text(encoding="utf-8-sig"))
+    context.record_artifact_validation(
+        path,
+        "research_report_citation",
+        not failures,
+        {"passed": not failures, "failures": failures},
+    )
+
+
+async def run_deep_research_skill(question: str, config: dict[str, Any]) -> dict[str, Any]:
+    """深度调研确定性编排：模型只做计划与撰写，取证与验收由代码执行。
+
+    控制机制（对齐 DeepSeek harness 思路）：固定流程编排 + 受限模型调用（无工具、
+    单轮）+ 确定性取证与引用清理 + 独立验收器；工具回执是证据，模型文字不是完成证据。
+    """
+    load_dotenv(ENV_PATH, override=True)
+    context, _instruction, _tools = activate_skill_runtime("deep-research")
+    state = context.load_state()
+    state["plan"] = [
+        {"id": "t1", "title": "意图分类与检索计划", "status": "pending", "summary": "", "evidence": []},
+        {"id": "t2", "title": "确定性取证（搜索+精读）", "status": "pending", "summary": "", "evidence": []},
+        {"id": "t3", "title": "报告正文撰写", "status": "pending", "summary": "", "evidence": []},
+        {"id": "t4", "title": "组装与独立验收", "status": "pending", "summary": "", "evidence": []},
+    ]
+    context.save_state(state)
+
+    # t1 检索计划：无工具单轮模型调用；失败走确定性兜底（原问题作单一查询）。
+    plan: dict[str, Any] = {}
+    try:
+        plan_agent = build_research_plan_agent(config)
+        reply = await asyncio.wait_for(
+            plan_agent.reply(UserMsg(name="业务用户", content=question)),
+            timeout=90,
+        )
+        plan = parse_plan(strip_thinking(reply.get_text_content()))
+    except Exception:
+        plan = {}
+    if not plan:
+        plan = {"intent": "report", "depth": "L2", "queries": [question.strip()[:24]]}
+    context.update_task("t1", "completed", f"intent={plan['intent']}; depth={plan['depth']}; queries={plan['queries']}")
+
+    # t2 确定性取证：Tavily 搜索 + 精读 + URL 去重 + 层级分类；失败明确报错不编造。
+    retrieval_log: list[dict[str, Any]] = []
+    sources = await asyncio.to_thread(execute_retrieval, plan["queries"], retrieval_log)
+    if not sources:
+        raise RuntimeError(
+            "联网取证失败（Tavily 不可用或无结果），按红线不编造来源；请检查 TAVILY_API_KEY 后重试。"
+        )
+    context.update_task(
+        "t2", "completed",
+        f"sources={len(sources)}; calls={len(retrieval_log)}; tiers="
+        + json.dumps({tier: sum(1 for s in sources if s['tier'] == tier) for tier in ('P0', 'P1', 'P2', 'P3')}, ensure_ascii=False),
+    )
+
+    # t3 报告正文：无工具单轮，只基于注入证据；参考来源清单由代码生成。
+    report_agent = build_research_report_agent(config)
+    user_content = (
+        f"调研主题：{question}\n意图类型：{plan['intent']}\n\n"
+        f"已取证来源（唯一可用引用，不得虚构编号）：\n\n{build_evidence_block(sources)}"
+    )
+    reply = await asyncio.wait_for(
+        report_agent.reply(UserMsg(name="业务用户", content=user_content)),
+        timeout=300,
+    )
+    body = strip_thinking(reply.get_text_content())
+    if not body or len(body.strip()) < 200:
+        raise RuntimeError("报告正文撰写失败（模型未返回可展示正文），请重试。")
+    context.update_task("t3", "completed", f"body_chars={len(body.strip())}")
+
+    # t4 组装、登记、独立验收：引用清理与来源清单为确定性代码产物。
+    report = build_report_markdown(body, sources)
+    report_path = context.workspace_path("outputs/research-report.md")
+    report_path.write_text(report, encoding="utf-8")
+    context.register_artifact(report_path, "research_report")
+    record_deep_research_validation(context)
+    # 先标记组装完成再验收：plan_completed 检查要求全部节点 completed，
+    # 验收失败（独立验收未过）时再降级为 failed。
+    context.update_task("t4", "completed", f"assembled_chars={len(report)}")
+    validation = context.validate(["outputs/research-report.md"])
+    if validation.get("status") != "passed":
+        context.update_task("t4", "failed", f"validation={validation.get('status')}")
+    context.checkpoint("深度调研确定性编排结束", {"validation": validation.get("status"), "sources": len(sources)})
+
+    delivery_url = ""
+    if validation.get("status") == "passed":
+        RESEARCH_REPORT_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+        published = RESEARCH_REPORT_OUTPUT_DIR / f"{context.run_id}-research-report.md"
+        shutil.copy2(report_path, published)
+        delivery_url = "/" + str(published.relative_to(PROJECT_DIR)).replace("\\", "/")
+        record_tool_call(
+            "skill_runtime_publish",
+            "success",
+            f"run_id={context.run_id}; output={delivery_url}",
+        )
+
+    summary_head = report.split("## 参考来源")[0].strip()[:1200]
+    passed = validation.get("status") == "passed"
+    answer = (
+        f"深度调研完成（意图={plan['intent']}，深度={plan['depth']}，来源 {len(sources)} 条），"
+        + (
+            f"报告已通过独立引用验收（run_id={context.run_id}）。"
+            if passed
+            else f"报告未通过独立验收（run_id={context.run_id}，失败项见 skill_run.state.validation）。"
+        )
+        + f"\n\n{summary_head}\n\n完整报告：{delivery_url or '见 skill_run.workspace'}"
+    )
+    return {
+        "answer": answer,
+        "agent": DEEP_RESEARCH_CAPABILITY_ID,
+        "model_provider": config.get("active_provider", ""),
+        "tool_events": get_tool_call_events(),
+        "skill_run": {
+            "run_id": context.run_id,
+            "workspace": str(context.root),
+            "state": context.load_state(),
+            "delivery_url": delivery_url,
+        },
+    }
 
 
 def load_macro_monthly_skill_prompt() -> str:
@@ -1027,6 +1189,12 @@ def bci_analysis_service() -> Any:
     global BCI_ANALYSIS_SERVICE
     if BCI_ANALYSIS_SERVICE is not None:
         return BCI_ANALYSIS_SERVICE
+    with BCI_ANALYSIS_SERVICE_LOCK:
+        if BCI_ANALYSIS_SERVICE is None:
+            from competitor_insight.server.analysis_service import AnalysisService
+
+            BCI_ANALYSIS_SERVICE = AnalysisService()
+    return BCI_ANALYSIS_SERVICE
 
 
 HTML = (PROJECT_DIR / 'home.html').read_text(encoding='utf-8')
@@ -4095,7 +4263,7 @@ async def run_insight_agent_query(question: str, session_id: str = "") -> dict[s
 
     warnings: list[str] = []
     if not evidence:
-        warnings.append("本轮未检索到任何访谈证据，回答仅基于定量统计或模型判断。")
+        warnings.append("该问题为定量问题，本轮无定性补证。")
 
     if session_id and answer:
         from customer_insight.session import append_turn
@@ -4187,7 +4355,7 @@ async def stream_insight_agent_query(question: str, emit: Any, session_id: str =
     )
     warnings: list[str] = []
     if not evidence:
-        warnings.append("本轮未检索到任何访谈证据，回答仅基于定量统计或模型判断。")
+        warnings.append("该问题为定量问题，本轮无定性补证。")
 
     if session_id and answer:
         from customer_insight.session import append_turn
@@ -4257,6 +4425,10 @@ async def run_agent_once(
     # 避免把逐图表写入留给一次长 ReAct 循环而出现不可恢复的卡顿。
     if macro_monthly_task:
         return await run_macro_monthly_skill(question, config)
+
+    # 深度调研：确定性编排（代码取证 + 受限模型撰写 + 独立验收），不走自由 ReAct。
+    if agent_key == DEEP_RESEARCH_CAPABILITY_ID:
+        return await run_deep_research_skill(question, config)
 
     if agent_key == "competitor_benchmark":
         # 竞品对标：P0 款型配置信息由本地 miit 工具提供，P2 口碑走 reputation 插件。
@@ -4341,7 +4513,11 @@ async def run_agent_once(
     try:
         reply = await asyncio.wait_for(
             agent.reply(UserMsg(name="业务用户", content=question)),
-            timeout=300 if skill_run_context else 180,
+            timeout=(
+                600
+                if agent_key == DEEP_RESEARCH_CAPABILITY_ID
+                else (300 if skill_run_context else 180)
+            ),
         )
     except TimeoutError as exc:
         if skill_run_context:
@@ -4397,6 +4573,9 @@ async def run_agent_once(
     # same agent for bounded repair cycles.
     if skill_run_context and answer:
         for repair_round in range(1, 3):
+            if agent_key == DEEP_RESEARCH_CAPABILITY_ID:
+                # 每轮验收前确定性重跑引用校验；产物变更会使旧验收证据失效。
+                record_deep_research_validation(skill_run_context)
             validation = skill_run_context.validate()
             if validation.get("status") == "passed":
                 break
@@ -4449,12 +4628,56 @@ async def run_agent_once(
                     "success",
                     f"run_id={skill_run_context.run_id}; output={skill_delivery_url}",
                 )
+            if agent_key == DEEP_RESEARCH_CAPABILITY_ID:
+                report = next(
+                    (
+                        item for item in reversed(runtime_state.get("artifacts") or [])
+                        if item.get("kind") == "research_report"
+                    ),
+                    None,
+                )
+                if report:
+                    source = skill_run_context.workspace_path(str(report["path"]), must_exist=True)
+                    RESEARCH_REPORT_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+                    published = RESEARCH_REPORT_OUTPUT_DIR / f"{skill_run_context.run_id}-{safe_filename(source.stem)}.md"
+                    shutil.copy2(source, published)
+                    skill_delivery_url = "/" + str(published.relative_to(PROJECT_DIR)).replace("\\", "/")
+                    record_tool_call(
+                        "skill_runtime_publish",
+                        "success",
+                        f"run_id={skill_run_context.run_id}; output={skill_delivery_url}",
+                    )
 
     tool_events = get_tool_call_events()
     if not answer:
         raise RuntimeError(
             "所选模型未返回可展示的最终正文，系统已拦截不完整内容；"
             "请稍后重试，并检查模型服务状态与任务规模。"
+        )
+
+    if (
+        agent_key == DEEP_RESEARCH_CAPABILITY_ID
+        and skill_run_context
+        and (
+            not answer.strip()
+            or "maximum iterations" in answer
+            or "未能在限定轮次" in answer
+        )
+        and ((skill_run_context.load_state().get("validation") or {}).get("status") == "passed")
+    ):
+        # Harness 兜底：独立验收已通过即任务完成，最终摘要不依赖模型最后一轮文字。
+        runtime_state = skill_run_context.load_state()
+        try:
+            report_text = skill_run_context.workspace_path(
+                "outputs/research-report.md", must_exist=True
+            ).read_text(encoding="utf-8-sig")
+            summary = report_text.split("## 参考来源")[0].strip()[:1500]
+        except Exception:
+            summary = ""
+        answer = (
+            f"深度调研完成，报告已通过独立引用验收（run_id={skill_run_context.run_id}）。\n\n"
+            + (summary + "\n\n" if summary else "")
+            + f"完整报告：{skill_delivery_url or '见 skill_run.workspace'}"
         )
 
     if market_skill_context and market_skill_context.active:

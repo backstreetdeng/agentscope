@@ -1,0 +1,7 @@
+{
+  "kind": "document",
+  "artifact_kind": "research_report",
+  "reference": "assets/report-contract.json",
+  "deliverable_path": "outputs/research-report.md",
+  "preview": "references/research-report.md"
+}

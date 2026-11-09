@@ -1,0 +1,18 @@
+interface:
+  display_name: "深度调研"
+  short_description: "意图分类与深度分级，多轮联网检索交叉验证，产出带 [cite:N] 引用的研究报告"
+  default_prompt: "对给定主题执行深度调研：按意图选择对比分析或研究报告模板，来源分级交叉验证，产出带引用的研究报告。"
+policy:
+  allow_implicit_invocation: true
+  allow_package_scripts: true
+  required_artifact_kinds:
+    - "research_report"
+  required_artifact_validators:
+    - "research_report_citation"
+dependencies:
+  tools:
+    - "any_search / tavily_search（联网搜索）"
+    - "web_fetch（网页精读）"
+    - "mcp__reputation_data_mcp__*（公开口碑 MCP）"
+  runtime:
+    - "skill runtime 隔离运行工作区（run_id / checkpoints / run-state）"

@@ -1,0 +1,28 @@
+{
+  "kind": "document",
+  "artifact_kind": "research_report",
+  "deliverable_path": "outputs/research-report.md",
+  "format": "markdown",
+  "required_sections": [
+    "结论摘要",
+    "参考来源"
+  ],
+  "source_list": {
+    "location": "报告末尾「## 参考来源」章节",
+    "entry_format": "N. 标题 — URL（层级 P0|P1|P2|P3，时点 YYYY-MM-DD 或 YYYY-MM）",
+    "numbering": "从 1 开始连续编号，正文 [cite:N] 必须能对应到本清单"
+  },
+  "citation_rules": {
+    "inline_format": "[cite:N]",
+    "every_cite_resolves": true,
+    "quantitative_claims_require_tier": ["P0", "P1"],
+    "single_source_claims": "标注 single_source",
+    "unverified_tier_p3": "标注 [待核实]"
+  },
+  "quality_gates": [
+    "不编造数据、来源、URL",
+    "来源冲突双边呈现，不武断择一",
+    "缺口显式声明（[数据不足] / 缺口声明章节）",
+    "推断与事实分离，判断标注研究假设"
+  ]
+}

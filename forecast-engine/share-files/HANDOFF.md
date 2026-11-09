@@ -1,8 +1,30 @@
 # HelloAgent 最近交接 · V2.0
 
-更新：2026-11-03（Asia/Shanghai）。本文件由当前值班 AI 维护，适用于整个 myproject；共同规则见 [AGENTS.md](../../AGENTS.md)，任务索引见 [TASKS.md](TASKS.md)。
+更新：2026-11-06（Asia/Shanghai）。本文件由当前值班 AI 维护，适用于整个 myproject；共同规则见 [AGENTS.md](../../AGENTS.md)，任务索引见 [TASKS.md](TASKS.md)。
 
 ## 当前任务及进度
+
+- 2026-11-06 深度调研技能接入（TRAE）：新建 `skills/deep-research/`（SKILL.md/manifest/references×2/契约/validate_report.py）+ `agents/deep_research_agent.py`（计划/撰写两个无工具单轮 Agent）+ `utils/deep_research_engine.py`（确定性取证引擎：Tavily 搜索→精读→URL去重→P0-P3分级→引用清理→来源清单代码生成）+ `utils/research_report_validation.py`（独立引用验收）+ `legacy_workbench.html` 智能体列表新增「深度调研Agent」（两处，agent=deep_research）。app.py 走确定性编排 `run_deep_research_skill`（不走自由 ReAct；模型仅 2 次受限调用）。端到端验证：run `skill-20261106-190501-8f4307b4`，78 秒完成，validation passed，交付 `outputs/research/skill-20261106-190501-8f4307b4-research-report.md`。单测 12/12 通过（validator 6 + engine 6）。中间过程修复三处：Tavily 适配器返回文本非 JSON（引擎改直连解析）、t4 验收顺序死锁（先标完成再验收）、answer 文案按验收状态分支。7860 已重启生效；未提交 git；遗留：口碑 MCP 未接入引擎（现为搜索+精读，口碑走后续增强）、浏览器按钮点击未实测（HTML 两处 tab 已确认、API 端到端已过）。补充（同日）：any_search 此前失败根因不是 key 失效而是本机缺 AnySearch CLI（rc=127）；已改造 `skills/anysearch/adapter.py` 支持 HTTP 直连（`https://api.anysearch.com/v1/search`，Bearer 鉴权，CLI 仅作后备），用户提供的新 key 已验证有效并写入 .env（any_search/tavily 双源恢复可用），7860 已重启生效。再补充（同日）：深度调研取证引擎改为双源——主搜 any_search → 备搜 tavily（`utils/deep_research_engine.py`，anysearch 文本输出已做结构化解析），双源端到端 run `skill-20261106-222847-e72c7b5e` 103 秒 / validation passed / 来源 12 条含 P0×4，交付 `outputs/research/skill-20261106-222847-e72c7b5e-research-report.md`。另观察：192.168.3.146:5432 当晚出现连接超时（quant/new-car/reputation MCP 间歇 502），属环境问题非本轮代码引入，146 恢复后自愈。
+
+- 2026-11-06 竞品洞察线结构调整与 BCI-001 重做（TRAE）：目录 `competitor_insights` 更名为 `competitor_insight`；前端资源收进 `competitor_insight/web/`，`app.py` 增 `/competitor-insight/` 静态路由与白名单；新增 `tasks/tasks.md` 任务总表，`check_board.py` 改为校验 `tasks.md` ↔ `BOARD.md` ↔ 各 `TASK.md` 三方一致。BCI-001 按用户驳回重做为「四类数据源与模板选择器」（默认全不选、不可选项带原因、写 `bci.scope`），删除 5×5 车型可用性矩阵与对应后端接口；浏览器验收 29/29 PASS（证据 `outputs/competitor-insights/BCI-001/20261106-datasource-selector-r2/`），`check_board.py` 与 `workspace_hygiene.py` 均 PASS，未提交 git。BCI-002（新能源用户洞察模板）已登记为独立任务，阶段 CREATED。遗留 L01–L08 与 BCI-002-L01 挂在任务上；状态以 [competitor_insight/BOARD.md](../../competitor_insight/BOARD.md) 与 [tasks/tasks.md](../../competitor_insight/tasks/tasks.md) 为准。
+
+- 2026-11-05晚间补做已完成：协调聊天直接修复forecast_local_assistant公开入口仅接受Chronos的漏项（此前SARIMAX适配结论不完整），关联任务限制同模型；forecast_deepseek保留已验证真实情景。43项Python+16项前端通过；自建8878真实SARIMAX→本机助手→磁盘恢复→非法字段/跨Origin拒绝全部通过，api-acceptance-61bef04a64bb4026804c9044d966d9a3，自建服务已关。新增只读油价关系脚本及油价同比相关描述回执oil-relationship-7334fa79e9f0480b85a0a9fa04da3b7a，非因果/非精度增益/非历史版本验证。原油价精度不通过、价格宏观未完成、IAB路由故障/UI未验收边界保留；一次更广旧Agent路由测试无输出已中止，非全项目回归。无外部模型调用、无用户浏览器操作、未提交推送。当前无常驻后台执行或监测。
+
+- 2026-11-05晚间：实际查询后台notLoaded、最后回合已结束，没有持续运行；此前记录的“执行中”不代表活跃执行。当前协调聊天直接接手CHRONOS-003，按TASK顶部晚间三步骤继续接口/回归/因素交付核对，13项SARIMAX测试已本轮复验通过，其他仍待完成。只用内置浏览器，禁止外部浏览器或桌面操作。
+
+- 2026-11-05已定位内置浏览器故障层：Codex日志明确当前/后台聊天均报No ChatGPT browser route is available，空白页亦超时，非仅预测页面。8876监听但不响应；新独立8877预览已启动（session40586）根路径HTTP200。应用打开内置标签返回queued，尚未恢复自动操作；完整诊断在CHRONOS-003/TASK.md“内置浏览器超时排查”。未操作外部浏览器，未重启Codex/7860，未终止旧预览；不把路由层定位冒充最终根因或页面验收。
+
+- 2026-11-05用户纠正浏览器边界：先前Windows Computer Use操作停止来自用户拒绝，不应仅归因为URL技术限制。用户禁止操作个人Chrome/Edge及Windows桌面，只允许Codex内置浏览器。已写入AGENTS.md；本轮仅尝试内置浏览器打开8876和读取状态，两次均20秒超时，未接管外部浏览器。普通沙箱访问127.0.0.1亦报套接字权限限制，不能据此判断预览服务已停止。浏览器验收仍未完成；不得因通道失败擅自切换用户浏览器。
+
+- 2026-11-05第二阶段：当前唯一写入方Codex。新增scripts/verify_three_forecasts.py和tests/test_sarimax_privacy.py，修改forecast_insights.py、forecast_deepseek.py和forecast-engine.js，均未提交。两试点真实三方法比较已落盘comparison-08bff305494a4c0fb7ea2a9652de9548；开发窗口非独立留出。SARIMAX助手已适配，隐私9项/解读11项通过，真实DeepSeek未调用。8876独立预览已启动（exec session 68167），7860未动；IAB连接超时，Windows浏览器因URL识别安全机制停止本轮CUA，下载/恢复真实操作尚未验收。下一步Codex完成最终回归和记录，浏览器需恢复可用通道后验收；不将测试通过写成整体交付。
+
+- 2026-11-05 WorkBuddy汇总与沟通调整：仅已读汇总_20261105.md，未见JSONL底表；116政策/48价格为对方报告，不当作已逐项验收。用户明确剩余2186条（第5项）不核验，不再派发或追问继续；未知发布日期保留，低置信隔离，复用已完成结果不阻塞预测主流程。用户要求所有后续回复简洁，最多3重点、优先级+负责人短表，已加入项目AGENTS并同步全局Codex规则；无业务代码、服务或数据变更。当前无写入方，下一步仍为11/10主流程演示。
+
+- 2026-11-05最高优先当前策略：用户纠正任务琐碎、要求本月落地。CHRONOS-003/TASK.md顶部已落地本月交付主线，替代“等批量资料完善再开发”顺序。11/10主流程演示、11/17结果解读闭环、11/24候选版、11/30交付验收为目标里程碑。复用现有Chronos与季节对照，1/3/6月主要使用、12月仅参考；油价/SARIMAX独立试验保留，不强行默认或融合。真实预测不依赖2350行补核或长期价格指数，外部因素作为有据背景与经评估的可选增量，历史出域门禁不放松。WorkBuddy全面回填暂停（已在文档中明确，未直接联系或操作其系统）；用户转达即可，已完成结果保留。Codex负责功能、测试和演示，用户只验业务效果；下个步骤是11/10演示差距核对及修复。此次只改规划和历史清单提示，无业务代码、服务重启、提交推送，释放写入。
+
+- 2026-11-04逐条核验交付：用户转达WorkBuddy要求后，新增只读本机脚本scripts/build_business_verification_checklist.py，输出outputs/chronos-003/verification-list-120c96c4d38d4bf6a56e2dcce5e193b0下逐条核验清单.md/.jsonl及manifest。共2350源行候选（政策116、价格权益2234；不是唯一事件），96条具备日期+来源线索可复核，2254条待补；每项有名称、五字段状态/原始内容、源文件/页/行、合并锚点和哈希。方法页及企业目标排除，年份不从表名猜测，均不代表已验收。检查ID唯一、必需字段、计数及源哈希不变通过，目录检查通过；业务代码/源表未改、无外发。WorkBuddy按ID补值、证据和结论；Codex释放写入。
+
+- 2026-11-04价格覆盖只读核验：5份CSV与结论文档，5004行的月份/地区/动力汇总一致；仅9—10月密集，不能补作多年价格序列。发现相同ID对应不同品牌车型，须修标识而非直接删行；报告把月记录数写成每日、零散月份范围也有偏差。5004行源工作簿未在交付目录，尚不能逐行复验。反馈见CHRONOS-003/20261104-价格权益覆盖核验反馈.md，用户仅需转发；WorkBuddy补源表路径及修正，Codex后续本机清洗。社零/CPI修正未在本批看到，不默认完成。业务代码、原始交付未动，当前无写入方。
 
 - 2026-11-03 多因素盘点接续：用户要求加快推进；Codex只读核查1103交付及本机价格候选后完成[WorkBuddy多因素数据补充清单](tasks/CHRONOS-003/WorkBuddy-多因素数据补充清单.md)。证据factor-readiness-dc740e2f16334b45810876e4a3ef2c43；CPI225/PPI249月，仅各59条发布日映射；社零存在1月缺行/2月累计口径，官方2025-03-17原文确认新闻稿表2025-02的83731/6893是1—2月合计而非单月。先让WorkBuddy修正口径、补核CPI原文时点、交价格历史覆盖；不重采油价、不扩大采集，不发送内部原表。Codex后续负责本机规范化和按可用变量组合回测；用户仅转发清单，当前无需技术决策。此轮没有改业务代码或模型，不称多因素已接入；目录检查通过，释放写入。旧数值稳定性12/12及精度不通过结论保留。
 
