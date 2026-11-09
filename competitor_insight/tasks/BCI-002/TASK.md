@@ -5,8 +5,8 @@ task_id: BCI-002
 title: 深访用户洞察档案模板（两份：新能源 / 用户洞察档案）
 stage: TESTED
 owner: TRAE
-commit_paths: competitor_insight/templates/nev_user_insight_template.json,competitor_insight/templates/nev_user_insight_template.md,competitor_insight/templates/user_insight_archive_template.json,competitor_insight/templates/user_insight_archive_template.md,competitor_insight/templates/README.md,competitor_insight/web/templates.json,competitor_insight/docs/template-vs-prototype-mapping.md,competitor_insight/tasks/BCI-002,outputs/competitor-insights/BCI-002
-updated: 2026-11-06
+commit_paths: competitor_insight/templates/nev_user_insight_template.json,competitor_insight/templates/nev_user_insight_template.md,competitor_insight/templates/user_insight_archive_template.json,competitor_insight/templates/user_insight_archive_template.md,competitor_insight/templates/README.md,competitor_insight/web/templates.json,competitor_insight/web/bci-templates.js,competitor_insight/web/bci-templates.css,competitor_insight/docs/template-vs-prototype-mapping.md,competitor_insight/tasks/BCI-002,outputs/competitor-insights/BCI-002
+updated: 2026-11-09
 blocked: no
 next: 用户验收 7860 页面下拉两条模板均可选后确认上线
 evidence: outputs/competitor-insights/BCI-002/20261106-template-v1/
@@ -92,6 +92,22 @@ evidence: outputs/competitor-insights/BCI-002/20261106-template-v1/
 
 合计 **12 组 43 维**（必填 38、选填 5）。子项名称与顺序经脚本逐位比对：**43/43 与原型完全一致，无改名、无合并**。
 
+## 3.2 「查看模板」弹窗（2026-11-09 用户增强）
+
+**问题**：下拉只有模板名字，选之前无法知道里面有什么；模板一多就是盲选。
+
+**做法**：在「深访用户洞察档案模板」标题右侧加只读入口 `查看模板`，点击弹出对话框；弹窗内容**只从 `templates.json` 与 `templates/*.json` 读取**，不另写说明文档，避免两处不一致。
+
+| 文件 | 归属 | 说明 |
+|---|---|---|
+| `competitor_insight/web/bci-templates.js` | 本任务 | 弹窗主体：清单、关键字/状态筛选、详情渲染、Esc 与遮罩关闭 |
+| `competitor_insight/web/bci-templates.css` | 本任务 | 沿用 `--c-ai-blue` / `--c-border` / `--r-lg`，不新增配色 |
+| `competitor_insight/web/bci.js` | BCI-001 | 仅 1 行：模板块标题后插入 `查看模板` 按钮（BCI-001 声明，人工登记） |
+| `home.html` | 共享 | 资源引用 2 行 + 选源阶段越界块删除（BCI-001 越界修复），**未随本提交入库** |
+| `app.py` | 共享 | 新增 `/competitor-insight-templates/*.json` 只读路由与 `_send_file` 白名单（仅 `.json`、拒绝 `..`），**未随本提交入库**（文件内有深度调研等任务在途 hunk） |
+
+**只读约束**：弹窗不写 `bci.scope`、不改下拉已选值；`pending` 模板只显示状态与原因，不渲染空内容页。
+
 ## 3. 交付物
 
 | 文件 | 内容 |
@@ -124,6 +140,12 @@ evidence: outputs/competitor-insights/BCI-002/20261106-template-v1/
 | A12 | 第二份模板每维含 `description` 与 `qualified`；`id` 全局唯一；`group` 无悬空引用 | 脚本校验 |
 | A13 | 下拉同时列出两条 ready 模板，「用户洞察档案模板」可选，选中后 `bci.scope.datasources.insight_template === "user_insight_archive"` | 浏览器断言 + 读 localStorage |
 | A14 | `nev_user_insight` 未被改动 | 与 BCI-002 首轮验收的 JSON 内容比对（字段与维度名不变） |
+| A15 | 模板块标题右侧有唯一「查看模板」入口，其他三类数据源没有 | 断言入口数量为 1 且可见 |
+| A16 | 弹窗清单与 `templates.json` 完全一致，可按名称、按状态（ready/pending）筛选 | 断言条数、名称顺序、筛选后条数 |
+| A17 | 详情与模板 JSON 一致：组数/维度数、分组名、每维 5 列（维度/必填/类型/说明/合格标准） | 以原文件为真值断言 |
+| A18 | pending 模板只显示状态与原因，不渲染空内容页 | 断言 `.bci-tpl-pending` 存在且 `.bci-tpl-group` 为 0 |
+| A19 | Esc 与遮罩均可关闭；关闭后下拉已选值与 `bci.scope` 不变 | 断言关闭前后值相等 |
+| A20 | 弹窗无 JS 运行时错误 | 捕获 `pageerror` / console error |
 
 ## 5. 步骤与结果
 
@@ -140,12 +162,15 @@ evidence: outputs/competitor-insights/BCI-002/20261106-template-v1/
 | S9 | 用户质疑"模板是不是照原型 43 维表做的" → 逐项核对 | 完成 | 原型第 386 行 43 行导出；与 `nev_user_insight` 逐项映射：8 一致 / 13 语义同 / 7 半覆盖 / 15 原型独有 / 8 我方独有。结论：`nev_user_insight` 按报告 P1–P11，不是照原型；结构不一致。文档 `docs/template-vs-prototype-mapping.md` |
 | S10 | 用户决定另做第二份模板 → 产出 `user_insight_archive` | 完成 | 12 组 43 维；脚本逐位比对原型子项名：43/43 一致；id 唯一、group 无悬空；`nev_user_insight` 未改 |
 | S11 | 登记进下拉清单 | 完成 | `web/templates.json` 两条 ready + 新车型 pending；`bci.js` 无需改动（本就运行时读清单） |
+| S12 | 用户要求「查看模板」弹窗 | 完成 | 新增 `bci-templates.js/.css`；`bci.js` 加 1 行入口；`app.py` 加只读 JSON 路由；浏览器断言 **21/21 PASS**（`verify_viewer.py`） |
 
 ## 6. 证据索引
 
 - `outputs/competitor-insights/BCI-002/20261106-template-v1/validate_template.py`：模板结构与前端接线校验脚本（可重跑，退出码 0 = 全通过）
 - `outputs/competitor-insights/BCI-002/20261106-template-two/validate_archive_template.py`：第二轮校验（原型 43 项逐位比对 + 清单规则），`validate.log` 记录 `43/43 一致 / 12 组 / 必填 38 / PASS`
 - `outputs/competitor-insights/BCI-002/20261106-template-two/screenshots/template-dropdown-expanded.png`：7860 页面下拉展开截图，三条模板状态可见
+- `outputs/competitor-insights/BCI-002/20261109-template-viewer/verify_viewer.py`：弹窗验收脚本（21 条断言，21/21 PASS）
+- `outputs/competitor-insights/BCI-002/20261109-template-viewer/screenshots/modal-ready.png`、`modal-pending.png`、`tab1-after.png`
 - 浏览器断言：两条 ready 可选、新车型 disabled 且文案「待业务提供」；选中档案模板后 `localStorage.bci.scope.datasources.insight_template = "user_insight_archive"`
 - `outputs/competitor-insights/BCI-002/20261106-template-v1/validate.log`：校验输出
 - `outputs/competitor-insights/BCI-002/20261106-template-v1/manifest.json`：产物清单与用途
