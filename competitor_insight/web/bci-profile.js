@@ -204,6 +204,15 @@
 
   /* ------------------------------------------------ 渲染：档案表 */
 
+  function substName(name) {
+    if (!name) return name || '';
+    const naming = state.detail && state.detail.naming;
+    if (!naming) return name;
+    return String(name)
+      .split('{brand}').join(naming.brand || '{brand}')
+      .split('{vehicle}').join(naming.vehicle || '{vehicle}');
+  }
+
   function renderDoc() {
     const body = qs('.bp-doc__body', state.root);
     body.innerHTML = '';
@@ -248,7 +257,7 @@
 
     const tbody = document.createElement('tbody');
     const groups = {};
-    (state.template.groups || []).forEach((g) => { groups[g.id] = g.name || g.id; });
+    (state.template.groups || []).forEach((g) => { groups[g.id] = substName(g.name || g.id); });
     const fields = detail.fields || [];
     const byId = {};
     fields.forEach((f) => { byId[f.dimension_id] = f; });
@@ -269,7 +278,7 @@
         tr2.appendChild(lastGroupCell);
         lastGroupId = dim.group;
       }
-      const dimCell = el('td', 'bp-cell--dim', dim.name || dim.id);
+      const dimCell = el('td', 'bp-cell--dim', substName(dim.name) || dim.id);
       const valueCell = el('td', 'bp-cell--value');
 
       if (!field) {
@@ -396,7 +405,7 @@
   function dimName(id) {
     const dims = (state.template && state.template.dimensions) || [];
     const found = dims.find((d) => d.id === id);
-    return found ? (found.name || id) : id;
+    return found ? (substName(found.name) || id) : id;
   }
 
   function kindLabel(kind) {

@@ -173,7 +173,7 @@ class ArchiveGeneratorTest(unittest.TestCase):
 
     def test_no_source_dimensions_carry_template_reason(self):
         no_source = self.source_map.no_source_dimensions()
-        self.assertEqual(len(no_source), 8)
+        self.assertEqual(len(no_source), 3)
         for dim in no_source:
             field = field_of(self.draft, dim.dimension_id)
             self.assertEqual(field.fill_mode, "none")
@@ -234,10 +234,16 @@ class ArchiveGeneratorTest(unittest.TestCase):
         self.assertIn("- Q20 证据ID：EV-20", prompt)
         self.assertIn("- Q21 证据ID：EV-21", prompt)
 
-    def test_aion_impression_only_uses_answers_mentioning_aion(self):
-        prompt = next(p for p in self.llm.prompts if "dimension_id: aion_brand_impression" in p)
-        self.assertIn("Q5: 埃安的车机系统还可以", prompt)
-        self.assertNotIn("Q20:", prompt)
+    def test_aion_impression_uses_brand_tag_material(self):
+        """2026-11-09 参数化后：品牌印象维用「对各品牌的看法」标签材料，维度名按受访者车系替换。"""
+        tags = list(BASE_TAGS) + [
+            ("T30", "对不同品牌的看法及原因", "对自主品牌印象一般，网约车多。", "可信", "custom_summary"),
+        ]
+        generator, llm = make_generator(build_bundle(tags=tags), RecordingLlm())
+        generator.generate(INTERVIEW_ID)
+        prompt = next(p for p in llm.prompts if "dimension_id: aion_brand_impression" in p)
+        self.assertIn("维度：对比亚迪品牌的印象和了解", prompt)  # {brand} 按 唐L→比亚迪 替换
+        self.assertIn("对不同品牌的看法及原因=对自主品牌印象一般", prompt)
 
     def test_satisfaction_range_uses_midpoint_and_keeps_raw(self):
         field = field_of(self.draft, "satisfaction_score")

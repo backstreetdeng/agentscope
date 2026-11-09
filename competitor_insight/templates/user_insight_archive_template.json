@@ -20,11 +20,11 @@
     {"id": "attention", "name": "购车关注", "description": "品牌/产品/服务的排序与具体关注点、关注 TOP5 及细项。"},
     {"id": "channels", "name": "信息渠道", "description": "信息获取渠道、内容形式偏好与 KOL/KOC 影响。"},
     {"id": "comparison", "name": "购车对比", "description": "核心对比车型、首选排序、已购车型、战胜原因、妥协点与放弃车型/原因。"},
-    {"id": "brand_impression", "name": "对埃安品牌的印象和了解（网约车的影响）", "description": "对埃安品牌的既有印象、了解程度，以及网约车标签的影响。"},
-    {"id": "rt_cognition", "name": "对埃安RT的认知与态度", "description": "了解渠道、吸引力排序、顾虑、期望与转化机会/风险。"},
+    {"id": "brand_impression", "name": "对{brand}品牌的印象和了解", "name_generic": "对自有品牌的印象和了解", "description": "对{brand}品牌的既有印象、了解程度，以及网约车标签的影响。"},
+    {"id": "rt_cognition", "name": "对{vehicle}的认知与态度", "name_generic": "对自有车型的认知与态度", "description": "了解渠道、吸引力排序、顾虑、期望与转化机会/风险。"},
     {"id": "usage_scenario", "name": "用车场景", "description": "高频用车场景、场景需求、充电需求与续航需求。"},
     {"id": "satisfaction", "name": "满意度评价", "description": "满意度评分、满意点、不满意点与接待期待。"},
-    {"id": "loyal_repurchase", "name": "作为埃安老车主 为什么继续再买埃安的车", "description": "仅埃安老车主适用；非老车主留空。"}
+    {"id": "loyal_repurchase", "name": "作为{brand}老车主 为什么继续再买{brand}的车", "name_generic": "作为自有品牌老车主的再购理由", "description": "是否愿意再买{brand}的车及原因；原话无涉及则留空。"}
   ],
   "dimensions": [
     {
@@ -285,11 +285,12 @@
     },
     {
       "id": "aion_brand_impression",
-      "name": "对埃安品牌的印象和了解（网约车的影响）",
+      "name": "对{brand}品牌的印象和了解",
+      "name_generic": "对自有品牌的印象和了解",
       "group": "brand_impression",
       "type": "text",
       "required": true,
-      "description": "对埃安品牌的既有印象、了解程度，以及网约车同款带来的正负影响。",
+      "description": "对{brand}品牌的既有印象、了解程度，以及网约车同款带来的正负影响。",
       "qualified": "须分别写「印象」与「网约车影响」两部分；无印象时写「无印象」并说明信息不足。"
     },
     {
@@ -298,17 +299,18 @@
       "group": "rt_cognition",
       "type": "text",
       "required": true,
-      "description": "第一次知道埃安RT的渠道与时间。",
-      "qualified": "写明渠道 + 大致时间（月份即可）。"
+      "description": "了解{vehicle}及购车信息的渠道与习惯（触媒、APP、关注点）。",
+      "qualified": "写明主要信息渠道，引用用户原话。"
     },
     {
       "id": "rt_attraction_ranking",
-      "name": "埃安RT吸引力排序",
+      "name": "{vehicle}吸引力排序",
+      "name_generic": "车型吸引力排序",
       "group": "rt_cognition",
       "type": "text",
       "required": true,
-      "description": "本品各项能力对受访者的吸引力排序及理由。",
-      "qualified": "有序号；每项附一句理由或对应用户原话。"
+      "description": "受访者选择{vehicle}的主要原因与吸引力点，按主次排列。",
+      "qualified": "有主次排序；每项附一句理由或对应用户原话。"
     },
     {
       "id": "rt_concerns",
@@ -316,7 +318,7 @@
       "group": "rt_cognition",
       "type": "text",
       "required": true,
-      "description": "对本品的具体顾虑。",
+      "description": "对{vehicle}的具体顾虑与不满意点。",
       "qualified": "至少 2 条；须区分「需验证」与「硬伤」。"
     },
     {
@@ -325,7 +327,7 @@
       "group": "rt_cognition",
       "type": "text",
       "required": true,
-      "description": "对定价、配置、上市节奏、交付等的期望。",
+      "description": "对{vehicle}相关的配置、改进与再购期望。",
       "qualified": "至少 1 条带数值或可判定条件（如「16-18 万」）。"
     },
     {
@@ -411,12 +413,13 @@
     },
     {
       "id": "loyal_repurchase_reason",
-      "name": "作为埃安老车主 为什么继续再买埃安的车",
+      "name": "作为{brand}老车主 为什么继续再买{brand}的车",
+      "name_generic": "作为自有品牌老车主的再购理由",
       "group": "loyal_repurchase",
       "type": "text",
       "required": false,
-      "description": "仅埃安老车主适用的复购理由。",
-      "qualified": "非老车主填「不适用」；老车主须写出具体复购理由与原话。"
+      "description": "是否愿意再买{brand}的车及原因。",
+      "qualified": "有明确再购倾向或排除理由，引用原话；无涉及写「访谈中未涉及」。"
     }
   ]
 }

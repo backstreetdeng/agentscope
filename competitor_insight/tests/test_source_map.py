@@ -38,12 +38,7 @@ SOURCE_MAP_PATH = TEMPLATE_DIR / "user_insight_archive.source-map.json"
 NO_SOURCE_IDS = {
     "kol_influence",
     "first_choice_ranking",
-    "rt_awareness_channel",
-    "rt_attraction_ranking",
-    "rt_concerns",
-    "rt_expectations",
     "reception_expectation",
-    "loyal_repurchase_reason",
 }
 
 
@@ -107,7 +102,7 @@ class RealSourceMapTest(unittest.TestCase):
         counts = self.source_map.fill_mode_counts()
         self.assertEqual(
             counts,
-            {"tag": 22, "metadata": 2, "derived": 1, "llm": 10, "none": 8},
+            {"tag": 22, "metadata": 2, "derived": 1, "llm": 15, "none": 3},
         )
 
     def test_no_source_dimensions_are_documented(self) -> None:

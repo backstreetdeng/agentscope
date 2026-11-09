@@ -18,6 +18,7 @@ from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
 from competitor_insight.server.archive_store import ArchiveFieldRecord, ArchiveRecord
+from competitor_insight.server.vehicle_naming import neutral_name, resolve_name
 
 SATISFACTION_DIMENSION_ID = "satisfaction_score"
 NO_SOURCE_PREFIX = "本期无来源："
@@ -103,6 +104,18 @@ def _group_names(template: dict[str, Any]) -> dict[str, str]:
     return {group.get("id"): group.get("name", group.get("id")) for group in template.get("groups", [])}
 
 
+def _label_for(
+    name: str | None,
+    vehicle: str | None,
+    per_person: bool,
+    generic: str | None = None,
+) -> str:
+    """维度/组名占位符替换：单人导出按用户车系替换；多人合并用 name_generic 或中性别名。"""
+    if per_person:
+        return resolve_name(name, vehicle)
+    return generic or neutral_name(name)
+
+
 def _ordered_fields(
     template: dict[str, Any], archive: ArchiveRecord
 ) -> list[tuple[dict[str, Any], ArchiveFieldRecord | None]]:
@@ -156,6 +169,19 @@ def build_xlsx(
     if not archive_list:
         raise ExportError("empty_selection", "至少选择一位受访者再导出")
 
+    per_person = len(archive_list) == 1
+    first_vehicle = (
+        (respondents.get(archive_list[0].interview_id) or {}).get("vehicle_model")
+        if per_person
+        else None
+    )
+    generic_by_group = {
+        group.get("id"): group.get("name_generic") for group in template.get("groups", [])
+    }
+    generic_by_dim = {
+        dim.get("id"): dim.get("name_generic") for dim in template.get("dimensions", [])
+    }
+
     workbook = Workbook()
     sheet = workbook.active
     sheet.title = "洞察档案"
@@ -189,12 +215,20 @@ def build_xlsx(
     row_index = 3
     for dim in template.get("dimensions", []):
         dim_id = dim.get("id")
-        group_cell = sheet.cell(row=row_index, column=1, value=groups.get(dim.get("group"), dim.get("group")))
+        group_id = dim.get("group")
+        group_label = _label_for(
+            groups.get(group_id, group_id), first_vehicle, per_person, generic_by_group.get(group_id)
+        )
+        group_cell = sheet.cell(row=row_index, column=1, value=group_label)
         group_cell.font = _WHITE_BOLD
         group_cell.fill = _HEADER_FILL
         group_cell.alignment = _WRAP_TOP
 
-        name_cell = sheet.cell(row=row_index, column=2, value=dim.get("name", dim_id))
+        name_cell = sheet.cell(
+            row=row_index,
+            column=2,
+            value=_label_for(dim.get("name", dim_id), first_vehicle, per_person, generic_by_dim.get(dim_id)),
+        )
         name_cell.fill = _SUBHEADER_FILL
         name_cell.alignment = _WRAP_TOP
 
@@ -254,8 +288,9 @@ def _write_scope_sheet(
     names = {dim.get("id"): dim.get("name", dim.get("id")) for dim in template.get("dimensions", [])}
     for offset, archive in enumerate(archives):
         respondent = respondents.get(archive.interview_id, {"interview_id": archive.interview_id})
+        vehicle = respondent.get("vehicle_model")
         no_data = [
-            names.get(field.dimension_id, field.dimension_id)
+            resolve_name(names.get(field.dimension_id, field.dimension_id), vehicle)
             for field in archive.fields
             if field.fill_mode == "none"
         ]
@@ -291,10 +326,12 @@ def _write_evidence_sheet(
         cell.fill = _HEADER_FILL
         cell.alignment = Alignment(horizontal="center", wrap_text=True)
 
-    names = {dim.get("id"): dim.get("name", dim.get("id")) for dim in template.get("dimensions", [])}
+    raw_names = {dim.get("id"): dim.get("name", dim.get("id")) for dim in template.get("dimensions", [])}
     row = 2
     for archive in archives:
         label = _respondent_label(respondents.get(archive.interview_id, {"interview_id": archive.interview_id}))
+        vehicle = (respondents.get(archive.interview_id) or {}).get("vehicle_model")
+        names = {dim_id: resolve_name(raw, vehicle) for dim_id, raw in raw_names.items()}
         for field in archive.fields:
             for ref in field.evidence_refs or []:
                 values = [
@@ -323,7 +360,10 @@ def build_md(
     archive: ArchiveRecord,
     respondent: dict[str, Any],
 ) -> tuple[bytes, str]:
-    groups = _group_names(template)
+    vehicle = respondent.get("vehicle_model")
+    groups = {
+        group_id: resolve_name(raw, vehicle) for group_id, raw in _group_names(template).items()
+    }
     label = _respondent_label(respondent) or archive.interview_id
     place = " · ".join(
         str(part) for part in (respondent.get("city"), respondent.get("vehicle_model")) if part
@@ -344,14 +384,19 @@ def build_md(
 
     current_group = None
     evidence_lines: list[str] = []
-    names = {dim.get("id"): dim.get("name", dim.get("id")) for dim in template.get("dimensions", [])}
+    names = {
+        dim.get("id"): resolve_name(dim.get("name", dim.get("id")), vehicle)
+        for dim in template.get("dimensions", [])
+    }
 
     for dim, field in _ordered_fields(template, archive):
         group_id = dim.get("group")
         if group_id != current_group:
             current_group = group_id
             lines.extend([f"## {groups.get(group_id, group_id)}", ""])
-        lines.append(f"- **{dim.get('name') or dim.get('id')}**：{display_value(field)}")
+        lines.append(
+            f"- **{resolve_name(dim.get('name') or dim.get('id'), vehicle)}**：{display_value(field)}"
+        )
         if field is not None:
             for ref in field.evidence_refs or []:
                 quote = (ref.get("quote") or "").strip()

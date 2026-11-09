@@ -40,6 +40,7 @@ from competitor_insight.server.export_service import (
 )
 from competitor_insight.server.quote_service import QuoteError, QuoteService, escape_like
 from competitor_insight.server.source_map import SourceMapError
+from competitor_insight.server.vehicle_naming import naming_for
 from competitor_insight.server.template_registry import (
     ARCHIVE_TEMPLATE_ID,
     TemplateBundle,
@@ -304,6 +305,7 @@ class ArchiveService:
                     "template": self._template_summary(bundle, None),
                     "archive": None,
                     "fields": [],
+                    "naming": self._naming(interview_id),
                 }
             )
 
@@ -331,8 +333,20 @@ class ArchiveService:
                     "run_id": record.run_id,
                 },
                 "fields": fields,
+                "naming": self._naming(interview_id),
             }
         )
+
+    def _naming(self, interview_id: str) -> dict[str, str] | None:
+        """维度名占位符替换所需的 {brand}/{vehicle}；目录不可用时返回 None（前端保留占位原名）。"""
+        if self._directory is None:
+            return None
+        try:
+            people = self._directory_obj().get_many([interview_id])
+            vehicle = (people.get(interview_id) or {}).get("vehicle_model")
+            return naming_for(vehicle) if vehicle else None
+        except Exception:  # noqa: BLE001
+            return None
 
     def _field_payload(self, interview_id: str, field) -> dict[str, Any]:
         refs = field.evidence_refs or []

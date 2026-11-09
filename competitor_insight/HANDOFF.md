@@ -2,6 +2,15 @@
 
 更新：2026-11-09（Asia/Shanghai）。新条目追加在最上面。写法见 [RULES.md](RULES.md) 第 9 节；本文件与 TASK.md 冲突时以 TASK.md 为准。
 
+## 2026-11-09 · BCI-004 维度名按用户车系参数化 + RT 组维度重挂数据（用户拍板）
+
+- **拍板**：用户指出理想i8 车主的档案出现「对埃安品牌的印象」「对埃安RT的认知与态度」是生搬硬套。决定：① 维度名/组名按用户实际车系参数化（`{brand}`/`{vehicle}` 占位符）；② RT 组 4 个无来源维改挂库内通用标签；③ **转化机会/风险保留本品（埃安RT）语义**——63 人 0/63 是埃安车主，该维是唯一回答"会不会转化到埃安"的维度。
+- **实现**：新增 `server/vehicle_naming.py`（22 个车系→品牌映射 + 替换函数）；模板 JSON 组名/维度名/描述改占位符并加 `name_generic`（多人导出中性名）；`archive_api.detail` 返回 `naming`；前端 `substName` 渲染替换；单人 xlsx/md 导出按人替换、多人 xlsx 用中性名；生成器提示词按受访者车系替换。
+- **重挂（Q11 口径变更）**：`rt_awareness_channel`/`rt_attraction_ranking`/`rt_concerns`/`rt_expectations`/`loyal_repurchase_reason` 由 `none` 改 `llm`（挂 触媒偏好/不满意点/必备配置/选择当前车辆的原因/增换购换品牌原因 等真实标签），`aion_brand_impression` 扩挂「对不同品牌的看法」类标签；fill_mode 分布 llm 10→15、none 8→3。**无来源维从 8 个降到 3 个**（KOL/首选率/接待期待）。
+- **存量档案**：页面名称即时生效（渲染层替换）；但 4 个 RT 维的旧「本期无来源」值是生成时写死的，**重新生成后才有新内容**。
+- **验证**：单测 131/131（新增 vehicle_naming 6 例；调整 source_map/生成器断言至新口径）；Playwright 7861 8/8（R006 理想i8 → 对理想/对理想i8、行列标签无埃安；R001 唐L → 对比亚迪/对唐L；转化维保留；naming 接口正确）。7860 已重启生效（health 200、detail naming 正确）。
+- **证据**：[20261109-feedback-fixes](outputs/competitor-insights/BCI-004/20261109-feedback-fixes/)。
+
 ## 2026-11-09 · BCI-004 档案重跑改为直接覆盖（用户拍板，不留修订）
 
 - **拍板**：同一（受访者, 模板, 版本）重跑**原地覆盖**当前档案——revision 不变、43 行字段重建，不再保留 stale 修订版；单模板单人的"当前档案"始终唯一。重跑过程仍记录于 `bci.archive_run`/`archive_run_item`（何时生成、成败、模型版本可追溯，仅不保留旧字段值）。

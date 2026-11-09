@@ -1,30 +1,34 @@
 {
   "task_id": "BCI-004",
-  "artifact": "20261109 用户两轮反馈修复验证",
+  "artifact": "20261109 用户三轮反馈修复验证",
   "created_at": "2026-11-09T16:40:00+08:00",
-  "purpose": "验证用户 7860 反馈修复：round1（列表状态标记、勾选联动、按钮改名生成本人档案）；round2（NEV 模板生成守卫、主按钮切换与已生成禁用、找原话勾选范围）。",
+  "purpose": "验证用户 7860 反馈修复：round1（列表状态标记、勾选联动、按钮改名生成本人档案）；round2（NEV 模板生成守卫、主按钮切换与已生成禁用、找原话勾选范围）；round3（维度名按用户车系参数化 + RT 组维度重挂通用标签）。",
   "result": {
-    "checks": "round1 5/5 PASS；round2 12/12 PASS（单测 125/125）",
+    "checks": "round1 5/5；round2 12/12；round3 8/8（单测 131/131）",
     "detail": [
       "R001/R003/R004 已生成徽标正确；R002 未生成徽标正确",
       "NEV 模板下生成按钮禁用并提示「缺题项映射」，空态不再出现生成按钮",
-      "生成本人档案为主按钮；已生成人（R003/R004）禁用（只读）并提示用「重新归档当前」；未生成人（R002）可用",
+      "生成本人档案为主按钮；已生成人禁用（只读）并提示用「重新归档当前」",
       "找原话：未勾选检索全部受访者（结果带多人编号）；勾选 R001 仅查 R001",
-      "round1 根因：生成器写死 user_insight_archive，用户在 NEV 模板下生成 R004 成功但写到 user_insight_archive 名下（2 份档案按该模板 43 维生成、数据有效，保留）；R003 从未生成过（试点 10 人之一，2026-11-07 已有档案）"
+      "round1 根因：生成器写死 user_insight_archive，用户在 NEV 模板下生成 R004 成功但写到 user_insight_archive 名下（2 份档案按该模板 43 维生成、数据有效，保留）",
+      "round3：R006 理想i8 → 组名「对理想品牌的印象和了解」「对理想i8的认知与态度」，行列标签无埃安；R001 唐L → 对比亚迪/对唐L；转化维保留；detail 接口 naming={brand,vehicle}",
+      "round3：RT 组 4 维 + 品牌印象 + 老车主再购由 none 改挂通用标签转 LLM（llm 10→15、none 8→3）；存量档案旧 no_data_reason 文案（含埃安）重生成后消失"
     ]
   },
   "files": [
     {"path": "check_fixes.py", "kind": "verification script (round1)", "committed": false},
     {"path": "check_fixes2.py", "kind": "verification script (round2)", "committed": false},
+    {"path": "check_naming.py", "kind": "verification script (round3)", "committed": false},
     {"path": "verify.log", "kind": "execution log", "committed": false, "note": "*.log 被 .gitignore 排除，仅本机"}
   ],
   "commands": [
     "../Scripts/python.exe -B temp/20261107-bci-d8/serve_7861.py  # 临时 7861，验证后已停止，未触碰 7860",
     "../Scripts/python.exe -B temp/20261109-bci-feedback/check_fixes.py",
-    "../Scripts/python.exe -B temp/20261109-bci-feedback/check_fixes2.py"
+    "../Scripts/python.exe -B temp/20261109-bci-feedback/check_fixes2.py",
+    "../Scripts/python.exe -B temp/20261109-bci-feedback/check_naming.py"
   ],
   "reproduce": "先起 7861 临时服务，再依次跑 check_fixes.py 与 check_fixes2.py（设置 PLAYWRIGHT_BROWSERS_PATH）。",
-  "next_action": "7860 的 bci-profile.js 与后端均按请求加载：bci-profile.js 浏览器 Ctrl+F5 强刷生效；后端改动（quote_service/archive_api）需重启 7860 才生效——按月报浏览器保护规则，待用户授权后重启。",
+  "next_action": "全部改动已在 7860 生效（三轮后端均随重启加载）；存量档案需重新生成才有 round3 新维度内容。",
   "cleanable": true,
   "restore_method": "重跑三条命令即可再生结果"
 }

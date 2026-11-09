@@ -29,6 +29,7 @@ from competitor_insight.server.evidence_gate import (
 from competitor_insight.server.source_map import DimensionSource, SourceMap
 from competitor_insight.server.template_registry import ARCHIVE_TEMPLATE_ID, TemplateRegistry
 from competitor_insight.server.value_normalizer import resolve_enum_with_fallback
+from competitor_insight.server.vehicle_naming import resolve_name
 
 LlmClient = Callable[[str], str]
 
@@ -358,7 +359,7 @@ class ArchiveGenerator:
         if self._llm is None:
             raise GenerationError("llm_client_required", f"{dim.dimension_id} 需要模型但未配置 llm client")
 
-        prompt = self._build_prompt(dim, material)
+        prompt = self._build_prompt(dim, material, bundle)
         raw = self._llm(prompt)
         payload = self._parse_llm_json(dim, raw)
 
@@ -444,12 +445,10 @@ class ArchiveGenerator:
         )
 
     def _material(self, dim: DimensionSource, bundle: InterviewBundle) -> dict[str, Any]:
-        if dim.scope == "interview":
-            keys = [
-                qid
-                for qid, answer in bundle.answers.items()
-                if "埃安" in (answer.get("answer_text") or "")
-            ] if dim.dimension_id == "aion_brand_impression" else sorted(bundle.answers)[:30]
+        # scope=questions 但未声明题号（仅挂标签）的维度：以全量答案节选作证据池，
+        # 避免无证据 ID 被误判为「无材料」。
+        if dim.scope == "interview" or not dim.question_ids:
+            keys = sorted(bundle.answers)[:30]
             answers = {qid: bundle.answer_text(qid)[:400] for qid in keys}
         else:
             keys = [qid for qid in dim.question_ids if bundle.answer_text(qid)]
@@ -458,13 +457,17 @@ class ArchiveGenerator:
         evidence_ids = {qid: bundle.gate.ids_for_question(qid) for qid in keys}
         return {"answers": answers, "tags": tags, "evidence_ids": evidence_ids}
 
-    def _build_prompt(self, dim: DimensionSource, material: dict[str, Any]) -> str:
+    def _build_prompt(
+        self, dim: DimensionSource, material: dict[str, Any], bundle: InterviewBundle
+    ) -> str:
         tpl = self._dims.get(dim.dimension_id, {})
+        vehicle = (bundle.interview.get("vehicle_model") or "") if bundle.interview else ""
         lines = [
             f"dimension_id: {dim.dimension_id}",
-            f"维度：{tpl.get('name', dim.dimension_id)}（类型 {tpl.get('type', 'text')}）",
-            f"任务：{tpl.get('description', '')}",
-            f"合格标准：{tpl.get('qualified', '')}",
+            f"维度：{resolve_name(tpl.get('name', dim.dimension_id), vehicle)}"
+            f"（类型 {tpl.get('type', 'text')}）",
+            f"任务：{resolve_name(tpl.get('description', ''), vehicle)}",
+            f"合格标准：{resolve_name(tpl.get('qualified', ''), vehicle)}",
         ]
         if tpl.get("options"):
             lines.append(f"允许取值：{'、'.join(tpl['options'])}")
