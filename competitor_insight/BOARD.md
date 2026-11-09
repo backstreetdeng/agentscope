@@ -20,7 +20,7 @@
 | [BCI-001](tasks/BCI-001/TASK.md) 数据源筛选 | TESTED | 已入库 | `1bd7eee`（声明收窄 `9cf1c03`；越界修复 `acc8e96`；探活修复本批） | L02/L03/L04 数据缺口、L05 剩余 tab、L07 scope 无消费方、L08 工具无车型入参 |
 | [BCI-002](tasks/BCI-002/TASK.md) 洞察档案模板 | TESTED | 已入库 | `1bd7eee`（收窄 `f432794`；查看模板 `17c2193`） | L01 新车型模板、L02 无后端校验器、L04 12 组 vs 13 组、L05 取值类型为推断、L06 待验收（BCI-004 已交付） |
 | [BCI-003](tasks/BCI-003/TASK.md) Harness 学习 | TESTED | 已入库 | `1bd7eee`；收敛为本批提交 | L02 官方 SKILL 正文未读（不阻塞）、L04 交接包缺 5 项目 |
-| [BCI-004](tasks/BCI-004/TASK.md) 洞察档案 tab | TESTED | 已入库 | `7dc91aa` → `01da692`（枚举归一 + 渠道归并） | L01 开放问题、L05/L07/L08 已决策维持、L10 待 DBA 执行（`vectordb` 无权限，功能不受影响）、L11 已决策不轮换 |
+| [BCI-004](tasks/BCI-004/TASK.md) 洞察档案 tab | TESTED | 已入库 | `7dc91aa` → `01da692`（枚举归一 + 渠道归并） | L01 开放问题、L05/L07/L08 已决策维持、L11 已决策不轮换；L10 已解除（2026-11-09 属主已转） |
 | [BCI-005](tasks/BCI-005/TASK.md) 任务机制 | DEV_DONE | 已入库 | `1bd7eee` | L01 业务接口无三态、L02 reader 仅词法检查、L06 commit_paths 靠人工声明（L07 已决策不修） |
 | [BCI-006](tasks/BCI-006/TASK.md) 即时分析 tab | TESTED | 已入库 | `5e8f964`（文档 `ca18f37`；已推送 `6775c56`） | L01 无排序题、L03 无胜出观测题、L05 无级别字段、L06 定性归类为启发式、L07 v1 不做 |
 | [BCI-007](tasks/BCI-007/TASK.md) 报告输出 tab | CREATED | **未入库（方案轮）** | — | L01 本品无样本、L02 前车来源无数据、L03 无排序题、L06 改稿未做、L08 业务模板未提供 |
@@ -35,7 +35,7 @@
 
 > 已决策不再重复：`vectordb` 口令**不轮换**（2026-11-08，接受公开仓库暴露风险）。
 >
-> 待外部执行（不需要你选，只缺权限）：`bci` schema 属主仍为 `vectordb`。2026-11-08T23:43 用 `vectordb` 账号复测仍报 `42501 must be member of role "user_insight_loader"`（两角色均非 superuser、无成员关系），**不要再用该账号重试**；需 DBA/superuser 执行一条 `ALTER SCHEMA bci OWNER TO user_insight_loader;`。功能不受影响：loader 已有 USAGE/CREATE、4 张表属主已是 loader、冒烟 PASS。
+> 已解除（2026-11-09）：`bci` schema 属主已由 DBA（`postgres` 账号）执行 `ALTER SCHEMA bci OWNER TO user_insight_loader;` 转为 `user_insight_loader`，复跑冒烟 PASS（11/473 行可读），BCI-004-L10 关闭。
 
 ### 今天可能踩的坑（不是遗留，是操作时会遇到的）
 

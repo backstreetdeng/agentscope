@@ -1,0 +1,27 @@
+{
+  "task_id": "BCI-004",
+  "artifact": "L10 关闭验证 · bci schema 属主已转 user_insight_loader",
+  "created_at": "2026-11-09T15:12:29+08:00",
+  "purpose": "DBA 用 postgres 账号执行 ALTER SCHEMA bci OWNER TO user_insight_loader 后（用户在 GUI 实测成功，240ms），复跑属主检查与 loader 冒烟确认转属主无副作用，并盘点库/schema 清单回答用户。",
+  "result": {
+    "owner": "user_insight_loader",
+    "alter": "skipped(already owner)",
+    "loader_ddl_smoke": "PASS",
+    "bci_archive_rows": 11,
+    "bci_archive_field_rows": 473,
+    "note_rows_delta": "较 2026-11-08 的 10/430 增加 1 份档案 43 行，应为 7860 页面新生成",
+    "databases": ["postgres(系统默认)", "vectordb(业务库)"],
+    "user_schemas": {"bci": 4, "user_insight": 9, "miit": 4, "policy_monitor": 18, "policycrawlerdb": 44, "public": 33, "staging": 4}
+  },
+  "files": [
+    {"path": "verify.log", "kind": "execution log", "committed": false, "note": "*.log 被 .gitignore 排除，仅本机保留"}
+  ],
+  "commands": [
+    "../Scripts/python.exe -B ops/bci_schema_owner.py",
+    "../Scripts/python.exe -B temp/20261109-l10-verify/probe_catalog.py"
+  ],
+  "reproduce": "在项目根执行上述两条命令；脚本只读凭据，不打印口令。",
+  "next_action": "L10 已关闭；BCI-004 剩余未关闭项 L01/L05/L07/L08 均为数据缺口或待验收。",
+  "cleanable": false,
+  "restore_method": "重新执行 reproduce 命令即可再生 verify.log"
+}

@@ -2,6 +2,14 @@
 
 更新：2026-11-09（Asia/Shanghai）。新条目追加在最上面。写法见 [RULES.md](RULES.md) 第 9 节；本文件与 TASK.md 冲突时以 TASK.md 为准。
 
+## 2026-11-09 · BCI-004 L10 已解除（schema 属主转交完成）
+
+- **执行**：DBA 用 `postgres` 账号执行 `ALTER SCHEMA bci OWNER TO user_insight_loader;`，用户在数据库 GUI 实测成功（240ms、返回 0 行）。此前 `vectordb` 账号 2/2 次失败（42501，两角色均非 superuser、无成员关系，无法自我授权）。
+- **验证**：复跑 `ops/bci_schema_owner.py` —— owner=`user_insight_loader`、alter=skipped(already owner)、loader 建表/插入/查询/删除/删表冒烟 **PASS**；`bci.archive` 11 行、`bci.archive_field` 473 行（较 2026-11-08 的 10/430 增加 1 份档案 43 行，应为 7860 页面新生成）。
+- **盘点（顺带回答用户）**：实例内 2 个数据库（`postgres` 系统默认、`vectordb` 业务库）；`vectordb` 内用户 schema 7 个——本项目只用 `user_insight`（9 表，只读源）与 `bci`（4 表，档案存储，属主已转 loader）；其余 `miit`(4)/`policy_monitor`(18)/`policycrawlerdb`(44)/`public`(33)/`staging`(4) 属其他功能。
+- **状态**：L10 关闭；BCI-004 未关闭项剩 L01（开放问题）与 L05/L07/L08（数据缺口，已决策维持）。全量 63 人仍未跑。
+- **证据**：[20261109-owner-close](outputs/competitor-insights/BCI-004/20261109-owner-close/)（`manifest.json` 入库；`verify.log` 受 `.gitignore` 仅本机）。
+
 ## 2026-11-09 · BCI-001 越界修复、BCI-002 查看模板、BCI-003 收敛为决策记录
 
 - **当前任务与阶段**：[BCI-003](tasks/BCI-003/TASK.md) → `TESTED`（纯文档，LIVE 不适用）；BCI-001 / BCI-002 维持 `TESTED`。
