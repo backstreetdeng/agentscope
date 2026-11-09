@@ -63,7 +63,10 @@ with sync_playwright() as p:
 
     check("视图可见", page.locator(".view[data-view='bci']").is_visible())
     tabs = page.locator(".bci-tab")
-    check("4 个 tab，仅①可点", tabs.count() == 4 and tabs.nth(0).is_enabled() and not tabs.nth(1).is_enabled())
+    check("4 个 tab：①②③ 可点、④ 未开发不可点",
+          tabs.count() == 4 and tabs.nth(0).is_enabled() and tabs.nth(1).is_enabled()
+          and tabs.nth(2).is_enabled() and not tabs.nth(3).is_enabled(),
+          [tabs.nth(i).is_enabled() for i in range(tabs.count())])
 
     groups = page.locator("#bci-groups .bci-block")
     check("四类数据源分组", groups.count() == 4, groups.count())
@@ -82,11 +85,22 @@ with sync_playwright() as p:
     check("默认不写入作用域", scope is None)
     check("顶部口径显示全部不选", page.locator("#bci-scope-text").inner_text().strip() == "全部不选",
           page.locator("#bci-scope-text").inner_text())
-    preview = json.loads(page.locator("#bci-scope-preview").inner_text())
-    check("口径预览结构正确",
-          preview["version"] == 2 and preview["datasources"] == {
-              "quant_structured": [], "interview_parsed": "", "insight_template": "", "flow_data": ""},
-          json.dumps(preview, ensure_ascii=False))
+    # 2026-11-09 越界修复：选源阶段不得出现「本次分析口径」与「报告输出」两块。
+    out_of_scope = page.evaluate("""() => ({
+        preview: document.querySelectorAll('#bci-scope-preview').length,
+        status: document.querySelectorAll('#bci-scope-status').length,
+        scopeBlock: document.querySelectorAll('.bci-block--scope').length,
+        soon: document.querySelectorAll('.bci-soon').length,
+        reportPanel: document.querySelectorAll("[data-bci-panel='report']").length })""")
+    check("选源阶段无「本次分析口径」块",
+          out_of_scope["preview"] == 0 and out_of_scope["status"] == 0 and out_of_scope["scopeBlock"] == 0,
+          out_of_scope)
+    check("选源阶段无「报告输出」占位",
+          out_of_scope["soon"] == 0 and out_of_scope["reportPanel"] == 0, out_of_scope)
+    visible_panels = page.eval_on_selector_all(
+        "[data-bci-panel]",
+        "els => els.filter(e => getComputedStyle(e).display !== 'none').map(e => e.dataset.bciPanel)")
+    check("可见 tab 面板只有数据源筛选", visible_panels == ["datasource"], visible_panels)
 
     # —— 定量：多选 ——
     q_box = page.locator(".bci-select[data-bci-group='quant_structured']")
@@ -126,7 +140,7 @@ with sync_playwright() as p:
     t_box.locator(".bci-select__btn").click()
     t_opts = t_box.locator(".bci-option")
     disabled = t_box.locator(".bci-option.is-disabled").count()
-    check("模板清单含「不选」+ 两套模板", t_opts.count() == 3, t_opts.count())
+    check("模板清单含「不选」+ 三套模板", t_opts.count() == 4, t_opts.count())
     check("仅新车型不可选", disabled == 1, f"options={t_opts.count()} disabled={disabled}")
     check("模板清单经 templates.json 提供", asset_status.get("templates") == 200, asset_status)
     nev = t_box.locator(".bci-option[data-bci-value='nev_user_insight']")

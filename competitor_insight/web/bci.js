@@ -105,15 +105,6 @@
       };
     }
 
-    function activeCount() {
-      let n = 0;
-      GROUPS.forEach((g) => {
-        const v = state.selected[g.key];
-        if (g.multi ? v.length > 0 : !!v) n += 1;
-      });
-      return n;
-    }
-
     function valueText(group) {
       const value = state.selected[group.key];
       if (group.multi) {
@@ -202,6 +193,9 @@
           "<section class='bci-block'>",
           "<header class='bci-block__head'>",
           "<h4 class='bci-block__title'><span class='bci-block__step'>" + (index + 1) + '</span>' + group.title + '</h4>',
+          group.key === 'insight_template'
+            ? "<button type='button' class='bci-block__link' data-bci-template-view aria-haspopup='dialog'>查看模板</button>"
+            : '',
           "<p class='bci-block__desc'>" + group.desc + '</p>',
           '</header>',
           "<div class='bci-select' data-bci-group='" + group.key + "'>",
@@ -244,14 +238,8 @@
     }
 
     function renderPreview() {
-      const pre = qs('#bci-scope-preview');
-      if (pre) pre.textContent = JSON.stringify(buildScope(), null, 2);
-      const foot = qs('#bci-scope-status');
-      if (foot) {
-        foot.textContent = state.savedAt
-          ? '已写入 ' + STORAGE_KEY + ' · ' + state.savedAt + ' · 本次共选 ' + activeCount() + ' 类'
-          : '尚未选择，四类数据均不参与';
-      }
+      // 「本次分析口径」JSON 预览块已移除（2026-11-09）：选源阶段不展示下游口径。
+      // 顶部一行汇总仍保留，避免用户失去最基本的已选反馈。
       renderScopeText();
     }
 

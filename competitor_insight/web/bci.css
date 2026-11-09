@@ -92,6 +92,9 @@
 
 /* 顶部说明带 ------------------------------------------------------------- */
 .bci-panel { display: flex; flex-direction: column; gap: 16px; }
+/* display:flex 会覆盖 UA 的 [hidden]{display:none}，不显式补这条会让未激活 tab 的面板
+   一并渲染在「数据源筛选」下面。 */
+.bci-panel[hidden] { display: none; }
 .bci-hero {
   display: flex;
   align-items: center;
@@ -252,45 +255,9 @@
   align-self: flex-start;
 }
 
-/* 口径预览 --------------------------------------------------------------- */
-.bci-block--scope { background: linear-gradient(180deg, #FFFFFF, #FBFCFE); }
-.bci-code {
-  padding: 1px 6px;
-  border-radius: 4px;
-  background: #EEF2F8;
-  color: #38506F;
-  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 11.8px;
-}
-.bci-scope {
-  margin: 0;
-  padding: 14px 16px;
-  border: 1px solid #E7EDF6;
-  border-radius: var(--r-md);
-  background: #F7F9FC;
-  color: #2B3D57;
-  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 12.2px;
-  line-height: 1.7;
-  overflow-x: auto;
-}
-.bci-scope__foot {
-  margin-top: 10px;
-  font-size: 11.8px;
-  color: var(--bci-faint);
-}
+/* 口径预览已随「本次分析口径」块一并移除（2026-11-09）：选源阶段只呈现四行下拉。 */
 
 /* 未开发面板 ------------------------------------------------------------- */
-.bci-soon {
-  padding: 40px 24px;
-  border: 1px dashed var(--c-border-strong);
-  border-radius: var(--r-lg);
-  background: #FBFCFE;
-  text-align: center;
-  color: var(--bci-muted);
-}
-.bci-soon b { display: block; margin-bottom: 6px; font-size: 14px; color: var(--bci-ink); }
-.bci-soon p { margin: 0; font-size: 12.5px; }
 
 @keyframes bci-rise {
   from { opacity: 0; transform: translateY(6px); }

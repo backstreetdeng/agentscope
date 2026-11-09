@@ -10,6 +10,7 @@
   <link rel='stylesheet' href='/competitor-insight/bci.css?v=20261106'>
   <link rel='stylesheet' href='/competitor-insight/bci-profile.css?v=20261107'>
   <link rel='stylesheet' href='/competitor-insight/bci-analysis.css?v=20261107'>
+  <link rel='stylesheet' href='/competitor-insight/bci-templates.css?v=20261109'>
   <link rel='stylesheet' href='/assets/home-workspace.css?v=20261012'>
   <link rel='icon' type='image/svg+xml' href='/assets/brand-mark.svg?v=20261012'>
   <link rel='stylesheet' href='/assets/intel-overview.css'>
@@ -1180,24 +1181,12 @@
             </div>
 
             <div class='bci-groups' id='bci-groups'></div>
-
-            <section class='bci-block bci-block--scope'>
-              <header class='bci-block__head'>
-                <h4 class='bci-block__title'>本次分析口径</h4>
-                <p class='bci-block__desc'>选择结果实时写入 <span class='bci-code'>bci.scope</span>，供后续 tab 读取。本页不规定下游怎么用；空数组或空字符串表示该类数据不参与。</p>
-              </header>
-              <pre class='bci-scope' id='bci-scope-preview'></pre>
-              <p class='bci-scope__foot' id='bci-scope-status'>尚未选择，四类数据均不参与</p>
-            </section>
           </div>
           <div class='bci-panel' data-bci-panel='profile' hidden>
             <div class='bci-profile' data-bci-profile></div>
           </div>
           <div class='bci-panel' data-bci-panel='analyze' hidden>
             <div class='bci-analysis' data-bci-analysis></div>
-          </div>
-          <div class='bci-panel' data-bci-panel='report' hidden>
-            <div class='bci-soon'><b>④ 报告输出</b><p>按所选模板生成报告并导出 HTML / PPT。本轮未开发。</p></div>
           </div>
         </section>
       </div>
@@ -1796,6 +1785,7 @@
 
   <script src='/competitor-insight/bci-profile.js?v=20261107' defer></script>
   <script src='/competitor-insight/bci-analysis.js?v=20261107' defer></script>
+  <script src='/competitor-insight/bci-templates.js?v=20261109' defer></script>
   <script src='/competitor-insight/bci.js?v=20261107' defer></script>
   <script src='/assets/home.js?v=20261102e' defer></script>
   <script src='/assets/intel-overview.js' defer></script>
