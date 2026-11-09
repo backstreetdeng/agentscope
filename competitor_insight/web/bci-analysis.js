@@ -9,6 +9,19 @@
     insufficient: '样本不足',
   };
 
+  // 仅前端措辞覆盖，后端口径与字段不变。
+  const TILE_SUBTITLE_OVERRIDE = {
+    attention: '关注什么；16 维多选勾选率（非首选率），可展开看完整明细',
+  };
+  const METRIC_LABEL_OVERRIDE = {
+    attention: '购车关注（16 维多选勾选率，非首选率）',
+    first_ranking: '首选率（产品 / 品牌 / 服务 第一排序）',
+  };
+  const EMPTY_NOTE = {
+    first_ranking: '首选率 · 待业务补排序题，不估算、不填 0。',
+  };
+
+
   function esc(value) {
     return String(value == null ? '' : value)
       .replace(/&/g, '&amp;')
@@ -55,9 +68,10 @@
   function metricHeader(metric) {
     const n = metric.n != null ? 'n=' + esc(metric.n) : '';
     const answered = metric.answered != null ? '作答=' + esc(metric.answered) : '';
+    const label = METRIC_LABEL_OVERRIDE[metric.key] || metric.label;
     return (
       '<header class="bci-a-metric__head">' +
-        '<div class="bci-a-metric__title"><h5>' + esc(metric.label) + '</h5>' +
+        '<div class="bci-a-metric__title"><h5>' + esc(label) + '</h5>' +
           statusChip(metric.status) + sampleChip(metric.sample_flag) +
         '</div>' +
         '<div class="bci-a-metric__meta">' + [n, answered].filter(Boolean).join(' · ') + '</div>' +
@@ -66,9 +80,12 @@
   }
 
   function emptyBox(metric) {
+    const note = EMPTY_NOTE[metric.key]
+      ? '<p class="bci-a-empty__note">' + esc(EMPTY_NOTE[metric.key]) + '</p>'
+      : '';
     return (
       '<div class="bci-a-empty" role="note">' +
-        '<b>空态 · 不计算</b>' +
+        '<b>空态 · 不计算</b>' + note +
         '<p>' + esc(metric.reason || '缺少可复算的数据源。') + '</p>' +
       '</div>'
     );
@@ -195,7 +212,7 @@
   }
 
   function renderMetric(metric) {
-    const head = metric.kind === 'empty' ? '' : metricHeader(metric);
+    const head = metricHeader(metric);
     let body = '';
     if (metric.status === 'empty') {
       body = emptyBox(metric);
@@ -230,7 +247,7 @@
         '<header class="bci-a-tile__head">' +
           '<div class="bci-a-tile__mark">' + ['①', '②', '③', '④'][index] + '</div>' +
           '<div class="bci-a-tile__title"><h4>' + esc(tile.title) + '</h4>' +
-            '<p>' + esc(tile.subtitle) + '</p></div>' +
+            '<p>' + esc(TILE_SUBTITLE_OVERRIDE[tile.key] || tile.subtitle) + '</p></div>' +
           '<div class="bci-a-tile__chips">' + statusChip(tile.status) +
             (tile.n != null ? '<span class="bci-a-chip">n=' + esc(tile.n) + '</span>' : '') + '</div>' +
         '</header>' +
@@ -292,7 +309,7 @@
         '<span class="bci-a-entry__mark">' + TILE_MARK[key] + '</span>' +
         '<span class="bci-a-entry__body">' +
           '<span class="bci-a-entry__title">' + esc(TILE_HEAD[key]) + '</span>' +
-          '<span class="bci-a-entry__desc">' + esc(tile.subtitle || '') + '</span>' +
+          '<span class="bci-a-entry__desc">' + esc(TILE_SUBTITLE_OVERRIDE[key] || tile.subtitle || '') + '</span>' +
         '</span>' +
         '<span class="bci-a-entry__state">' + (isOpen ? '已展开' : '点击展开') + '</span>' +
       '</button>'
