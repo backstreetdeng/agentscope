@@ -96,7 +96,7 @@ evidence: outputs/competitor-insights/BCI-006/20261107-analysis/
 | 2026-11-07 | CREATED | 用户明确要求先做可行性测评并建 BCI-006；S1/S2 完成，代码未开始 | `outputs/competitor-insights/BCI-006/20261107-feasibility/manifest.json` | TRAE |
 | 2026-11-07 | EXECUTING | 用户确认五款 SUV 与 Q1/Q29/Q27/Q28 口径；S3–S6 实现与三类验收通过 | `competitor_insight/tests/`、`outputs/.../20261107-analysis/` | TRAE |
 | 2026-11-07 | TESTED | 浏览器端到端验收通过；五车实测数字与数据缺失清单归档；代码与证据已提交 `5e8f964`、文档 `ca18f37`，均已推送（本地 HEAD 与 `@{u}` 均为 `6775c56`，`@{u}..HEAD` 为 0），待用户业务验收 | `outputs/.../20261107-analysis/manifest.json` | TRAE |
-| 2026-11-09 | TESTED | 用户核对后要求四子功能改为入口卡片展开/收起；已完成并重跑浏览器 E2E（37 项全通过，含默认展开、多选叠加、选中顺序、收起不占版面）；同时定位「换车型查询失败」为服务被回收的连接层问题，服务改为 WMI 脱离终端启动 | `tests/e2e_analysis_page.py`、`screenshots/analysis-b10-entries-20261109-181238.png` | TRAE |
+| 2026-11-09 | TESTED | 用户核对后要求四子功能改为入口卡片展开/收起；已完成并重跑浏览器 E2E（37 项全通过，含默认展开、多选叠加、选中顺序、收起不占版面）；同时定位「换车型查询失败」为服务被回收的连接层问题，服务改为 WMI 脱离终端启动；提交 `93ce621` 已推送 | `tests/e2e_analysis_page.py`、`screenshots/analysis-b10-entries-20261109-181238.png` | TRAE |
 
 ## 8. 因数据缺失而未做的指标（可对外说明）
 
