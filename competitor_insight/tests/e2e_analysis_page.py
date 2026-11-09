@@ -53,14 +53,42 @@ def main() -> int:
         page.wait_for_selector("[data-bci-tab='analyze']:not([disabled])", timeout=30000)
         page.locator("[data-bci-tab='analyze']").click()
 
-        page.wait_for_selector(".bci-a-tile", timeout=180000)
+        page.wait_for_selector(".bci-a-entry", timeout=180000)
         page.wait_for_function(
-            "() => document.querySelectorAll('.bci-a-tile').length === 4 && "
+            "() => document.querySelectorAll('.bci-a-entry').length === 4 && "
+            "document.querySelectorAll('.bci-a-stack > div').length === 1 && "
             "document.body.innerText.includes('定量样本')",
             timeout=180000,
         )
-        check(page.locator(".bci-a-tile").count() == 4, "页面渲染 4 个磁贴")
+        stack_ids = "Array.from(document.querySelectorAll('.bci-a-stack > div')).map(n => n.id)"
+
+        # 入口卡片：四卡横排，默认只展开「用户画像」，其余不占版面。
+        check(page.locator(".bci-a-entry").count() == 4, "入口共 4 张卡片")
+        check(page.locator(".bci-a-entry.is-open").count() == 1, "默认仅 1 张卡片为展开态")
+        check("已展开" in page.locator(".bci-a-entry.is-open").inner_text(), "已选中的卡片有「已展开」标记")
+        check(page.evaluate(stack_ids) == ["bci-a-panel-profile"], "默认只渲染用户画像内容块")
+        check(page.locator(".bci-a-tile").count() == 1, "未选中的三块不占版面")
         check(page.locator("[data-bci-analysis-model] option").count() == 5, "车型下拉 5 款")
+
+        page.locator("[data-bci-analysis]").scroll_into_view_if_needed()
+        page.screenshot(path=str(SHOT_DIR / f"analysis-b10-entries-{stamp}.png"))
+
+        # 逐卡展开，验证多选叠加与选中顺序。
+        for key, expect_count in (("attention", 2), ("winloss", 3), ("satisfaction", 4)):
+            page.click(f"[data-bci-analysis-toggle='{key}']")
+            page.wait_for_function(
+                f"() => document.querySelectorAll('.bci-a-stack > div').length === {expect_count}",
+                timeout=30000,
+            )
+        check(
+            page.evaluate(stack_ids) == [
+                "bci-a-panel-profile", "bci-a-panel-attention",
+                "bci-a-panel-winloss", "bci-a-panel-satisfaction",
+            ],
+            "内容块按选中顺序纵向堆叠",
+        )
+        check(page.locator(".bci-a-entry.is-open").count() == 4, "四张卡片均为展开态")
+        check(page.locator(".bci-a-tile").count() == 4, "四块内容全部可见")
 
         text = page.locator("[data-bci-analysis]").inner_text()
         for phrase in (
@@ -85,6 +113,27 @@ def main() -> int:
             tile.scroll_into_view_if_needed()
             tile.screenshot(path=str(SHOT_DIR / f"tile-{index}-b10-{stamp}.png"))
         print(f"SHOT  {SHOT_DIR / f'analysis-b10-{stamp}.png'}")
+
+        # 收起单卡：内容块消失且其余顺序不变；再展开追加到末尾。
+        page.click("[data-bci-analysis-toggle='profile']")
+        page.wait_for_function(
+            "() => document.querySelectorAll('.bci-a-stack > div').length === 3",
+            timeout=30000,
+        )
+        check(page.locator("#bci-a-panel-profile").count() == 0, "收起用户画像后内容块不再占版面")
+        check(
+            page.evaluate(stack_ids) == [
+                "bci-a-panel-attention", "bci-a-panel-winloss", "bci-a-panel-satisfaction",
+            ],
+            "收起后其余内容块顺序不变",
+        )
+        check(page.locator(".bci-a-entry.is-open").count() == 3, "收起后仅 3 张卡片为展开态")
+        page.click("[data-bci-analysis-toggle='profile']")
+        page.wait_for_function(
+            "() => document.querySelectorAll('.bci-a-stack > div').length === 4",
+            timeout=30000,
+        )
+        check(page.evaluate(stack_ids)[-1] == "bci-a-panel-profile", "重新展开的内容块追加到堆叠末尾")
 
         # 切到钛3，验证车型切换与 n=30。
         page.select_option("[data-bci-analysis-model]", "fangchengbao-tai3")

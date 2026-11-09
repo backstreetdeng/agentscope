@@ -275,9 +275,33 @@
     );
   }
 
-  function renderBody(data) {
+  const TILE_ORDER = ['profile', 'attention', 'winloss', 'satisfaction'];
+  const TILE_MARK = { profile: '①', attention: '②', winloss: '③', satisfaction: '④' };
+  const TILE_HEAD = {
+    profile: '用户画像',
+    attention: '购车关注',
+    winloss: '选择与放弃',
+    satisfaction: '满意度',
+  };
+
+  function renderEntry(tile, key, isOpen) {
+    return (
+      '<button type="button" class="bci-a-entry' + (isOpen ? ' is-open' : '') + '"' +
+        ' data-bci-analysis-toggle="' + esc(key) + '" aria-pressed="' + (isOpen ? 'true' : 'false') + '"' +
+        ' aria-controls="bci-a-panel-' + esc(key) + '">' +
+        '<span class="bci-a-entry__mark">' + TILE_MARK[key] + '</span>' +
+        '<span class="bci-a-entry__body">' +
+          '<span class="bci-a-entry__title">' + esc(TILE_HEAD[key]) + '</span>' +
+          '<span class="bci-a-entry__desc">' + esc(tile.subtitle || '') + '</span>' +
+        '</span>' +
+        '<span class="bci-a-entry__state">' + (isOpen ? '已展开' : '点击展开') + '</span>' +
+      '</button>'
+    );
+  }
+
+  function renderBody(data, expanded) {
     const tiles = data.tiles || {};
-    const order = ['profile', 'attention', 'winloss', 'satisfaction'];
+    const open = (expanded || []).filter(function (key) { return tiles[key]; });
     return (
       '<section class="bci-a-summary"><header><span>综合结论</span>' +
         '<em>由已算出的真实数字确定性拼装，不接自由生成</em></header>' +
@@ -287,8 +311,17 @@
         '<footer>生成时间 ' + esc((data.generated_at || '').replace('T', ' ')) +
           ' · ' + esc(data.model && data.model.price_note || '') + '</footer>' +
       '</section>' +
-      '<div class="bci-a-grid">' + order.map(function (key, index) {
-        return tiles[key] ? renderTile(tiles[key], index) : '';
+      '<section class="bci-a-entries" aria-label="选择要查看的结论块">' +
+        '<div class="bci-a-entries__head">' +
+          '<span>想看哪一块，点卡片展开；可多选叠加</span>' +
+          '<em>已选 ' + open.length + '/' + TILE_ORDER.length + '</em>' +
+        '</div>' +
+        '<div class="bci-a-entries__grid">' + TILE_ORDER.map(function (key) {
+          return tiles[key] ? renderEntry(tiles[key], key, open.indexOf(key) >= 0) : '';
+        }).join('') + '</div>' +
+      '</section>' +
+      '<div class="bci-a-stack">' + open.map(function (key) {
+        return '<div id="bci-a-panel-' + esc(key) + '">' + renderTile(tiles[key], TILE_ORDER.indexOf(key)) + '</div>';
       }).join('') + '</div>' +
       '<p class="bci-a-foot">口径：比例分母为车型定量总样本；题目作答 &lt;10 人不展示比例；' +
         '深访 3–4 人只做逐人原话；口碑为外部评论标签，与问卷满意度不同源。</p>'
@@ -298,12 +331,12 @@
   function init(host) {
     if (!host || host.dataset.ready === '1') return;
     host.dataset.ready = '1';
-    const state = { models: [], current: '', data: null, loading: false };
+    const state = { models: [], current: '', data: null, loading: false, expanded: ['profile'] };
 
     function paint() {
       host.innerHTML = renderShell(state);
       const body = host.querySelector('[data-bci-analysis-body]');
-      if (body && state.data) body.innerHTML = renderBody(state.data);
+      if (body && state.data) body.innerHTML = renderBody(state.data, state.expanded);
     }
 
     function fail(error) {
@@ -357,6 +390,19 @@
     });
 
     host.addEventListener('click', function (event) {
+      const toggle = event.target.closest('[data-bci-analysis-toggle]');
+      if (toggle && state.data) {
+        const key = toggle.getAttribute('data-bci-analysis-toggle');
+        if (!key) return;
+        const index = state.expanded.indexOf(key);
+        if (index >= 0) {
+          state.expanded.splice(index, 1);
+        } else {
+          state.expanded.push(key);
+        }
+        paint();
+        return;
+      }
       if (!event.target.closest('[data-bci-analysis-refresh]')) return;
       if (!state.models.length) {
         loadModels().then(analyze).catch(fail);

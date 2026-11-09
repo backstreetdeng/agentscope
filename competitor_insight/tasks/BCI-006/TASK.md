@@ -8,7 +8,7 @@ owner: TRAE
 port: 7860
 frozen_paths: none
 commit_paths: competitor_insight/server/analysis_service.py, competitor_insight/config/analysis_models.json, competitor_insight/web/bci-analysis.js, competitor_insight/web/bci-analysis.css, competitor_insight/tests/test_analysis_service.py, competitor_insight/tests/e2e_analysis_api.py, competitor_insight/tests/e2e_analysis_page.py, competitor_insight/docs/analysis-tab-feasibility.md, competitor_insight/tasks/BCI-006/, outputs/competitor-insights/BCI-006/20261107-analysis/, outputs/competitor-insights/BCI-006/20261107-feasibility/, home.html, competitor_insight/web/bci.js
-updated: 2026-11-08
+updated: 2026-11-09
 blocked: no
 next: 用户明早验收 7860「即时分析」tab；业务确认 §8 数据缺失清单的后续补数范围
 evidence: outputs/competitor-insights/BCI-006/20261107-analysis/
@@ -51,6 +51,8 @@ evidence: outputs/competitor-insights/BCI-006/20261107-analysis/
 | S5 | 实现 `bci-analysis.js` / `bci-analysis.css` 并接入 tab | 完成 | 车型下拉、四源徽标、综合结论、四磁贴、空态与明细表；tab ③ 已启用 | `competitor_insight/web/bci-analysis.*`、`home.html`、`bci.js` |
 | S6 | 单测 + 端到端断言脚本 | 完成 | 18 条单测通过；API 断言全通过；浏览器断言全通过 | `tests/test_analysis_service.py`、`tests/e2e_analysis_api.py`、`tests/e2e_analysis_page.py` |
 | S7 | 浏览器验收与入库 | 完成 | 浏览器 E2E 全通过（B10 n=41、钛3 n=30）；截图、断言、五车数字汇总已归档；提交本任务文件 | `outputs/.../20261107-analysis/`、`metrics_summary.json` |
+| S8 | 四子功能改为入口卡片展开/收起 | 完成 | 默认只展开「用户画像」，四卡横排、`已选 x/4` 与「已展开/点击展开」标记；展开块按选中顺序纵向堆叠，收起即不占版面；只改显示策略，未加指标/图表 | `bci-analysis.js`、`bci-analysis.css`、`e2e_analysis_page.py` |
+| S9 | 「换车型重新查询失败」定位与常驻 | 完成 | 根因为 7860 服务被父 shell 回收，浏览器连接层失败（`Failed to fetch`），非接口逻辑；WMI 脱离终端启动后五款车接口全部 200、日志无 traceback；E2E 切换钛3 无异常 | `logs/web-service-20261109.log` |
 
 ## 4. 证据索引
 
@@ -94,6 +96,7 @@ evidence: outputs/competitor-insights/BCI-006/20261107-analysis/
 | 2026-11-07 | CREATED | 用户明确要求先做可行性测评并建 BCI-006；S1/S2 完成，代码未开始 | `outputs/competitor-insights/BCI-006/20261107-feasibility/manifest.json` | TRAE |
 | 2026-11-07 | EXECUTING | 用户确认五款 SUV 与 Q1/Q29/Q27/Q28 口径；S3–S6 实现与三类验收通过 | `competitor_insight/tests/`、`outputs/.../20261107-analysis/` | TRAE |
 | 2026-11-07 | TESTED | 浏览器端到端验收通过；五车实测数字与数据缺失清单归档；代码与证据已提交 `5e8f964`、文档 `ca18f37`，均已推送（本地 HEAD 与 `@{u}` 均为 `6775c56`，`@{u}..HEAD` 为 0），待用户业务验收 | `outputs/.../20261107-analysis/manifest.json` | TRAE |
+| 2026-11-09 | TESTED | 用户核对后要求四子功能改为入口卡片展开/收起；已完成并重跑浏览器 E2E（37 项全通过，含默认展开、多选叠加、选中顺序、收起不占版面）；同时定位「换车型查询失败」为服务被回收的连接层问题，服务改为 WMI 脱离终端启动 | `tests/e2e_analysis_page.py`、`screenshots/analysis-b10-entries-20261109-181238.png` | TRAE |
 
 ## 8. 因数据缺失而未做的指标（可对外说明）
 
