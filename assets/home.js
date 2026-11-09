@@ -3413,7 +3413,8 @@
       const runBtn = utils.qs('#deep-research-run');
       const status = utils.qs('#deep-research-status');
       if (runBtn) runBtn.disabled = busy;
-      if (status) status.textContent = busy ? '正在联网查证并撰写报告，约 2 分钟，请勿关闭页面…' : '待命';
+      // 完成态文案由 run() 的成功/失败分支设置；此处仅在开始时展示进行中提示。
+      if (status && busy) status.textContent = '正在联网查证并撰写报告，约 2 分钟，请勿关闭页面…';
     }
 
     async function run() {
