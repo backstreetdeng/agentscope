@@ -545,7 +545,10 @@ class ArchiveService:
         except Exception as exc:  # noqa: BLE001
             code = getattr(exc, "code", None) or exc.__class__.__name__
             try:
-                self.store.update_run_item(run_id, interview_id, "failed", str(code))
+                # error_text 带维度与原因，横幅/运行日志可直接读
+                self.store.update_run_item(
+                    run_id, interview_id, "failed", f"{code}:{str(exc)[:100]}"
+                )
             except Exception:  # noqa: BLE001
                 pass
             return False

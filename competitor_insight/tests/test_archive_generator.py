@@ -76,6 +76,7 @@ def build_bundle(
     answers: dict[int, str] | None = None,
     tags: list[tuple[str, str, str, str, str]] | None = None,
     candidates: list[EvidenceCandidate] | None = None,
+    tag_evidence_ids: dict[str, list[str]] | None = None,
 ) -> InterviewBundle:
     answers = BASE_ANSWERS if answers is None else answers
     tags = BASE_TAGS if tags is None else tags
@@ -92,6 +93,7 @@ def build_bundle(
         answers={qid: {"answer_id": f"A-{qid}", "answer_text": text} for qid, text in answers.items()},
         tags={name: tuple(values) for name, values in grouped.items()},
         gate=EvidenceGate(INTERVIEW_ID, candidates),
+        tag_evidence_ids={k: tuple(v) for k, v in (tag_evidence_ids or {}).items()},
     )
 
 
@@ -239,11 +241,28 @@ class ArchiveGeneratorTest(unittest.TestCase):
         tags = list(BASE_TAGS) + [
             ("T30", "对不同品牌的看法及原因", "对自主品牌印象一般，网约车多。", "可信", "custom_summary"),
         ]
-        generator, llm = make_generator(build_bundle(tags=tags), RecordingLlm())
+        generator, llm = make_generator(
+            build_bundle(
+                tags=tags,
+                tag_evidence_ids={"对不同品牌的看法及原因": ["TE-30a", "TE-30b"]},
+            ),
+            RecordingLlm(),
+        )
         generator.generate(INTERVIEW_ID)
         prompt = next(p for p in llm.prompts if "dimension_id: aion_brand_impression" in p)
         self.assertIn("维度：对比亚迪品牌的印象和了解", prompt)  # {brand} 按 唐L→比亚迪 替换
         self.assertIn("对不同品牌的看法及原因=对自主品牌印象一般", prompt)
+        self.assertIn("- 对不同品牌的看法及原因：TE-30a, TE-30b", prompt)  # 标签证据 ID 已暴露给模型
+
+    def test_llm_value_without_evidence_ids_degrades_to_no_data(self):
+        """2026-11-09 R002 反馈：模型给值但不绑证据 → 仅该维缺失，不再整人失败。"""
+        llm = RecordingLlm(json.dumps({"value": "某结论", "evidence_ids": []}))
+        generator, _ = make_generator(build_bundle(), llm)
+        draft = generator.generate(INTERVIEW_ID)
+        field = field_of(draft, "archive_summary")
+        self.assertEqual(field.fill_mode, "none")
+        self.assertIn("未返回可绑定", field.no_data_reason)
+        self.assertEqual(field.review_status, "missing")
 
     def test_satisfaction_range_uses_midpoint_and_keeps_raw(self):
         field = field_of(self.draft, "satisfaction_score")

@@ -358,7 +358,7 @@ class GenerateRunTest(ServiceTestBase):
         items = {item["interview_id"]: item for item in status["items"]}
         self.assertEqual(items["R001"]["status"], "done")
         self.assertEqual(items["R002"]["status"], "failed")
-        self.assertEqual(items["R002"]["error_text"], "llm_output_invalid")
+        self.assertTrue(str(items["R002"]["error_text"]).startswith("llm_output_invalid"))
         self.assertFalse(self.store.get_archive("R002", BUNDLE.template_id).items)
 
     def test_run_lock_and_polling(self) -> None:

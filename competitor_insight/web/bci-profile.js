@@ -567,9 +567,25 @@
     return map[data.status] || data.status;
   }
 
+  const ITEM_ERROR_TEXT = {
+    missing_evidence: '模型引用了无效证据 ID，被证据门拦截（防编造原话），可重试一次',
+    cross_interview_or_fabricated_evidence: '模型引用了不属于该受访者的证据，已拒绝落库',
+    invalid_enum: '模型返回了不在允许取值内的内容',
+    llm_client_required: '模型客户端未配置',
+    interview_not_found: '受访者不存在',
+    database_unavailable: '数据库不可用',
+  };
+
   function runResultMessage(data) {
     if (data.status === 'completed') return '归档完成：' + data.done + ' 人全部生成。';
     if (data.status === 'partial') return '部分完成：' + data.done + ' 人成功，' + data.failed + ' 人失败（详情见运行日志）。';
+    const failedItems = (data.items || []).filter((i) => i.status === 'failed');
+    if (failedItems.length) {
+      const detail = failedItems
+        .map((i) => (i.interview_id || '?') + '：' + (ITEM_ERROR_TEXT[i.error_text] || i.error_text || '未知原因'))
+        .join('；');
+      return '归档失败：' + detail + '。';
+    }
     return '归档失败：' + (data.error_text || '未知原因') + '。';
   }
 

@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass
+from dataclasses import field as dataclasses_field
 from typing import Any, Callable, Protocol
 
 from competitor_insight.server.archive_store import ArchiveDraft, ArchiveFieldRecord
@@ -70,6 +71,8 @@ class InterviewBundle:
     answers: dict[int, dict[str, Any]]
     tags: dict[str, tuple[TagValue, ...]]
     gate: EvidenceGate
+    # 标签名 → 该标签的证据 ID（tag_evidence）；供 LLM 引用标签原话，防止编造 ID
+    tag_evidence_ids: dict[str, tuple[str, ...]] = dataclasses_field(default_factory=dict)
 
     def answer_text(self, question_id: int) -> str:
         return (self.answers.get(question_id) or {}).get("answer_text") or ""
@@ -149,6 +152,19 @@ class PostgresInterviewSource:
                 candidates += [
                     EvidenceCandidate(r[0], r[1], r[2], r[3], r[4], r[5] or "") for r in cur.fetchall()
                 ]
+                cur.execute(
+                    """
+                    SELECT t.tag_name, te.tag_evidence_id
+                    FROM user_insight.tag_evidence te
+                    JOIN user_insight.tag t ON t.tag_id = te.tag_id
+                    WHERE t.interview_id = %s
+                    ORDER BY te.question_id
+                    """,
+                    (interview_id,),
+                )
+                tag_evidence: dict[str, list[str]] = {}
+                for name, te_id in cur.fetchall():
+                    tag_evidence.setdefault(name, []).append(te_id)
         finally:
             conn.close()
 
@@ -157,6 +173,7 @@ class PostgresInterviewSource:
             answers=answers,
             tags={name: tuple(values) for name, values in tags.items()},
             gate=EvidenceGate(interview_id, candidates),
+            tag_evidence_ids={name: tuple(ids[:5]) for name, ids in tag_evidence.items()},
         )
 
 
@@ -378,9 +395,11 @@ class ArchiveGenerator:
                 dim.dimension_id, list(dict.fromkeys(returned_ids))
             )
         except EvidenceGateError as exc:
+            # 伪造/跨人证据仍是硬失败（整人不落库）；模型没给 ID 只影响该维，不连坐。
             raise GenerationError(exc.code, str(exc)) from exc
         if not evidence:
-            raise GenerationError("missing_evidence", f"{dim.dimension_id}：模型未返回任何有效证据 ID")
+            # 值无法绑定证据 → 不发布该值，仅该维记缺失（用户 2026-11-09 R002 反馈后调整）。
+            return self._no_data(dim, "模型未返回可绑定的证据 ID，该维未生成")
 
         tpl = self._dims.get(dim.dimension_id, {})
         if tpl.get("type") == "enum":
@@ -454,8 +473,18 @@ class ArchiveGenerator:
             keys = [qid for qid in dim.question_ids if bundle.answer_text(qid)]
             answers = {qid: bundle.answer_text(qid)[:600] for qid in keys}
         tags = {tag.tag_name: normalize_value(tag.value) for tag in bundle.tag_values(dim.tag_names)}
+        tag_evidence_ids = {
+            name: list(bundle.tag_evidence_ids.get(name, ()))[:5]
+            for name in dim.tag_names
+            if bundle.tag_evidence_ids.get(name)
+        }
         evidence_ids = {qid: bundle.gate.ids_for_question(qid) for qid in keys}
-        return {"answers": answers, "tags": tags, "evidence_ids": evidence_ids}
+        return {
+            "answers": answers,
+            "tags": tags,
+            "evidence_ids": evidence_ids,
+            "tag_evidence_ids": tag_evidence_ids,
+        }
 
     def _build_prompt(
         self, dim: DimensionSource, material: dict[str, Any], bundle: InterviewBundle
@@ -483,6 +512,10 @@ class ArchiveGenerator:
             lines.append(f"Q{qid}: {text}")
         if material["tags"]:
             lines.append("相关标签：" + "；".join(f"{k}={v}" for k, v in material["tags"].items()))
+        if material.get("tag_evidence_ids"):
+            lines.append("标签证据 ID（引用标签原话时只能用这些）：")
+            for name, ids in material["tag_evidence_ids"].items():
+                lines.append(f"- {name}：{', '.join(ids)}")
         lines.append(
             '输出 JSON：{"value": 字符串或数组, "evidence_ids": ["证据ID"]}'
             f"（evidence_ids 最多 {MAX_EVIDENCE_PER_FIELD} 个，按重要性排序）"
