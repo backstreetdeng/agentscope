@@ -726,10 +726,10 @@
             <div class='section-head__text'>
               <p class='skills-catalog__eyebrow'>MARKET ANALYSIS · SKILLS</p>
               <h2 id='analysis-title' class='section-head__title section-head__title--ai'>市场分析 · 技能工作台</h2>
-              <p class='section-head__desc'>当前仅展示两项已接入的市场分析技能。每项能力均保留明确的数据范围、处理方式与交付边界。</p>
+              <p class='section-head__desc'>当前展示三项已接入的市场分析技能。每项能力均保留明确的数据范围、处理方式与交付边界。</p>
             </div>
             <div class='section-head__actions'>
-              <span class='skills-catalog__count'>2 项已接入</span>
+              <span class='skills-catalog__count'>3 项已接入</span>
             </div>
           </header>
 
@@ -753,6 +753,35 @@
                 <a class='skill-catalog-card__action' href='/strategy-analysis.html?new=1&amp;skills=passenger_car_monthly_report' target='_blank' rel='noopener noreferrer' aria-label='启动乘用车月报智能生成'>启动生成 →</a>
               </div>
             </article>
+
+            <article class='skill-catalog-card analysis__skill-card' data-skill='deep_research'>
+              <div class='skill-catalog-card__head'><h3>深度调研</h3><span class='skill-catalog-card__status'>已接入</span></div>
+              <p class='skill-catalog-card__meta'>市场分析 · deep-research（MKT-002）</p>
+              <p class='skill-catalog-card__desc'>输入调研主题，确定性编排联网取证（主搜 AnySearch → 备搜 Tavily，来源 P0-P3 分级），产出带 [cite:N] 引用的研究报告或对比分析；引用经独立验收，证据不足明确声明缺口。</p>
+              <div class='skill-catalog-card__footer'>
+                <span>双源取证 · 引用可校验 · 约 2 分钟</span>
+                <button class='skill-catalog-card__action' type='button' data-dr-toggle aria-label='展开深度调研工作台'>开始调研 →</button>
+              </div>
+            </article>
+          </div>
+
+          <div class='deep-research-panel' id='deep-research-panel' hidden>
+            <div class='deep-research-panel__head'>
+              <h3>深度调研工作台</h3>
+              <span class='deep-research-panel__hint'>意图自动分类（对比分析 / 研究报告）；约 2 分钟；证据不足会明确声明，不编造来源。</span>
+            </div>
+            <div class='deep-research-panel__examples' role='group' aria-label='调研示例'>
+              <button type='button' class='deep-research-example' data-dr-example='请对比分析唐L与理想L9的智能驾驶方案：两车的智驾芯片、传感器配置、城市领航辅助功能现状与厂商自研路线，输出带引用的对比分析。'>唐L vs 理想L9 智驾对比</button>
+              <button type='button' class='deep-research-example' data-dr-example='请围绕800V高压平台开展专题研究：普及现状、核心零部件配套与2026年趋势展望，输出带引用的研究报告。'>800V 高压平台趋势研究</button>
+              <button type='button' class='deep-research-example' data-dr-example='请对比分析增程式与插电混动的技术路线竞争：使用成本、补能体验与市场格局，输出带引用的对比分析。'>增程 vs 插混 竞争对比</button>
+            </div>
+            <textarea id='deep-research-question' rows='3' placeholder='输入调研主题，例如：对比分析唐L与理想L9的智能驾驶方案…' aria-label='调研主题'></textarea>
+            <div class='deep-research-panel__actions'>
+              <button type='button' class='btn btn--primary' id='deep-research-run'>开始调研</button>
+              <span class='deep-research-panel__status' id='deep-research-status'>待命</span>
+              <a class='deep-research-panel__download' id='deep-research-download' href='#' hidden target='_blank' rel='noopener noreferrer'>下载完整报告 →</a>
+            </div>
+            <div class='deep-research-panel__report markdown-body' id='deep-research-report' hidden></div>
           </div>
 
           <div class='analysis__legacy-content' hidden aria-hidden='true'>
@@ -1472,7 +1501,7 @@
               <div class='skill-catalog-card__head'><h4>深度调研</h4><span class='skill-catalog-card__status'>已安装</span></div>
               <p class='skill-catalog-card__meta'>市场分析 · deep-research</p>
               <p class='skill-catalog-card__desc'>意图分类与深度分级，多轮联网取证交叉验证，产出带 [cite:N] 引用的研究报告或对比分析。</p>
-              <div class='skill-catalog-card__footer'><span>P0-P3 来源分级 · 引用可校验</span><a class='skill-catalog-card__action' href='/legacy/workbench.html?agent=deep_research' target='_blank' rel='noopener noreferrer'>应用此技能 →</a></div>
+              <div class='skill-catalog-card__footer'><span>P0-P3 来源分级 · 引用可校验</span><a class='skill-catalog-card__action' href='#analysis' data-view-trigger='analysis' aria-label='进入深度调研工作台'>应用此技能 →</a></div>
             </article>
             <article class='skill-catalog-card' data-skill='passenger_car_annual_forecast'>
               <div class='skill-catalog-card__head'><h4>乘用车年度约束预测</h4><span class='skill-catalog-card__status'>已安装</span></div>

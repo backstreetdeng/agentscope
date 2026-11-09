@@ -3367,6 +3367,116 @@
   };
 
   // ────────────────────────────────────────────────────────────────────────
+  //  DeepResearch 深度调研（#analysis 页内工作台，MKT-002）
+  //  确定性编排：/api/chat agent=deep_research，产出带 [cite:N] 的报告 + 可下载链接。
+  // ────────────────────────────────────────────────────────────────────────
+  const DeepResearch = (() => {
+    const PANEL_ID = 'deep-research-panel';
+
+    function esc(value) {
+      return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // 精简 Markdown 渲染：标题 / 表格 / 列表 / 引用行 / 加粗 / 段落。
+    function renderMarkdown(text) {
+      const lines = String(text || '').split(/\r?\n/);
+      const out = [];
+      let inTable = false;
+      const inline = (s) => esc(s)
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/\[cite:(\d+)\]/g, '<span class="dr-cite">[cite:$1]</span>');
+      for (const raw of lines) {
+        const line = raw.trimEnd();
+        if (/^\|.+\|?$/.test(line.trim())) {
+          const cells = line.trim().replace(/^\||\|$/g, '').split('|').map((c) => c.trim());
+          if (cells.every((c) => /^:?-{2,}:?$/.test(c))) continue;
+          if (!inTable) { out.push('<table class="dr-table"><tbody>'); inTable = true; }
+          const tag = out.length && out[out.length - 1].includes('<tbody>') && !out.join('').includes('</tr>') ? 'th' : 'td';
+          // 首行为表头
+          const isHead = !out.join('').includes('<tr');
+          out.push('<tr>' + cells.map((c) => `<${isHead ? 'th' : 'td'}>${inline(c)}</${isHead ? 'th' : 'td'}>`).join('') + '</tr>');
+          continue;
+        }
+        if (inTable) { out.push('</tbody></table>'); inTable = false; }
+        const heading = line.match(/^(#{1,6})\s+(.*)$/);
+        if (heading) { out.push(`<h${heading[1].length + 1} class="dr-h">${inline(heading[2])}</h${heading[1].length + 1}>`); continue; }
+        if (/^[-*]\s+/.test(line)) { out.push(`<li class="dr-li">${inline(line.replace(/^[-*]\s+/, ''))}</li>`); continue; }
+        if (/^\d+[.、]\s+/.test(line)) { out.push(`<li class="dr-li dr-li--num">${inline(line)}</li>`); continue; }
+        if (!line.trim()) continue;
+        out.push(`<p class="dr-p">${inline(line)}</p>`);
+      }
+      if (inTable) out.push('</tbody></table>');
+      return out.join('\n');
+    }
+
+    function setBusy(busy) {
+      const runBtn = utils.qs('#deep-research-run');
+      const status = utils.qs('#deep-research-status');
+      if (runBtn) runBtn.disabled = busy;
+      if (status) status.textContent = busy ? '调研中：联网取证 → 交叉校验 → 撰写报告（约 2 分钟）…' : '待命';
+    }
+
+    async function run() {
+      const question = (utils.qs('#deep-research-question')?.value || '').trim();
+      const report = utils.qs('#deep-research-report');
+      const download = utils.qs('#deep-research-download');
+      const status = utils.qs('#deep-research-status');
+      if (!question) { Toast.show('请输入调研主题', 'warning'); return; }
+      setBusy(true);
+      if (report) { report.hidden = false; report.innerHTML = '<p class="dr-p">正在执行确定性调研编排（取证 → 校验 → 撰写）…</p>'; }
+      if (download) download.hidden = true;
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ agent: 'deep_research', question, analysis_type: '', mcp_plugins: [] }),
+        });
+        const data = await response.json();
+        if (!response.ok || data.error) throw new Error(typeof data.error === 'string' ? data.error : 'HTTP ' + response.status);
+        const runInfo = data.skill_run || {};
+        const validationStatus = (runInfo.state?.validation || {}).status;
+        if (status) status.textContent = validationStatus === 'passed' ? '完成 · 引用验收通过' : '完成 · 验收未通过（见报告区提示）';
+        if (report) report.innerHTML = renderMarkdown(data.answer || '（无回答）');
+        if (download && runInfo.delivery_url) {
+          download.href = runInfo.delivery_url;
+          download.hidden = false;
+        }
+        Toast.show(validationStatus === 'passed' ? '深度调研完成' : '深度调研完成，但验收未通过', validationStatus === 'passed' ? 'success' : 'warning');
+      } catch (error) {
+        if (status) status.textContent = '失败';
+        if (report) report.innerHTML = `<p class="dr-p dr-error">调研失败：${esc(error.message || error)}</p>`;
+        Toast.show('深度调研失败', 'error');
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    function init() {
+      utils.on(document, 'click', (ev) => {
+        if (ev.target.closest('[data-dr-toggle]')) {
+          ev.preventDefault();
+          const panel = utils.qs('#' + PANEL_ID);
+          if (panel) {
+            panel.hidden = !panel.hidden;
+            if (!panel.hidden) panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+          return;
+        }
+        const example = ev.target.closest('[data-dr-example]');
+        if (example) {
+          const input = utils.qs('#deep-research-question');
+          if (input) input.value = example.dataset.drExample || '';
+          return;
+        }
+        if (ev.target.closest('#deep-research-run')) run();
+      });
+    }
+
+    return { init };
+  })();
+
+
+  // ────────────────────────────────────────────────────────────────────────
   //  Bootstrap
   // ────────────────────────────────────────────────────────────────────────
   function initializeNewAnalysisLinks() {
@@ -3413,6 +3523,7 @@
     Plugins.init();
     Agents.init();
     InsightQA.init();
+    DeepResearch.init();
     BciWorkspace.init();
     ForecastView.init();
     Shortcuts.init();

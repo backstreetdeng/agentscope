@@ -20,6 +20,15 @@
 ## 遗留项
 
 - L01 口碑 MCP（reputation_*）未接入确定性取证引擎，现为 any_search + tavily 双源搜索 + 精读两源；口碑作为独立第三源待后续增强。
-- L02 浏览器端「技能页卡片 → 工作区 → 出报告」全链路点击实测待完成（HTML 入口已确认、API 端到端已过）。
+- L02 ~~浏览器端全链路点击实测~~ → 已完成（2026-11-09）：技能页卡片、#analysis 卡片、面板展开、示例填充、API 端到端 82s passed。
 - L03 skill-integration-standard 12 项中跨 AI 复核项（Codex 侧能力对等检查）未执行。
 - L04 146 数据库当晚连接超时导致 quant/口碑 MCP 间歇 502，属环境问题，146 恢复后自愈（与本任务代码无关）。
+
+## 入口位置修正（2026-11-09，用户指出）
+
+- 初版误把入口放进 `legacy_workbench.html`（废弃页，此前访谈证据问答已从中迁出，属重复迁移错误）；已按用户指示全部撤除，入口重做到新平台：
+  - `home.html` #analysis（市场分析·技能工作台）新增第三张技能卡「深度调研」（MKT-002 标识）+ 页内原生工作台面板（示例问题 / 输入框 / 运行 / Markdown 报告渲染 / 报告下载链接）；
+  - `home.js` 新增 DeepResearch 模块（/api/chat agent=deep_research，验收状态透出）；
+  - 技能页深度调研卡片链接改为 `#analysis`（data-view-trigger）；
+  - `legacy_workbench.html` 恢复原状（deep_research 残留 0）。
+- 验证：面板展开/示例填充/输入框/按钮/状态实测通过；API 端到端 82s validation passed（run `skill-20261109-153541-e34fdea9`）；legacy_workbench 与 home.html 无 deep_research→legacy 残留链接。

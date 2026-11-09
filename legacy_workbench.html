@@ -1238,10 +1238,6 @@
           <strong>用户洞察Agent</strong>
           <span>用户圈层、需求配置匹配、选装优先级</span>
         </button>
-        <button class="agent-tab" data-agent="deep_research" type="button">
-          <strong>深度调研Agent</strong>
-          <span>竞品分析、专题调研、带引用研究报告</span>
-        </button>
       </section>
 
       <section class="scene-grid">
@@ -1278,10 +1274,6 @@
               <button class="agent-tab" data-agent="user_insight_config" type="button">
                 <strong>用户洞察Agent</strong>
                 <span>用户圈层、需求配置匹配、选装优先级</span>
-              </button>
-              <button class="agent-tab" data-agent="deep_research" type="button">
-                <strong>深度调研Agent</strong>
-                <span>竞品分析、专题调研、带引用研究报告</span>
               </button>
             </div>
 
@@ -1519,16 +1511,6 @@
         </div>
         <div class="agent-status"><span>状态</span><span id="state-user_insight_config">待命</span></div>
       </div>
-      <div class="agent-card" id="card-deep_research">
-        <div class="agent-header">
-          <div class="agent-avatar">研</div>
-          <div>
-            <div class="agent-name">深度调研Agent</div>
-            <div class="agent-role">调研指挥官 / 引用报告</div>
-          </div>
-        </div>
-        <div class="agent-status"><span>状态</span><span id="state-deep_research">待命</span></div>
-      </div>
 
       <div class="side-title">快捷操作</div>
       <button class="action-btn" data-agent-action="market_strategy">新建市场分析</button>
@@ -1627,11 +1609,6 @@
         ["配置优先级排序", "请针对15-20万元新能源SUV，输出不超过8项整车选装配置优先级排序，并说明标配/选装建议。"],
         ["家庭用户配置包", "请面向城市品质家庭用户，设计15-20万元新能源SUV的推荐配置包方案和成本约束提示。"],
         ["年轻用户智能化配置", "请面向新锐首购青年，设计15-20万元新能源SUV智能座舱和智驾配置方案。"]
-      ],
-      deep_research: [
-        ["唐L vs 理想L9 智驾对比", "请对比分析唐L与理想L9的智能驾驶方案：两车的智驾芯片、传感器配置、城市领航辅助功能现状与厂商自研路线，输出带引用的对比分析。"],
-        ["800V 高压平台趋势研究", "请围绕800V高压平台开展专题研究：普及现状、核心零部件配套与2026年趋势展望，输出带引用的研究报告。"],
-        ["增程 vs 插混 竞争对比", "请对比分析增程式与插电混动的技术路线竞争：使用成本、补能体验与市场格局，输出带引用的对比分析。"]
       ]
     };
 
@@ -1925,8 +1902,7 @@
       document.querySelectorAll(".agent-card").forEach(card => card.classList.remove("active"));
       const target = $(`card-${agent}`);
       if (target) target.classList.add("active");
-      const agentNames = { market_strategy: "市场", user_insight_config: "配置", deep_research: "调研" };
-      $("mAgent").textContent = agentNames[agent] || agent;
+      $("mAgent").textContent = agent === "market_strategy" ? "市场" : "配置";
       renderQuick();
     }
 
@@ -2500,14 +2476,7 @@
 
     initSteps();
     renderQuick();
-    // URL ?agent= 指定初始智能体（技能页/首页跳转入口）；缺省市场战略。
-    const initialAgent = workbenchParams.get("agent");
-    if (initialAgent && quickMap[initialAgent]) {
-      setAgent(initialAgent);
-      $("questionInput").value = quickMap[initialAgent][0][1];
-    } else {
-      $("questionInput").value = quickMap.market_strategy[0][1];
-    }
+    $("questionInput").value = quickMap.market_strategy[0][1];
     refreshHealth();
   </script>
 </body>
