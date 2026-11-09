@@ -68,8 +68,20 @@ with sync_playwright() as p:
           and tabs.nth(2).is_enabled() and not tabs.nth(3).is_enabled(),
           [tabs.nth(i).is_enabled() for i in range(tabs.count())])
 
+    # 2026-11-09 既有问题修复：前端探活 /api/health 原先无路由，控制台持续刷 404。
+    health = page.request.get(BASE + "/api/health")
+    try:
+        health_body = health.json()
+    except Exception:
+        health_body = {}
+    check("探活接口 /api/health 返回 200 且 status=ok",
+          health.status == 200 and health_body.get("status") == "ok" and bool(health_body.get("service")),
+          {"status": health.status, "body": health_body})
+
     groups = page.locator("#bci-groups .bci-block")
     check("四类数据源分组", groups.count() == 4, groups.count())
+    check("控制台不再出现 /api/health 404",
+          not any("/api/health" in u for u in bad_urls), bad_urls)
     titles = page.eval_on_selector_all("#bci-groups .bci-block__title", "e => e.map(x => x.textContent.trim())")
     print("  分组:", json.dumps(titles, ensure_ascii=False))
     check("分组标题与业务口径一致",

@@ -1056,6 +1056,11 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
         if request_path == '/benchmark-view':
             self._send_html((PROJECT_DIR / 'pages/benchmark.html').read_text(encoding='utf-8'))
             return
+        if request_path == '/api/health':
+            # 前端探活用：只回进程自身状态，不查 PG / Ollama / reranker。
+            # 依赖抖动不应让页面误报「服务不可用」；深度依赖检查由各自 /status 接口负责。
+            self._send_json({'status': 'ok', 'service': 'helloagent-web', 'server_version': self.server_version})
+            return
         if request_path.startswith('/api/forecast-engine/'):
             from integrations.forecast_engine_web import FORECAST_WEB_JOBS, status as forecast_status
             try:
@@ -1169,6 +1174,20 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
             asset_path = PROJECT_DIR / 'competitor_insight' / 'web' / relative
             if asset_path.is_file():
                 self._send_file('/' + str(asset_path.relative_to(PROJECT_DIR)).replace('\\', '/'))
+                return
+            self.send_error(HTTPStatus.NOT_FOUND)
+            return
+
+        # 洞察档案模板定义只读暴露给「查看模板」弹窗：仅限 competitor_insight/templates/*.json，
+        # 不允许目录穿越，也不暴露该目录下的 .md/.source-map.json 等旁路文件。
+        if request_path.startswith('/competitor-insight-templates/'):
+            relative = unquote(request_path[len('/competitor-insight-templates/'):])
+            template_path = (PROJECT_DIR / 'competitor_insight' / 'templates' / relative).resolve()
+            templates_root = (PROJECT_DIR / 'competitor_insight' / 'templates').resolve()
+            if (template_path.suffix == '.json' and '..' not in relative
+                    and templates_root in template_path.parents
+                    and template_path.is_file()):
+                self._send_file('/' + str(template_path.relative_to(PROJECT_DIR)).replace('\\', '/'))
                 return
             self.send_error(HTTPStatus.NOT_FOUND)
             return
@@ -2048,6 +2067,7 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
         skill_asset_root = (PROJECT_DIR / "skills" / "html-ppt-skill" / "assets").resolve()
         home_asset_root = (PROJECT_DIR / "assets").resolve()
         competitor_web_root = (PROJECT_DIR / "competitor_insight" / "web").resolve()
+        competitor_template_root = (PROJECT_DIR / "competitor_insight" / "templates").resolve()
         file_path = (PROJECT_DIR / relative).resolve()
         allowed = False
         try:
@@ -2058,6 +2078,8 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
             if home_asset_root in file_path.parents:
                 allowed = True
             if competitor_web_root in file_path.parents:
+                allowed = True
+            if competitor_template_root in file_path.parents:
                 allowed = True
         except Exception:
             allowed = False

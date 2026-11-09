@@ -104,7 +104,7 @@ evidence: outputs/competitor-insights/BCI-002/20261106-template-v1/
 | `competitor_insight/web/bci-templates.css` | 本任务 | 沿用 `--c-ai-blue` / `--c-border` / `--r-lg`，不新增配色 |
 | `competitor_insight/web/bci.js` | BCI-001 | 仅 1 行：模板块标题后插入 `查看模板` 按钮（BCI-001 声明，人工登记） |
 | `home.html` | 共享 | 资源引用 2 行 + 选源阶段越界块删除（BCI-001 越界修复），**未随本提交入库** |
-| `app.py` | 共享 | 新增 `/competitor-insight-templates/*.json` 只读路由与 `_send_file` 白名单（仅 `.json`、拒绝 `..`），**未随本提交入库**（文件内有深度调研等任务在途 hunk） |
+| `app.py` | 共享 | 新增 `/competitor-insight-templates/*.json` 只读路由与 `_send_file` 白名单（仅 `.json`、拒绝 `..`）；**已按 hunk 与原文件其余在途改动分离入库**（同批含 `GET /api/health` 修复，归属 BCI-001 人工登记） |
 
 **只读约束**：弹窗不写 `bci.scope`、不改下拉已选值；`pending` 模板只显示状态与原因，不渲染空内容页。
 

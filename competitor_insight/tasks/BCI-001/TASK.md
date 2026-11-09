@@ -6,7 +6,7 @@ title: 竞品洞察 · 数据源筛选 tab
 stage: TESTED
 owner: TRAE
 commit_paths: competitor_insight/web/bci.js,competitor_insight/web/bci.css,competitor_insight/tasks/BCI-001,outputs/competitor-insights/BCI-001,assets/home.js
-updated: 2026-11-06
+updated: 2026-11-09
 blocked: no
 next: 用户验收 7860 页面后确认上线
 evidence: outputs/competitor-insights/BCI-001/20261106-datasource-selector-r2/
@@ -106,6 +106,8 @@ evidence: outputs/competitor-insights/BCI-001/20261106-datasource-selector-r2/
 | `app.py` | **移出** | 共享文件。本任务的 3 处 hunk（`/competitor-insight/` 静态路由、`_send_file` 白名单变量与判定）已随 `1bd7eee` 入库；文件里仍有**深度调研任务**的未提交 hunk（imports、能力常量、skill 指令、validation/engine、`run_agent_once` 分支）与**智能问答任务**的 warning 文案改动 |
 | `home.html` | **移出** | 共享文件。本任务的 4 处 hunk（bci.css 引用、导航项、视图骨架、bci.js 引用）已入库；文件残余为**首行 BOM 数量变化**（编辑器产物，非功能改动） |
 | `docs/root-files.json` | **移出** | 项目级登记文件，非本任务独占；本任务新增的 `competitor_insight/` 一行已随 `1bd7eee` 入库，后续由其他任务继续追加 |
+
+**手工登记（2026-11-09 既有问题修复：探活 404）**：前端 `assets/home.js:15` 的 `HEALTH_ENDPOINT = '/api/health'` 在 `app.py` 无对应路由，页面加载后控制台持续刷 404，淹没真实错误。本次在 `do_GET` 增加 `GET /api/health`（返回 `{"status":"ok","service":"helloagent-web","server_version":...}`），**只回进程自身状态**，不查 PG / Ollama / reranker——依赖抖动不应让页面误报「服务不可用」，深度依赖检查仍由各 `/status` 接口负责；未改前端探活逻辑与其他接口。`app.py` 不在本任务 `commit_paths` 内，按同一约定人工登记：该 hunk 与 BCI-002 的模板只读路由同批、按 hunk 从 `app.py` 的在途改动中分离入库（其余深度调研等 hunk 未提交）。浏览器断言由 41 条增至 **43 条**：新增「探活接口 200 且 status=ok」与「控制台不再出现 /api/health 404」，`43/43 PASS`，`404 资源: []`。
 
 **手工登记（2026-11-09 越界修复）**：`home.html` 的 3 处 hunk（删除「本次分析口径」块、删除 tab④「报告输出」占位、引入 `bci-templates.css/js`）不在本任务 `commit_paths` 内，随 2026-11-09 越界修复提交入库；`app.py` 的模板只读路由属 BCI-002，本次未提交（文件内有其他任务在途 hunk）。今后再动这些共享文件仍需按此方式人工登记。
 
