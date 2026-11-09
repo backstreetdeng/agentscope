@@ -1,6 +1,16 @@
 # 竞品洞察 · 最近交接
 
-更新：2026-11-08（Asia/Shanghai）。新条目追加在最上面。写法见 [RULES.md](RULES.md) 第 9 节；本文件与 TASK.md 冲突时以 TASK.md 为准。
+更新：2026-11-09（Asia/Shanghai）。新条目追加在最上面。写法见 [RULES.md](RULES.md) 第 9 节；本文件与 TASK.md 冲突时以 TASK.md 为准。
+
+## 2026-11-09 · BCI-001 越界修复、BCI-002 查看模板、BCI-003 收敛为决策记录
+
+- **当前任务与阶段**：[BCI-003](tasks/BCI-003/TASK.md) → `TESTED`（纯文档，LIVE 不适用）；BCI-001 / BCI-002 维持 `TESTED`。
+- **BCI-003 收敛**：`docs/harness-study.md` 由 250 行学习报告降格为 **44 行 / 约 1472 字**的三块决策记录——已采纳 4 条（每条含落点文件 + 提交 `1bd7eee` + 现在拦得住什么）、已推翻 4 条（原结论 → 修正 + 日期依据）、不立项 5 条（逐条写理由与重议条件）。删除五问、过程分析、逐文件行号摘录；保留三个证据目录链接；写明定位与状态真源，不保留"由谁维护"承诺。校验脚本 `check_decisions.py` **20/20 PASS**。
+- **BCI-001 / BCI-002（同日已入库）**：选源页删除越界的「本次分析口径」「报告输出」两块，`acc8e96`，浏览器断言 39→**41/41 PASS**；洞察档案模板新增「查看模板」只读弹窗，`17c2193`，新增断言 **21/21 PASS**。`app.py` 的模板只读路由与 `home.html` 引用仍为共享文件 hunk，按规则不入 `commit_paths`，已在各自 TASK 人工登记。
+- **已改文件**：`competitor_insight/docs/harness-study.md`、`tasks/BCI-003/TASK.md`、`tasks/tasks.md`、`BOARD.md`、本文件、`outputs/competitor-insights/BCI-003/20261109-decision-record/`（`check_decisions.py`、`check.log`、`manifest.json`）。全部同批提交并推送。
+- **测试**：`check_decisions.py` 20/20；`check_board.py` 与 `workspace_hygiene.py` 结果见 `20261109-decision-record/check.log`。未跑应用测试（本轮未改业务代码）。
+- **未解决**：BCI-003-L02 官方 23 个 `SKILL.md` 正文未读（不阻塞任何结论）；BCI-003-L04 交接包缺 5 个项目与 `_template/`。
+- **下一步**：用户抽样复核三块决策记录；如无异议 BCI-003 关单。**最后更新：2026-11-09。**
 
 ## 2026-11-08 · BCI-004 L10/L11 按用户拍板收口（L10 未关闭，转 DBA）
 
@@ -10,6 +20,22 @@
 - **L11（已决策）**：用户 2026-11-08 决定**不轮换 `vectordb` 口令**，接受公开仓库 `1bd7eee` 暴露风险；从待决清单移除，不再每轮追问。
 - **证据**：[20261108-owner-alter](outputs/competitor-insights/BCI-004/20261108-owner-alter/)（`manifest.json` 入库；`apply.log` 受 `.gitignore` 仅本机）；首次尝试见 `20261107-owner-alter/apply.log`。
 - **状态不变**：BCI-004 仍 `TESTED`；仍为 10 人试点，全量 63 人未跑。
+
+## 2026-11-08 · BCI-007 报告输出 tab：方案与业务清单完成（CREATED，未写业务代码）
+
+- **当前任务与阶段**：[BCI-007](tasks/BCI-007/TASK.md) → `CREATED`。方案轮已交付，等用户确认 `docs/report-output-design.md` §11 的 Q1–Q10 后进入 `EXECUTING`。
+- **交付物**：`docs/report-output-design.md`（逐页数据契约、PPT 模板落地、导出优先级、改稿、版本、hunk 归属、实施顺序）；`docs/report-output-business-inputs.md`（业务开会用，P0/P1/P2 三档 + 10 条数据缺口 + 10 条业务口径问题）。
+- **核心结论**：原型 11 页 → **8 页（7 正文 + 1 数据边界附录）**，删 P02/P03（前车来源，无中汽数据）、P06（首选率，无排序题）、P09（本品吸引力，本品 0 样本）；P05 改名为「竞品选择原因与核心对比」（`Q3_23` 是"选择当前车型的原因"，不是"战胜竞品"）；P04 改口径为 16 维多选勾选率。**本品（埃安RT）侧本期整体不出。**
+- **导出顺序**：HTML 先行（可页面内验收、无模板依赖）；PPT 二期，先标准模板后业务模板。
+- **PPT 可行性（本机实测 python-pptx 1.0.2）**：`.pptx` 可读可写；`.potx` 直读失败、改写 `[Content_Types].xml` 后可读；表格/原生图表（柱/条/饼/环/线/散点/雷达/面积）/图片占位符均可写；**本机无 soffice/PowerPoint，无法把 PPT 渲染成图**；模板自定义表格样式与图表配色不能完全继承。
+- **改稿**：本轮明确不做，页面不出现输入框；结构化改稿（限定 lead/bullets、数字白名单、可回滚）写入遗留 L07，并给出解除条件。
+- **版本**：新增 `bci.report` + `bci.report_version`，用 `data_fingerprint`（大纲/分析配置/逐车型样本/逐档案 revision/模板/渲染器版本）判定 stale；**只标记、不自动重算、不删除旧版**。
+- **共用文件**：`app.py`、`home.html`、`web/bci.js` 三处按 hunk 归属本任务，**不写进 `commit_paths`**；`tasks.md`/`BOARD.md`/`HANDOFF.md` 为共享状态文件，不整目录声明。
+- **证据**：`outputs/competitor-insights/BCI-007/20261108-pptx-probe/`（probe.log + manifest.json）；只读探针脚本在 `temp/20261108-bci007-probe/`。
+- **本轮改动文件**：新增两份 docs、`tasks/BCI-007/TASK.md`、证据目录与 `temp` 探针；修改 `tasks/tasks.md`、`BOARD.md`、本文件。**未改任何业务代码，未执行 `git add`/`commit`/`push`。**
+- **测试**：仅运行 PPT/Excel 能力探针；未运行应用测试（无业务代码）。`workspace_hygiene.py` PASS（24 根文件 / 38 根目录均有用途说明）。
+- **看板检查**：`check_board.py` = `failed`，唯一原因是 `TASK-COMMITTED`：BCI-004 与 BCI-006 在 `commit_paths` 里声明了 `BOARD.md`/`HANDOFF.md`/`tasks.md`，而本轮按规则同步了这三个共享文件，导致两条已 `TESTED` 任务出现"未入库"。**不是 BCI-007 的问题，也未擅自修改他人 `commit_paths`**（属 BCI-005-L06 的已知结构问题）。
+- **下一步**：用户拍板 Q1–Q10（尤其：是否只做竞品侧、11→8 页、HTML 先行、改稿不做），然后从 S1（大纲与契约固化）开工。
 
 ## 2026-11-07 · BCI-006 即时分析 tab 完成（S3–S7，TESTED）
 

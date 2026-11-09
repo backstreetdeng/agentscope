@@ -1,13 +1,15 @@
 # 竞品洞察看板 · BOARD
 
-- 更新：2026-11-08（Asia/Shanghai）
+- 更新：2026-11-09（Asia/Shanghai）
 - 状态源：各 `tasks/<编号>/TASK.md`；`tasks/tasks.md` 与各 TASK.md 同步。三者冲突时以 TASK.md 为准，并同时回改总表与本文件。
 - 一致性检查：`../Scripts/python.exe -B competitor_insight/check_board.py`（校验 `tasks.md` ↔ `BOARD.md` ↔ 各 `TASK.md` 三方一致；不通过不得声称阶段完成）。
 - 阶段定义与准入条件见 [RULES.md](RULES.md) 第 6 节。
 
 ## 晨间速览（2026-11-08 晨）
 
-> **一句话**：六个任务全部有结论、全部入库并已推送（`origin/feature/user-insight-t0-t4` = `6775c56`，本地与远端 0/0）；`check_board.py` 当前 **failed**（应查 224 / 实查 224 / 命中 1），唯一命中是 BCI-004 的 `TASK-COMMITTED`：共享文件里还留着 BCI-007 的未提交改动（见 HANDOFF 最新条目）。剩下的都是**你验收**和**一件要你拍板的事**，不是开发。
+> **一句话**：六个已交付任务全部有结论、全部入库并已推送（`origin/feature/user-insight-t0-t4` = `6775c56`，本地与远端 0/0）；新增 [BCI-007](tasks/BCI-007/TASK.md) 报告输出，本轮只出方案与业务待提供清单，**未入库、未写业务代码**。`check_board.py` 以本次运行结果为准（见 HANDOFF 最新一条）。
+>
+> **2026-11-09 更新**：BCI-001 选源页越界修复（去掉「本次分析口径」「报告输出」两块）已入库 `acc8e96`（41/41 断言）；BCI-002「查看模板」只读弹窗已入库 `17c2193`（21/21 断言）；BCI-003 文档收敛为三块决策记录并转 `TESTED`。
 >
 > 7860 仍在运行：`GET /api/bci/analysis/models` 与 `GET /competitor-insight/templates.json` 实测 200。若明早打不开，按 `start_agent.cmd` 常规启动（先看下面「坑」第 6 条）。
 >
@@ -15,12 +17,13 @@
 
 | 任务 | 阶段 | 是否入库 | 最近提交 | 剩余遗留（未关闭） |
 |---|---|---|---|---|
-| [BCI-001](tasks/BCI-001/TASK.md) 数据源筛选 | TESTED | 已入库 | `1bd7eee`（声明收窄 `9cf1c03`） | L02/L03/L04 数据缺口、L05 剩余 tab、L07 scope 无消费方、L08 工具无车型入参 |
-| [BCI-002](tasks/BCI-002/TASK.md) 洞察档案模板 | TESTED | 已入库 | `1bd7eee`（收窄 `f432794`） | L01 新车型模板、L02 无后端校验器、L04 12 组 vs 13 组、L05 取值类型为推断、L06 待验收（BCI-004 已交付） |
-| [BCI-003](tasks/BCI-003/TASK.md) Harness 学习 | DEV_DONE | 已入库 | `1bd7eee` | L01/L05 五条建议未立项、L02 官方 SKILL 正文未读、L04 交接包缺 5 项目 |
+| [BCI-001](tasks/BCI-001/TASK.md) 数据源筛选 | TESTED | 已入库 | `1bd7eee`（声明收窄 `9cf1c03`；越界修复 `acc8e96`） | L02/L03/L04 数据缺口、L05 剩余 tab、L07 scope 无消费方、L08 工具无车型入参 |
+| [BCI-002](tasks/BCI-002/TASK.md) 洞察档案模板 | TESTED | 已入库 | `1bd7eee`（收窄 `f432794`；查看模板 `17c2193`） | L01 新车型模板、L02 无后端校验器、L04 12 组 vs 13 组、L05 取值类型为推断、L06 待验收（BCI-004 已交付） |
+| [BCI-003](tasks/BCI-003/TASK.md) Harness 学习 | TESTED | 已入库 | `1bd7eee`；收敛为本批提交 | L02 官方 SKILL 正文未读（不阻塞）、L04 交接包缺 5 项目 |
 | [BCI-004](tasks/BCI-004/TASK.md) 洞察档案 tab | TESTED | 已入库 | `7dc91aa` → `01da692`（枚举归一 + 渠道归并） | L01 开放问题、L05/L07/L08 已决策维持、L10 待 DBA 执行（`vectordb` 无权限，功能不受影响）、L11 已决策不轮换 |
 | [BCI-005](tasks/BCI-005/TASK.md) 任务机制 | DEV_DONE | 已入库 | `1bd7eee` | L01 业务接口无三态、L02 reader 仅词法检查、L06 commit_paths 靠人工声明（L07 已决策不修） |
 | [BCI-006](tasks/BCI-006/TASK.md) 即时分析 tab | TESTED | 已入库 | `5e8f964`（文档 `ca18f37`；已推送 `6775c56`） | L01 无排序题、L03 无胜出观测题、L05 无级别字段、L06 定性归类为启发式、L07 v1 不做 |
+| [BCI-007](tasks/BCI-007/TASK.md) 报告输出 tab | CREATED | **未入库（方案轮）** | — | L01 本品无样本、L02 前车来源无数据、L03 无排序题、L06 改稿未做、L08 业务模板未提供 |
 
 ### 等你拍板的一件事
 
@@ -50,7 +53,7 @@
 
 | 任务 | 标题 | 负责人 | 下一步 | 更新 |
 |---|---|---|---|---|
-| 暂无 | | | | |
+| [BCI-007](tasks/BCI-007/TASK.md) | 竞品洞察 · 报告输出 tab | TRAE | 用户确认方案 §11 的 Q1–Q10（含 11 页→8 页、HTML 先行、改稿本轮不做）后进入 EXECUTING，执行 S1 | 2026-11-08 |
 
 ### 2. 执行中（EXECUTING）
 
@@ -62,7 +65,6 @@
 
 | 任务 | 标题 | 负责人 | 下一步 | 更新 |
 |---|---|---|---|---|
-| [BCI-003](tasks/BCI-003/TASK.md) | 学习 DeepSeek Harness 工程方法并评估对竞品洞察的适用性 | TRAE | 用户阅读 docs/harness-study.md 的 Q3/Q5 与 §5 全 workspace 复核（含 5 条建议修正 + 新增 #6/#7），确认是否立项落地 | 2026-11-06 |
 | [BCI-005](tasks/BCI-005/TASK.md) | 竞品洞察 · 任务机制 Harness 化（契约 reader/verify、三态计数、冻结路径） | TRAE | 用户复核 TASK-COMMITTED 与反向验证记录；存量任务须先统一入库，本任务才能转 TESTED | 2026-11-06 |
 
 ### 4. 质量验证（QA）
@@ -76,7 +78,8 @@
 | 任务 | 标题 | 负责人 | 下一步 | 更新 |
 |---|---|---|---|---|
 | [BCI-001](tasks/BCI-001/TASK.md) | 竞品洞察 · 数据源筛选 tab | TRAE | 用户验收 7860 页面后确认上线 | 2026-11-06 |
-| [BCI-002](tasks/BCI-002/TASK.md) | 深访用户洞察档案模板（两份：新能源 / 用户洞察档案） | TRAE | 用户验收 7860 页面下拉两条模板均可选后确认上线 | 2026-11-06 |
+| [BCI-002](tasks/BCI-002/TASK.md) | 深访用户洞察档案模板（两份：新能源 / 用户洞察档案） | TRAE | 用户验收 7860 页面下拉两条模板均可选后确认上线 | 2026-11-09 |
+| [BCI-003](tasks/BCI-003/TASK.md) | 学习 DeepSeek Harness 工程方法并评估对竞品洞察的适用性 | TRAE | 用户抽样复核三块决策记录（已采纳 4 / 已推翻 4 / 不立项 5）；纯文档无可访问入口，无 LIVE 动作，确认后关单 | 2026-11-09 |
 | [BCI-004](tasks/BCI-004/TASK.md) | 竞品洞察 · 用户洞察档案 tab | TRAE | 用户验收 7860 页面与 10 人试点数据后确认上线 | 2026-11-07 |
 | [BCI-006](tasks/BCI-006/TASK.md) | 竞品洞察 · 即时分析 tab | TRAE | 用户明早验收 7860「即时分析」tab；业务确认 §8 数据缺失清单的后续补数范围 | 2026-11-08 |
 
@@ -120,6 +123,16 @@
 | BCI-006-L05 | 车型级别/车身形式库内无字段 | 「同级对比」只能按价格段 | 业务确认级别口径或补数据 | 业务 | [BCI-006](tasks/BCI-006/TASK.md) |
 | BCI-006-L06 | 定性 16 维归类为关键词启发式 | 个别原话可能漏归/误归 | 未命中原话单列；后续可接语义模型或人工校对 | TRAE/业务 | [BCI-006](tasks/BCI-006/TASK.md) |
 | BCI-006-L07 | 满意度进攻点/被进攻点需跨车差值 | v1 不做，页面不出现 | 业务确认推导口径与对比车规则 | 业务 | [BCI-006](tasks/BCI-006/TASK.md) |
+| BCI-007-L01 | 本品（埃安RT）定量 0、深访提及 3 人 | 报告不含本品侧；P09 不出 | 业务补 ≥30 份本品定量样本 | 用户/业务 | [BCI-007](tasks/BCI-007/TASK.md) |
+| BCI-007-L02 | 无前车来源流水（需中汽数据增换购 2026.1-8） | P02/P03 不出 | 业务提供流水并入库 | 用户/业务 | [BCI-007](tasks/BCI-007/TASK.md) |
+| BCI-007-L03 | 无排序题、无首选率 | P06 不出；P04 品牌/产品/服务占比不出 | 业务补排序题 | 用户/业务 | [BCI-007](tasks/BCI-007/TASK.md) |
+| BCI-007-L04 | 无未购车/流失样本 | 「竞品为什么赢」不出 | 业务补访未购车用户 | 用户/业务 | [BCI-007](tasks/BCI-007/TASK.md) |
+| BCI-007-L05 | 满意度仅 13/63 有明确分 | P07 分数样本偏小 | 补访 0–10 分题 | 业务 | [BCI-007](tasks/BCI-007/TASK.md) |
+| BCI-007-L06 | 2023/2024 定量未入库 | 不做多年趋势 | 完成入库并验证题项对齐 | 数据/TRAE | [BCI-007](tasks/BCI-007/TASK.md) |
+| BCI-007-L07 | 对话改稿未做（原型为 3 条正则假实现） | 无自然语言改稿 | 用户确认立项 + 20 份回归样本 + 数字白名单校验 | 用户 | [BCI-007](tasks/BCI-007/TASK.md) |
+| BCI-007-L08 | 业务 PPT 模板未提供 | S6 无法开工 | 业务交付 `.pptx` 模板 | 用户/业务 | [BCI-007](tasks/BCI-007/TASK.md) |
+| BCI-007-L09 | 洞察档案仅 10/63 人 | 定性模块分母小 | 用户放开全量生成并完成 | 用户 | [BCI-007](tasks/BCI-007/TASK.md) |
+| BCI-007-L10 | 「学历」无来源 | P01 该行删除 | 业务补题或接受不展示 | 业务 | [BCI-007](tasks/BCI-007/TASK.md) |
 
 ## 入库状态（TASK-COMMITTED）
 
@@ -129,10 +142,11 @@
 |---|---|---|---|---|
 | [BCI-001](tasks/BCI-001/TASK.md) | TESTED | **已入库** | `commit_paths` 已按「只声明本任务独占文件」收窄（移出 `app.py`/`home.html`/`docs/root-files.json`），`TASK-COMMITTED` 通过；移出理由与盲区见该任务 §6「入库判定边界」 | 今后再改这三个共享文件需人工登记 |
 | [BCI-002](tasks/BCI-002/TASK.md) | TESTED | **已入库** | `TASK-COMMITTED` 通过（0 处未入库） | 无 |
-| [BCI-003](tasks/BCI-003/TASK.md) | DEV_DONE | **已入库** | 目录与证据随本次提交入库 | 转 TESTED 前复核 |
+| [BCI-003](tasks/BCI-003/TASK.md) | TESTED | **已入库** | 文档与证据随 `1bd7eee` 入库；本次收敛文档、`check.log` 与本行同批提交 | 无（纯文档，LIVE 不适用） |
 | [BCI-004](tasks/BCI-004/TASK.md) | TESTED | **已入库** | 提交 `7dc91aa`（59 文件：`server/`、`tests/`、`web/bci-profile.*`、`ops/` DDL、BCI 文档与证据）；`app.py` 仅 4 处 BCI hunk，深度调研等改动未纳入；`*.log` 受 `.gitignore` 限制只在本机 | 用户验收后上线；如需日志入库需先决定 `.gitignore` |
 | [BCI-005](tasks/BCI-005/TASK.md) | DEV_DONE | **已入库** | 机制文件与证据随本次提交入库 | 用户复核后转 TESTED |
 | [BCI-006](tasks/BCI-006/TASK.md) | TESTED | **已入库（`5e8f964`）** | `analysis_service.py`、配置、前端、6 套测试/脚本、文档与 `outputs/competitor-insights/BCI-006/` 证据；`app.py` 仅 BCI 分析路由 hunk | 用户验收后上线；业务确认 §8 补数范围 |
+| [BCI-007](tasks/BCI-007/TASK.md) | CREATED | **未入库（方案轮）** | 独占文件：两份 docs + `tasks/BCI-007` + `outputs/competitor-insights/BCI-007/`；未改任何业务代码 | 用户确认方案后进入 EXECUTING，交付时再提交 |
 
 > 首次入库范围与排除项见 [BCI-005/TASK.md](tasks/BCI-005/TASK.md) 第 4 节 S12；`app.py` / `home.html` / `home.css` / `share-files/TASKS.md` 里其他任务的 hunk 一律未带入。
 

@@ -3,13 +3,13 @@
 ```
 task_id: BCI-003
 title: 学习 DeepSeek Harness 工程方法并评估对竞品洞察的适用性
-stage: DEV_DONE
+stage: TESTED
 owner: TRAE
 commit_paths: competitor_insight/docs/harness-study.md,competitor_insight/tasks/BCI-003,competitor_insight/tasks/tasks.md,competitor_insight/BOARD.md,competitor_insight/HANDOFF.md,outputs/competitor-insights/BCI-003
-updated: 2026-11-06
+updated: 2026-11-09
 blocked: no
-next: 用户阅读 docs/harness-study.md 的 Q3/Q5 与 §5 全 workspace 复核（含 5 条建议修正 + 新增 #6/#7），确认是否立项落地
-evidence: outputs/competitor-insights/BCI-003/20261106-harness-study/
+next: 用户抽样复核三块决策记录（已采纳 4 / 已推翻 4 / 不立项 5）；纯文档无可访问入口，无 LIVE 动作，确认后关单
+evidence: outputs/competitor-insights/BCI-003/20261109-decision-record/
 ```
 
 ## 1. 目标与边界
@@ -26,6 +26,8 @@ evidence: outputs/competitor-insights/BCI-003/20261106-harness-study/
 
 **范围变更（2026-11-06，用户指出）**：初版只读了同事工程的一个子项目 `projects/industry-tracking-v2/`，范围不足。完整项目目录为 `D:\colleague\炫琪\CATARC_业务组监测交接\02_工程\workspace`，本轮按整个 workspace 重扫，仍**只读、不改代码**。新增要求：结构地图、跨项目约定所在层级、单项目看不到的做法、对原 5 条建议的修正。产出方式为**在原文件追加"§5 全 workspace 复核"**，保留原结论并显式标注推翻/修正项，不另起平行文档。
 
+**收敛（2026-11-09，用户确认方案）**：`docs/harness-study.md` 由"学习报告"降格为**决策记录**，只保留三块：① 已采纳（4 条，每条写采纳了什么 / 落在哪个约束文件与提交 / 现在拦得住什么）；② 已推翻（4 条，原结论 → 修正结论 + 日期与依据）；③ 不立项（5 条，逐条写为什么不值得做 + 什么条件下重议）。删除过程分析、五问、逐文件行号摘录与方法论铺陈；证据目录链接保留以便回溯。文档定位为"派单/改规则前查阅的决策记录"，状态真源仍是 `BOARD.md` 与各 `TASK.md`；不保留"由谁维护"的承诺。**本轮仍不改业务代码、不改任务机制规则。**
+
 ## 2. 验收标准
 
 | # | 验收项 | 判定方式 | 证据要求 |
@@ -39,6 +41,10 @@ evidence: outputs/competitor-insights/BCI-003/20261106-harness-study/
 | A7 | 结构地图覆盖 workspace 各层，角色判定带路径/文件依据 | 读 §5.2 | 每层有"位置 + 角色 + 判定依据"；主工程/模板/历史项各有指名依据 |
 | A8 | 跨项目约定标注所在层级（workspace / 项目 / 成对） | 读 §5.3 | 表格"层级""是否成对"两列 |
 | A9 | 列出单项目看不到的做法，并逐条给出对原 5 条建议的修正 | 读 §5.4、§5.5、§5.6、§5.7 | 每条带证据文件与行号；明确标注推翻/修正/保留 |
+| A10 | 收敛后只保留三块（已采纳 / 已推翻 / 不立项）与证据段，过程分析、五问、逐文件行号摘录已删除 | `check_decisions.py` 断言章节集合与已删除标题 | `20261109-decision-record/check.log` |
+| A11 | 已采纳 4 条，每条含落点文件与提交号、并写明"现在拦得住什么" | 同上，逐行断言 | 同上 |
+| A12 | 已推翻 4 条各带日期与依据；不立项 5 条各带"为什么不值得做"与"什么条件下重新考虑" | 同上，逐行断言 | 同上 |
+| A13 | 文档写明定位（派单/改规则前查阅）与状态真源（BOARD.md + 各 TASK.md），且无"由谁维护"承诺 | 同上 | 同上 |
 
 ## 3. 步骤与结果
 
@@ -53,8 +59,13 @@ evidence: outputs/competitor-insights/BCI-003/20261106-harness-study/
 | S7 | 跑一致性检查 | 完成 | `check_board.py` PASS；`workspace_hygiene.py` PASS | 见第 6 节 |
 | S8 | 全 workspace 只读重扫（范围扩大后） | 完成 | 读到根 `AGENTS.md`(205 行)、`PROJECTS.md`(226)、`WORKSPACE-MIGRATION.md`(272)、`README.md`(87)、`.cursor/rules/00-workspace-hub.mdc`(16)、`.cursor/skills/industry-tracking-v2/SKILL.md`(38)、`policy-crawler/AGENTS.md`(112)、`policy-crawler/docs/HARNESS.md`(176)、`site-collect-cli/AGENTS.md`(57)、`site-collect-cli/config/status.v1.json`(89)，并核对 10 个在场项目统计 | `20261106-workspace-rescan/colleague-workspace-index.txt` |
 | S9 | 更正上一版事实错误并追加 §5 | 完成 | 推翻"SKILL.md 不存在"；更正注册项目数 17→15（在场 10、缺失 5）；追加 §5.1–§5.8（结构地图、约定层级、7 条单项目盲区、5 条修正、新增 #6/#7、结论变化汇总） | `docs/harness-study.md` §5 |
+| S10 | 按用户确认方案收敛文档 | 完成 | 重写为三块决策记录：已采纳 4 / 已推翻 4 / 不立项 5；删除五问、过程分析、逐文件行号摘录；保留三个证据目录链接；补定位与状态真源声明。**44 行 / 约 1472 字**（原 250 行） | `docs/harness-study.md` |
+| S11 | 收敛结构校验 | 完成 | `check_decisions.py` 20 条断言 **20/20 PASS**；`check.log` 记录行数/字数 | `20261109-decision-record/` |
+| S12 | 入账与三方同步 | 完成 | `tasks.md` / `BOARD.md` / `HANDOFF.md` 同批更新并随本任务提交推送；`check_board.py` 与 `workspace_hygiene.py` 结果见 `check.log` | `check.log`、`git log` |
 
 ## 4. 交付结论摘要
+
+> 2026-11-09 收敛后，`docs/harness-study.md` 正文以三块决策记录为准（已采纳 4 / 已推翻 4 / 不立项 5）。以下为原评估结论摘要，仅作历史留痕，与正文冲突时以正文为准。
 
 - 核心机制三层：无内核的插件挂载 + provider 可替换的能力 seam + 仅追加日志为唯一事实源，规范由 CI 门禁执行（`dsh ... --dump-config` 可打印实际插件树）。
 - 同事工程实证最值得抄的四件（**§5.7 修正为五件**，见下一组条目）：真源分层（`AGENTS.md:15-27`）、人读文档与机器契约成对（`HARNESS.md:3` + `protocol.json:5-63`）、模型前确定性硬门且判定类 fail-closed（`hard_gates.py:288-294`）、隔离环境一键验收并按层给结论（`verify_harness.py:39-181`、`HARNESS.md:99-120`）。
@@ -74,6 +85,10 @@ evidence: outputs/competitor-insights/BCI-003/20261106-harness-study/
   - `colleague-workspace-index.txt`：10 个在场项目统计、15 注册/5 缺失、9:6 状态真源形态、`.cursor` 17 rules / 8 skills、14 个已读文件行数
   - `manifest.json`：范围、可复现命令、两处更正记录
 - 无临时脚本；本轮只读统计使用内联 Python 命令，未落盘脚本。
+- 收敛校验目录（2026-11-09）：`outputs/competitor-insights/BCI-003/20261109-decision-record/`
+  - `check_decisions.py`：三块章节、条数、落点/提交、日期/依据、不立项理由与重议条件、已删除章节、证据目录存在，共 20 条断言
+  - `check.log`：`20/20 PASS`，44 行 / 约 1472 字
+  - `manifest.json`：产物与复现命令
 - 注：状态块 `evidence` 按 `check_board.py` 规则只允许**单个**含 `manifest.json` 的目录，因此复核证据记在本节与 `20261106-workspace-rescan/manifest.json`，不写进状态块。
 
 ## 6. 已知边界（不是缺陷，但下游必须知道）
@@ -89,11 +104,11 @@ evidence: outputs/competitor-insights/BCI-003/20261106-harness-study/
 
 | 编号 | 问题 | 影响 | 现状 | 解除条件 | 负责人 | 证据/关联 |
 |---|---|---|---|---|---|---|
-| BCI-003-L01 | 本任务只是评估，Q3 五条均未落地 | 现有痛点（L07/L08/L02 等）不变 | 结论已成文，等用户决定 | 用户确认后按 Q5 另立任务（编号另行确认；BCI-004 已分配给「用户洞察档案」tab），不复用本编号 | 用户 / TRAE | `harness-study.md` §2 Q5 |
-| BCI-003-L02 | 官方 23 个 `SKILL.md` 正文未读（同事 `.cursor/skills/industry-tracking-v2/SKILL.md` 已读，该半已关闭） | "技能机制是否同构"仍缺官方侧证据 | 只确认目录名与声明存在 | 读官方 SKILL.md 正文后补证；不影响 Q3/Q5 结论 | TRAE | §3 未验证清单 3、§6 |
+| BCI-003-L01 | ~~本任务只是评估，Q3 五条均未落地~~ 已解除 | — | **已关闭**（2026-11-09）：原建议 #1/#5/#6 已由 BCI-005 落地（`1bd7eee`）；其余建议在决策记录第 3 节逐条**决定不立项**，不再挂账 | 已完成 | TRAE | `docs/harness-study.md` §1、§3 |
+| BCI-003-L02 | 官方 23 个 `SKILL.md` 正文未读（同事 `.cursor/skills/industry-tracking-v2/SKILL.md` 已读，该半已关闭） | "技能机制是否同构"仍缺官方侧证据 | 只确认目录名与声明存在；**不影响三块决策记录的任何结论** | 需要时读官方 SKILL.md 正文补证；不阻塞任何任务 | TRAE | 决策记录 §2 第 1 条 |
 | BCI-003-L03 | ~~新增文档与证据未提交 git~~ 已解除 | — | **已关闭**（2026-11-07）：`docs/harness-study.md` 与 `outputs/competitor-insights/BCI-003/` 随 `1bd7eee` 入库并推送 | 已完成 | TRAE | `git log`、第 5 节证据索引 |
 | BCI-003-L04 | 交接副本缺 5 个项目与 `_template/`，模板规范正文无法核验 | §5.2 对"模板/骨架"的角色判定只依据三处指针，未见模板正文 | 已标注未验证 | 拿到完整交接包后补核 `_template/` | 用户 / TRAE | `20261106-workspace-rescan/colleague-workspace-index.txt` §3 |
-| BCI-003-L05 | §5.6 新增 #6/#7 与 §5.5 的字段设计尚未落地 | 仍只是建议，任务机制未变 | 等用户决定是否立项 | 用户确认后另立任务（编号另行确认；BCI-004 已分配给「用户洞察档案」tab）统一落地，不逐个打补丁 | 用户 / TRAE | `harness-study.md` §5.5–§5.6 |
+| BCI-003-L05 | ~~§5.6 新增 #6/#7 与 §5.5 的字段设计尚未落地~~ 已解除 | — | **已关闭**（2026-11-09）：#6（owner/port/frozen_paths）随 BCI-005 落地（`1bd7eee`）；#7（`mode` 分类）在决策记录第 3 节第 4 条**决定不立项**并写明重议条件 | 已完成 | TRAE | `docs/harness-study.md` §1 第 2 条、§3 第 4 条 |
 
 ## 8. 阶段流转记录
 
@@ -104,4 +119,6 @@ evidence: outputs/competitor-insights/BCI-003/20261106-harness-study/
 | 2026-11-06 | EXECUTING → DEV_DONE | 文档成文、证据目录含官方原文快照与读取清单、`check_board.py` 与 `workspace_hygiene.py` 均 PASS | 第 5、6 节 | TRAE |
 | 2026-11-06 | DEV_DONE（范围扩大） | 用户指出只读 `industry-tracking-v2` 一个子项目范围不足，改为全 workspace 只读复核；§5 追加完成，范围变更记入 §1 | 本文件 §1、§3 S8/S9；`20261106-workspace-rescan/` | TRAE / 用户要求 |
 | 2026-11-06 | DEV_DONE（复核完成） | 两处事实错误已更正并在正文标注（SKILL.md 实际存在、注册项目 15 非 17）；5 条建议修正 + 新增 #6/#7 已成文 | `harness-study.md` §5.1、§5.5–§5.7 | TRAE |
-| — | QA / TESTED | 纯学习任务无代码行为变更，不适用脚本化质量验证；改为用户阅读确认 | — | 待定 |
+| 2026-11-09 | DEV_DONE → TESTED | 用户确认方案：文档降格为三块决策记录并收敛完成；结构校验 `check_decisions.py` 20/20 PASS；`check_board.py` 与 `workspace_hygiene.py` 见 `check.log`；文档与证据同批提交并推送 | `20261109-decision-record/check.log`、`git log` | TRAE / 用户要求 |
+
+> `LIVE` 不适用：本任务交付物是版本库内的决策记录，无用户可访问入口、无需重启服务；后续如需改为线上可查，另行立项。

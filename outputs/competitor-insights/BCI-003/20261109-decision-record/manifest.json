@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "task_id": "BCI-003",
+  "purpose": "把 docs/harness-study.md 从学习报告收敛为三块决策记录（已采纳 / 已推翻 / 不立项）后的结构校验证据",
+  "created_by": "TRAE",
+  "status": "completed",
+  "reproduce": "cd myproject && ../Scripts/python.exe -B outputs/competitor-insights/BCI-003/20261109-decision-record/check_decisions.py",
+  "files": [
+    {
+      "path": "check_decisions.py",
+      "purpose": "只读校验：三块章节、各块条数、已采纳含落点+提交、已推翻含日期+依据、不立项含理由+重议条件、过程分析已删除、证据目录存在",
+      "source": "competitor_insight/docs/harness-study.md",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "check.log",
+      "purpose": "本次运行输出：20/20 PASS，44 行 / 约 1472 字",
+      "source": "check_decisions.py 运行结果",
+      "rebuildable": true,
+      "retention": "保留"
+    }
+  ],
+  "cleanup_conditions": "BCI-003 关闭且无引用后可清理；结论已固化在 TASK.md 与决策记录正文",
+  "restore": "无需归档；按 reproduce 命令可重建"
+}
