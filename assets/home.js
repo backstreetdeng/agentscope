@@ -3413,7 +3413,7 @@
       const runBtn = utils.qs('#deep-research-run');
       const status = utils.qs('#deep-research-status');
       if (runBtn) runBtn.disabled = busy;
-      if (status) status.textContent = busy ? '调研中：联网取证 → 交叉校验 → 撰写报告（约 2 分钟）…' : '待命';
+      if (status) status.textContent = busy ? '正在联网查证并撰写报告，约 2 分钟，请勿关闭页面…' : '待命';
     }
 
     async function run() {
@@ -3435,13 +3435,13 @@
         if (!response.ok || data.error) throw new Error(typeof data.error === 'string' ? data.error : 'HTTP ' + response.status);
         const runInfo = data.skill_run || {};
         const validationStatus = (runInfo.state?.validation || {}).status;
-        if (status) status.textContent = validationStatus === 'passed' ? '完成 · 引用验收通过' : '完成 · 验收未通过（见报告区提示）';
+        if (status) status.textContent = validationStatus === 'passed' ? '完成 · 全部引用已核验' : '完成 · 部分引用未能核验，请下载报告查看说明';
         if (report) report.innerHTML = renderMarkdown(data.answer || '（无回答）');
         if (download && runInfo.delivery_url) {
           download.href = runInfo.delivery_url;
           download.hidden = false;
         }
-        Toast.show(validationStatus === 'passed' ? '深度调研完成' : '深度调研完成，但验收未通过', validationStatus === 'passed' ? 'success' : 'warning');
+        Toast.show(validationStatus === 'passed' ? '调研报告已生成' : '报告已生成，但部分引用需人工复核', validationStatus === 'passed' ? 'success' : 'warning');
       } catch (error) {
         if (status) status.textContent = '失败';
         if (report) report.innerHTML = `<p class="dr-p dr-error">调研失败：${esc(error.message || error)}</p>`;
