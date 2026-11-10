@@ -1,0 +1,2066 @@
+﻿原始写法,标准名,来源表,命中条数,匹配方式,状态,标准名来源,业务备注
+212 T01,212 T01,autohome_koubei.carname,82,exact,已归一,autohome,
+212 T01,212 T01,miit.ods_pz_base_info.model_name,8,exact,已归一,autohome,
+AION N60,AION N60,autohome_koubei.carname,200,exact,已归一,autohome,
+AION N60,AION N60,dongchedi_koubei.carname,56,exact,已归一,autohome,
+AION N60,AION N60,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+AION RT,AION RT,autohome_koubei.carname,153,exact,已归一,autohome,
+AION RT,AION RT,dongchedi_koubei.carname,78,exact,已归一,autohome,
+AION RT,AION RT,miit.ods_pz_base_info.model_name,11,exact,已归一,autohome,
+埃安RT,AION RT,quant_sample.Q3_22_1__2,2,brand_alias,已归一,autohome,
+埃安RT,AION RT,quant_sample.Q3_22_1__3,1,brand_alias,已归一,autohome,
+AION S,AION S,dongchedi_koubei.carname,65,exact,已归一,autohome,
+AION S,AION S,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+埃安S,AION S,quant_sample.Q3_22_1__1,2,brand_alias,已归一,autohome,
+埃安S,AION S,quant_sample.Q3_22_1__2,4,brand_alias,已归一,autohome,
+埃安S,AION S,quant_sample.Q3_22_1__3,5,brand_alias,已归一,autohome,
+AION S Plus,AION S Plus,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+埃安S PLUS,AION S Plus,quant_sample.Q3_22_1__1,1,brand_alias,已归一,autohome,
+埃安S PLUS,AION S Plus,quant_sample.Q3_22_1__2,4,brand_alias,已归一,autohome,
+埃安S PLUS,AION S Plus,quant_sample.Q3_22_1__3,4,brand_alias,已归一,autohome,
+AION UT,AION UT,autohome_koubei.carname,200,exact,已归一,autohome,
+AION UT,AION UT,dongchedi_koubei.carname,50,exact,已归一,autohome,
+AION UT,AION UT,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+埃安UT,AION UT,quant_sample.Q3_22_1__2,1,brand_alias,已归一,autohome,
+AION UT super,AION UT super,autohome_koubei.carname,200,exact,已归一,autohome,
+AION UT super,AION UT super,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+埃安AION V,AION V,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：对应「AION V」，品牌前缀归一
+埃安V,AION V,quant_sample.Q3_22_1__1,2,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+埃安V,AION V,quant_sample.Q3_22_1__2,4,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+埃安V,AION V,quant_sample.Q3_22_1__3,4,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+AION Y,AION Y,autohome_koubei.carname,8,exact,已归一,autohome,
+AION Y,AION Y,dongchedi_koubei.carname,97,exact,已归一,autohome,
+AION Y,AION Y,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+埃安Aion Y,AION Y,quant_sample.Q3_22_1__1,5,brand_prefix,已归一,autohome,
+埃安Y,AION Y,quant_sample.Q3_22_1__1,3,brand_alias,已归一,autohome,
+埃安Aion Y,AION Y,quant_sample.Q3_22_1__2,3,brand_prefix,已归一,autohome,
+埃安Y,AION Y,quant_sample.Q3_22_1__2,6,brand_alias,已归一,autohome,
+埃安Aion Y,AION Y,quant_sample.Q3_22_1__3,5,brand_prefix,已归一,autohome,
+埃安Y,AION Y,quant_sample.Q3_22_1__3,3,brand_alias,已归一,autohome,
+埃安Y PLUS,AION Y,quant_sample.Q3_22_1__3,1,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+埃安YPLUS,AION Y,quant_sample.Q3_22_1__3,1,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+AION i60,AION i60,autohome_koubei.carname,200,exact,已归一,autohome,
+AION i60,AION i60,miit.ods_pz_base_info.model_name,15,exact,已归一,autohome,
+Cayenne新能源,Cayenne,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+D-MAX,D-MAX,autohome_koubei.carname,114,exact,已归一,autohome,
+Eletre,ELETRE,dongchedi_koubei.carname,6,exact,已归一,autohome,
+ELETRE,ELETRE,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+Emeya,EMEYA,dongchedi_koubei.carname,8,exact,已归一,autohome,
+EMEYA,EMEYA,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+Emira,EMIRA,dongchedi_koubei.carname,3,exact,已归一,autohome,
+EMIRA,EMIRA,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+FOR ME,FOR ME,autohome_koubei.carname,2,exact,已归一,autohome,
+ForMe,FOR ME,dongchedi_koubei.carname,71,exact,已归一,autohome,
+FOR ME,FOR ME,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+GR YARIS,GR YARIS,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+Grecale格雷嘉,Grecale格雷嘉,autohome_koubei.carname,1,exact,已归一,autohome,
+Grecale,Grecale格雷嘉,dongchedi_koubei.carname,1,business_confirm,已归一,autohome,匹配依据：包含匹配（原名是之家车系名的简写或带修饰词）
+Grecale格雷嘉,Grecale格雷嘉,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+ID. ERA 5S,ID. ERA 5S,autohome_koubei.carname,88,exact,已归一,autohome,
+ID.ERA 5S,ID. ERA 5S,autohome_koubei.carname,112,exact,已归一,autohome,
+ID. ERA 5S,ID. ERA 5S,dongchedi_koubei.carname,63,exact,已归一,autohome,
+ID. ERA 5S,ID. ERA 5S,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+ID. ERA 8X,ID. ERA 8X,autohome_koubei.carname,44,exact,已归一,autohome,
+ID. ERA 8X,ID. ERA 8X,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+ID.AURA T6,ID.AURA T6,autohome_koubei.carname,198,exact,已归一,autohome,
+ID.AURA T6,ID.AURA T6,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+ID. ERA 9X,ID.ERA 9X,autohome_koubei.carname,137,exact,已归一,autohome,
+ID.ERA 9X,ID.ERA 9X,autohome_koubei.carname,63,exact,已归一,autohome,
+ID. ERA 9X,ID.ERA 9X,dongchedi_koubei.carname,47,exact,已归一,autohome,
+ID. ERA 9X,ID.ERA 9X,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+IONIQ(艾尼氪)V,IONIQ(艾尼氪)V,autohome_koubei.carname,31,exact,已归一,autohome,
+IONIQ(艾尼氪)V,IONIQ(艾尼氪)V,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+IQ锐歌,IQ锐歌,autohome_koubei.carname,2,exact,已归一,autohome,
+IQ锐歌,IQ锐歌,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+Lorinser LS系列,Lorinser LS系列,miit.ods_pz_base_info.model_name,3,fuzzy,已归一,unverified,业务改判：原自动结果 Lorinser VS系列
+Lorinser LW系列,Lorinser LW系列,miit.ods_pz_base_info.model_name,1,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+Lorinser MH系列,Lorinser MH系列,miit.ods_pz_base_info.model_name,2,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+Lorinser VS系列,Lorinser VS系列,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+MG 07,MG 07,autohome_koubei.carname,200,exact,已归一,autohome,
+MG 07,MG 07,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+MG 4X,MG 4X,autohome_koubei.carname,200,exact,已归一,autohome,
+MG 4X,MG 4X,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+MG4,MG4,autohome_koubei.carname,200,exact,已归一,autohome,
+MG4,MG4,dongchedi_koubei.carname,200,exact,已归一,autohome,
+MG4,MG4,miit.ods_pz_base_info.model_name,12,exact,已归一,autohome,
+MG4,MG4,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+MG4,MG4,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+名爵4,MG4,quant_sample.Q3_22_1__3,1,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+MG7,MG7,dongchedi_koubei.carname,72,exact,已归一,autohome,
+MG7,MG7,miit.ods_pz_base_info.model_name,11,exact,已归一,autohome,
+MINI,MINI,autohome_koubei.carname,3,exact,已归一,autohome,
+MINI,MINI,miit.ods_pz_base_info.model_name,9,exact,已归一,autohome,
+MINI JCW,MINI JCW,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+Mcpura,Mcpura,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+Model 3,Model 3,autohome_koubei.carname,81,exact,已归一,autohome,
+Model 3,Model 3,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+特斯拉Model 3,Model 3,quant_sample.Q3_22_1__1,4,brand_prefix,已归一,autohome,
+特斯拉Model3,Model 3,quant_sample.Q3_22_1__1,3,brand_prefix,已归一,autohome,
+特斯拉model 3,Model 3,quant_sample.Q3_22_1__1,5,brand_prefix,已归一,autohome,
+特斯拉Model 3,Model 3,quant_sample.Q3_22_1__2,2,brand_prefix,已归一,autohome,
+特斯拉Model3,Model 3,quant_sample.Q3_22_1__2,1,brand_prefix,已归一,autohome,
+特斯拉model 3,Model 3,quant_sample.Q3_22_1__2,4,brand_prefix,已归一,autohome,
+特斯拉Model 3,Model 3,quant_sample.Q3_22_1__3,5,brand_prefix,已归一,autohome,
+特斯拉Model3,Model 3,quant_sample.Q3_22_1__3,2,brand_prefix,已归一,autohome,
+特斯拉model 3,Model 3,quant_sample.Q3_22_1__3,11,brand_prefix,已归一,autohome,
+Model Y,Model Y,autohome_koubei.carname,124,exact,已归一,autohome,
+Model Y,Model Y,dongchedi_koubei.carname,200,exact,已归一,autohome,
+Model Y,Model Y,miit.ods_pz_base_info.model_name,8,exact,已归一,autohome,
+特斯拉MODEL Y,Model Y,quant_sample.Q3_22_1__1,4,brand_prefix,已归一,autohome,
+特斯拉Model Y,Model Y,quant_sample.Q3_22_1__1,25,brand_prefix,已归一,autohome,
+特斯拉ModelY,Model Y,quant_sample.Q3_22_1__1,7,brand_prefix,已归一,autohome,
+特斯拉MODEL Y,Model Y,quant_sample.Q3_22_1__2,3,brand_prefix,已归一,autohome,
+特斯拉Model Y,Model Y,quant_sample.Q3_22_1__2,10,brand_prefix,已归一,autohome,
+特斯拉ModelY,Model Y,quant_sample.Q3_22_1__2,4,brand_prefix,已归一,autohome,
+特斯拉 Model Y,Model Y,quant_sample.Q3_22_1__3,1,brand_prefix,已归一,autohome,
+特斯拉MODEL Y,Model Y,quant_sample.Q3_22_1__3,1,brand_prefix,已归一,autohome,
+特斯拉Model Y,Model Y,quant_sample.Q3_22_1__3,5,brand_prefix,已归一,autohome,
+特斯拉ModelY,Model Y,quant_sample.Q3_22_1__3,2,brand_prefix,已归一,autohome,
+特斯拉Y,Model Y,quant_sample.Q3_22_1__3,1,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+Model Y L,Model Y L,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+Panamera,Panamera,autohome_koubei.carname,1,exact,已归一,autohome,
+Panamera,Panamera,miit.ods_pz_base_info.model_name,13,exact,已归一,autohome,
+QQ3 EV,QQ3,autohome_koubei.carname,200,exact,已归一,autohome,
+QQ3 EV,QQ3,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+QQ冰淇淋,QQ冰淇淋,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+丰田荣放,RAV4荣放,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：汽车之家全称为「RAV4荣放」
+一汽丰田荣放,RAV4荣放,quant_sample.Q3_22_1__3,2,business_confirm,已归一,unverified,业务确认口径：汽车之家全称为「RAV4荣放」
+丰田荣放,RAV4荣放,quant_sample.Q3_22_1__3,2,business_confirm,已归一,unverified,业务确认口径：汽车之家全称为「RAV4荣放」
+Temerario,Temerario,miit.ods_pz_base_info.model_name,1,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+Urus SE,Urus SE,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+V8 Vantage,V8 Vantage,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+Valhalla,Valhalla,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+Vanquish,Vanquish,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+eπ007,eπ007,autohome_koubei.carname,200,exact,已归一,autohome,
+奕派007,eπ007,dongchedi_koubei.carname,137,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+eπ007,eπ007,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+东风eπ007,eπ007,quant_sample.Q3_22_1__1,4,brand_prefix,已归一,autohome,
+东风eπ007 EV,eπ007,quant_sample.Q3_22_1__1,1,energy_suffix,已归一,autohome,
+东风奕派007,eπ007,quant_sample.Q3_22_1__1,4,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+东风eπ007,eπ007,quant_sample.Q3_22_1__2,1,brand_prefix,已归一,autohome,
+东风eπ007 EV,eπ007,quant_sample.Q3_22_1__2,1,energy_suffix,已归一,autohome,
+东风奕派007,eπ007,quant_sample.Q3_22_1__2,6,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+奕派007,eπ007,quant_sample.Q3_22_1__2,3,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+东风Eπ007,eπ007,quant_sample.Q3_22_1__3,3,brand_prefix,已归一,autohome,
+东风奕派007,eπ007,quant_sample.Q3_22_1__3,4,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+奕派007,eπ007,quant_sample.Q3_22_1__3,1,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+东风eπ007,eπ007,quant_sample.purchase_model,2,brand_prefix,已归一,autohome,
+eπ008,eπ008,autohome_koubei.carname,200,exact,已归一,autohome,
+eπ008,eπ008,miit.ods_pz_base_info.model_name,12,exact,已归一,autohome,
+东风eπ008,eπ008,quant_sample.Q3_22_1__1,6,brand_prefix,已归一,autohome,
+东风eπ008 EV,eπ008,quant_sample.Q3_22_1__1,1,energy_suffix,已归一,autohome,
+东风奕派008,eπ008,quant_sample.Q3_22_1__1,1,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+奕派008,eπ008,quant_sample.Q3_22_1__1,4,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+东风eπ008,eπ008,quant_sample.Q3_22_1__2,3,brand_prefix,已归一,autohome,
+东风Eπ008,eπ008,quant_sample.Q3_22_1__3,2,brand_prefix,已归一,autohome,
+奕派008,eπ008,quant_sample.Q3_22_1__3,4,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+firefly萤火虫,firefly萤火虫,autohome_koubei.carname,21,exact,已归一,autohome,
+firefly萤火虫,firefly萤火虫,dongchedi_koubei.carname,55,exact,已归一,autohome,
+firefly萤火虫,firefly萤火虫,miit.ods_pz_base_info.model_name,10,exact,已归一,autohome,
+蔚来萤火虫,firefly萤火虫,quant_sample.Q3_22_1__1,1,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+奇瑞iCAR03,iCAR 03,quant_sample.Q3_22_1__1,2,business_confirm,已归一,unverified,业务确认口径：对应「iCAR 03」，品牌前缀归一
+奇瑞iCAR03,iCAR 03,quant_sample.Q3_22_1__2,3,business_confirm,已归一,unverified,业务确认口径：对应「iCAR 03」，品牌前缀归一
+奇瑞icar03,iCAR 03,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：对应「iCAR 03」，品牌前缀归一
+奇瑞iCAR 03,iCAR 03,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：对应「iCAR 03」，品牌前缀归一
+奇瑞iCAR03T,iCAR 03T,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：对应「iCAR 03T」
+iCAR V27,iCAR V27,autohome_koubei.carname,200,exact,已归一,autohome,
+iCAR V27,iCAR V27,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+iCAR 超级V23,iCAR 超级V23,autohome_koubei.carname,200,exact,已归一,autohome,
+iCAR超级V23,iCAR 超级V23,dongchedi_koubei.carname,80,exact,已归一,autohome,
+iCAR V23,iCAR 超级V23,interview.vehicle_model,1,fuzzy,已归一,autohome,
+奇瑞iCAR V23,iCAR 超级V23,interview.vehicle_model,2,business_confirm,已归一,autohome,匹配依据：包含匹配（原名是之家车系名的简写或带修饰词）
+iCAR 超级V23,iCAR 超级V23,miit.ods_pz_base_info.model_name,14,exact,已归一,autohome,
+奇瑞iCAR V23,iCAR 超级V23,quant_sample.Q3_22_1__1,3,business_confirm,已归一,autohome,匹配依据：包含匹配（原名是之家车系名的简写或带修饰词）
+吉利iCAR V23,iCAR 超级V23,quant_sample.Q3_22_1__2,1,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+奇瑞iCAR V23,iCAR 超级V23,quant_sample.Q3_22_1__2,6,business_confirm,已归一,autohome,匹配依据：包含匹配（原名是之家车系名的简写或带修饰词）
+奇瑞iCARV23,iCAR 超级V23,quant_sample.Q3_22_1__3,1,business_confirm,已归一,autohome,匹配依据：包含匹配（原名是之家车系名的简写或带修饰词）
+奇瑞iCAR V23,iCAR 超级V23,quant_sample.purchase_model,30,business_confirm,已归一,autohome,匹配依据：包含匹配（原名是之家车系名的简写或带修饰词）
+mu-X牧游侠,mu-X牧游侠,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+smart精灵#1,smart精灵#1,autohome_koubei.carname,4,exact,已归一,autohome,
+smart精灵#1,smart精灵#1,dongchedi_koubei.carname,54,exact,已归一,autohome,
+smart精灵#1,smart精灵#1,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+smart精灵#2,smart精灵#2,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+smart精灵#3,smart精灵#3,autohome_koubei.carname,1,exact,已归一,autohome,
+smart精灵#3,smart精灵#3,dongchedi_koubei.carname,8,exact,已归一,autohome,
+smart精灵#3,smart精灵#3,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+smart精灵#5,smart精灵#5,autohome_koubei.carname,3,exact,已归一,autohome,
+smart精灵#5,smart精灵#5,dongchedi_koubei.carname,8,exact,已归一,autohome,
+smart精灵#5,smart精灵#5,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+smart精灵#6,smart精灵#6,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+一汽大众CC,一汽-大众CC,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：对应「一汽-大众CC」，品牌写法归一
+与众06,与众06,autohome_koubei.carname,19,exact,已归一,autohome,
+与众06,与众06,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+与众06,与众06,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+与众07,与众07,autohome_koubei.carname,18,exact,已归一,autohome,
+与众07,与众07,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+与众08,与众08,autohome_koubei.carname,6,exact,已归一,autohome,
+与众08,与众08,dongchedi_koubei.carname,4,exact,已归一,autohome,
+与众08,与众08,miit.ods_pz_base_info.model_name,8,exact,已归一,autohome,
+与众09,与众09,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+世纪,世纪,autohome_koubei.carname,2,exact,已归一,autohome,
+世纪,世纪,dongchedi_koubei.carname,3,exact,已归一,autohome,
+世纪,世纪,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+东风风神E80,东风风神E80,miit.ods_pz_base_info.model_name,2,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+东风风神L7,东风风神L7,autohome_koubei.carname,1,exact,已归一,autohome,
+东风风神L7,东风风神L7,miit.ods_pz_base_info.model_name,9,exact,已归一,autohome,
+风神L7,东风风神L7,quant_sample.Q3_22_1__2,1,business_confirm,已归一,autohome,匹配依据：去除品牌前缀/名称规范化后同名
+东风风神L7X,东风风神L7X,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+东风风神L8,东风风神L8,autohome_koubei.carname,37,exact,已归一,autohome,
+东风风神L8 PHEV,东风风神L8,dongchedi_koubei.carname,37,energy_suffix,已归一,autohome,
+东风风神L8,东风风神L8,miit.ods_pz_base_info.model_name,10,exact,已归一,autohome,
+风神L8,东风风神L8,quant_sample.Q3_22_1__1,2,business_confirm,已归一,autohome,匹配依据：去除品牌前缀/名称规范化后同名
+风神L8,东风风神L8,quant_sample.Q3_22_1__2,2,business_confirm,已归一,autohome,匹配依据：去除品牌前缀/名称规范化后同名
+风神L8,东风风神L8,quant_sample.Q3_22_1__3,2,business_confirm,已归一,autohome,匹配依据：去除品牌前缀/名称规范化后同名
+东风风神L8 PLUS,东风风神L8 PLUS,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+东风风神L8Y,东风风神L8Y,dongchedi_koubei.carname,18,exact,已归一,autohome,
+东风风神L8Y,东风风神L8Y,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+丰田bZ5,丰田bZ5,autohome_koubei.carname,9,exact,已归一,autohome,
+丰田bZ5,丰田bZ5,dongchedi_koubei.carname,25,exact,已归一,autohome,
+丰田bZ5,丰田bZ5,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+丰田BZ5,丰田bZ5,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+乐道L60,乐道L60,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+乐道L60,乐道L60,quant_sample.Q3_22_1__1,3,exact,已归一,autohome,
+乐道L60,乐道L60,quant_sample.Q3_22_1__2,4,exact,已归一,autohome,
+乐道L60EV,乐道L60,quant_sample.Q3_22_1__2,1,energy_suffix,已归一,autohome,
+乐道L60,乐道L60,quant_sample.Q3_22_1__3,3,exact,已归一,autohome,
+乐道l60,乐道L60,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+乐道L80,乐道L80,autohome_koubei.carname,29,exact,已归一,autohome,
+乐道L80,乐道L80,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+乐道L90,乐道L90,autohome_koubei.carname,50,exact,已归一,autohome,
+乐道L90,乐道L90,dongchedi_koubei.carname,95,exact,已归一,autohome,
+乐道L90,乐道L90,interview.vehicle_model,3,exact,已归一,autohome,
+乐道L90,乐道L90,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+乐道L90,乐道L90,quant_sample.Q3_22_1__1,10,exact,已归一,autohome,
+乐道L90,乐道L90,quant_sample.Q3_22_1__2,3,exact,已归一,autohome,
+乐道L90,乐道L90,quant_sample.Q3_22_1__3,7,exact,已归一,autohome,
+乐道L90,乐道L90,quant_sample.purchase_model,40,exact,已归一,autohome,
+五菱扬光,五菱扬光,autohome_koubei.carname,2,exact,已归一,autohome,
+五菱扬光,五菱扬光,dongchedi_koubei.carname,17,exact,已归一,autohome,
+五菱扬光L,五菱扬光L,autohome_koubei.carname,110,exact,已归一,autohome,
+五菱扬光Pro,五菱扬光Pro,autohome_koubei.carname,114,exact,已归一,autohome,
+五菱星光,五菱星光,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+五菱星光,五菱星光,quant_sample.Q3_22_1__2,4,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+五菱星光,五菱星光,quant_sample.Q3_22_1__3,6,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+五菱星光S,五菱星光S,quant_sample.Q3_22_1__1,3,business_confirm,已归一,unverified,业务确认口径：可直接对应
+五菱星光S,五菱星光S,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：可直接对应
+五菱星光S,五菱星光S,quant_sample.Q3_22_1__3,3,business_confirm,已归一,unverified,业务确认口径：可直接对应
+五菱缤果,五菱缤果,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：对应「五菱缤果」
+五菱缤果PLUS,五菱缤果PLUS,quant_sample.Q3_22_1__2,2,business_confirm,已归一,unverified,业务确认口径：对应「五菱缤果PLUS」
+五菱缤果PLUS,五菱缤果PLUS,quant_sample.Q3_22_1__3,2,business_confirm,已归一,unverified,业务确认口径：对应「五菱缤果PLUS」
+五菱荣光EV,五菱荣光EV,autohome_koubei.carname,3,exact,已归一,autohome,
+亚洲龙,亚洲龙,autohome_koubei.carname,103,exact,已归一,autohome,
+亚洲龙,亚洲龙,miit.ods_pz_base_info.model_name,11,exact,已归一,autohome,
+一汽丰田亚洲龙,亚洲龙,quant_sample.Q3_22_1__2,1,brand_prefix,已归一,autohome,
+丰田亚洲龙,亚洲龙,quant_sample.Q3_22_1__3,1,brand_prefix,已归一,autohome,
+享界G9,享界G9,autohome_koubei.carname,23,exact,已归一,autohome,
+享界G9,享界G9,dongchedi_koubei.carname,1,exact,已归一,autohome,
+享界G9,享界G9,miit.ods_pz_base_info.model_name,10,exact,已归一,autohome,
+享界S9,享界S9,autohome_koubei.carname,200,exact,已归一,autohome,
+享界S9,享界S9,miit.ods_pz_base_info.model_name,12,exact,已归一,autohome,
+享界S9,享界S9,quant_sample.Q3_22_1__1,3,exact,已归一,autohome,
+享界S9,享界S9,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+享界S9T,享界S9T,miit.ods_pz_base_info.model_name,12,exact,已归一,autohome,
+仰望U7,仰望U7,autohome_koubei.carname,128,exact,已归一,autohome,
+仰望U7,仰望U7,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+仰望U8,仰望U8,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+仰望U8 L,仰望U8 L,autohome_koubei.carname,115,exact,已归一,autohome,
+仰望U8L,仰望U8 L,dongchedi_koubei.carname,18,exact,已归一,autohome,
+仰望U8 L,仰望U8 L,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+伊兰特,伊兰特,autohome_koubei.carname,19,exact,已归一,autohome,
+伊兰特,伊兰特,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+传祺E8 PHEV,传祺E8,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+传祺E8,传祺E8,quant_sample.Q3_22_1__1,1,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（PHEV）（工信部表扩充）
+传祺E8,传祺E8,quant_sample.Q3_22_1__2,2,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（PHEV）（工信部表扩充）
+传祺E8,传祺E8,quant_sample.Q3_22_1__3,2,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（PHEV）（工信部表扩充）
+传祺E9,传祺E9,quant_sample.Q3_22_1__1,4,business_confirm,已归一,unverified,业务确认口径：对应「传祺E9」
+传祺E9,传祺E9,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：对应「传祺E9」
+传祺GS3,传祺GS3,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+传祺GS4,传祺GS4,autohome_koubei.carname,137,exact,已归一,autohome,
+传祺GS4,传祺GS4,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+传祺M6,传祺M6,autohome_koubei.carname,200,exact,已归一,autohome,
+传祺M6,传祺M6,dongchedi_koubei.carname,57,exact,已归一,autohome,
+传祺M6,传祺M6,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+传祺M8,传祺M8,autohome_koubei.carname,200,exact,已归一,autohome,
+传祺M8,传祺M8,dongchedi_koubei.carname,118,exact,已归一,autohome,
+传祺M8,传祺M8,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+传祺M8,传祺M8,quant_sample.Q3_22_1__1,2,exact,已归一,autohome,
+传祺M8,传祺M8,quant_sample.Q3_22_1__2,4,exact,已归一,autohome,
+传祺M8,传祺M8,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+传祺向往M8,传祺向往M8,dongchedi_koubei.carname,12,exact,已归一,autohome,
+传祺向往M8,传祺向往M8,miit.ods_pz_base_info.model_name,9,exact,已归一,autohome,
+传祺向往M8,传祺向往M8,quant_sample.Q3_22_1__1,1,exact,已归一,autohome,
+传祺向往M8,传祺向往M8,quant_sample.Q3_22_1__2,6,exact,已归一,autohome,
+传祺向往S7,传祺向往S7,autohome_koubei.carname,200,exact,已归一,autohome,
+传祺向往S7,传祺向往S7,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+传祺向往S7,传祺向往S7,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+传祺越7,传祺越7,autohome_koubei.carname,200,exact,已归一,autohome,
+传祺越7,传祺越7,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+保时捷911,保时捷911,miit.ods_pz_base_info.model_name,12,exact,已归一,autohome,
+傲旋,傲旋,miit.ods_pz_base_info.model_name,2,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+傲虎,傲虎,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+比亚迪元,元,quant_sample.Q3_22_1__1,2,business_confirm,已归一,unverified,业务确认口径：元基础款对应「元」
+比亚迪元,元,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：元基础款对应「元」
+比亚迪元,元,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：元基础款对应「元」
+元PLUS,元PLUS,autohome_koubei.carname,167,exact,已归一,autohome,
+元PLUS,元PLUS,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+比亚迪元PLUS,元PLUS,quant_sample.Q3_22_1__1,20,brand_prefix,已归一,autohome,
+比亚迪元Plus,元PLUS,quant_sample.Q3_22_1__1,1,brand_prefix,已归一,autohome,
+比亚迪元PLUS,元PLUS,quant_sample.Q3_22_1__2,21,brand_prefix,已归一,autohome,
+比亚迪元plus,元PLUS,quant_sample.Q3_22_1__2,3,brand_prefix,已归一,autohome,
+比亚迪元PLUS,元PLUS,quant_sample.Q3_22_1__3,18,brand_prefix,已归一,autohome,
+比亚迪元plus,元PLUS,quant_sample.Q3_22_1__3,1,brand_prefix,已归一,autohome,
+元UP,元UP,autohome_koubei.carname,82,exact,已归一,autohome,
+元UP,元UP,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+比亚迪元UP,元UP,quant_sample.Q3_22_1__1,4,brand_prefix,已归一,autohome,
+比亚迪元UP,元UP,quant_sample.Q3_22_1__2,2,brand_prefix,已归一,autohome,
+克慕勒世纪MH系列,克慕勒世纪MH系列,miit.ods_pz_base_info.model_name,2,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+克慕勒阿尔法AH系列,克慕勒阿尔法AH系列,miit.ods_pz_base_info.model_name,5,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+克慕勒阿尔法AL系列,克慕勒阿尔法AL系列,miit.ods_pz_base_info.model_name,4,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+克慕勒阿尔法A系列,克慕勒阿尔法A系列,miit.ods_pz_base_info.model_name,2,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+克蒂圣姆峰,克蒂圣姆峰,miit.ods_pz_base_info.model_name,20,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+克蒂宸辉,克蒂宸辉,miit.ods_pz_base_info.model_name,2,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+克蒂山河,克蒂山河,miit.ods_pz_base_info.model_name,2,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+克蒂怪兽SV3,克蒂怪兽SV3,miit.ods_pz_base_info.model_name,6,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+克蒂怪兽SV7,克蒂怪兽SV7,miit.ods_pz_base_info.model_name,6,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+克蒂昆仑,克蒂昆仑,miit.ods_pz_base_info.model_name,1,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+冒险家,冒险家,autohome_koubei.carname,5,exact,已归一,autohome,
+冒险家,冒险家,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+冠道,冠道,miit.ods_pz_base_info.model_name,8,exact,已归一,autohome,
+凌际星云系列,凌际星云系列,miit.ods_pz_base_info.model_name,3,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+凡尔赛C5 X,凡尔赛C5 X,autohome_koubei.carname,200,exact,已归一,autohome,
+凡尔赛C5 X,凡尔赛C5 X,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+凯威德,凯威德,autohome_koubei.carname,3,exact,已归一,autohome,
+凯威德,凯威德,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+凯美瑞,凯美瑞,autohome_koubei.carname,200,exact,已归一,autohome,
+凯美瑞,凯美瑞,dongchedi_koubei.carname,200,exact,已归一,autohome,
+凯美瑞,凯美瑞,miit.ods_pz_base_info.model_name,13,exact,已归一,autohome,
+丰田凯美瑞,凯美瑞,quant_sample.Q3_22_1__1,4,brand_prefix,已归一,autohome,
+丰田凯美瑞,凯美瑞,quant_sample.Q3_22_1__2,2,brand_prefix,已归一,autohome,
+凯美瑞,凯美瑞,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+丰田凯美瑞,凯美瑞,quant_sample.Q3_22_1__3,1,brand_prefix,已归一,autohome,
+广州丰田凯美瑞,凯美瑞,quant_sample.Q3_22_1__3,1,business_confirm,已归一,autohome,匹配依据：去除品牌前缀/名称规范化后同名
+广汽丰田凯美瑞,凯美瑞,quant_sample.Q3_22_1__3,1,brand_prefix,已归一,autohome,
+凯翼拾月,凯翼拾月,autohome_koubei.carname,19,exact,已归一,autohome,
+拾月,凯翼拾月,dongchedi_koubei.carname,4,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+凯翼拾月,凯翼拾月,miit.ods_pz_base_info.model_name,11,exact,已归一,autohome,
+凯翼昆仑,凯翼昆仑,miit.ods_pz_base_info.model_name,8,exact,已归一,autohome,
+凯翼昆仑新能源,凯翼昆仑,miit.ods_pz_base_info.model_name,13,exact,已归一,autohome,
+凯迪拉克ct5,凯迪拉克CT5,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：对应「凯迪拉克CT5」，大小写归一
+凯迪拉克CT5,凯迪拉克CT5,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：对应「凯迪拉克CT5」，大小写归一
+凯迪拉克XT4,凯迪拉克XT4,autohome_koubei.carname,9,exact,已归一,autohome,
+凯迪拉克XT4,凯迪拉克XT4,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+凯迪拉克XT5 PHEV,凯迪拉克XT5,autohome_koubei.carname,4,exact,已归一,autohome,
+凯迪拉克XT5 PHEV,凯迪拉克XT5,dongchedi_koubei.carname,20,exact,已归一,autohome,
+凯迪拉克XT5 PHEV,凯迪拉克XT5,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+凯迪拉克XT5,凯迪拉克XT5,quant_sample.Q3_22_1__3,1,fuzzy,已归一,unverified,业务改判：原自动结果 凯迪拉克XT4
+创维EV6,创维EV6,miit.ods_pz_base_info.model_name,14,exact,已归一,autohome,
+创维HT-i,创维HT-i,miit.ods_pz_base_info.model_name,26,exact,已归一,autohome,
+创维S710,创维S710,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+别克E5,别克E5,quant_sample.Q3_22_1__1,2,business_confirm,已归一,unverified,业务确认口径：对应「别克E5」
+别克 E5,别克E5,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：对应「别克E5」
+别克E5,别克E5,quant_sample.Q3_22_1__2,2,business_confirm,已归一,unverified,业务确认口径：对应「别克E5」
+别克 E5,别克E5,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：对应「别克E5」
+别克E5,别克E5,quant_sample.Q3_22_1__3,2,business_confirm,已归一,unverified,业务确认口径：对应「别克E5」
+别克GL8,别克GL8,autohome_koubei.carname,17,exact,已归一,autohome,
+别克GL8新能源,别克GL8,autohome_koubei.carname,40,exact,已归一,autohome,
+别克GL8,别克GL8,dongchedi_koubei.carname,54,exact,已归一,autohome,
+别克GL8 PHEV,别克GL8,dongchedi_koubei.carname,133,energy_suffix,已归一,autohome,
+别克GL8,别克GL8,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+别克GL8新能源,别克GL8,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+别克GL8,别克GL8,quant_sample.Q3_22_1__1,3,exact,已归一,autohome,
+别克GL8,别克GL8,quant_sample.Q3_22_1__2,6,exact,已归一,autohome,
+别克 GL8,别克GL8,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+别克GL8,别克GL8,quant_sample.Q3_22_1__3,4,exact,已归一,autohome,
+别克GL8高定,别克GL8高定,miit.ods_pz_base_info.model_name,2,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+别克至境E7,别克至境E7,autohome_koubei.carname,131,exact,已归一,autohome,
+别克至境E7,别克至境E7,dongchedi_koubei.carname,149,exact,已归一,autohome,
+别克至境E7,别克至境E7,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+别克至境L7,别克至境L7,autohome_koubei.carname,45,exact,已归一,autohome,
+别克至境L7,别克至境L7,dongchedi_koubei.carname,149,exact,已归一,autohome,
+别克至境L7,别克至境L7,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+别克至境世家,别克至境世家,autohome_koubei.carname,4,exact,已归一,autohome,
+别克至境世家,别克至境世家,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+勇士,勇士,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+北京EU8,北京EU8,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+北京X7,北京X7,miit.ods_pz_base_info.model_name,1,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+北京越野BJ30,北京越野BJ30,autohome_koubei.carname,44,exact,已归一,autohome,
+北京越野BJ30,北京越野BJ30,dongchedi_koubei.carname,180,exact,已归一,autohome,
+北京越野BJ30,北京越野BJ30,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+北京BJ30,北京越野BJ30,quant_sample.Q3_22_1__1,1,fuzzy,已归一,autohome,
+北京越野BJ40,北京越野BJ40,autohome_koubei.carname,29,exact,已归一,autohome,
+北京越野BJ40增程,北京越野BJ40,autohome_koubei.carname,17,exact,已归一,autohome,
+北京越野BJ40,北京越野BJ40,miit.ods_pz_base_info.model_name,13,exact,已归一,autohome,
+北京越野BJ40增程,北京越野BJ40,miit.ods_pz_base_info.model_name,15,exact,已归一,autohome,
+BJ40,北京越野BJ40,quant_sample.Q3_22_1__1,1,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+北京BJ40,北京越野BJ40,quant_sample.Q3_22_1__1,1,fuzzy,已归一,autohome,
+北京越野BJ60,北京越野BJ60,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+北京越野BJ60增程,北京越野BJ60,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+北汽泰钽700,北汽泰钽700,dongchedi_koubei.carname,1,exact,已归一,autohome,
+北汽泰钽700,北汽泰钽700,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+北铃梦想家,北铃梦想家,miit.ods_pz_base_info.model_name,2,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+华东祥云,华东祥云,miit.ods_pz_base_info.model_name,2,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+华东祥云 插电混动,华东祥云,miit.ods_pz_base_info.model_name,1,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+华境S,华境S,autohome_koubei.carname,200,exact,已归一,autohome,
+华境S,华境S,dongchedi_koubei.carname,200,exact,已归一,autohome,
+华境S,华境S,miit.ods_pz_base_info.model_name,8,exact,已归一,autohome,
+博越,博越,autohome_koubei.carname,200,exact,已归一,autohome,
+博越,博越,miit.ods_pz_base_info.model_name,9,exact,已归一,autohome,
+吉利博越,博越,quant_sample.Q3_22_1__1,1,brand_prefix,已归一,autohome,
+吉利博越,博越,quant_sample.Q3_22_1__2,1,brand_prefix,已归一,autohome,
+吉利博越,博越,quant_sample.Q3_22_1__3,1,brand_prefix,已归一,autohome,
+博越L,博越L,autohome_koubei.carname,200,exact,已归一,autohome,
+博越L,博越L,miit.ods_pz_base_info.model_name,10,exact,已归一,autohome,
+吉利博越L,博越L,quant_sample.Q3_22_1__2,2,brand_prefix,已归一,autohome,
+吉利博越L,博越L,quant_sample.Q3_22_1__3,1,brand_prefix,已归一,autohome,
+博越REV,博越REV,autohome_koubei.carname,37,exact,已归一,autohome,
+博越REV,博越REV,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+卡尔森 GLS,卡尔森 GLS,miit.ods_pz_base_info.model_name,1,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+一汽丰田卡罗拉,卡罗拉,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：对应「卡罗拉」，合资厂商前缀已归并
+发现,发现,autohome_koubei.carname,3,exact,已归一,autohome,
+发现,发现,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+吉利几何APRO,吉利几何A,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：对应「吉利几何A」，PRO 视为配置后缀
+吉利几何G6,吉利几何G6,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：对应「吉利几何G6」
+吉利牛仔,吉利牛仔,autohome_koubei.carname,1,exact,已归一,autohome,
+吉利牛仔,吉利牛仔,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+吉利雷达金刚,吉利雷达金刚,autohome_koubei.carname,49,exact,已归一,autohome,
+别克君威,君威,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：对应「君威」，品牌前缀归一
+君越,君越,autohome_koubei.carname,88,exact,已归一,autohome,
+君越,君越,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+启境GT7,启境GT7,autohome_koubei.carname,6,exact,已归一,autohome,
+启境GT7,启境GT7,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+启境GX7,启境GX7,autohome_koubei.carname,2,exact,已归一,autohome,
+启境GX7,启境GX7,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+启源A05,启源A05,quant_sample.Q3_22_1__1,2,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+启源A05,启源A05,quant_sample.Q3_22_1__2,8,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+启源A05,启源A05,quant_sample.Q3_22_1__3,5,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+启辰VX6,启辰VX6,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+启辰大V DD-i,启辰大V DD-i,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+启辰星,启辰星,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+哈弗H6,哈弗H6,autohome_koubei.carname,104,exact,已归一,autohome,
+哈弗H6,哈弗H6,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+哈弗H6,哈弗H6,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+哈弗H9,哈弗H9,autohome_koubei.carname,88,exact,已归一,autohome,
+哈弗H9,哈弗H9,dongchedi_koubei.carname,64,exact,已归一,autohome,
+哈弗H9,哈弗H9,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+哈弗大狗 PLUS 新能源,哈弗大狗 PLUS,autohome_koubei.carname,33,exact,已归一,autohome,
+哈弗大狗PLUS PHEV,哈弗大狗 PLUS,dongchedi_koubei.carname,23,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（DM/PHEV≈新能源、EV≈纯电）
+哈弗大狗 PLUS 新能源,哈弗大狗 PLUS,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+哈佛二代大狗,哈弗大狗 PLUS,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：对应「哈弗大狗 PLUS」，哈佛/哈弗 写法归一
+哈弗二代大狗PHEV,哈弗大狗 PLUS,quant_sample.Q3_22_1__2,3,business_confirm,已归一,autohome,业务确认口径：对应「哈弗大狗 PLUS 新能源」；二代大狗为代际命名，之家归入大狗 PLUS 新能源
+哈佛二代大狗新能源,哈弗大狗 PLUS,quant_sample.Q3_22_1__3,2,business_confirm,已归一,autohome,业务确认口径：对应「哈弗大狗 PLUS 新能源」；二代大狗为代际命名，之家归入大狗 PLUS 新能源
+哈弗枭龙,哈弗枭龙,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：对应「哈弗枭龙」
+哈弗枭龙MAX,哈弗枭龙MAX,quant_sample.Q3_22_1__1,3,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+哈弗枭龙MAX,哈弗枭龙MAX,quant_sample.Q3_22_1__2,2,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+哈弗二代枭龙MAX,哈弗枭龙MAX,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：对应「哈弗枭龙MAX」；原文「哈弗枭龙」按同族归入，如为独立车系请修正
+哈弗枭龙MAX,哈弗枭龙MAX,quant_sample.Q3_22_1__3,4,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+哈弗猛龙新能源,哈弗猛龙,miit.ods_pz_base_info.model_name,8,exact,已归一,autohome,
+哈弗猛龙,哈弗猛龙,quant_sample.Q3_22_1__1,9,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（新能源）（工信部表扩充）
+哈弗猛龙,哈弗猛龙,quant_sample.Q3_22_1__2,6,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（新能源）（工信部表扩充）
+哈弗猛龙,哈弗猛龙,quant_sample.Q3_22_1__3,14,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（新能源）（工信部表扩充）
+哈弗猛龙 PHEV,哈弗猛龙,quant_sample.Q3_22_1__3,1,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（新能源）（工信部表扩充）
+哪吒L,哪吒L,quant_sample.Q3_22_1__1,2,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+哪吒L,哪吒L,quant_sample.Q3_22_1__3,2,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+哪吒S,哪吒S,quant_sample.Q3_22_1__1,3,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+哪吒S,哪吒S,quant_sample.Q3_22_1__2,4,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+哪吒S EV,哪吒S,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+哪吒S,哪吒S,quant_sample.Q3_22_1__3,2,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+哪吒U,哪吒U,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+哪吒X,哪吒X,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+唐新能源,唐,miit.ods_pz_base_info.model_name,12,exact,已归一,autohome,
+比亚迪唐,唐,quant_sample.Q3_22_1__1,4,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（新能源）（工信部表扩充）
+比亚迪唐DMI,唐,quant_sample.Q3_22_1__1,1,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（DM≈新能源）（工信部表扩充）
+比亚迪唐Dmi,唐,quant_sample.Q3_22_1__1,14,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（DM≈新能源）（工信部表扩充）
+比亚迪唐,唐,quant_sample.Q3_22_1__2,4,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（新能源）（工信部表扩充）
+比亚迪唐 DMi,唐,quant_sample.Q3_22_1__2,6,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（DM≈新能源）（工信部表扩充）
+比亚迪唐,唐,quant_sample.Q3_22_1__3,2,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（新能源）（工信部表扩充）
+比亚迪唐DMI,唐,quant_sample.Q3_22_1__3,1,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（DM≈新能源）（工信部表扩充）
+比亚迪唐dmi,唐,quant_sample.Q3_22_1__3,6,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（DM≈新能源）（工信部表扩充）
+唐L,唐L,interview.vehicle_model,3,business_confirm,已归一,unverified,业务确认口径：独立车系，可直接对应
+比亚迪唐L,唐L,quant_sample.Q3_22_1__1,7,business_confirm,已归一,unverified,业务确认口径：独立车系，可直接对应
+比亚迪唐L,唐L,quant_sample.Q3_22_1__2,10,business_confirm,已归一,unverified,业务确认口径：独立车系，可直接对应
+比亚迪唐L,唐L,quant_sample.Q3_22_1__3,10,business_confirm,已归一,unverified,业务确认口径：独立车系，可直接对应
+唐L,唐L,quant_sample.purchase_model,44,business_confirm,已归一,unverified,业务确认口径：独立车系，可直接对应
+图雅诺X5,图雅诺X5,dongchedi_koubei.carname,1,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+坦克300,坦克300,autohome_koubei.carname,93,exact,已归一,autohome,
+坦克300,坦克300,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+坦克300,坦克300,quant_sample.Q3_22_1__1,1,exact,已归一,autohome,
+坦克300,坦克300,quant_sample.Q3_22_1__2,2,exact,已归一,autohome,
+坦克300,坦克300,quant_sample.Q3_22_1__3,2,exact,已归一,autohome,
+坦克300L新能源,坦克300L,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+坦克400,坦克400,quant_sample.Q3_22_1__2,2,business_confirm,已归一,unverified,业务确认口径：对应「坦克400」
+坦克400,坦克400,quant_sample.Q3_22_1__3,2,business_confirm,已归一,unverified,业务确认口径：对应「坦克400」
+坦克500,坦克500,autohome_koubei.carname,38,exact,已归一,autohome,
+坦克500新能源,坦克500,autohome_koubei.carname,74,exact,已归一,autohome,
+坦克500 Hi4-T,坦克500,dongchedi_koubei.carname,29,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（DM/PHEV≈新能源、EV≈纯电）
+坦克500,坦克500,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+坦克500新能源,坦克500,miit.ods_pz_base_info.model_name,8,exact,已归一,autohome,
+坦克500,坦克500,quant_sample.Q3_22_1__2,2,exact,已归一,autohome,
+坦克700新能源,坦克700,autohome_koubei.carname,186,exact,已归一,autohome,
+坦克700 Hi4-T,坦克700,dongchedi_koubei.carname,14,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（DM/PHEV≈新能源、EV≈纯电）
+坦克700新能源,坦克700,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+夏,夏,interview.vehicle_model,2,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+比亚迪夏,夏,interview.vehicle_model,1,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+比亚迪夏,夏,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+夏,夏,quant_sample.purchase_model,36,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+多拉小货,多拉小货,dongchedi_koubei.carname,1,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+上海大众ID3,大众ID.3,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：对应「大众ID.3」
+大众ID.3,大众ID.3,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：对应「大众ID.3」
+大众ID3,大众ID.3,quant_sample.Q3_22_1__1,3,business_confirm,已归一,unverified,业务确认口径：对应「大众ID.3」
+大众lD3,大众ID.3,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：对应「大众ID.3」
+大众ID.3,大众ID.3,quant_sample.Q3_22_1__2,5,business_confirm,已归一,unverified,业务确认口径：对应「大众ID.3」
+大众ID3,大众ID.3,quant_sample.Q3_22_1__2,3,business_confirm,已归一,unverified,业务确认口径：对应「大众ID.3」
+大众id3,大众ID.3,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：对应「大众ID.3」
+大众lD3,大众ID.3,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：对应「大众ID.3」
+大众ID.3,大众ID.3,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：对应「大众ID.3」
+大众ID3,大众ID.3,quant_sample.Q3_22_1__3,2,business_confirm,已归一,unverified,业务确认口径：对应「大众ID.3」
+一汽大众id4,大众ID.4,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：统一填不带版本后缀的「大众ID.4」；原文标注一汽-大众，对应 ID.4 CROZZ
+一汽大众id4x,大众ID.4,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：统一填不带版本后缀的「大众ID.4」（原文含X但厂商为一汽-大众，版本信息冲突，故不细分 X / CROZZ）
+大众ID4X,大众ID.4,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：统一填不带版本后缀的「大众ID.4」；原文标注 X 版（上汽大众 ID.4 X）
+一汽大众ID4X,大众ID.4,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：统一填不带版本后缀的「大众ID.4」（原文含X但厂商为一汽-大众，版本信息冲突，故不细分 X / CROZZ）
+大众ID.4,大众ID.4,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：原文未标合资厂商，统一填不带版本后缀的「大众ID.4」
+大众ID.4,大众ID.4,quant_sample.Q3_22_1__3,4,business_confirm,已归一,unverified,业务确认口径：原文未标合资厂商，统一填不带版本后缀的「大众ID.4」
+大众ID4X,大众ID.4,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：统一填不带版本后缀的「大众ID.4」；原文标注 X 版（上汽大众 ID.4 X）
+大众id4,大众ID.4,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：原文未标合资厂商，统一填不带版本后缀的「大众ID.4」
+大众ID6,大众ID.6,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：原文未标合资厂商，统一填不带版本后缀的「大众ID.6」
+大众ID.7 VIZZION,大众ID.7 VIZZION,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：对应「大众ID.7 VIZZION」
+大唐,大唐,autohome_koubei.carname,200,exact,已归一,autohome,
+大唐,大唐,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+大家7,大家7,miit.ods_pz_base_info.model_name,25,exact,已归一,autohome,
+大家9,大家9,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+大汉,大汉,autohome_koubei.carname,123,exact,已归一,autohome,
+大汉,大汉,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+大通G10,大通G10,dongchedi_koubei.carname,3,exact,已归一,autohome,
+大通G10,大通G10,miit.ods_pz_base_info.model_name,24,exact,已归一,autohome,
+大通G50,大通G50,autohome_koubei.carname,3,exact,已归一,autohome,
+大通G50,大通G50,dongchedi_koubei.carname,6,exact,已归一,autohome,
+大通G50,大通G50,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+大通G50插电混动,大通G50,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+大通G70,大通G70,miit.ods_pz_base_info.model_name,9,exact,已归一,autohome,
+大通T60,大通T60,autohome_koubei.carname,36,exact,已归一,autohome,
+天籁,天籁,autohome_koubei.carname,200,exact,已归一,autohome,
+天籁,天籁,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+日产天籁,天籁,quant_sample.Q3_22_1__2,1,brand_prefix,已归一,autohome,
+天逸 C5 AIRCROSS,天逸 C5 AIRCROSS,autohome_koubei.carname,58,exact,已归一,autohome,
+天逸 C5 AIRCROSS,天逸 C5 AIRCROSS,miit.ods_pz_base_info.model_name,8,exact,已归一,autohome,
+奔腾B70,奔腾B70,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+奔腾B70,奔腾B70,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+奔腾小马,奔腾小马,autohome_koubei.carname,137,exact,已归一,autohome,
+奔腾小马,奔腾小马,dongchedi_koubei.carname,36,exact,已归一,autohome,
+奔腾小马,奔腾小马,miit.ods_pz_base_info.model_name,14,exact,已归一,autohome,
+奔驰CLA新能源,奔驰CLA,autohome_koubei.carname,200,exact,已归一,autohome,
+奔驰CLA新能源,奔驰CLA,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+奔驰CLE,奔驰CLE,autohome_koubei.carname,1,exact,已归一,autohome,
+奔驰CLE,奔驰CLE,miit.ods_pz_base_info.model_name,10,exact,已归一,autohome,
+奔驰CLE AMG,奔驰CLE AMG,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+奔驰C级,奔驰C级,autohome_koubei.carname,34,exact,已归一,autohome,
+奔驰C级,奔驰C级,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+奔驰E级,奔驰E级,autohome_koubei.carname,40,exact,已归一,autohome,
+奔驰E级,奔驰E级,miit.ods_pz_base_info.model_name,18,exact,已归一,autohome,
+奔驰GLC,奔驰GLC,autohome_koubei.carname,29,exact,已归一,autohome,
+奔驰GLC新能源,奔驰GLC,autohome_koubei.carname,200,exact,已归一,autohome,
+奔驰GLC,奔驰GLC,miit.ods_pz_base_info.model_name,12,exact,已归一,autohome,
+奔驰GLC新能源,奔驰GLC,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+奔驰GLC,奔驰GLC,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+奔驰GLC AMG,奔驰GLC AMG,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+奔驰GLC轿跑,奔驰GLC轿跑,autohome_koubei.carname,3,exact,已归一,autohome,
+奔驰GLC轿跑,奔驰GLC轿跑,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+奔驰GLE,奔驰GLE,autohome_koubei.carname,200,exact,已归一,autohome,
+奔驰GLE,奔驰GLE,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+奔驰GLE,奔驰GLE,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+奔驰GLE AMG,奔驰GLE AMG,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+奔驰GLE(进口),奔驰GLE(进口),miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+奔驰GLE轿跑,奔驰GLE轿跑,dongchedi_koubei.carname,8,exact,已归一,autohome,
+奔驰GLE轿跑,奔驰GLE轿跑,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+奔驰G级AMG,奔驰G级AMG,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+奔驰smart,奔驰smart,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：smart 旗下分精灵#1~#6 多个车系，无法唯一区分，统一用奔驰smart
+奕境X9,奕境X9,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+奕派M8,奕派M8,autohome_koubei.carname,195,exact,已归一,autohome,
+奕派M8,奕派M8,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+奕炫,奕炫,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+奥德赛,奥德赛,autohome_koubei.carname,6,exact,已归一,autohome,
+奥德赛,奥德赛,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+奥迪A4L,奥迪A4L,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+奥迪A4L,奥迪A4L,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+奥迪A5L,奥迪A5L,autohome_koubei.carname,161,exact,已归一,autohome,
+奥迪A5L,奥迪A5L,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+奥迪A5L Sportback,奥迪A5L Sportback,autohome_koubei.carname,28,exact,已归一,autohome,
+奥迪A5L Sportback,奥迪A5L Sportback,miit.ods_pz_base_info.model_name,14,exact,已归一,autohome,
+奥迪A6L,奥迪A6L,autohome_koubei.carname,189,exact,已归一,autohome,
+奥迪A6L,奥迪A6L,dongchedi_koubei.carname,200,exact,已归一,autohome,
+奥迪A6L,奥迪A6L,miit.ods_pz_base_info.model_name,10,exact,已归一,autohome,
+奥迪 A6,奥迪A6L,quant_sample.Q3_22_1__2,1,fuzzy,已归一,autohome,
+奥迪A6L e-tron,奥迪A6L e-tron,autohome_koubei.carname,21,exact,已归一,autohome,
+奥迪A6L e-tron,奥迪A6L e-tron,dongchedi_koubei.carname,1,exact,已归一,autohome,
+奥迪A6L e-tron,奥迪A6L e-tron,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+奥迪A7L,奥迪A7L,autohome_koubei.carname,20,exact,已归一,autohome,
+奥迪A7L,奥迪A7L,dongchedi_koubei.carname,41,exact,已归一,autohome,
+奥迪A7L,奥迪A7L,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+奥迪E7X,奥迪E7X,autohome_koubei.carname,157,exact,已归一,autohome,
+奥迪E7X,奥迪E7X,dongchedi_koubei.carname,99,exact,已归一,autohome,
+奥迪E7X,奥迪E7X,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+奥迪Q2,奥迪Q2L,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：对应「奥迪Q2L」
+奥迪Q5L,奥迪Q5L,autohome_koubei.carname,200,exact,已归一,autohome,
+奥迪Q5L,奥迪Q5L,miit.ods_pz_base_info.model_name,8,exact,已归一,autohome,
+奥迪Q5L,奥迪Q5L,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+奥迪Q6,奥迪Q6,miit.ods_pz_base_info.model_name,14,exact,已归一,autohome,
+奥迪Q6L Sportback e-tron,奥迪Q6L Sportback e-tron,autohome_koubei.carname,1,exact,已归一,autohome,
+奥迪Q6L Sportback e-tron,奥迪Q6L Sportback e-tron,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+奥迪Q6L e-tron,奥迪Q6L e-tron,autohome_koubei.carname,39,exact,已归一,autohome,
+奥迪Q6L e-tron,奥迪Q6L e-tron,dongchedi_koubei.carname,18,exact,已归一,autohome,
+奥迪Q6L e-tron,奥迪Q6L e-tron,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+奥迪Q7,奥迪Q7,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+奥迪S5,奥迪S5,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+奥迪SQ8,奥迪SQ8,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+丰田威兰达,威兰达,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：对应「威兰达」
+比亚迪宋,宋,quant_sample.Q3_22_1__1,9,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+比亚迪宋,宋,quant_sample.Q3_22_1__2,12,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+比亚迪宋,宋,quant_sample.Q3_22_1__3,9,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+比亚迪宋L,宋L,quant_sample.Q3_22_1__1,15,business_confirm,已归一,unverified,业务确认口径：之家拆分为「宋L DM-i」「宋L EV」两个车系，统一合并为宋L
+比亚迪宋L DMI,宋L,quant_sample.Q3_22_1__1,10,business_confirm,已归一,unverified,业务确认口径：之家拆分为「宋L DM-i」「宋L EV」两个车系，统一合并为宋L
+比亚迪宋L EV,宋L,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：之家拆分为「宋L DM-i」「宋L EV」两个车系，统一合并为宋L
+比亚迪宋LUSE EV,宋L,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：原文「宋LUSE EV」按宋L EV 归入；宋L 家族另有宋L DM-i
+比亚迪宋L,宋L,quant_sample.Q3_22_1__2,15,business_confirm,已归一,unverified,业务确认口径：之家拆分为「宋L DM-i」「宋L EV」两个车系，统一合并为宋L
+比亚迪宋L DMi,宋L,quant_sample.Q3_22_1__2,5,business_confirm,已归一,unverified,业务确认口径：之家拆分为「宋L DM-i」「宋L EV」两个车系，统一合并为宋L
+比亚迪宋L EV,宋L,quant_sample.Q3_22_1__2,4,business_confirm,已归一,unverified,业务确认口径：之家拆分为「宋L DM-i」「宋L EV」两个车系，统一合并为宋L
+比亚迪宋L,宋L,quant_sample.Q3_22_1__3,9,business_confirm,已归一,unverified,业务确认口径：之家拆分为「宋L DM-i」「宋L EV」两个车系，统一合并为宋L
+比亚迪宋L DMI,宋L,quant_sample.Q3_22_1__3,3,business_confirm,已归一,unverified,业务确认口径：之家拆分为「宋L DM-i」「宋L EV」两个车系，统一合并为宋L
+比亚迪宋L EV,宋L,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：之家拆分为「宋L DM-i」「宋L EV」两个车系，统一合并为宋L
+宋L,宋L,quant_sample.purchase_model,2,business_confirm,已归一,unverified,业务确认口径：之家拆分为「宋L DM-i」「宋L EV」两个车系，统一合并为宋L
+比亚迪 宋PLUS,宋PLUS,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：汽车之家将宋PLUS插混/纯电版本归入「宋PLUS新能源」车系
+比亚迪宋 PLUS,宋PLUS,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：汽车之家将宋PLUS插混/纯电版本归入「宋PLUS新能源」车系
+比亚迪宋PLUS,宋PLUS,quant_sample.Q3_22_1__1,36,business_confirm,已归一,unverified,业务确认口径：汽车之家将宋PLUS插混/纯电版本归入「宋PLUS新能源」车系
+比亚迪宋PLUS DMI,宋PLUS,quant_sample.Q3_22_1__1,18,business_confirm,已归一,unverified,业务确认口径：汽车之家将宋PLUS插混/纯电版本归入「宋PLUS新能源」车系
+比亚迪宋PLUS EV,宋PLUS,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：汽车之家将宋PLUS插混/纯电版本归入「宋PLUS新能源」车系
+比亚迪宋PlUS,宋PLUS,quant_sample.Q3_22_1__1,3,business_confirm,已归一,unverified,业务确认口径：汽车之家将宋PLUS插混/纯电版本归入「宋PLUS新能源」车系
+比亚迪宋plus dmi,宋PLUS,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：汽车之家将宋PLUS插混/纯电版本归入「宋PLUS新能源」车系
+比亚迪宋PLUS,宋PLUS,quant_sample.Q3_22_1__2,33,business_confirm,已归一,unverified,业务确认口径：汽车之家将宋PLUS插混/纯电版本归入「宋PLUS新能源」车系
+比亚迪宋PLUS DMI,宋PLUS,quant_sample.Q3_22_1__2,10,business_confirm,已归一,unverified,业务确认口径：汽车之家将宋PLUS插混/纯电版本归入「宋PLUS新能源」车系
+比亚迪宋plus,宋PLUS,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：汽车之家将宋PLUS插混/纯电版本归入「宋PLUS新能源」车系
+比亚迪宋plus EV,宋PLUS,quant_sample.Q3_22_1__2,2,business_confirm,已归一,unverified,业务确认口径：汽车之家将宋PLUS插混/纯电版本归入「宋PLUS新能源」车系
+比亚迪宋PLUS,宋PLUS,quant_sample.Q3_22_1__3,22,business_confirm,已归一,unverified,业务确认口径：汽车之家将宋PLUS插混/纯电版本归入「宋PLUS新能源」车系
+比亚迪宋Plus DMi,宋PLUS,quant_sample.Q3_22_1__3,10,business_confirm,已归一,unverified,业务确认口径：汽车之家将宋PLUS插混/纯电版本归入「宋PLUS新能源」车系
+比亚迪宋plus EV,宋PLUS,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：汽车之家将宋PLUS插混/纯电版本归入「宋PLUS新能源」车系
+宋PLUS,宋PLUS,quant_sample.purchase_model,31,business_confirm,已归一,unverified,业务 2026-11-10 定稿：Sheet1 全名「宋PLUS新能源」不用，统一用简称「宋PLUS」
+宋Pro新能源,宋Pro,autohome_koubei.carname,131,exact,已归一,autohome,
+宋Pro DM,宋Pro,dongchedi_koubei.carname,196,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（DM/PHEV≈新能源、EV≈纯电）
+宋Pro新能源,宋Pro,miit.ods_pz_base_info.model_name,10,exact,已归一,autohome,
+比亚迪宋PRO,宋Pro,quant_sample.Q3_22_1__1,1,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（新能源）（工信部表扩充）
+比亚迪宋Pro,宋Pro,quant_sample.Q3_22_1__1,11,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（DM/PHEV≈新能源、EV≈纯电）
+比亚迪宋pro,宋Pro,quant_sample.Q3_22_1__1,3,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（DM/PHEV≈新能源、EV≈纯电）
+比亚迪宋PRO,宋Pro,quant_sample.Q3_22_1__2,1,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（新能源）（工信部表扩充）
+比亚迪宋PRO DMI,宋Pro,quant_sample.Q3_22_1__2,3,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（DM/PHEV≈新能源、EV≈纯电）
+比亚迪宋Pro,宋Pro,quant_sample.Q3_22_1__2,6,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（DM/PHEV≈新能源、EV≈纯电）
+比亚迪宋Pro,宋Pro,quant_sample.Q3_22_1__3,3,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（DM/PHEV≈新能源、EV≈纯电）
+比亚迪宋pro,宋Pro,quant_sample.Q3_22_1__3,3,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（DM/PHEV≈新能源、EV≈纯电）
+宋Ultra,宋Ultra,autohome_koubei.carname,200,exact,已归一,autohome,
+宋Ultra,宋Ultra,miit.ods_pz_base_info.model_name,9,exact,已归一,autohome,
+宏光MINIEV,宏光MINIEV,autohome_koubei.carname,149,exact,已归一,autohome,
+宏光MINIEV,宏光MINIEV,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+宏运高顶格瑞维亚,宏运高顶格瑞维亚,miit.ods_pz_base_info.model_name,1,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+宝马2系,宝马2系,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+宝马2系(进口),宝马2系(进口),miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+宝马3系,宝马3系,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+宝马3系,宝马3系,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+宝马4系,宝马4系,autohome_koubei.carname,3,exact,已归一,autohome,
+宝马4系,宝马4系,miit.ods_pz_base_info.model_name,9,exact,已归一,autohome,
+宝马5系,宝马5系,autohome_koubei.carname,48,exact,已归一,autohome,
+宝马5系,宝马5系,miit.ods_pz_base_info.model_name,15,exact,已归一,autohome,
+宝马5系(进口),宝马5系(进口),miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+宝马7系,宝马7系,autohome_koubei.carname,7,exact,已归一,autohome,
+宝马7系,宝马7系,miit.ods_pz_base_info.model_name,12,exact,已归一,autohome,
+宝马M235L,宝马M235L,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+宝马M240i,宝马M240i,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+宝马M3,宝马M3,dongchedi_koubei.carname,18,exact,已归一,autohome,
+宝马M3,宝马M3,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+宝马X1,宝马X1,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+宝马X1 M35Li,宝马X1 M35Li,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+宝马X2 M35i,宝马X2 M35i,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+宝马X2(进口),宝马X2(进口),miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+宝马X3,宝马X3,autohome_koubei.carname,86,exact,已归一,autohome,
+宝马X3,宝马X3,dongchedi_koubei.carname,190,exact,已归一,autohome,
+宝马X3,宝马X3,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+宝马X3 M50,宝马X3 M50,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+宝马X5,宝马X5,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+宝马X5,宝马X5,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+宝马X5,宝马X5,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+宝马X6,宝马X6,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+宝马X7,宝马X7,autohome_koubei.carname,1,exact,已归一,autohome,
+宝马X7,宝马X7,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+宝马X7 M60i,宝马X7 M60i,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+宝马i3,宝马i3,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+宝马i4,宝马i4,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+宝马i4 M,宝马i4 M,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+宝马i5,宝马i5,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+宝马I5,宝马i5,quant_sample.Q3_22_1__1,1,exact,已归一,autohome,
+宝马i5 M60,宝马i5 M60,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+宝马i7,宝马i7,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+宝马i7 M70L,宝马i7 M70L,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+宝马iX1,宝马iX1,miit.ods_pz_base_info.model_name,8,exact,已归一,autohome,
+宝骏悦也PLUS,宝骏悦也Plus,quant_sample.Q3_22_1__2,2,business_confirm,已归一,unverified,业务确认口径：对应「宝骏悦也Plus」，Plus 大小写归一
+家越07,家越07,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+宸辉VL900,宸辉VL900,miit.ods_pz_base_info.model_name,1,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+将军F9SUV,将军F9SUV,miit.ods_pz_base_info.model_name,1,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+尊界S800,尊界S800,autohome_koubei.carname,6,exact,已归一,autohome,
+尊界S800,尊界S800,miit.ods_pz_base_info.model_name,14,exact,已归一,autohome,
+尊界V680,尊界V680,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+尊界V800,尊界V800,autohome_koubei.carname,2,exact,已归一,autohome,
+尊界V800,尊界V800,dongchedi_koubei.carname,2,exact,已归一,autohome,
+尊界V800,尊界V800,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+小米SU7,小米SU7,autohome_koubei.carname,143,exact,已归一,autohome,
+小米SU7,小米SU7,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+小米SU7,小米SU7,quant_sample.Q3_22_1__1,22,exact,已归一,autohome,
+小米su7,小米SU7,quant_sample.Q3_22_1__1,1,exact,已归一,autohome,
+小米SU7,小米SU7,quant_sample.Q3_22_1__2,9,exact,已归一,autohome,
+小米su7,小米SU7,quant_sample.Q3_22_1__2,2,exact,已归一,autohome,
+小米 SU7,小米SU7,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+小米SU7,小米SU7,quant_sample.Q3_22_1__3,8,exact,已归一,autohome,
+小米SU7EV,小米SU7,quant_sample.Q3_22_1__3,1,energy_suffix,已归一,autohome,
+小米su7,小米SU7,quant_sample.Q3_22_1__3,3,exact,已归一,autohome,
+小米YU7,小米YU7,autohome_koubei.carname,157,exact,已归一,autohome,
+小米YU7,小米YU7,interview.vehicle_model,4,exact,已归一,autohome,
+小米YU7,小米YU7,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+小米YU7,小米YU7,quant_sample.Q3_22_1__1,6,exact,已归一,autohome,
+小米Yu7,小米YU7,quant_sample.Q3_22_1__1,1,exact,已归一,autohome,
+小米 YU7,小米YU7,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+小米YU7,小米YU7,quant_sample.Q3_22_1__2,3,exact,已归一,autohome,
+小米YU7,小米YU7,quant_sample.Q3_22_1__3,3,exact,已归一,autohome,
+小米YU7,小米YU7,quant_sample.purchase_model,41,exact,已归一,autohome,
+小米澎程N70,小米澎程N70,autohome_koubei.carname,11,exact,已归一,autohome,
+小米澎程N70,小米澎程N70,dongchedi_koubei.carname,31,exact,已归一,autohome,
+小米澎程N70,小米澎程N70,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+小米澎程N90,小米澎程N90,autohome_koubei.carname,24,exact,已归一,autohome,
+小米澎程N90,小米澎程N90,dongchedi_koubei.carname,15,exact,已归一,autohome,
+小米澎程N90,小米澎程N90,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+小蚂蚁,小蚂蚁,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+小鹏G6,小鹏G6,autohome_koubei.carname,10,exact,已归一,autohome,
+小鹏G6,小鹏G6,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+小鹏G6,小鹏G6,quant_sample.Q3_22_1__1,9,exact,已归一,autohome,
+小鹏G6,小鹏G6,quant_sample.Q3_22_1__2,14,exact,已归一,autohome,
+小鹏G6 EV,小鹏G6,quant_sample.Q3_22_1__2,1,energy_suffix,已归一,autohome,
+小鹏G6,小鹏G6,quant_sample.Q3_22_1__3,8,exact,已归一,autohome,
+小鹏G7,小鹏G7,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+小鹏G7,小鹏G7,quant_sample.Q3_22_1__2,5,exact,已归一,autohome,
+小鹏G7,小鹏G7,quant_sample.Q3_22_1__3,3,exact,已归一,autohome,
+小鹏G9,小鹏G9,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+小鹏G9,小鹏G9,quant_sample.Q3_22_1__1,2,exact,已归一,autohome,
+小鹏G9,小鹏G9,quant_sample.Q3_22_1__2,5,exact,已归一,autohome,
+小鹏G9,小鹏G9,quant_sample.Q3_22_1__3,5,exact,已归一,autohome,
+小鹏G9L,小鹏G9L,autohome_koubei.carname,4,exact,已归一,autohome,
+小鹏G9L,小鹏G9L,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+小鹏GX,小鹏GX,autohome_koubei.carname,50,exact,已归一,autohome,
+小鹏GX,小鹏GX,miit.ods_pz_base_info.model_name,8,exact,已归一,autohome,
+小鹏MONA L03,小鹏MONA L03,autohome_koubei.carname,45,exact,已归一,autohome,
+小鹏MONA L03,小鹏MONA L03,miit.ods_pz_base_info.model_name,9,exact,已归一,autohome,
+小鹏MONA L05,小鹏MONA L05,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+小鹏MONA M03,小鹏MONA M03,autohome_koubei.carname,79,exact,已归一,autohome,
+小鹏MONA M03,小鹏MONA M03,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+小鹏 M03,小鹏MONA M03,quant_sample.Q3_22_1__1,2,business_confirm,已归一,autohome,匹配依据：包含匹配（原名是之家车系名的简写或带修饰词）
+小鹏M03,小鹏MONA M03,quant_sample.Q3_22_1__1,30,business_confirm,已归一,autohome,匹配依据：包含匹配（原名是之家车系名的简写或带修饰词）
+小鹏MONA M03,小鹏MONA M03,quant_sample.Q3_22_1__1,19,exact,已归一,autohome,
+小鹏 M03,小鹏MONA M03,quant_sample.Q3_22_1__2,2,business_confirm,已归一,autohome,匹配依据：包含匹配（原名是之家车系名的简写或带修饰词）
+小鹏M03,小鹏MONA M03,quant_sample.Q3_22_1__2,13,business_confirm,已归一,autohome,匹配依据：包含匹配（原名是之家车系名的简写或带修饰词）
+小鹏MONA M03,小鹏MONA M03,quant_sample.Q3_22_1__2,22,exact,已归一,autohome,
+小鹏M03,小鹏MONA M03,quant_sample.Q3_22_1__3,11,business_confirm,已归一,autohome,匹配依据：包含匹配（原名是之家车系名的简写或带修饰词）
+小鹏M03 EV,小鹏MONA M03,quant_sample.Q3_22_1__3,1,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（DM/PHEV≈新能源、EV≈纯电）
+小鹏MONA M03,小鹏MONA M03,quant_sample.Q3_22_1__3,9,exact,已归一,autohome,
+小鹏M03,小鹏MONA M03,quant_sample.purchase_model,30,business_confirm,已归一,autohome,匹配依据：包含匹配（原名是之家车系名的简写或带修饰词）
+小鹏P5,小鹏P5,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：对应「小鹏P5」，EV 为纯电版本标注
+小鹏P5,小鹏P5,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：对应「小鹏P5」，EV 为纯电版本标注
+小鹏P5,小鹏P5,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：对应「小鹏P5」，EV 为纯电版本标注
+小鹏P5-EV,小鹏P5,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：对应「小鹏P5」，EV 为纯电版本标注
+小鹏P7,小鹏P7,autohome_koubei.carname,23,exact,已归一,autohome,
+小鹏P7,小鹏P7,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+小鹏P7+,小鹏P7,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+小鹏P7,小鹏P7,quant_sample.Q3_22_1__1,15,exact,已归一,autohome,
+小鹏P7+,小鹏P7,quant_sample.Q3_22_1__1,2,exact,已归一,autohome,
+小鹏p7,小鹏P7,quant_sample.Q3_22_1__1,1,exact,已归一,autohome,
+小鹏p7+,小鹏P7,quant_sample.Q3_22_1__1,1,exact,已归一,autohome,
+小鹏 P7+,小鹏P7,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+小鹏P7,小鹏P7,quant_sample.Q3_22_1__2,14,exact,已归一,autohome,
+小鹏P7+,小鹏P7,quant_sample.Q3_22_1__2,5,exact,已归一,autohome,
+小鹏P7i,小鹏P7,quant_sample.Q3_22_1__2,1,fuzzy,已归一,autohome,
+小鹏P7,小鹏P7,quant_sample.Q3_22_1__3,17,exact,已归一,autohome,
+小鹏P7+,小鹏P7,quant_sample.Q3_22_1__3,5,exact,已归一,autohome,
+小鹏p7,小鹏P7,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+小鹏p7+,小鹏P7,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+小鹏P7+,小鹏P7,quant_sample.purchase_model,30,exact,已归一,autohome,
+小鹏X9,小鹏X9,autohome_koubei.carname,16,exact,已归一,autohome,
+小鹏X9,小鹏X9,miit.ods_pz_base_info.model_name,8,exact,已归一,autohome,
+小鹏X9,小鹏X9,quant_sample.Q3_22_1__1,2,exact,已归一,autohome,
+小鹏X9,小鹏X9,quant_sample.Q3_22_1__2,3,exact,已归一,autohome,
+小鹏X9,小鹏X9,quant_sample.Q3_22_1__3,6,exact,已归一,autohome,
+尚界H5,尚界H5,autohome_koubei.carname,163,exact,已归一,autohome,
+尚界H5,尚界H5,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+尚界Z7,尚界Z7,autohome_koubei.carname,47,exact,已归一,autohome,
+尚界Z7,尚界Z7,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+尚界Z7T,尚界Z7T,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+岚图FREE,岚图FREE,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：对应「岚图FREE」
+岚图梦想家,岚图梦想家,autohome_koubei.carname,200,exact,已归一,autohome,
+岚图梦想家 PHEV,岚图梦想家,dongchedi_koubei.carname,142,energy_suffix,已归一,autohome,
+岚图梦想家,岚图梦想家,miit.ods_pz_base_info.model_name,18,exact,已归一,autohome,
+岚图梦想家,岚图梦想家,quant_sample.Q3_22_1__1,3,exact,已归一,autohome,
+岚图梦想家,岚图梦想家,quant_sample.Q3_22_1__2,8,exact,已归一,autohome,
+岚图梦想家,岚图梦想家,quant_sample.Q3_22_1__3,2,exact,已归一,autohome,
+岚图泰山,岚图泰山,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+岚图泰山X8,岚图泰山X8,autohome_koubei.carname,200,exact,已归一,autohome,
+岚图泰山X8,岚图泰山X8,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+岚图知音,岚图知音,autohome_koubei.carname,50,exact,已归一,autohome,
+岚图知音,岚图知音,dongchedi_koubei.carname,107,exact,已归一,autohome,
+岚图知音,岚图知音,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+岚图知音,岚图知音,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+岚图追光,岚图追光,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+岚图追光,岚图追光,quant_sample.Q3_22_1__2,2,exact,已归一,autohome,
+岚图追光 L,岚图追光 L,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+岚图追光S,岚图追光S,autohome_koubei.carname,200,exact,已归一,autohome,
+岚图追光S,岚图追光S,dongchedi_koubei.carname,133,exact,已归一,autohome,
+岚图追光S,岚图追光S,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+布鲁德,布鲁德,miit.ods_pz_base_info.model_name,3,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+帕拉丁,帕拉丁,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+帕萨特,帕萨特,autohome_koubei.carname,120,exact,已归一,autohome,
+帕萨特,帕萨特,dongchedi_koubei.carname,200,exact,已归一,autohome,
+帕萨特,帕萨特,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+帕萨特插电混动,帕萨特,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+大众帕萨特,帕萨特,quant_sample.Q3_22_1__1,1,brand_prefix,已归一,autohome,
+上海大众帕萨特,帕萨特,quant_sample.Q3_22_1__2,1,business_confirm,已归一,autohome,匹配依据：去除品牌前缀/名称规范化后同名
+大众帕萨特,帕萨特,quant_sample.Q3_22_1__2,2,brand_prefix,已归一,autohome,
+上海大众帕萨特,帕萨特,quant_sample.Q3_22_1__3,1,business_confirm,已归一,autohome,匹配依据：去除品牌前缀/名称规范化后同名
+大众帕萨特,帕萨特,quant_sample.Q3_22_1__3,3,brand_prefix,已归一,autohome,
+帕萨特,帕萨特,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+帕里斯帝,帕里斯帝,miit.ods_pz_base_info.model_name,4,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+帝豪,帝豪,autohome_koubei.carname,200,exact,已归一,autohome,
+帝豪,帝豪,miit.ods_pz_base_info.model_name,9,exact,已归一,autohome,
+本田P7,广汽本田P7,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：对应「广汽本田P7」，之家全称含合资厂商
+现代库斯途,库斯途,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：对应「库斯途」，品牌前缀归一
+思域,思域,autohome_koubei.carname,39,exact,已归一,autohome,
+思域,思域,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+悦意03,悦意03,autohome_koubei.carname,200,exact,已归一,autohome,
+悦意03,悦意03,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+奔腾悦意03,悦意03,quant_sample.Q3_22_1__2,3,business_confirm,已归一,autohome,匹配依据：去除品牌前缀/名称规范化后同名
+奔腾悦意03,悦意03,quant_sample.Q3_22_1__3,3,business_confirm,已归一,autohome,匹配依据：去除品牌前缀/名称规范化后同名
+悦意07,悦意07,autohome_koubei.carname,143,exact,已归一,autohome,
+悦意07,悦意07,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+悦意08,悦意08,autohome_koubei.carname,200,exact,已归一,autohome,
+悦意08,悦意08,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+比亚迪护卫舰07,护卫舰07,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：对应「护卫舰07」
+拉帝,拉帝,miit.ods_pz_base_info.model_name,5,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+大拿V1 L,拾光大拿V1L,dongchedi_koubei.carname,5,business_confirm,已归一,autohome,匹配依据：去除品牌前缀/名称规范化后同名
+拾光星光730福祉车,拾光星光730福祉车,miit.ods_pz_base_info.model_name,5,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+拾光福祉车,拾光福祉车,miit.ods_pz_base_info.model_name,2,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+捷尼赛思G80,捷尼赛思G80,autohome_koubei.carname,1,exact,已归一,autohome,
+捷尼赛思G80,捷尼赛思G80,dongchedi_koubei.carname,11,exact,已归一,autohome,
+捷尼赛思G80,捷尼赛思G80,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+捷尼赛思GV80,捷尼赛思GV80,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+捷达M6,捷达M6,autohome_koubei.carname,2,exact,已归一,autohome,
+捷达M6,捷达M6,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+捷达VA7,捷达VA7,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+捷达VS8,捷达VS8,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+捷途X70,捷途X70,autohome_koubei.carname,2,exact,已归一,autohome,
+捷途X70,捷途X70,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+捷途X70 PLUS,捷途X70 PLUS,autohome_koubei.carname,13,exact,已归一,autohome,
+捷途X70 PLUS,捷途X70 PLUS,miit.ods_pz_base_info.model_name,26,exact,已归一,autohome,
+捷途X70 PRO,捷途X70 PRO,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+捷途X90,捷途X90,autohome_koubei.carname,9,exact,已归一,autohome,
+捷途X90,捷途X90,dongchedi_koubei.carname,3,exact,已归一,autohome,
+捷途X90,捷途X90,miit.ods_pz_base_info.model_name,9,exact,已归一,autohome,
+捷途大圣,捷途大圣,miit.ods_pz_base_info.model_name,9,exact,已归一,autohome,
+捷途山海L6,捷途山海L6,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：对应「捷途山海L6」
+捷途山海L7,捷途山海L7,autohome_koubei.carname,1,exact,已归一,autohome,
+捷途山海L7,捷途山海L7,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+捷途山海L7,捷途山海L7,quant_sample.Q3_22_1__1,4,exact,已归一,autohome,
+捷途山海L7,捷途山海L7,quant_sample.Q3_22_1__2,2,exact,已归一,autohome,
+捷途山海L7,捷途山海L7,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+捷途山海L7 PLUS,捷途山海L7 PLUS,autohome_koubei.carname,86,exact,已归一,autohome,
+捷途山海L7 PLUS,捷途山海L7 PLUS,dongchedi_koubei.carname,200,exact,已归一,autohome,
+捷途山海L7 PLUS,捷途山海L7 PLUS,miit.ods_pz_base_info.model_name,10,exact,已归一,autohome,
+捷途山海L9,捷途山海L9,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：对应「捷途山海L9」
+捷途山海L9,捷途山海L9,quant_sample.Q3_22_1__2,2,business_confirm,已归一,unverified,业务确认口径：对应「捷途山海L9」
+捷途山海L9,捷途山海L9,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：对应「捷途山海L9」
+捷途山海T1,捷途山海T1,autohome_koubei.carname,3,exact,已归一,autohome,
+捷途山海T1,捷途山海T1,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+捷途旅行者,捷途旅行者,autohome_koubei.carname,200,exact,已归一,autohome,
+捷途旅行者7,捷途旅行者,miit.ods_pz_base_info.model_name,19,fuzzy,已归一,autohome,
+捷途旅行者,捷途旅行者,quant_sample.Q3_22_1__1,1,exact,已归一,autohome,
+捷途旅行者,捷途旅行者,quant_sample.Q3_22_1__2,2,exact,已归一,autohome,
+捷途旅行者,捷途旅行者,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+捷途旅行者C-DM,捷途旅行者C-DM,autohome_koubei.carname,51,exact,已归一,autohome,
+捷途旅行者C-DM,捷途旅行者C-DM,dongchedi_koubei.carname,86,exact,已归一,autohome,
+捷途旅行者7C-DM,捷途旅行者C-DM,miit.ods_pz_base_info.model_name,14,fuzzy,已归一,autohome,
+捷途山海T2,捷途旅行者C-DM,quant_sample.Q3_22_1__1,6,business_confirm,已归一,autohome,业务确认口径：对应「捷途旅行者C-DM」，山海T2 为同一车型的渠道命名
+捷途山海T2,捷途旅行者C-DM,quant_sample.Q3_22_1__2,1,business_confirm,已归一,autohome,业务确认口径：对应「捷途旅行者C-DM」，山海T2 为同一车型的渠道命名
+捷途自由者,捷途自由者,autohome_koubei.carname,68,exact,已归一,autohome,
+捷途自由者,捷途自由者,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+捷途自由者,捷途自由者,quant_sample.Q3_22_1__1,1,exact,已归一,autohome,
+捷途自由者7 PLUS,捷途自由者7 PLUS,autohome_koubei.carname,65,exact,已归一,autohome,
+捷途自由者7 PLUS,捷途自由者7 PLUS,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+探岳,探岳,autohome_koubei.carname,200,exact,已归一,autohome,
+探岳,探岳,miit.ods_pz_base_info.model_name,16,exact,已归一,autohome,
+一汽大众探岳,探岳,quant_sample.Q3_22_1__2,1,brand_prefix,已归一,autohome,
+探岳L PHEV,探岳L,autohome_koubei.carname,51,exact,已归一,autohome,
+探岳L PHEV,探岳L,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+探陆,探陆,autohome_koubei.carname,40,exact,已归一,autohome,
+探陆,探陆,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+探险者,探险者,autohome_koubei.carname,15,exact,已归一,autohome,
+探险者,探险者,miit.ods_pz_base_info.model_name,8,exact,已归一,autohome,
+福特探险者,探险者,quant_sample.Q3_22_1__3,3,brand_prefix,已归一,autohome,
+揽巡,揽巡,autohome_koubei.carname,200,exact,已归一,autohome,
+揽巡,揽巡,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+揽胜,揽胜,autohome_koubei.carname,2,exact,已归一,autohome,
+揽胜,揽胜,dongchedi_koubei.carname,33,exact,已归一,autohome,
+揽胜,揽胜,miit.ods_pz_base_info.model_name,11,exact,已归一,autohome,
+揽胜运动,揽胜运动,autohome_koubei.carname,1,exact,已归一,autohome,
+揽胜运动,揽胜运动,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+斯巴鲁BRZ,斯巴鲁BRZ,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+斯巴鲁WRX,斯巴鲁WRX,autohome_koubei.carname,1,exact,已归一,autohome,
+斯巴鲁WRX,斯巴鲁WRX,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+新途V80,新途V80,dongchedi_koubei.carname,7,exact,已归一,autohome,
+方程S,方程S,autohome_koubei.carname,90,exact,已归一,autohome,
+方程S,方程S,miit.ods_pz_base_info.model_name,9,exact,已归一,autohome,
+日产N6,日产N6,autohome_koubei.carname,200,exact,已归一,autohome,
+日产N6,日产N6,dongchedi_koubei.carname,70,exact,已归一,autohome,
+日产N6,日产N6,miit.ods_pz_base_info.model_name,9,exact,已归一,autohome,
+日产N7,日产N7,autohome_koubei.carname,200,exact,已归一,autohome,
+日产N7,日产N7,dongchedi_koubei.carname,52,exact,已归一,autohome,
+日产N7,日产N7,interview.vehicle_model,4,exact,已归一,autohome,
+日产N7,日产N7,miit.ods_pz_base_info.model_name,10,exact,已归一,autohome,
+日产N7,日产N7,quant_sample.Q3_22_1__1,12,exact,已归一,autohome,
+日产N7,日产N7,quant_sample.Q3_22_1__2,7,exact,已归一,autohome,
+日产N7,日产N7,quant_sample.Q3_22_1__3,3,exact,已归一,autohome,
+日产N7,日产N7,quant_sample.purchase_model,40,exact,已归一,autohome,
+日产NX8,日产NX8,autohome_koubei.carname,200,exact,已归一,autohome,
+日产NX8,日产NX8,miit.ods_pz_base_info.model_name,8,exact,已归一,autohome,
+旭豹,旭豹,autohome_koubei.carname,2,exact,已归一,autohome,
+旭豹,旭豹,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+别克昂科旗,昂科旗,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：对应「昂科旗」，品牌前缀归一
+昊铂A800,昊铂A800,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+昊铂GT,昊铂GT,autohome_koubei.carname,1,exact,已归一,autohome,
+昊铂GT,昊铂GT,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+昊铂HL,昊铂HL,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：对应「昊铂HL」
+昊铂S600,昊铂S600,autohome_koubei.carname,52,exact,已归一,autohome,
+昊铂S600,昊铂S600,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+易至EV2,易至EV2,autohome_koubei.carname,21,exact,已归一,autohome,
+易至EV2,易至EV2,dongchedi_koubei.carname,3,exact,已归一,autohome,
+易至EV2,易至EV2,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+易至EV3,易至EV3,autohome_koubei.carname,68,exact,已归一,autohome,
+易至EV3,易至EV3,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+星光560,星光560,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+星光560新能源,星光560,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+星光730,星光730,autohome_koubei.carname,123,exact,已归一,autohome,
+星光730新能源,星光730,autohome_koubei.carname,49,exact,已归一,autohome,
+星光730,星光730,dongchedi_koubei.carname,27,exact,已归一,autohome,
+星光730,星光730,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+星光730新能源,星光730,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+星光L,星光L,autohome_koubei.carname,182,exact,已归一,autohome,
+星光L,星光L,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+星愿,星愿,autohome_koubei.carname,200,exact,已归一,autohome,
+星愿,星愿,miit.ods_pz_base_info.model_name,12,exact,已归一,autohome,
+吉利星愿,星愿,quant_sample.Q3_22_1__1,2,brand_prefix,已归一,autohome,
+吉利星愿,星愿,quant_sample.Q3_22_1__2,5,brand_prefix,已归一,autohome,
+吉利星愿,星愿,quant_sample.Q3_22_1__3,1,brand_prefix,已归一,autohome,
+星海S7,星海S7,autohome_koubei.carname,2,exact,已归一,autohome,
+星海S7,星海S7,dongchedi_koubei.carname,12,exact,已归一,autohome,
+星海S7,星海S7,miit.ods_pz_base_info.model_name,19,exact,已归一,autohome,
+星海S7,星海S7,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+星海T5,星海T5,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+星海V6,星海V6,autohome_koubei.carname,50,exact,已归一,autohome,
+星海V6,星海V6,dongchedi_koubei.carname,8,exact,已归一,autohome,
+星海V6,星海V6,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+星海V6 PLUS,星海V6 PLUS,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+星海V9,星海V9,autohome_koubei.carname,56,exact,已归一,autohome,
+星海V9,星海V9,miit.ods_pz_base_info.model_name,16,exact,已归一,autohome,
+星海V9,星海V9,quant_sample.Q3_22_1__1,2,exact,已归一,autohome,
+星海X5,星海X5,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+星瑞,星瑞,miit.ods_pz_base_info.model_name,12,exact,已归一,autohome,
+吉利星瑞,星瑞,quant_sample.Q3_22_1__1,3,brand_prefix,已归一,autohome,
+星瑞,星瑞,quant_sample.Q3_22_1__1,1,exact,已归一,autohome,
+吉利星瑞,星瑞,quant_sample.Q3_22_1__2,2,brand_prefix,已归一,autohome,
+吉利星瑞,星瑞,quant_sample.Q3_22_1__3,1,brand_prefix,已归一,autohome,
+星瑞L PLUS,星瑞L PLUS,autohome_koubei.carname,115,exact,已归一,autohome,
+星瑞L PLUS,星瑞L PLUS,miit.ods_pz_base_info.model_name,8,exact,已归一,autohome,
+星纪元ET,星纪元 ET,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：对应「星纪元 ET」
+星纪元ET,星纪元 ET,quant_sample.Q3_22_1__2,4,business_confirm,已归一,unverified,业务确认口径：对应「星纪元 ET」
+星纪元ET,星纪元 ET,quant_sample.Q3_22_1__3,2,business_confirm,已归一,unverified,业务确认口径：对应「星纪元 ET」
+星越L,星越L,autohome_koubei.carname,200,exact,已归一,autohome,
+星越L,星越L,miit.ods_pz_base_info.model_name,8,exact,已归一,autohome,
+吉利星越L,星越L,quant_sample.Q3_22_1__1,3,brand_prefix,已归一,autohome,
+吉利星越L,星越L,quant_sample.Q3_22_1__2,3,brand_prefix,已归一,autohome,
+星悦L,星越L,quant_sample.Q3_22_1__2,1,business_confirm,已归一,autohome,匹配依据：拼写纠正（如 PIUS→PLUS、智已→智己）
+吉利星越L,星越L,quant_sample.Q3_22_1__3,3,brand_prefix,已归一,autohome,
+星途ES,星途ES,autohome_koubei.carname,115,exact,已归一,autohome,
+星途ES,星途ES,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+星途星纪元ES,星途ES,quant_sample.Q3_22_1__3,1,business_confirm,已归一,autohome,匹配依据：去除品牌前缀/名称规范化后同名
+星途EX7,星途EX7,autohome_koubei.carname,200,exact,已归一,autohome,
+星途EX7,星途EX7,dongchedi_koubei.carname,55,exact,已归一,autohome,
+星途EX7,星途EX7,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+星途揽月,星途揽月,autohome_koubei.carname,200,exact,已归一,autohome,
+星途揽月,星途揽月,dongchedi_koubei.carname,133,exact,已归一,autohome,
+星途揽月,星途揽月,miit.ods_pz_base_info.model_name,13,exact,已归一,autohome,
+星途揽月C-DM,星途揽月C-DM,autohome_koubei.carname,143,exact,已归一,autohome,
+星途揽月C-DM,星途揽月C-DM,dongchedi_koubei.carname,162,exact,已归一,autohome,
+星途揽月C-DM,星途揽月C-DM,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+星途瑶光,星途瑶光,autohome_koubei.carname,9,exact,已归一,autohome,
+星途瑶光,星途瑶光,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+星际X,星际X,autohome_koubei.carname,1,exact,已归一,autohome,
+星际X SUV,星际X SUV,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+普拉多,普拉多,autohome_koubei.carname,16,exact,已归一,autohome,
+普拉多,普拉多,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+智己L6,智己L6,autohome_koubei.carname,20,exact,已归一,autohome,
+智己L6,智己L6,dongchedi_koubei.carname,42,exact,已归一,autohome,
+智己L6,智己L6,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+智已L6,智己L6,quant_sample.Q3_22_1__1,1,business_confirm,已归一,autohome,匹配依据：拼写纠正（如 PIUS→PLUS、智已→智己）
+智己L6,智己L6,quant_sample.Q3_22_1__2,5,exact,已归一,autohome,
+智己L6,智己L6,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+智己LS6,智己LS6,autohome_koubei.carname,112,exact,已归一,autohome,
+智己LS6,智己LS6,miit.ods_pz_base_info.model_name,15,exact,已归一,autohome,
+智己LS6,智己LS6,quant_sample.Q3_22_1__1,3,exact,已归一,autohome,
+智己LS6,智己LS6,quant_sample.Q3_22_1__2,6,exact,已归一,autohome,
+智己LS6,智己LS6,quant_sample.Q3_22_1__3,5,exact,已归一,autohome,
+智己LS7,智己LS7,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：对应「智己LS7」
+智己LS8,智己LS8,autohome_koubei.carname,162,exact,已归一,autohome,
+智己LS8,智己LS8,miit.ods_pz_base_info.model_name,8,exact,已归一,autohome,
+智己LS9,智己LS9,autohome_koubei.carname,43,exact,已归一,autohome,
+智己LS9,智己LS9,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+智己LS9,智己LS9,quant_sample.Q3_22_1__1,1,exact,已归一,autohome,
+智界R7,智界R7,autohome_koubei.carname,31,exact,已归一,autohome,
+智界R7,智界R7,interview.vehicle_model,2,exact,已归一,autohome,
+智界R7,智界R7,miit.ods_pz_base_info.model_name,16,exact,已归一,autohome,
+智界R7,智界R7,quant_sample.Q3_22_1__1,5,exact,已归一,autohome,
+智界R7,智界R7,quant_sample.Q3_22_1__2,3,exact,已归一,autohome,
+智界R7,智界R7,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+智界R7,智界R7,quant_sample.purchase_model,30,exact,已归一,autohome,
+智界RX,智界RX,autohome_koubei.carname,1,exact,已归一,autohome,
+智界RX,智界RX,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+智界S7,智界S7,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+智界S7,智界S7,quant_sample.Q3_22_1__1,1,exact,已归一,autohome,
+智界V9,智界V9,autohome_koubei.carname,6,exact,已归一,autohome,
+智界V9,智界V9,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+朗逸,朗逸,miit.ods_pz_base_info.model_name,16,exact,已归一,autohome,
+大众朗逸,朗逸,quant_sample.Q3_22_1__1,2,brand_prefix,已归一,autohome,
+上海大众朗逸,朗逸,quant_sample.Q3_22_1__2,1,business_confirm,已归一,autohome,匹配依据：去厂牌前缀后同名（工信部表扩充）
+大众朗逸,朗逸,quant_sample.Q3_22_1__3,2,brand_prefix,已归一,autohome,
+本田CR-V,本田CR-V,miit.ods_pz_base_info.model_name,22,exact,已归一,autohome,
+东风本田CRV,本田CR-V,quant_sample.Q3_22_1__1,1,business_confirm,已归一,autohome,匹配依据：去厂牌前缀+写法归一（工信部表扩充）
+本田CR-V,本田CR-V,quant_sample.Q3_22_1__1,2,exact,已归一,autohome,
+本田CR-V,本田CR-V,quant_sample.Q3_22_1__2,2,exact,已归一,autohome,
+本田CR-V,本田CR-V,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+本田HR-V,本田HR-V,autohome_koubei.carname,7,exact,已归一,autohome,
+本田HR-V,本田HR-V,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+极氪001,极氪001,autohome_koubei.carname,200,exact,已归一,autohome,
+极氪001,极氪001,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+极氪001,极氪001,quant_sample.Q3_22_1__1,8,exact,已归一,autohome,
+极氪001,极氪001,quant_sample.Q3_22_1__2,6,exact,已归一,autohome,
+极氪001,极氪001,quant_sample.Q3_22_1__3,8,exact,已归一,autohome,
+极氪007,极氪007,autohome_koubei.carname,87,exact,已归一,autohome,
+ZEEKR 007,极氪007,dongchedi_koubei.carname,50,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+极氪007,极氪007,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+极氪007,极氪007,quant_sample.Q3_22_1__1,6,exact,已归一,autohome,
+极氪007,极氪007,quant_sample.Q3_22_1__2,8,exact,已归一,autohome,
+极氪007,极氪007,quant_sample.Q3_22_1__3,4,exact,已归一,autohome,
+极氪007GT,极氪007GT,autohome_koubei.carname,48,exact,已归一,autohome,
+ZEEKR 007GT,极氪007GT,dongchedi_koubei.carname,168,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+极氪007GT,极氪007GT,interview.vehicle_model,4,exact,已归一,autohome,
+极氪007GT,极氪007GT,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+极氪007GT,极氪007GT,quant_sample.Q3_22_1__1,2,exact,已归一,autohome,
+极氪007GT,极氪007GT,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+极氪007GT,极氪007GT,quant_sample.purchase_model,30,exact,已归一,autohome,
+极氪009,极氪009,autohome_koubei.carname,200,exact,已归一,autohome,
+极氪009,极氪009,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+极氪009,极氪009,quant_sample.Q3_22_1__1,6,exact,已归一,autohome,
+极氪009,极氪009,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+极氪009,极氪009,quant_sample.Q3_22_1__3,3,exact,已归一,autohome,
+极氪7X,极氪7X,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：对应「极氪7X」
+极氪7X,极氪7X,quant_sample.Q3_22_1__2,3,business_confirm,已归一,unverified,业务确认口径：对应「极氪7X」
+极氪7X,极氪7X,quant_sample.Q3_22_1__3,6,business_confirm,已归一,unverified,业务确认口径：对应「极氪7X」
+极氪8X,极氪8X,autohome_koubei.carname,200,exact,已归一,autohome,
+ZEEKR 8X,极氪8X,dongchedi_koubei.carname,58,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+极氪8X,极氪8X,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+极氪9X,极氪9X,autohome_koubei.carname,200,exact,已归一,autohome,
+极氪9X,极氪9X,miit.ods_pz_base_info.model_name,9,exact,已归一,autohome,
+极氪9X,极氪9X,quant_sample.Q3_22_1__1,9,exact,已归一,autohome,
+极氪9X,极氪9X,quant_sample.Q3_22_1__2,4,exact,已归一,autohome,
+极氪9X,极氪9X,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+极氪X,极氪X,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+极氪X,极氪X,quant_sample.Q3_22_1__3,2,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+极狐 考拉S,极狐 考拉S,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+极狐 阿尔法S5,极狐 阿尔法S5,autohome_koubei.carname,117,exact,已归一,autohome,
+极狐 阿尔法S5,极狐 阿尔法S5,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+阿尔法S5,极狐 阿尔法S5,quant_sample.Q3_22_1__1,1,business_confirm,已归一,autohome,匹配依据：去除品牌前缀/名称规范化后同名
+极狐s5,极狐 阿尔法S5,quant_sample.Q3_22_1__2,1,business_confirm,已归一,autohome,匹配依据：去除品牌前缀/名称规范化后同名
+极狐 阿尔法T5,极狐 阿尔法T5,miit.ods_pz_base_info.model_name,8,exact,已归一,autohome,
+极狐阿尔法T5,极狐 阿尔法T5,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+极狐阿尔法T5,极狐 阿尔法T5,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+极狐 阿尔法T6,极狐 阿尔法T6,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+极狐 阿尔法T7,极狐 阿尔法T7,autohome_koubei.carname,21,exact,已归一,autohome,
+极狐 阿尔法T7,极狐 阿尔法T7,miit.ods_pz_base_info.model_name,9,exact,已归一,autohome,
+极狐考拉,极狐考拉,quant_sample.Q3_22_1__2,1,fuzzy,已归一,unverified,业务改判：原自动结果 极狐 考拉S
+极狐贝塔S3,极狐贝塔S3,autohome_koubei.carname,129,exact,已归一,autohome,
+极狐贝塔S3,极狐贝塔S3,miit.ods_pz_base_info.model_name,9,exact,已归一,autohome,
+极狐贝塔T1,极狐贝塔T1,autohome_koubei.carname,180,exact,已归一,autohome,
+极狐 贝塔T1,极狐贝塔T1,dongchedi_koubei.carname,200,exact,已归一,autohome,
+极狐贝塔T1,极狐贝塔T1,miit.ods_pz_base_info.model_name,11,exact,已归一,autohome,
+极狐问道V9,极狐问道V9,autohome_koubei.carname,77,exact,已归一,autohome,
+极狐问道V9,极狐问道V9,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+极石01,极石01,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：对应「极石01」
+极石01,极石01,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：对应「极石01」
+林肯z,林肯Z,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：对应「林肯Z」，大小写归一
+标致4008,标致4008,autohome_koubei.carname,46,exact,已归一,autohome,
+标致4008,标致4008,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+标致5008,标致5008,autohome_koubei.carname,55,exact,已归一,autohome,
+标致5008,标致5008,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+格瑞维亚,格瑞维亚,autohome_koubei.carname,66,exact,已归一,autohome,
+格瑞维亚,格瑞维亚,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+FORESTER森林人,森林人,dongchedi_koubei.carname,21,business_confirm,已归一,autohome,匹配依据：包含匹配（原名是之家车系名的简写或带修饰词）
+森林人,森林人,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+欧拉5,欧拉5,autohome_koubei.carname,64,exact,已归一,autohome,
+欧拉5SUV燃油版,欧拉5,dongchedi_koubei.carname,37,business_confirm,已归一,autohome,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+欧拉5,欧拉5,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+欧拉5GT,欧拉5GT,autohome_koubei.carname,22,exact,已归一,autohome,
+欧拉5GT EV,欧拉5GT,autohome_koubei.carname,3,exact,已归一,autohome,
+欧拉5GT,欧拉5GT,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+欧拉5GT EV,欧拉5GT,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+欧拉5运动款,欧拉5运动款,autohome_koubei.carname,33,exact,已归一,autohome,
+欧拉5运动款 EV,欧拉5运动款,autohome_koubei.carname,8,exact,已归一,autohome,
+欧拉5运动款,欧拉5运动款,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+欧拉5运动款 EV,欧拉5运动款,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+欧拉好猫,欧拉好猫,autohome_koubei.carname,180,exact,已归一,autohome,
+欧拉好猫,欧拉好猫,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+欧拉好猫,欧拉好猫,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+汉,汉,autohome_koubei.carname,200,exact,已归一,autohome,
+汉,汉,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+比亚迪汉,汉,quant_sample.Q3_22_1__1,22,brand_prefix,已归一,autohome,
+比亚迪汉 EV,汉,quant_sample.Q3_22_1__1,1,energy_suffix,已归一,autohome,
+比亚迪汉 dmi,汉,quant_sample.Q3_22_1__1,1,energy_suffix,已归一,autohome,
+比亚迪汉EV,汉,quant_sample.Q3_22_1__1,1,energy_suffix,已归一,autohome,
+比亚迪汉dmi,汉,quant_sample.Q3_22_1__1,16,energy_suffix,已归一,autohome,
+比亚迪汉,汉,quant_sample.Q3_22_1__2,25,brand_prefix,已归一,autohome,
+比亚迪汉 DMi,汉,quant_sample.Q3_22_1__2,9,energy_suffix,已归一,autohome,
+比亚迪汉EV,汉,quant_sample.Q3_22_1__2,1,energy_suffix,已归一,autohome,
+比亚迪汉,汉,quant_sample.Q3_22_1__3,23,brand_prefix,已归一,autohome,
+比亚迪汉EV,汉,quant_sample.Q3_22_1__3,4,energy_suffix,已归一,autohome,
+比亚迪汉dmi,汉,quant_sample.Q3_22_1__3,7,energy_suffix,已归一,autohome,
+比亚迪汉L,汉L,quant_sample.Q3_22_1__1,2,business_confirm,已归一,unverified,业务确认口径：可直接对应
+比亚迪汉L,汉L,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：可直接对应
+比亚迪汉L,汉L,quant_sample.Q3_22_1__3,2,business_confirm,已归一,unverified,业务确认口径：可直接对应
+广汽丰田汉兰达,汉兰达,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：对应「汉兰达」
+江淮QX PHEV,江淮QX,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+沃尔沃EM90,沃尔沃EM90,autohome_koubei.carname,52,exact,已归一,autohome,
+沃尔沃EM90,沃尔沃EM90,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+沃尔沃ES90,沃尔沃ES90,autohome_koubei.carname,1,exact,已归一,autohome,
+沃尔沃ES90,沃尔沃ES90,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+沃尔沃EX30,沃尔沃EX30,autohome_koubei.carname,4,exact,已归一,autohome,
+沃尔沃EX30,沃尔沃EX30,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+沃尔沃EX90,沃尔沃EX90,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+沃尔沃S60,沃尔沃S60,autohome_koubei.carname,60,exact,已归一,autohome,
+沃尔沃S60,沃尔沃S60,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+沃尔沃S90,沃尔沃S90,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+沃尔沃V60,沃尔沃V60,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+沃尔沃XC60,沃尔沃XC60,miit.ods_pz_base_info.model_name,5,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+沃尔沃XC60,沃尔沃XC60,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+沃尔沃XC70插电式混动,沃尔沃XC70,autohome_koubei.carname,62,exact,已归一,autohome,
+沃尔沃XC70,沃尔沃XC70,dongchedi_koubei.carname,72,business_confirm,已归一,autohome,匹配依据：包含匹配（原名是之家车系名的简写或带修饰词）
+沃尔沃XC70插电式混动,沃尔沃XC70,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+沃尔沃XC90,沃尔沃XC90,quant_sample.Q3_22_1__2,1,fuzzy,已归一,unverified,业务改判：原自动结果 沃尔沃EX90
+沃尔法海狮,沃尔法海狮,miit.ods_pz_base_info.model_name,2,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+法拉利12Cilindri,法拉利12Cilindri,autohome_koubei.carname,1,exact,已归一,autohome,
+法拉利12Cilindri,法拉利12Cilindri,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+法拉利Luce,法拉利Luce,autohome_koubei.carname,1,exact,已归一,autohome,
+法拉利Luce,法拉利Luce,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+泰钽700,泰钽700,autohome_koubei.carname,1,exact,已归一,autohome,
+海狮05 DM-i,海狮05,autohome_koubei.carname,199,exact,已归一,autohome,
+海狮05 EV,海狮05,autohome_koubei.carname,29,exact,已归一,autohome,
+海狮05DM,海狮05,dongchedi_koubei.carname,40,fuzzy,已归一,autohome,
+海狮05EV,海狮05,dongchedi_koubei.carname,109,exact,已归一,autohome,
+海狮05 EV,海狮05,interview.vehicle_model,3,exact,已归一,autohome,
+海狮05 DM-i,海狮05,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+海狮05 EV,海狮05,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+比亚迪海狮05,海狮05,quant_sample.Q3_22_1__1,6,business_confirm,已归一,unverified,业务确认口径：之家拆分为「海狮05 DM-i」「海狮05 EV」两个车系，无法唯一选择，统一合并为海狮05
+海狮05 EV,海狮05,quant_sample.Q3_22_1__1,1,exact,已归一,autohome,
+海狮05EV,海狮05,quant_sample.Q3_22_1__1,3,exact,已归一,autohome,
+比亚迪海狮05,海狮05,quant_sample.Q3_22_1__2,5,business_confirm,已归一,unverified,业务确认口径：之家拆分为「海狮05 DM-i」「海狮05 EV」两个车系，无法唯一选择，统一合并为海狮05
+比亚迪海狮05 EV,海狮05,quant_sample.Q3_22_1__2,1,brand_prefix,已归一,autohome,
+海狮05,海狮05,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：之家拆分为「海狮05 DM-i」「海狮05 EV」两个车系，无法唯一选择，统一合并为海狮05
+海狮05 EV,海狮05,quant_sample.Q3_22_1__2,4,exact,已归一,autohome,
+海狮05EV,海狮05,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+比亚迪海狮05,海狮05,quant_sample.Q3_22_1__3,7,business_confirm,已归一,unverified,业务确认口径：之家拆分为「海狮05 DM-i」「海狮05 EV」两个车系，无法唯一选择，统一合并为海狮05
+海狮05,海狮05,quant_sample.Q3_22_1__3,2,business_confirm,已归一,unverified,业务确认口径：之家拆分为「海狮05 DM-i」「海狮05 EV」两个车系，无法唯一选择，统一合并为海狮05
+海狮05 EV,海狮05,quant_sample.Q3_22_1__3,3,exact,已归一,autohome,
+海狮05EV,海狮05,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+海狮05 EV,海狮05,quant_sample.purchase_model,31,exact,已归一,autohome,
+海狮06,海狮06,autohome_koubei.carname,200,exact,已归一,autohome,
+海狮06,海狮06,miit.ods_pz_base_info.model_name,9,exact,已归一,autohome,
+海狮06,海狮06,quant_sample.Q3_22_1__1,2,exact,已归一,autohome,
+海狮06,海狮06,quant_sample.Q3_22_1__2,5,exact,已归一,autohome,
+比亚迪海狮06,海狮06,quant_sample.Q3_22_1__3,1,brand_prefix,已归一,autohome,
+海狮06,海狮06,quant_sample.Q3_22_1__3,5,exact,已归一,autohome,
+海狮06,海狮06,quant_sample.purchase_model,1,exact,已归一,autohome,
+比亚迪海狮07,海狮07,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：与「海狮07」同口径合并；海狮07 家族含 海狮07 DM-i / 海狮07 EV
+比亚迪海狮07 DMI,海狮07,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+海狮07,海狮07,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+海狮07DMI,海狮07,quant_sample.Q3_22_1__2,1,fuzzy,已归一,unverified,业务改判：原自动结果 海狮05 DM-i
+比亚迪海狮07,海狮07,quant_sample.Q3_22_1__3,3,business_confirm,已归一,unverified,业务确认口径：与「海狮07」同口径合并；海狮07 家族含 海狮07 DM-i / 海狮07 EV
+海狮08,海狮08,autohome_koubei.carname,87,exact,已归一,autohome,
+海狮08,海狮08,miit.ods_pz_base_info.model_name,8,exact,已归一,autohome,
+比亚迪海豚,海豚,quant_sample.Q3_22_1__2,4,business_confirm,已归一,unverified,业务确认口径：对应「海豚」
+比亚迪海豹,海豹,quant_sample.Q3_22_1__1,8,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+比亚迪海豹 EV,海豹,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：对应「海豹」；海豹家族另有海豹05/06/06GT/07/08（之家拆为独立车系）
+比亚迪海豹,海豹,quant_sample.Q3_22_1__2,7,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+比亚迪海豹,海豹,quant_sample.Q3_22_1__3,7,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+海豹05DM,海豹05,dongchedi_koubei.carname,47,fuzzy,已归一,autohome,
+海豹05,海豹05,interview.vehicle_model,2,business_confirm,已归一,unverified,业务 2026-11-10 定稿：Sheet1 全名「海豹05 DM-i」不用，统一用简称「海豹05」
+海豹05 DM-i,海豹05,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+比亚迪海豹05DMi,海豹05,quant_sample.Q3_22_1__1,1,brand_prefix,已归一,autohome,
+海豹05 EV,海豹05,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+海豹05,海豹05,quant_sample.Q3_22_1__3,2,business_confirm,已归一,unverified,业务 2026-11-10 定稿：Sheet1 全名「海豹05 DM-i」不用，统一用简称「海豹05」
+海豹05,海豹05,quant_sample.purchase_model,30,business_confirm,已归一,unverified,业务 2026-11-10 定稿：Sheet1 全名「海豹05 DM-i」不用，统一用简称「海豹05」
+海豹06,海豹06,autohome_koubei.carname,200,exact,已归一,autohome,
+海豹06,海豹06,miit.ods_pz_base_info.model_name,16,exact,已归一,autohome,
+比亚迪海豹06,海豹06,quant_sample.Q3_22_1__1,13,brand_prefix,已归一,autohome,
+海豹06,海豹06,quant_sample.Q3_22_1__1,2,exact,已归一,autohome,
+海豹06 DMI,海豹06,quant_sample.Q3_22_1__1,5,energy_suffix,已归一,autohome,
+海豹06DMI,海豹06,quant_sample.Q3_22_1__1,2,energy_suffix,已归一,autohome,
+比亚迪海豹06,海豹06,quant_sample.Q3_22_1__2,9,brand_prefix,已归一,autohome,
+比亚迪海豹06 EV,海豹06,quant_sample.Q3_22_1__2,1,energy_suffix,已归一,autohome,
+海豹06 DMI,海豹06,quant_sample.Q3_22_1__2,4,energy_suffix,已归一,autohome,
+海豹06DMI,海豹06,quant_sample.Q3_22_1__2,1,energy_suffix,已归一,autohome,
+比亚迪海豹06,海豹06,quant_sample.Q3_22_1__3,9,brand_prefix,已归一,autohome,
+比亚迪海豹06 EV,海豹06,quant_sample.Q3_22_1__3,2,energy_suffix,已归一,autohome,
+比亚迪海豹06-DMI,海豹06,quant_sample.Q3_22_1__3,5,energy_suffix,已归一,autohome,
+海豹06 DMI,海豹06,quant_sample.Q3_22_1__3,1,energy_suffix,已归一,autohome,
+海豹06DMI,海豹06,quant_sample.Q3_22_1__3,2,energy_suffix,已归一,autohome,
+海豹06 DM-i旅行版,海豹06 DM-i旅行版,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+海豹06GT,海豹06GT,autohome_koubei.carname,200,exact,已归一,autohome,
+海豹06GT,海豹06GT,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+海豹06GT,海豹06GT,quant_sample.Q3_22_1__2,3,exact,已归一,autohome,
+海豹06GT,海豹06GT,quant_sample.Q3_22_1__3,5,exact,已归一,autohome,
+海豹07 EV,海豹07,autohome_koubei.carname,125,exact,已归一,autohome,
+海豹07DM,海豹07,dongchedi_koubei.carname,38,fuzzy,已归一,autohome,
+海豹07EV,海豹07,dongchedi_koubei.carname,3,exact,已归一,autohome,
+海豹07 DM-i,海豹07,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+海豹07 EV,海豹07,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+比亚迪海豹07,海豹07,quant_sample.Q3_22_1__1,4,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（DM/PHEV≈新能源、EV≈纯电）
+海豹07,海豹07,quant_sample.Q3_22_1__1,3,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（DM/PHEV≈新能源、EV≈纯电）
+海豹07DMI,海豹07,quant_sample.Q3_22_1__1,3,exact,已归一,autohome,
+比亚迪海豹07,海豹07,quant_sample.Q3_22_1__2,6,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（DM/PHEV≈新能源、EV≈纯电）
+比亚迪海豹07,海豹07,quant_sample.Q3_22_1__3,9,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（DM/PHEV≈新能源、EV≈纯电）
+海豹07 DM-i,海豹07,quant_sample.purchase_model,30,exact,已归一,autohome,
+海豹08,海豹08,autohome_koubei.carname,200,exact,已归一,autohome,
+海豹08,海豹08,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+海马8S,海马8S,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+海鸥,海鸥,autohome_koubei.carname,200,exact,已归一,autohome,
+海鸥,海鸥,miit.ods_pz_base_info.model_name,9,exact,已归一,autohome,
+比亚迪海鸥,海鸥,quant_sample.Q3_22_1__1,1,brand_prefix,已归一,autohome,
+比亚迪海鸥,海鸥,quant_sample.Q3_22_1__2,1,brand_prefix,已归一,autohome,
+深蓝,深蓝,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+深蓝G318,深蓝G318,dongchedi_koubei.carname,36,exact,已归一,autohome,
+深蓝G318,深蓝G318,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+深蓝G318,深蓝G318,quant_sample.Q3_22_1__1,2,exact,已归一,autohome,
+深蓝G318,深蓝G318,quant_sample.Q3_22_1__2,3,exact,已归一,autohome,
+深蓝G318,深蓝G318,quant_sample.Q3_22_1__3,2,exact,已归一,autohome,
+深蓝L06,深蓝L06,autohome_koubei.carname,25,exact,已归一,autohome,
+深蓝L06,深蓝L06,dongchedi_koubei.carname,200,exact,已归一,autohome,
+深蓝L06,深蓝L06,miit.ods_pz_base_info.model_name,17,exact,已归一,autohome,
+深蓝L06,深蓝L06,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+深蓝L07,深蓝L07,quant_sample.Q3_22_1__1,6,business_confirm,已归一,unverified,业务确认口径：可直接对应
+深蓝L07 EV,深蓝L07,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：可直接对应
+深蓝L07,深蓝L07,quant_sample.Q3_22_1__2,5,business_confirm,已归一,unverified,业务确认口径：可直接对应
+深蓝l07,深蓝L07,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：可直接对应
+深蓝 L07,深蓝L07,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：可直接对应
+深蓝L07,深蓝L07,quant_sample.Q3_22_1__3,4,business_confirm,已归一,unverified,业务确认口径：可直接对应
+深蓝L07,深蓝L07,quant_sample.purchase_model,2,business_confirm,已归一,unverified,业务确认口径：可直接对应
+深蓝S05,深蓝S05,autohome_koubei.carname,122,exact,已归一,autohome,
+深蓝S05,深蓝S05,dongchedi_koubei.carname,200,exact,已归一,autohome,
+深蓝S05,深蓝S05,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+深蓝S05,深蓝S05,quant_sample.Q3_22_1__1,24,exact,已归一,autohome,
+深蓝S05 EV,深蓝S05,quant_sample.Q3_22_1__1,1,energy_suffix,已归一,autohome,
+深蓝s05,深蓝S05,quant_sample.Q3_22_1__1,5,exact,已归一,autohome,
+深蓝S05,深蓝S05,quant_sample.Q3_22_1__2,25,exact,已归一,autohome,
+深蓝S05 EV,深蓝S05,quant_sample.Q3_22_1__2,2,energy_suffix,已归一,autohome,
+深蓝s05,深蓝S05,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+深蓝S05,深蓝S05,quant_sample.Q3_22_1__3,19,exact,已归一,autohome,
+深蓝S05 EV,深蓝S05,quant_sample.Q3_22_1__3,2,energy_suffix,已归一,autohome,
+深蓝S05,深蓝S05,quant_sample.purchase_model,60,exact,已归一,autohome,
+深蓝S07,深蓝S07,autohome_koubei.carname,38,exact,已归一,autohome,
+深蓝S07,深蓝S07,dongchedi_koubei.carname,182,exact,已归一,autohome,
+深蓝S07,深蓝S07,miit.ods_pz_base_info.model_name,17,exact,已归一,autohome,
+深蓝S07,深蓝S07,quant_sample.Q3_22_1__1,22,exact,已归一,autohome,
+深蓝S07EV,深蓝S07,quant_sample.Q3_22_1__1,4,energy_suffix,已归一,autohome,
+深蓝S7,深蓝S07,quant_sample.Q3_22_1__1,3,fuzzy,已归一,autohome,
+深蓝s07,深蓝S07,quant_sample.Q3_22_1__1,2,exact,已归一,autohome,
+深蓝S07,深蓝S07,quant_sample.Q3_22_1__2,36,exact,已归一,autohome,
+深蓝S7,深蓝S07,quant_sample.Q3_22_1__2,2,fuzzy,已归一,autohome,
+深蓝s07,深蓝S07,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+深蓝S07,深蓝S07,quant_sample.Q3_22_1__3,22,exact,已归一,autohome,
+深蓝S07 EV,深蓝S07,quant_sample.Q3_22_1__3,1,energy_suffix,已归一,autohome,
+深蓝s07,深蓝S07,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+深蓝S07,深蓝S07,quant_sample.purchase_model,62,exact,已归一,autohome,
+深蓝S09,深蓝S09,autohome_koubei.carname,8,exact,已归一,autohome,
+深蓝S09,深蓝S09,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+深蓝S09,深蓝S09,quant_sample.Q3_22_1__1,9,exact,已归一,autohome,
+深蓝S09,深蓝S09,quant_sample.Q3_22_1__2,9,exact,已归一,autohome,
+深蓝 S09,深蓝S09,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+深蓝S09,深蓝S09,quant_sample.Q3_22_1__3,4,exact,已归一,autohome,
+深蓝SL03,深蓝SL03,quant_sample.Q3_22_1__1,23,business_confirm,已归一,unverified,业务确认口径：可直接对应
+深蓝SL03 EV,深蓝SL03,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：可直接对应
+深蓝SL03,深蓝SL03,quant_sample.Q3_22_1__2,23,business_confirm,已归一,unverified,业务确认口径：可直接对应
+深蓝sL03,深蓝SL03,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：可直接对应
+深蓝SL03,深蓝SL03,quant_sample.Q3_22_1__3,24,business_confirm,已归一,unverified,业务确认口径：可直接对应
+深蓝SL03,深蓝SL03,quant_sample.purchase_model,60,business_confirm,已归一,unverified,业务确认口径：可直接对应
+炮新能源,炮,autohome_koubei.carname,57,exact,已归一,autohome,
+焜驰麒麟,焜驰麒麟,miit.ods_pz_base_info.model_name,3,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+熊猫,熊猫,autohome_koubei.carname,13,exact,已归一,autohome,
+熊猫,熊猫,dongchedi_koubei.carname,63,exact,已归一,autohome,
+熊猫,熊猫,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+牧马人,牧马人,autohome_koubei.carname,60,exact,已归一,autohome,
+牧马人,牧马人,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+狮铂拓界,狮铂拓界,autohome_koubei.carname,38,exact,已归一,autohome,
+狮铂拓界,狮铂拓界,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+猛士917,猛士917,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+猛士M817,猛士M817,autohome_koubei.carname,63,exact,已归一,autohome,
+猛士M817,猛士M817,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+猛士M817,猛士M817,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+猛士X700,猛士X700,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+理想,理想,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+理想L6,理想L6,autohome_koubei.carname,79,exact,已归一,autohome,
+理想L6,理想L6,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+理想L6,理想L6,quant_sample.Q3_22_1__1,32,exact,已归一,autohome,
+理想 L6,理想L6,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+理想L6,理想L6,quant_sample.Q3_22_1__2,21,exact,已归一,autohome,
+理想L6,理想L6,quant_sample.Q3_22_1__3,17,exact,已归一,autohome,
+理想 L7,理想L7,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：对应「理想L7」
+理想L7,理想L7,quant_sample.Q3_22_1__1,14,business_confirm,已归一,unverified,业务确认口径：对应「理想L7」
+理想 L7,理想L7,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：对应「理想L7」
+理想L7,理想L7,quant_sample.Q3_22_1__2,13,business_confirm,已归一,unverified,业务确认口径：对应「理想L7」
+理想L7,理想L7,quant_sample.Q3_22_1__3,13,business_confirm,已归一,unverified,业务确认口径：对应「理想L7」
+理想L8,理想L8,autohome_koubei.carname,25,exact,已归一,autohome,
+理想L8,理想L8,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+理想L8,理想L8,quant_sample.Q3_22_1__1,15,exact,已归一,autohome,
+理想L8,理想L8,quant_sample.Q3_22_1__2,18,exact,已归一,autohome,
+理想L8,理想L8,quant_sample.Q3_22_1__3,9,exact,已归一,autohome,
+理想L9,理想L9,autohome_koubei.carname,21,exact,已归一,autohome,
+理想L9,理想L9,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+理想L9,理想L9,quant_sample.Q3_22_1__1,28,exact,已归一,autohome,
+理想 L9,理想L9,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+理想L9,理想L9,quant_sample.Q3_22_1__2,19,exact,已归一,autohome,
+理想L9,理想L9,quant_sample.Q3_22_1__3,16,exact,已归一,autohome,
+理想MEGA,理想MEGA,autohome_koubei.carname,2,exact,已归一,autohome,
+理想MEGA,理想MEGA,dongchedi_koubei.carname,17,exact,已归一,autohome,
+理想MEGA,理想MEGA,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+理想MEGA,理想MEGA,quant_sample.Q3_22_1__2,4,exact,已归一,autohome,
+理想i6,理想i6,autohome_koubei.carname,154,exact,已归一,autohome,
+理想i6,理想i6,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+理想i6,理想i6,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+理想i6,理想i6,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+理想i8,理想i8,autohome_koubei.carname,17,exact,已归一,autohome,
+理想i8,理想i8,dongchedi_koubei.carname,43,exact,已归一,autohome,
+理想i8,理想i8,interview.vehicle_model,4,exact,已归一,autohome,
+理想i8,理想i8,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+理想i8,理想i8,quant_sample.Q3_22_1__1,9,exact,已归一,autohome,
+理想i8,理想i8,quant_sample.Q3_22_1__2,5,exact,已归一,autohome,
+理想i8,理想i8,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+理想i8,理想i8,quant_sample.purchase_model,38,exact,已归一,autohome,
+理想i9,理想i9,autohome_koubei.carname,3,exact,已归一,autohome,
+理想i9,理想i9,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+瑞虎5,瑞虎5,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+瑞虎7,瑞虎7,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+瑞虎7,瑞虎7,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+瑞虎7L,瑞虎7L,autohome_koubei.carname,200,exact,已归一,autohome,
+瑞虎7L,瑞虎7L,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+奇瑞瑞虎8,瑞虎8,quant_sample.Q3_22_1__1,6,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+奇瑞瑞虎8,瑞虎8,quant_sample.Q3_22_1__2,5,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+奇瑞瑞虎8,瑞虎8,quant_sample.Q3_22_1__3,2,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+瑞虎8 PLUS,瑞虎8 PLUS,autohome_koubei.carname,148,exact,已归一,autohome,
+瑞虎8 PLUS,瑞虎8 PLUS,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+瑞虎8 PRO,瑞虎8 PRO,autohome_koubei.carname,165,exact,已归一,autohome,
+瑞虎8 PRO,瑞虎8 PRO,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+奇瑞瑞虎8pro,瑞虎8 PRO,quant_sample.Q3_22_1__1,3,brand_prefix,已归一,autohome,
+奇瑞瑞虎8pro,瑞虎8 PRO,quant_sample.Q3_22_1__2,1,brand_prefix,已归一,autohome,
+奇瑞瑞虎8L,瑞虎8L,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+奇瑞瑞虎8L,瑞虎8L,quant_sample.Q3_22_1__3,2,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+瑞虎9,瑞虎9,autohome_koubei.carname,200,exact,已归一,autohome,
+瑞虎9,瑞虎9,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+瑞风E3,瑞风E3,miit.ods_pz_base_info.model_name,8,exact,已归一,autohome,
+瑞风E4,瑞风E4,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+瑞风M4,瑞风M4,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+瑞风RF8 PHEV,瑞风RF8,autohome_koubei.carname,21,exact,已归一,autohome,
+瑞风RF8 PHEV,瑞风RF8,dongchedi_koubei.carname,2,exact,已归一,autohome,
+瑞风RF8 PHEV,瑞风RF8,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+瑶光C-DM,瑶光C-DM,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+电动MINI ACEMAN,电动MINI ACEMAN,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+电动MINI COOPER,电动MINI COOPER,autohome_koubei.carname,1,exact,已归一,autohome,
+电动MINI COOPER,电动MINI COOPER,miit.ods_pz_base_info.model_name,15,exact,已归一,autohome,
+电动MINI JCW,电动MINI JCW,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+电动MINI JCW ACEMAN,电动MINI JCW ACEMAN,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+丰田陆放,皇冠陆放,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：对应「皇冠陆放」，之家全称带皇冠前缀
+皓影,皓影,autohome_koubei.carname,65,exact,已归一,autohome,
+皓影,皓影,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+睿蓝8,睿蓝8,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+示界06,示界06,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：对应「示界06」
+神行者8,神行者8,autohome_koubei.carname,2,exact,已归一,autohome,
+神行者8,神行者8,dongchedi_koubei.carname,2,exact,已归一,autohome,
+神行者8,神行者8,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+福特烈马,福特烈马,autohome_koubei.carname,5,exact,已归一,autohome,
+福特烈马,福特烈马,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+比亚迪秦,秦,quant_sample.Q3_22_1__1,3,business_confirm,已归一,unverified,业务确认口径：对应「秦」
+比亚迪秦,秦,quant_sample.Q3_22_1__2,3,business_confirm,已归一,unverified,业务确认口径：对应「秦」
+比亚迪秦,秦,quant_sample.Q3_22_1__3,3,business_confirm,已归一,unverified,业务确认口径：对应「秦」
+秦L,秦L,autohome_koubei.carname,92,exact,已归一,autohome,
+秦L,秦L,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+比亚迪 秦L,秦L,quant_sample.Q3_22_1__1,1,brand_prefix,已归一,autohome,
+比亚迪秦L,秦L,quant_sample.Q3_22_1__1,33,brand_prefix,已归一,autohome,
+比亚迪秦L DMI,秦L,quant_sample.Q3_22_1__1,12,energy_suffix,已归一,autohome,
+比亚迪秦L EV,秦L,quant_sample.Q3_22_1__1,2,energy_suffix,已归一,autohome,
+比亚迪秦L,秦L,quant_sample.Q3_22_1__2,30,brand_prefix,已归一,autohome,
+比亚迪秦L-DMI,秦L,quant_sample.Q3_22_1__2,17,energy_suffix,已归一,autohome,
+比亚迪秦L,秦L,quant_sample.Q3_22_1__3,14,brand_prefix,已归一,autohome,
+比亚迪秦L DMI,秦L,quant_sample.Q3_22_1__3,3,energy_suffix,已归一,autohome,
+比亚迪秦L EV,秦L,quant_sample.Q3_22_1__3,1,energy_suffix,已归一,autohome,
+秦L DM-i,秦L,quant_sample.purchase_model,30,energy_suffix,已归一,autohome,
+秦MAX,秦MAX,autohome_koubei.carname,103,exact,已归一,autohome,
+秦MAX,秦MAX,miit.ods_pz_base_info.model_name,10,exact,已归一,autohome,
+秦PLUS,秦PLUS,autohome_koubei.carname,104,exact,已归一,autohome,
+秦PLUS,秦PLUS,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+比亚迪秦PIUS,秦PLUS,quant_sample.Q3_22_1__1,1,business_confirm,已归一,autohome,匹配依据：拼写纠正（如 PIUS→PLUS、智已→智己）
+比亚迪秦PLUS,秦PLUS,quant_sample.Q3_22_1__1,10,brand_prefix,已归一,autohome,
+比亚迪秦PLUS DMI,秦PLUS,quant_sample.Q3_22_1__1,9,energy_suffix,已归一,autohome,
+比亚迪秦Plus,秦PLUS,quant_sample.Q3_22_1__1,8,brand_prefix,已归一,autohome,
+比亚迪秦plus ev,秦PLUS,quant_sample.Q3_22_1__1,1,energy_suffix,已归一,autohome,
+比亚迪秦PLUS,秦PLUS,quant_sample.Q3_22_1__2,4,brand_prefix,已归一,autohome,
+比亚迪秦PLUS DM-i,秦PLUS,quant_sample.Q3_22_1__2,8,energy_suffix,已归一,autohome,
+比亚迪秦PLUS EV,秦PLUS,quant_sample.Q3_22_1__2,1,energy_suffix,已归一,autohome,
+比亚迪秦Plus,秦PLUS,quant_sample.Q3_22_1__2,5,brand_prefix,已归一,autohome,
+比亚迪秦PLUS,秦PLUS,quant_sample.Q3_22_1__3,3,brand_prefix,已归一,autohome,
+比亚迪秦PLUS DMI,秦PLUS,quant_sample.Q3_22_1__3,3,energy_suffix,已归一,autohome,
+比亚迪秦PLUS EV,秦PLUS,quant_sample.Q3_22_1__3,2,energy_suffix,已归一,autohome,
+比亚迪秦Plus,秦PLUS,quant_sample.Q3_22_1__3,5,brand_prefix,已归一,autohome,
+索纳塔,索纳塔,autohome_koubei.carname,10,exact,已归一,autohome,
+索纳塔,索纳塔,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+红旗E-QM5,红旗E-QM5,autohome_koubei.carname,8,exact,已归一,autohome,
+红旗E-QM5,红旗E-QM5,dongchedi_koubei.carname,38,exact,已归一,autohome,
+红旗E-QM5,红旗E-QM5,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+红旗EQM5,红旗E-QM5,quant_sample.Q3_22_1__2,2,exact,已归一,autohome,
+红旗EH7,红旗EH7,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：对应「红旗EH7」
+红旗G919,红旗G919,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+红旗H5,红旗H5,autohome_koubei.carname,200,exact,已归一,autohome,
+红旗H5,红旗H5,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+红旗H5 PHEV,红旗H5,miit.ods_pz_base_info.model_name,2,energy_suffix,已归一,autohome,
+红旗H5,红旗H5,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+红旗H6,红旗H6,autohome_koubei.carname,42,exact,已归一,autohome,
+红旗H6,红旗H6,miit.ods_pz_base_info.model_name,8,exact,已归一,autohome,
+红旗H7 PHEV,红旗H7,autohome_koubei.carname,18,exact,已归一,autohome,
+红旗H7 PHEV,红旗H7,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+红旗HQ9 PHEV,红旗HQ9,autohome_koubei.carname,4,exact,已归一,autohome,
+红旗HQ9 PHEV,红旗HQ9,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+红旗HS3 PHEV,红旗HS3,autohome_koubei.carname,56,exact,已归一,autohome,
+红旗HS3 PHEV,红旗HS3,dongchedi_koubei.carname,53,exact,已归一,autohome,
+红旗HS3 PHEV,红旗HS3,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+红旗HS5,红旗HS5,autohome_koubei.carname,120,exact,已归一,autohome,
+红旗HS5,红旗HS5,dongchedi_koubei.carname,200,exact,已归一,autohome,
+红旗HS5,红旗HS5,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+红旗HS5,红旗HS5,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+红旗HS6 PHEV,红旗HS6,autohome_koubei.carname,141,exact,已归一,autohome,
+红旗HS6 PHEV,红旗HS6,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+红旗HS7 PHEV,红旗HS7,miit.ods_pz_base_info.model_name,12,exact,已归一,autohome,
+红旗天工05,红旗天工05,autohome_koubei.carname,9,exact,已归一,autohome,
+红旗天工05,红旗天工05,dongchedi_koubei.carname,19,exact,已归一,autohome,
+红旗天工05,红旗天工05,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+红旗天工06,红旗天工06,autohome_koubei.carname,6,exact,已归一,autohome,
+红旗天工06,红旗天工06,dongchedi_koubei.carname,3,exact,已归一,autohome,
+红旗天工06,红旗天工06,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+红旗天工07,红旗天工07,autohome_koubei.carname,8,exact,已归一,autohome,
+红旗天工07,红旗天工07,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+红旗天工08,红旗天工08,autohome_koubei.carname,45,exact,已归一,autohome,
+红旗天工08,红旗天工08,dongchedi_koubei.carname,21,exact,已归一,autohome,
+红旗天工08,红旗天工08,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+红旗金葵花国雅,红旗金葵花国雅,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+纳米01,纳米01,autohome_koubei.carname,56,exact,已归一,autohome,
+纳米01,纳米01,dongchedi_koubei.carname,16,exact,已归一,autohome,
+纳米01,纳米01,miit.ods_pz_base_info.model_name,14,exact,已归一,autohome,
+纳米06,纳米06,autohome_koubei.carname,33,exact,已归一,autohome,
+纳米06,纳米06,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+东风纳米06,纳米06,quant_sample.Q3_22_1__1,1,brand_prefix,已归一,autohome,
+东风纳米06,纳米06,quant_sample.Q3_22_1__3,1,brand_prefix,已归一,autohome,
+纳米06,纳米06,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+纵横F700,纵横F700,autohome_koubei.carname,18,exact,已归一,autohome,
+纵横G700,纵横G700,autohome_koubei.carname,200,exact,已归一,autohome,
+纵横G700,纵横G700,dongchedi_koubei.carname,125,exact,已归一,autohome,
+纵横G700,纵横G700,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+维努斯,维努斯,miit.ods_pz_base_info.model_name,3,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+缤果Pro,缤果Pro,autohome_koubei.carname,128,exact,已归一,autohome,
+缤果Pro,缤果Pro,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+缤果S,缤果S,autohome_koubei.carname,102,exact,已归一,autohome,
+缤果S,缤果S,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+缤越,缤越,autohome_koubei.carname,22,exact,已归一,autohome,
+缤越,缤越,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+罗伦士梦想家,罗伦士梦想家,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+罗伦士烈马,罗伦士烈马,miit.ods_pz_base_info.model_name,4,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+羿驰05,羿驰05,autohome_koubei.carname,5,exact,已归一,autohome,
+羿驰05,羿驰05,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+羿驰05S,羿驰05S,miit.ods_pz_base_info.model_name,9,exact,已归一,autohome,
+福特翼虎,翼虎,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：对应「翼虎」，品牌前缀归一
+胜达,胜达,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+腾势D9,腾势D9,autohome_koubei.carname,200,exact,已归一,autohome,
+腾势D9,腾势D9,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+腾势 D9,腾势D9,quant_sample.Q3_22_1__1,1,exact,已归一,autohome,
+腾势D9,腾势D9,quant_sample.Q3_22_1__1,10,exact,已归一,autohome,
+腾势D9,腾势D9,quant_sample.Q3_22_1__2,8,exact,已归一,autohome,
+腾势D9,腾势D9,quant_sample.Q3_22_1__3,8,exact,已归一,autohome,
+腾势N7,腾势N7,quant_sample.Q3_22_1__3,2,business_confirm,已归一,unverified,业务确认口径：对应「腾势N7」
+腾势N8L,腾势N8L,autohome_koubei.carname,200,exact,已归一,autohome,
+腾势N8L,腾势N8L,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+腾势N8L,腾势N8L,quant_sample.Q3_22_1__1,3,exact,已归一,autohome,
+腾势N8L,腾势N8L,quant_sample.Q3_22_1__3,3,exact,已归一,autohome,
+腾势N9,腾势N9,autohome_koubei.carname,119,exact,已归一,autohome,
+腾势N9,腾势N9,interview.vehicle_model,2,exact,已归一,autohome,
+腾势N9,腾势N9,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+腾势N9,腾势N9,quant_sample.Q3_22_1__1,3,exact,已归一,autohome,
+腾势N9,腾势N9,quant_sample.Q3_22_1__2,5,exact,已归一,autohome,
+腾势N9,腾势N9,quant_sample.Q3_22_1__3,9,exact,已归一,autohome,
+腾势N9,腾势N9,quant_sample.purchase_model,39,exact,已归一,autohome,
+腾势Z9GT,腾势Z9GT,autohome_koubei.carname,200,exact,已归一,autohome,
+腾势Z9GT,腾势Z9GT,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+腾势Z9S,腾势Z9S,autohome_koubei.carname,5,exact,已归一,autohome,
+腾势Z9S,腾势Z9S,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+航海家,航海家,miit.ods_pz_base_info.model_name,10,exact,已归一,autohome,
+林肯航海家,航海家,quant_sample.Q3_22_1__2,1,brand_prefix,已归一,autohome,
+艾瑞泽8,艾瑞泽8,autohome_koubei.carname,200,exact,已归一,autohome,
+艾瑞泽8,艾瑞泽8,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+艾瑞泽8,艾瑞泽8,quant_sample.Q3_22_1__1,1,exact,已归一,autohome,
+艾瑞泽8,艾瑞泽8,quant_sample.Q3_22_1__2,3,exact,已归一,autohome,
+艾瑞泽8,艾瑞泽8,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+艾瑞泽8 PRO,艾瑞泽8 PRO,autohome_koubei.carname,200,exact,已归一,autohome,
+艾瑞泽8 PRO,艾瑞泽8 PRO,dongchedi_koubei.carname,180,exact,已归一,autohome,
+艾瑞泽8 PRO,艾瑞泽8 PRO,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+英仕派,英仕派,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+英力士掷弹兵,英力士掷弹兵,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+荣威D5X,荣威D5X DMH,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：对应「荣威D5X DMH」，DMH 为动力标识
+荣威D5X,荣威D5X DMH,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：对应「荣威D5X DMH」，DMH 为动力标识
+荣威D6,荣威D6,dongchedi_koubei.carname,11,exact,已归一,autohome,
+荣威D6,荣威D6,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+荣威D6,荣威D6,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+荣威D7,荣威D7,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：对应「荣威D7」
+荣威D7,荣威D7,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：对应「荣威D7」
+荣威M7 DMH,荣威M7 DMH,autohome_koubei.carname,14,exact,已归一,autohome,
+荣威M7 DMH,荣威M7 DMH,dongchedi_koubei.carname,36,exact,已归一,autohome,
+荣威M7 DMH,荣威M7 DMH,miit.ods_pz_base_info.model_name,9,exact,已归一,autohome,
+荣威M7,荣威M7 DMH,quant_sample.Q3_22_1__2,1,business_confirm,已归一,autohome,匹配依据：能量型式后缀等价（DM/PHEV≈新能源、EV≈纯电）
+荣威RX9,荣威RX9,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+荣威i6,荣威i6,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+荣威iMAX8新能源,荣威iMAX8,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+菱智,菱智,miit.ods_pz_base_info.model_name,21,exact,已归一,autohome,
+菱智新能源,菱智,miit.ods_pz_base_info.model_name,20,exact,已归一,autohome,
+菱智PLUS,菱智PLUS,miit.ods_pz_base_info.model_name,11,exact,已归一,autohome,
+蒙迪欧,蒙迪欧,autohome_koubei.carname,36,exact,已归一,autohome,
+蒙迪欧,蒙迪欧,miit.ods_pz_base_info.model_name,8,exact,已归一,autohome,
+蓝电E5,蓝电E5,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：对应「蓝电E5」
+蔚来EC6,蔚来EC6,autohome_koubei.carname,1,exact,已归一,autohome,
+蔚来EC6,蔚来EC6,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+蔚来ec6,蔚来EC6,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+蔚来ES6,蔚来ES6,autohome_koubei.carname,5,exact,已归一,autohome,
+蔚来ES6,蔚来ES6,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+蔚来ES6,蔚来ES6,quant_sample.Q3_22_1__1,4,exact,已归一,autohome,
+蔚来ES6,蔚来ES6,quant_sample.Q3_22_1__2,4,exact,已归一,autohome,
+蔚来ES6,蔚来ES6,quant_sample.Q3_22_1__3,7,exact,已归一,autohome,
+蔚来ES8,蔚来ES8,autohome_koubei.carname,83,exact,已归一,autohome,
+蔚来ES8,蔚来ES8,dongchedi_koubei.carname,169,exact,已归一,autohome,
+蔚来ES8,蔚来ES8,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+蔚来ES8,蔚来ES8,quant_sample.Q3_22_1__1,23,exact,已归一,autohome,
+蔚来ES8,蔚来ES8,quant_sample.Q3_22_1__2,24,exact,已归一,autohome,
+蔚来ES8,蔚来ES8,quant_sample.Q3_22_1__3,15,exact,已归一,autohome,
+蔚来ES9,蔚来ES9,autohome_koubei.carname,6,exact,已归一,autohome,
+蔚来ES9,蔚来ES9,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+蔚来ET5,蔚来ET5,autohome_koubei.carname,3,exact,已归一,autohome,
+蔚来ET5,蔚来ET5,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+蔚来ET5,蔚来ET5,quant_sample.Q3_22_1__1,2,exact,已归一,autohome,
+蔚来ET5,蔚来ET5,quant_sample.Q3_22_1__2,4,exact,已归一,autohome,
+蔚来ET5,蔚来ET5,quant_sample.Q3_22_1__3,2,exact,已归一,autohome,
+蔚来ET5T,蔚来ET5T,autohome_koubei.carname,9,exact,已归一,autohome,
+蔚来ET5T,蔚来ET5T,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+蔚来ET5T,蔚来ET5T,quant_sample.Q3_22_1__1,6,exact,已归一,autohome,
+蔚来ET5T,蔚来ET5T,quant_sample.Q3_22_1__2,4,exact,已归一,autohome,
+蔚来ET5T,蔚来ET5T,quant_sample.Q3_22_1__3,8,exact,已归一,autohome,
+豪越L,豪越L,miit.ods_pz_base_info.model_name,8,exact,已归一,autohome,
+豹5,豹5,autohome_koubei.carname,200,exact,已归一,autohome,
+豹5,豹5,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+方程豹5,豹5,quant_sample.Q3_22_1__1,3,brand_alias,已归一,autohome,
+方程豹5,豹5,quant_sample.Q3_22_1__2,2,brand_alias,已归一,autohome,
+方程豹5,豹5,quant_sample.Q3_22_1__3,1,brand_alias,已归一,autohome,
+豹8,豹8,autohome_koubei.carname,200,exact,已归一,autohome,
+豹8,豹8,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+方程豹8,豹8,quant_sample.Q3_22_1__1,1,brand_alias,已归一,autohome,
+方程豹 豹8,豹8,quant_sample.Q3_22_1__2,1,brand_prefix,已归一,autohome,
+方程豹8,豹8,quant_sample.Q3_22_1__2,1,brand_alias,已归一,autohome,
+方程豹豹8,豹8,quant_sample.Q3_22_1__2,1,brand_prefix,已归一,autohome,
+赛图斯,赛图斯,autohome_koubei.carname,29,exact,已归一,autohome,
+赛图斯,赛图斯,dongchedi_koubei.carname,4,exact,已归一,autohome,
+赛图斯,赛图斯,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+赛那SIENNA,赛那SIENNA,autohome_koubei.carname,139,exact,已归一,autohome,
+赛那SIENNA,赛那SIENNA,miit.ods_pz_base_info.model_name,10,exact,已归一,autohome,
+丰田赛那,赛那SIENNA,quant_sample.Q3_22_1__1,1,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+丰田塞纳,赛那SIENNA,quant_sample.Q3_22_1__2,1,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+赫菲特高顶赛那,赫菲特高顶赛那,miit.ods_pz_base_info.model_name,3,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+起亚K3,起亚K3,autohome_koubei.carname,3,exact,已归一,autohome,
+起亚K3,起亚K3,dongchedi_koubei.carname,35,exact,已归一,autohome,
+起亚K3,起亚K3,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+跨越星V7 EV,跨越星V7,autohome_koubei.carname,3,exact,已归一,autohome,
+跨越星V7 EV,跨越星V7,dongchedi_koubei.carname,2,exact,已归一,autohome,
+路虎卫士,路虎卫士,miit.ods_pz_base_info.model_name,12,exact,已归一,autohome,
+轩度EV,轩度EV,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+轩逸,轩逸,autohome_koubei.carname,159,exact,已归一,autohome,
+轩逸,轩逸,miit.ods_pz_base_info.model_name,14,exact,已归一,autohome,
+轩逸,轩逸,quant_sample.Q3_22_1__1,1,exact,已归一,autohome,
+迈凯宾,迈凯宾,miit.ods_pz_base_info.model_name,2,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+迈巴赫S级,迈巴赫S级,autohome_koubei.carname,4,exact,已归一,autohome,
+迈巴赫S级,迈巴赫S级,miit.ods_pz_base_info.model_name,9,exact,已归一,autohome,
+迈腾 PHEV,迈腾,autohome_koubei.carname,105,exact,已归一,autohome,
+迈腾,迈腾,miit.ods_pz_base_info.model_name,10,exact,已归一,autohome,
+迈腾 PHEV,迈腾,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+一汽大众迈腾,迈腾,quant_sample.Q3_22_1__2,1,brand_prefix,已归一,autohome,
+大众迈腾,迈腾,quant_sample.Q3_22_1__3,1,brand_prefix,已归一,autohome,
+远程超级VAN,远程超级VAN,autohome_koubei.carname,1,exact,已归一,autohome,
+超级VAN,远程超级VAN,dongchedi_koubei.carname,2,business_confirm,已归一,autohome,匹配依据：包含匹配（原名是之家车系名的简写或带修饰词）
+途岳,途岳,dongchedi_koubei.carname,73,exact,已归一,autohome,
+途岳,途岳,miit.ods_pz_base_info.model_name,12,exact,已归一,autohome,
+上海大众途岳,途岳,quant_sample.Q3_22_1__1,1,business_confirm,已归一,autohome,匹配依据：去厂牌前缀后同名（工信部表扩充）
+途昂,途昂,autohome_koubei.carname,5,exact,已归一,autohome,
+途昂,途昂,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+途胜,途胜,autohome_koubei.carname,21,exact,已归一,autohome,
+途胜,途胜,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+途观L,途观L,autohome_koubei.carname,85,exact,已归一,autohome,
+途观L插电混动,途观L,autohome_koubei.carname,2,exact,已归一,autohome,
+途观L,途观L,dongchedi_koubei.carname,199,exact,已归一,autohome,
+途观L,途观L,miit.ods_pz_base_info.model_name,9,exact,已归一,autohome,
+途观L插电混动,途观L,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+途锐,途锐,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+速腾,速腾,autohome_koubei.carname,200,exact,已归一,autohome,
+速腾,速腾,miit.ods_pz_base_info.model_name,12,exact,已归一,autohome,
+大众速腾,速腾,quant_sample.Q3_22_1__1,1,brand_prefix,已归一,autohome,
+一汽大众速腾,速腾,quant_sample.Q3_22_1__3,1,brand_prefix,已归一,autohome,
+逸动,逸动,autohome_koubei.carname,81,exact,已归一,autohome,
+逸动,逸动,miit.ods_pz_base_info.model_name,9,exact,已归一,autohome,
+长安逸动,逸动,quant_sample.Q3_22_1__1,2,brand_prefix,已归一,autohome,
+逸动,逸动,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+长安逸动PHEV,逸动,quant_sample.Q3_22_1__3,1,energy_suffix,已归一,autohome,
+郑州日产Z9,郑州日产Z9,autohome_koubei.carname,6,exact,已归一,autohome,
+鑫源E3,鑫源E3,autohome_koubei.carname,7,exact,已归一,autohome,
+鑫源E3L,鑫源E3L,autohome_koubei.carname,16,exact,已归一,autohome,
+鑫源向上V6 新能源,鑫源向上V6,autohome_koubei.carname,200,exact,已归一,autohome,
+鑫源向上V6,鑫源向上V6,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+鑫源向上V6 新能源,鑫源向上V6,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+钛3,钛3,autohome_koubei.carname,200,exact,已归一,autohome,
+钛3,钛3,dongchedi_koubei.carname,200,exact,已归一,autohome,
+钛3,钛3,interview.vehicle_model,3,exact,已归一,autohome,
+钛3,钛3,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+钛3,钛3,quant_sample.Q3_22_1__1,7,exact,已归一,autohome,
+方程豹钛3,钛3,quant_sample.Q3_22_1__2,1,brand_prefix,已归一,autohome,
+钛3,钛3,quant_sample.Q3_22_1__2,7,exact,已归一,autohome,
+钛3,钛3,quant_sample.Q3_22_1__3,6,exact,已归一,autohome,
+钛3,钛3,quant_sample.purchase_model,30,exact,已归一,autohome,
+钛7,钛7,autohome_koubei.carname,200,exact,已归一,autohome,
+钛7,钛7,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+钛7,钛7,quant_sample.Q3_22_1__1,1,exact,已归一,autohome,
+钛7,钛7,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+钛7,钛7,quant_sample.Q3_22_1__3,4,exact,已归一,autohome,
+铂智3X,铂智3X,autohome_koubei.carname,200,exact,已归一,autohome,
+铂智3X,铂智3X,dongchedi_koubei.carname,89,exact,已归一,autohome,
+铂智3X,铂智3X,interview.vehicle_model,3,exact,已归一,autohome,
+铂智3X,铂智3X,miit.ods_pz_base_info.model_name,10,exact,已归一,autohome,
+铂智3X,铂智3X,quant_sample.Q3_22_1__1,7,exact,已归一,autohome,
+铂智3X,铂智3X,quant_sample.Q3_22_1__2,5,exact,已归一,autohome,
+铂智3X,铂智3X,quant_sample.Q3_22_1__3,5,exact,已归一,autohome,
+铂智3X,铂智3X,quant_sample.purchase_model,39,exact,已归一,autohome,
+铂智7,铂智7,autohome_koubei.carname,175,exact,已归一,autohome,
+铂智7,铂智7,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+银河A7,银河A7,autohome_koubei.carname,43,exact,已归一,autohome,
+银河A7 EM,银河A7,autohome_koubei.carname,157,exact,已归一,autohome,
+银河A7,银河A7,interview.vehicle_model,3,exact,已归一,autohome,
+银河A7 EM,银河A7,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+银河A7 EV,银河A7,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+银河A7,银河A7,quant_sample.Q3_22_1__1,4,exact,已归一,autohome,
+银河A7,银河A7,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+银河A7,银河A7,quant_sample.Q3_22_1__3,6,exact,已归一,autohome,
+银河A7,银河A7,quant_sample.purchase_model,31,exact,已归一,autohome,
+银河E5,银河E5,autohome_koubei.carname,200,exact,已归一,autohome,
+银河E5,银河E5,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+吉利银河E5,银河E5,quant_sample.Q3_22_1__1,29,brand_alias,已归一,autohome,
+银河E5,银河E5,quant_sample.Q3_22_1__1,18,exact,已归一,autohome,
+吉利银河E5,银河E5,quant_sample.Q3_22_1__2,17,brand_alias,已归一,autohome,
+银河E5,银河E5,quant_sample.Q3_22_1__2,16,exact,已归一,autohome,
+吉利银河E5,银河E5,quant_sample.Q3_22_1__3,8,brand_alias,已归一,autohome,
+银河E5,银河E5,quant_sample.Q3_22_1__3,21,exact,已归一,autohome,
+吉利银河E8,银河E8,quant_sample.Q3_22_1__1,9,business_confirm,已归一,unverified,业务确认口径：对应「银河E8」
+银河E8,银河E8,quant_sample.Q3_22_1__1,2,business_confirm,已归一,unverified,业务确认口径：对应「银河E8」
+吉利银河E8,银河E8,quant_sample.Q3_22_1__2,7,business_confirm,已归一,unverified,业务确认口径：对应「银河E8」
+银河E8,银河E8,quant_sample.Q3_22_1__2,2,business_confirm,已归一,unverified,业务确认口径：对应「银河E8」
+吉利银河E8,银河E8,quant_sample.Q3_22_1__3,6,business_confirm,已归一,unverified,业务确认口径：对应「银河E8」
+银河E8,银河E8,quant_sample.Q3_22_1__3,5,business_confirm,已归一,unverified,业务确认口径：对应「银河E8」
+吉利银河L6,银河L6,quant_sample.Q3_22_1__1,7,business_confirm,已归一,unverified,业务确认口径：对应「银河L6」
+银河L6,银河L6,quant_sample.Q3_22_1__1,6,business_confirm,已归一,unverified,业务确认口径：对应「银河L6」
+吉利银河L6,银河L6,quant_sample.Q3_22_1__2,7,business_confirm,已归一,unverified,业务确认口径：对应「银河L6」
+银河L6,银河L6,quant_sample.Q3_22_1__2,8,business_confirm,已归一,unverified,业务确认口径：对应「银河L6」
+吉利银河L6,银河L6,quant_sample.Q3_22_1__3,4,business_confirm,已归一,unverified,业务确认口径：对应「银河L6」
+银河L6,银河L6,quant_sample.Q3_22_1__3,10,business_confirm,已归一,unverified,业务确认口径：对应「银河L6」
+吉利银河L7,银河L7,quant_sample.Q3_22_1__1,18,business_confirm,已归一,unverified,业务确认口径：对应「银河L7」
+银河L7,银河L7,quant_sample.Q3_22_1__1,7,business_confirm,已归一,unverified,业务确认口径：对应「银河L7」
+吉利银河L7,银河L7,quant_sample.Q3_22_1__2,19,business_confirm,已归一,unverified,业务确认口径：对应「银河L7」
+银河L7,银河L7,quant_sample.Q3_22_1__2,10,business_confirm,已归一,unverified,业务确认口径：对应「银河L7」
+吉利银河L7,银河L7,quant_sample.Q3_22_1__3,15,business_confirm,已归一,unverified,业务确认口径：对应「银河L7」
+银河L7,银河L7,quant_sample.Q3_22_1__3,10,business_confirm,已归一,unverified,业务确认口径：对应「银河L7」
+银河L7max,银河L7,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：原文银河L7max 按银河L7系列归入（若 max 为独立车系请修正）
+银河L7,银河L7,quant_sample.purchase_model,1,business_confirm,已归一,unverified,业务确认口径：对应「银河L7」
+银河M7,银河M7,autohome_koubei.carname,200,exact,已归一,autohome,
+银河M7,银河M7,dongchedi_koubei.carname,56,exact,已归一,autohome,
+银河M7,银河M7,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+银河M9,银河M9,autohome_koubei.carname,200,exact,已归一,autohome,
+银河M9,银河M9,dongchedi_koubei.carname,200,exact,已归一,autohome,
+银河M9,银河M9,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+银河M9,银河M9,quant_sample.Q3_22_1__1,4,exact,已归一,autohome,
+银河M9,银河M9,quant_sample.Q3_22_1__2,6,exact,已归一,autohome,
+银河M9,银河M9,quant_sample.Q3_22_1__3,6,exact,已归一,autohome,
+银河TT,银河TT,autohome_koubei.carname,95,exact,已归一,autohome,
+银河TT,银河TT,dongchedi_koubei.carname,122,exact,已归一,autohome,
+银河TT,银河TT,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+银河V900,银河V900,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+银河战舰700,银河战舰700,autohome_koubei.carname,76,exact,已归一,autohome,
+银河战舰700,银河战舰700,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+银河星耀6,银河星耀6,autohome_koubei.carname,30,exact,已归一,autohome,
+银河星耀6,银河星耀6,dongchedi_koubei.carname,30,exact,已归一,autohome,
+银河星耀6,银河星耀6,miit.ods_pz_base_info.model_name,9,exact,已归一,autohome,
+银河星耀7,银河星耀7,autohome_koubei.carname,200,exact,已归一,autohome,
+银河星耀7,银河星耀7,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+银河星耀8,银河星耀8,autohome_koubei.carname,200,exact,已归一,autohome,
+银河星耀8,银河星耀8,interview.vehicle_model,4,exact,已归一,autohome,
+银河星耀8,银河星耀8,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+银河星耀8,银河星耀8,quant_sample.Q3_22_1__1,2,exact,已归一,autohome,
+银河星耀8,银河星耀8,quant_sample.Q3_22_1__2,4,exact,已归一,autohome,
+吉利银河星耀8,银河星耀8,quant_sample.Q3_22_1__3,1,brand_alias,已归一,autohome,
+银河星耀8,银河星耀8,quant_sample.Q3_22_1__3,10,exact,已归一,autohome,
+银河星耀8,银河星耀8,quant_sample.purchase_model,40,exact,已归一,autohome,
+银河星舰7,银河星舰7,autohome_koubei.carname,189,exact,已归一,autohome,
+银河星舰7,银河星舰7,miit.ods_pz_base_info.model_name,10,exact,已归一,autohome,
+吉利星舰7,银河星舰7,quant_sample.Q3_22_1__1,2,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+吉利银河星舰7,银河星舰7,quant_sample.Q3_22_1__1,3,brand_alias,已归一,autohome,
+星舰7,银河星舰7,quant_sample.Q3_22_1__1,1,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+银河星舰7,银河星舰7,quant_sample.Q3_22_1__1,6,exact,已归一,autohome,
+吉利银河星舰7,银河星舰7,quant_sample.Q3_22_1__2,5,brand_alias,已归一,autohome,
+银河星舰7,银河星舰7,quant_sample.Q3_22_1__2,7,exact,已归一,autohome,
+吉利银河星舰7,银河星舰7,quant_sample.Q3_22_1__3,3,brand_alias,已归一,autohome,
+银河星舰7,银河星舰7,quant_sample.Q3_22_1__3,8,exact,已归一,autohome,
+银河星舰7,银河星舰7,quant_sample.purchase_model,33,exact,已归一,autohome,
+锐界,锐界,autohome_koubei.carname,24,exact,已归一,autohome,
+锐界,锐界,miit.ods_pz_base_info.model_name,14,exact,已归一,autohome,
+锐胜M8新能源,锐胜M8,autohome_koubei.carname,50,exact,已归一,autohome,
+锐胜M8新能源,锐胜M8,miit.ods_pz_base_info.model_name,30,exact,已归一,autohome,
+锐胜王牌M7,锐胜王牌M7,dongchedi_koubei.carname,6,exact,已归一,autohome,
+锐胜王牌M7,锐胜王牌M7,miit.ods_pz_base_info.model_name,56,exact,已归一,autohome,
+锐胜王牌M7新能源,锐胜王牌M7,miit.ods_pz_base_info.model_name,22,exact,已归一,autohome,
+锐骐6 pro,锐骐6 pro,autohome_koubei.carname,1,exact,已归一,autohome,
+长城H10,长城H10,autohome_koubei.carname,200,exact,已归一,autohome,
+长城H10,长城H10,dongchedi_koubei.carname,133,exact,已归一,autohome,
+长城H10,长城H10,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+长城大狗,长城大狗,autohome_koubei.carname,200,exact,已归一,autohome,
+长城大狗,长城大狗,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+哈佛大狗,长城大狗,quant_sample.Q3_22_1__1,1,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+哈弗大狗,长城大狗,quant_sample.Q3_22_1__1,3,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+哈弗大狗,长城大狗,quant_sample.Q3_22_1__2,1,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+哈弗大狗,长城大狗,quant_sample.Q3_22_1__3,1,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+长城猛龙 PLUS,长城猛龙 PLUS,autohome_koubei.carname,200,exact,已归一,autohome,
+长城猛龙 PLUS,长城猛龙 PLUS,miit.ods_pz_base_info.model_name,9,exact,已归一,autohome,
+长安CS55PLUS,长安CS55PLUS,autohome_koubei.carname,10,exact,已归一,autohome,
+长安CS55 PLUS,长安CS55PLUS,dongchedi_koubei.carname,73,exact,已归一,autohome,
+长安CS55PLUS,长安CS55PLUS,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+长安CS75,长安CS75,quant_sample.Q3_22_1__2,3,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+长安CS75PLUS,长安CS75PLUS,autohome_koubei.carname,86,exact,已归一,autohome,
+长安CS75PLUS,长安CS75PLUS,miit.ods_pz_base_info.model_name,9,exact,已归一,autohome,
+长安cs75plus,长安CS75PLUS,quant_sample.Q3_22_1__1,2,exact,已归一,autohome,
+长安Lumin,长安Lumin,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+长安UNI-V,长安UNI-V,autohome_koubei.carname,13,exact,已归一,autohome,
+长安UNI-V,长安UNI-V,dongchedi_koubei.carname,124,exact,已归一,autohome,
+长安UNI-V,长安UNI-V,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+长安UNI-V,长安UNI-V,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+长安UNI-Z,长安UNI-Z,autohome_koubei.carname,2,exact,已归一,autohome,
+长安UNI-Z新能源,长安UNI-Z,autohome_koubei.carname,2,exact,已归一,autohome,
+长安UNI-Z,长安UNI-Z,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+长安UNI-Z新能源,长安UNI-Z,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+长安UNI-Z,长安UNI-Z,quant_sample.Q3_22_1__1,4,exact,已归一,autohome,
+长安UNI-Z,长安UNI-Z,quant_sample.Q3_22_1__2,3,exact,已归一,autohome,
+长安UNIZ,长安UNI-Z,quant_sample.Q3_22_1__2,2,exact,已归一,autohome,
+长安UNI Z,长安UNI-Z,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+长安UNI-Z,长安UNI-Z,quant_sample.Q3_22_1__3,5,exact,已归一,autohome,
+长安uniz,长安UNI-Z,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+长安凯程V919,长安凯程V919,autohome_koubei.carname,114,exact,已归一,autohome,
+长安启源A06,长安启源A06,autohome_koubei.carname,200,exact,已归一,autohome,
+长安启源A06,长安启源A06,dongchedi_koubei.carname,200,exact,已归一,autohome,
+长安启源A06,长安启源A06,miit.ods_pz_base_info.model_name,17,exact,已归一,autohome,
+启源A06,长安启源A06,quant_sample.Q3_22_1__2,2,brand_alias,已归一,autohome,
+长安启源A06,长安启源A06,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+启源A06,长安启源A06,quant_sample.Q3_22_1__3,2,brand_alias,已归一,autohome,
+启源A07,长安启源A07,quant_sample.Q3_22_1__1,3,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+长安启源A07,长安启源A07,quant_sample.Q3_22_1__1,14,fuzzy,已归一,unverified,业务改判：原自动结果 长安启源A06
+长安启源A07 EV,长安启源A07,quant_sample.Q3_22_1__1,2,business_confirm,已归一,unverified,业务确认口径：对应「长安启源A07」，EV 为动力版本
+启源A07,长安启源A07,quant_sample.Q3_22_1__2,6,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+长安启源A07,长安启源A07,quant_sample.Q3_22_1__2,13,fuzzy,已归一,unverified,业务改判：原自动结果 长安启源A06
+长安启源A07 EV,长安启源A07,quant_sample.Q3_22_1__2,2,business_confirm,已归一,unverified,业务确认口径：对应「长安启源A07」，EV 为动力版本
+启源A07,长安启源A07,quant_sample.Q3_22_1__3,8,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+启源a07,长安启源A07,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：对应「长安启源A07」，EV 为动力版本
+长安启源A07,长安启源A07,quant_sample.Q3_22_1__3,15,fuzzy,已归一,unverified,业务改判：原自动结果 长安启源A06
+长安启源A07 EV,长安启源A07,quant_sample.Q3_22_1__3,2,business_confirm,已归一,unverified,业务确认口径：对应「长安启源A07」，EV 为动力版本
+启源A07,长安启源A07,quant_sample.purchase_model,63,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+长安启源Q05,长安启源Q05,autohome_koubei.carname,200,exact,已归一,autohome,
+长安启源Q05,长安启源Q05,dongchedi_koubei.carname,200,exact,已归一,autohome,
+长安启源Q05,长安启源Q05,miit.ods_pz_base_info.model_name,14,exact,已归一,autohome,
+启源Q05,长安启源Q05,quant_sample.Q3_22_1__1,2,brand_alias,已归一,autohome,
+长安启源Q05,长安启源Q05,quant_sample.Q3_22_1__1,1,exact,已归一,autohome,
+启源Q05,长安启源Q05,quant_sample.Q3_22_1__2,1,brand_alias,已归一,autohome,
+启源Q05,长安启源Q05,quant_sample.Q3_22_1__3,1,brand_alias,已归一,autohome,
+长安启源Q05,长安启源Q05,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+长安启源Q06,长安启源Q06,autohome_koubei.carname,87,exact,已归一,autohome,
+长安启源Q06,长安启源Q06,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+启源Q07,长安启源Q07,interview.vehicle_model,3,business_confirm,已归一,unverified,匹配依据：名称归一（补品牌前缀）（工信部表扩充）
+长安启源Q07,长安启源Q07,miit.ods_pz_base_info.model_name,4,fuzzy,已归一,unverified,业务改判：原自动结果 长安启源Q05
+启源Q07,长安启源Q07,quant_sample.Q3_22_1__1,4,business_confirm,已归一,unverified,匹配依据：名称归一（补品牌前缀）（工信部表扩充）
+长安Q07,长安启源Q07,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,匹配依据：名称归一（补品牌前缀）（工信部表扩充）
+长安启源Q07,长安启源Q07,quant_sample.Q3_22_1__1,1,fuzzy,已归一,unverified,业务改判：原自动结果 长安启源Q05
+启源 Q07,长安启源Q07,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,匹配依据：名称归一（补品牌前缀）（工信部表扩充）
+启源Q07,长安启源Q07,quant_sample.Q3_22_1__2,4,business_confirm,已归一,unverified,匹配依据：名称归一（补品牌前缀）（工信部表扩充）
+启源Q07,长安启源Q07,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,匹配依据：名称归一（补品牌前缀）（工信部表扩充）
+长安启源Q07,长安启源Q07,quant_sample.Q3_22_1__3,2,fuzzy,已归一,unverified,业务改判：原自动结果 长安启源Q05
+启源Q07,长安启源Q07,quant_sample.purchase_model,43,business_confirm,已归一,unverified,匹配依据：名称归一（补品牌前缀）（工信部表扩充）
+长安欧尚530,长安欧尚530,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+长安猎手,长安猎手,autohome_koubei.carname,2,exact,已归一,autohome,
+长安猎手 K50,长安猎手 K50,autohome_koubei.carname,90,exact,已归一,autohome,
+问界,问界,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+问界M5,问界M5,quant_sample.Q3_22_1__1,4,business_confirm,已归一,unverified,业务确认口径：对应「问界M5」
+问界M5,问界M5,quant_sample.Q3_22_1__2,4,business_confirm,已归一,unverified,业务确认口径：对应「问界M5」
+华为 M5,问界M5,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：对应「问界M5」
+问界M5,问界M5,quant_sample.Q3_22_1__3,2,business_confirm,已归一,unverified,业务确认口径：对应「问界M5」
+问界M6,问界M6,autohome_koubei.carname,200,exact,已归一,autohome,
+问界M6,问界M6,dongchedi_koubei.carname,177,exact,已归一,autohome,
+问界M6,问界M6,miit.ods_pz_base_info.model_name,8,exact,已归一,autohome,
+问界M7,问界M7,autohome_koubei.carname,200,exact,已归一,autohome,
+问界M7,问界M7,miit.ods_pz_base_info.model_name,26,exact,已归一,autohome,
+问界M7,问界M7,quant_sample.Q3_22_1__1,12,exact,已归一,autohome,
+问界M7,问界M7,quant_sample.Q3_22_1__2,34,exact,已归一,autohome,
+问界M7,问界M7,quant_sample.Q3_22_1__3,5,exact,已归一,autohome,
+问界M8,问界M8,interview.vehicle_model,2,exact,已归一,autohome,
+问界M8,问界M8,miit.ods_pz_base_info.model_name,24,exact,已归一,autohome,
+问界M8,问界M8,quant_sample.Q3_22_1__1,20,exact,已归一,autohome,
+问界M8,问界M8,quant_sample.Q3_22_1__2,24,exact,已归一,autohome,
+问界M8,问界M8,quant_sample.Q3_22_1__3,15,exact,已归一,autohome,
+问界M8,问界M8,quant_sample.purchase_model,33,exact,已归一,autohome,
+问界M9,问界M9,autohome_koubei.carname,176,exact,已归一,autohome,
+问界M9,问界M9,miit.ods_pz_base_info.model_name,12,exact,已归一,autohome,
+问界 M9,问界M9,quant_sample.Q3_22_1__1,3,exact,已归一,autohome,
+问界M9,问界M9,quant_sample.Q3_22_1__1,9,exact,已归一,autohome,
+问界M9,问界M9,quant_sample.Q3_22_1__2,17,exact,已归一,autohome,
+问界M9,问界M9,quant_sample.Q3_22_1__3,12,exact,已归一,autohome,
+阿斯顿·马丁DB12,阿斯顿·马丁DB12,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+阿斯顿·马丁DBX,阿斯顿·马丁DBX,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+阿维塔06,阿维塔06,autohome_koubei.carname,17,exact,已归一,autohome,
+阿维塔06,阿维塔06,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+阿维塔06,阿维塔06,quant_sample.Q3_22_1__1,9,exact,已归一,autohome,
+阿维塔06,阿维塔06,quant_sample.Q3_22_1__2,5,exact,已归一,autohome,
+阿维塔06,阿维塔06,quant_sample.Q3_22_1__3,6,exact,已归一,autohome,
+阿维塔06T,阿维塔06T,autohome_koubei.carname,117,exact,已归一,autohome,
+阿维塔06T,阿维塔06T,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+阿维塔07,阿维塔07,quant_sample.Q3_22_1__1,1,fuzzy,已归一,unverified,业务改判：原自动结果 阿维塔07L
+阿维塔07,阿维塔07,quant_sample.Q3_22_1__2,3,fuzzy,已归一,unverified,业务改判：原自动结果 阿维塔07L
+阿维塔 07,阿维塔07,quant_sample.Q3_22_1__3,1,fuzzy,已归一,unverified,业务改判：原自动结果 阿维塔07L
+阿维塔07,阿维塔07,quant_sample.Q3_22_1__3,5,fuzzy,已归一,unverified,业务改判：原自动结果 阿维塔07L
+阿维塔07L,阿维塔07L,autohome_koubei.carname,156,exact,已归一,autohome,
+阿维塔 07L,阿维塔07L,dongchedi_koubei.carname,83,exact,已归一,autohome,
+阿维塔07L,阿维塔07L,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+阿维塔11,阿维塔11,quant_sample.Q3_22_1__2,3,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+阿维塔12,阿维塔12,autohome_koubei.carname,92,exact,已归一,autohome,
+阿维塔12,阿维塔12,miit.ods_pz_base_info.model_name,13,exact,已归一,autohome,
+阿维塔12,阿维塔12,quant_sample.Q3_22_1__1,1,exact,已归一,autohome,
+阿维塔12,阿维塔12,quant_sample.Q3_22_1__2,3,exact,已归一,autohome,
+阿维塔12,阿维塔12,quant_sample.Q3_22_1__3,3,exact,已归一,autohome,
+雅阁,雅阁,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+广汽本田雅阁,雅阁,quant_sample.Q3_22_1__3,1,brand_prefix,已归一,autohome,
+本田雅阁,雅阁,quant_sample.Q3_22_1__3,1,brand_prefix,已归一,autohome,
+本田雅阁新能源,雅阁,quant_sample.Q3_22_1__3,1,energy_suffix,已归一,autohome,
+雅阁,雅阁,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+雪铁龙C3-XR,雪铁龙C3-XR,dongchedi_koubei.carname,4,exact,已归一,autohome,
+雪铁龙C3-XR,雪铁龙C3-XR,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+零跑A05,零跑A05,autohome_koubei.carname,22,exact,已归一,autohome,
+零跑A05,零跑A05,dongchedi_koubei.carname,15,exact,已归一,autohome,
+零跑A05,零跑A05,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+零跑A10,零跑A10,autohome_koubei.carname,200,exact,已归一,autohome,
+零跑A10,零跑A10,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+零跑B01,零跑B01,autohome_koubei.carname,80,exact,已归一,autohome,
+零跑B01,零跑B01,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+零跑B01,零跑B01,quant_sample.Q3_22_1__2,5,exact,已归一,autohome,
+领跑B01,零跑B01,quant_sample.Q3_22_1__2,1,brand_alias,已归一,autohome,
+零跑B01,零跑B01,quant_sample.Q3_22_1__3,2,exact,已归一,autohome,
+零跑B10,零跑B10,autohome_koubei.carname,103,exact,已归一,autohome,
+零跑B10,零跑B10,dongchedi_koubei.carname,134,exact,已归一,autohome,
+零跑B10,零跑B10,interview.vehicle_model,4,exact,已归一,autohome,
+零跑B10,零跑B10,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+零跑B10,零跑B10,quant_sample.Q3_22_1__1,15,exact,已归一,autohome,
+领跑B10,零跑B10,quant_sample.Q3_22_1__1,1,brand_alias,已归一,autohome,
+零跑B10,零跑B10,quant_sample.Q3_22_1__2,13,exact,已归一,autohome,
+零跑B10,零跑B10,quant_sample.Q3_22_1__3,11,exact,已归一,autohome,
+零跑B10,零跑B10,quant_sample.purchase_model,41,exact,已归一,autohome,
+零跑C01,零跑C01,quant_sample.Q3_22_1__1,17,business_confirm,已归一,unverified,业务确认口径：对应「零跑C01」
+零跑C01,零跑C01,quant_sample.Q3_22_1__2,6,business_confirm,已归一,unverified,业务确认口径：对应「零跑C01」
+零跑C01,零跑C01,quant_sample.Q3_22_1__3,11,business_confirm,已归一,unverified,业务确认口径：对应「零跑C01」
+零跑C10,零跑C10,autohome_koubei.carname,174,exact,已归一,autohome,
+零跑C10,零跑C10,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+零跑C10,零跑C10,quant_sample.Q3_22_1__1,16,exact,已归一,autohome,
+零跑C10 EV,零跑C10,quant_sample.Q3_22_1__1,2,energy_suffix,已归一,autohome,
+零跑C10,零跑C10,quant_sample.Q3_22_1__2,18,exact,已归一,autohome,
+零跑C10,零跑C10,quant_sample.Q3_22_1__3,24,exact,已归一,autohome,
+零跑C10 EV,零跑C10,quant_sample.Q3_22_1__3,1,energy_suffix,已归一,autohome,
+领跑C10,零跑C10,quant_sample.Q3_22_1__3,1,brand_alias,已归一,autohome,
+零跑C11,零跑C11,autohome_koubei.carname,95,exact,已归一,autohome,
+零跑C11,零跑C11,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+零跑C11,零跑C11,quant_sample.Q3_22_1__1,31,exact,已归一,autohome,
+零跑C11,零跑C11,quant_sample.Q3_22_1__2,35,exact,已归一,autohome,
+零跑C11 EV,零跑C11,quant_sample.Q3_22_1__2,2,energy_suffix,已归一,autohome,
+零跑c11,零跑C11,quant_sample.Q3_22_1__2,3,exact,已归一,autohome,
+零跑C11,零跑C11,quant_sample.Q3_22_1__3,18,exact,已归一,autohome,
+零跑c11,零跑C11,quant_sample.Q3_22_1__3,4,exact,已归一,autohome,
+零跑C11,零跑C11,quant_sample.purchase_model,60,exact,已归一,autohome,
+零跑C16,零跑C16,autohome_koubei.carname,193,exact,已归一,autohome,
+零跑C16,零跑C16,miit.ods_pz_base_info.model_name,8,exact,已归一,autohome,
+零跑 C16,零跑C16,quant_sample.Q3_22_1__1,1,exact,已归一,autohome,
+零跑C16,零跑C16,quant_sample.Q3_22_1__1,5,exact,已归一,autohome,
+零跑C16,零跑C16,quant_sample.Q3_22_1__2,7,exact,已归一,autohome,
+零跑C16 EV,零跑C16,quant_sample.Q3_22_1__2,2,energy_suffix,已归一,autohome,
+零跑C16,零跑C16,quant_sample.Q3_22_1__3,4,exact,已归一,autohome,
+零跑C16,零跑C16,quant_sample.purchase_model,65,exact,已归一,autohome,
+零跑D19,零跑D19,autohome_koubei.carname,199,exact,已归一,autohome,
+零跑D19,零跑D19,dongchedi_koubei.carname,61,exact,已归一,autohome,
+零跑D19,零跑D19,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+零跑D99,零跑D99,autohome_koubei.carname,21,exact,已归一,autohome,
+零跑D99,零跑D99,dongchedi_koubei.carname,14,exact,已归一,autohome,
+零跑D99,零跑D99,miit.ods_pz_base_info.model_name,8,exact,已归一,autohome,
+零跑Lafa5,零跑Lafa5,autohome_koubei.carname,128,exact,已归一,autohome,
+零跑Lafa5,零跑Lafa5,dongchedi_koubei.carname,90,exact,已归一,autohome,
+零跑Lafa5,零跑Lafa5,miit.ods_pz_base_info.model_name,7,exact,已归一,autohome,
+零跑T03,零跑T03,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：对应「零跑T03」
+雷克萨斯ES,雷克萨斯ES,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+雷克萨斯GX,雷克萨斯GX,autohome_koubei.carname,2,exact,已归一,autohome,
+雷克萨斯GX,雷克萨斯GX,dongchedi_koubei.carname,4,exact,已归一,autohome,
+雷克萨斯GX,雷克萨斯GX,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+雷克萨斯LX,雷克萨斯LX,autohome_koubei.carname,2,exact,已归一,autohome,
+雷克萨斯LX,雷克萨斯LX,dongchedi_koubei.carname,3,exact,已归一,autohome,
+雷克萨斯LX,雷克萨斯LX,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+领克01,领克01,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：可直接对应
+领克01,领克01,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：可直接对应
+领克03,领克03,autohome_koubei.carname,48,exact,已归一,autohome,
+领克03,领克03,miit.ods_pz_base_info.model_name,10,exact,已归一,autohome,
+领克03,领克03,quant_sample.Q3_22_1__1,1,exact,已归一,autohome,
+领克03,领克03,quant_sample.Q3_22_1__2,3,exact,已归一,autohome,
+领克05,领克05,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：可直接对应
+领克06 EMP,领克06,quant_sample.Q3_22_1__1,1,fuzzy,已归一,unverified,业务改判：原自动结果 领克08 EM-P
+领克06,领克06,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：可直接对应
+领克06,领克06,quant_sample.Q3_22_1__3,2,business_confirm,已归一,unverified,业务确认口径：可直接对应
+领克07 EM-P,领克07,autohome_koubei.carname,37,exact,已归一,autohome,
+领克07 EM-P,领克07,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+领克07,领克07,quant_sample.Q3_22_1__1,6,business_confirm,已归一,unverified,业务 2026-11-10 定稿：Sheet1 全名「领克07 EM-P」不用，统一用简称「领克07」
+领克07,领克07,quant_sample.Q3_22_1__2,8,business_confirm,已归一,unverified,业务 2026-11-10 定稿：Sheet1 全名「领克07 EM-P」不用，统一用简称「领克07」
+领克07,领克07,quant_sample.Q3_22_1__3,12,business_confirm,已归一,unverified,业务 2026-11-10 定稿：Sheet1 全名「领克07 EM-P」不用，统一用简称「领克07」
+领克07,领克07,quant_sample.purchase_model,30,business_confirm,已归一,unverified,业务 2026-11-10 定稿：Sheet1 全名「领克07 EM-P」不用，统一用简称「领克07」
+领克07GT,领克07GT,autohome_koubei.carname,17,exact,已归一,autohome,
+领克07GT,领克07GT,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+领克08 EM-P,领克08,autohome_koubei.carname,53,exact,已归一,autohome,
+领克08 EM-P,领克08,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+领克08,领克08,quant_sample.Q3_22_1__1,13,business_confirm,已归一,unverified,业务 2026-11-10 定稿：Sheet1 全名「领克08 EM-P」不用，统一用简称「领克08」
+领克08,领克08,quant_sample.Q3_22_1__2,14,business_confirm,已归一,unverified,业务 2026-11-10 定稿：Sheet1 全名「领克08 EM-P」不用，统一用简称「领克08」
+领克08EMP,领克08,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+领克08,领克08,quant_sample.Q3_22_1__3,4,business_confirm,已归一,unverified,业务 2026-11-10 定稿：Sheet1 全名「领克08 EM-P」不用，统一用简称「领克08」
+领克08,领克08,quant_sample.purchase_model,30,business_confirm,已归一,unverified,业务 2026-11-10 定稿：Sheet1 全名「领克08 EM-P」不用，统一用简称「领克08」
+领克09,领克09,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：标准名领克09；含燃油版与插混版，插混版对应「领克09 EM-P」，需按动力形式确认
+领克09EMP,领克09,quant_sample.Q3_22_1__1,1,fuzzy,已归一,unverified,业务改判：原自动结果 领克08 EM-P
+领克10,领克10,autohome_koubei.carname,64,exact,已归一,autohome,
+领克10,领克10,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+领克Z10,领克10,quant_sample.Q3_22_1__1,1,fuzzy,已归一,autohome,
+领克Z10,领克10,quant_sample.Q3_22_1__2,1,fuzzy,已归一,autohome,
+领克Z10,领克10,quant_sample.Q3_22_1__3,3,fuzzy,已归一,autohome,
+领克20,领克20,autohome_koubei.carname,12,exact,已归一,autohome,
+领克20,领克20,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+领克Z20,领克20,quant_sample.Q3_22_1__1,5,fuzzy,已归一,autohome,
+领克Z20,领克20,quant_sample.Q3_22_1__2,2,fuzzy,已归一,autohome,
+领克Z20,领克20,quant_sample.Q3_22_1__3,2,fuzzy,已归一,autohome,
+领克900,领克900,autohome_koubei.carname,50,exact,已归一,autohome,
+领克900,领克900,dongchedi_koubei.carname,65,exact,已归一,autohome,
+领克900,领克900,interview.vehicle_model,4,exact,已归一,autohome,
+领克900,领克900,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+领克900,领克900,quant_sample.Q3_22_1__1,11,exact,已归一,autohome,
+领克900,领克900,quant_sample.Q3_22_1__2,16,exact,已归一,autohome,
+领克900,领克900,quant_sample.Q3_22_1__3,4,exact,已归一,autohome,
+领克900,领克900,quant_sample.purchase_model,41,exact,已归一,autohome,
+领汇M9,领汇M9,autohome_koubei.carname,119,exact,已归一,autohome,
+领汇M9,领汇M9,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+领汇e5,领汇e5,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+领汇e7,领汇e7,miit.ods_pz_base_info.model_name,12,exact,已归一,autohome,
+领汇e9,领汇e9,miit.ods_pz_base_info.model_name,4,fuzzy,已归一,unverified,业务改判：原自动结果 领汇e
+风云A8L,风云A8L,dongchedi_koubei.carname,15,exact,已归一,autohome,
+风云A8L,风云A8L,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+风云A8L,风云A8L,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+风云A8L,风云A8L,quant_sample.Q3_22_1__3,2,exact,已归一,autohome,
+风云A9,风云A9,autohome_koubei.carname,200,exact,已归一,autohome,
+风云A9,风云A9,dongchedi_koubei.carname,200,exact,已归一,autohome,
+风云A9,风云A9,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+风云A9L,风云A9L,autohome_koubei.carname,200,exact,已归一,autohome,
+风云A9L,风云A9L,dongchedi_koubei.carname,200,exact,已归一,autohome,
+风云A9L,风云A9L,miit.ods_pz_base_info.model_name,17,exact,已归一,autohome,
+风云A9L,风云A9L,quant_sample.Q3_22_1__1,8,exact,已归一,autohome,
+风云A9L,风云A9L,quant_sample.Q3_22_1__2,7,exact,已归一,autohome,
+风云A9L,风云A9L,quant_sample.Q3_22_1__3,4,exact,已归一,autohome,
+风云T10,风云T10,quant_sample.Q3_22_1__1,1,business_confirm,已归一,unverified,业务确认口径：对应「风云T10」
+风云T10,风云T10,quant_sample.Q3_22_1__3,2,business_confirm,已归一,unverified,业务确认口径：对应「风云T10」
+风云T11,风云T11,autohome_koubei.carname,47,exact,已归一,autohome,
+风云T11,风云T11,dongchedi_koubei.carname,114,exact,已归一,autohome,
+风云T11,风云T11,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+风云T7,风云T7,autohome_koubei.carname,87,exact,已归一,autohome,
+风云T7,风云T7,dongchedi_koubei.carname,103,exact,已归一,autohome,
+风云T7,风云T7,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+奇瑞T8,风云T8,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：原文「奇瑞T8」按风云T8 归入（若实为瑞虎8 系列请修正）
+奇瑞风云T8,风云T8,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：对应「风云T8」，品牌前缀归一
+风云T8,风云T8,quant_sample.Q3_22_1__3,1,business_confirm,已归一,unverified,业务确认口径：对应「风云T8」，品牌前缀归一
+风云T9,风云T9,autohome_koubei.carname,200,exact,已归一,autohome,
+风云T9,风云T9,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+奇瑞风云T9,风云T9,quant_sample.Q3_22_1__1,1,brand_prefix,已归一,autohome,
+风云T9,风云T9,quant_sample.Q3_22_1__1,1,exact,已归一,autohome,
+奇瑞风云T9,风云T9,quant_sample.Q3_22_1__2,1,brand_prefix,已归一,autohome,
+风云T9,风云T9,quant_sample.Q3_22_1__2,2,exact,已归一,autohome,
+奇瑞风云T9,风云T9,quant_sample.Q3_22_1__3,9,brand_prefix,已归一,autohome,
+风云T9,风云T9,quant_sample.Q3_22_1__3,1,exact,已归一,autohome,
+风云T9,风云T9,quant_sample.purchase_model,31,exact,已归一,autohome,
+风云T9L,风云T9L,miit.ods_pz_base_info.model_name,6,exact,已归一,autohome,
+风云X3,风云X3,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+风云X3,风云X3,quant_sample.Q3_22_1__2,1,exact,已归一,autohome,
+风云X3L,风云X3L,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+飞凡R7,飞凡R7,quant_sample.Q3_22_1__2,1,business_confirm,已归一,unverified,业务确认口径：对应「飞凡R7」
+飞度,飞度,miit.ods_pz_base_info.model_name,1,exact,已归一,autohome,
+飞驰插电混动,飞驰,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+马自达CX-50行也,马自达CX-50行也,miit.ods_pz_base_info.model_name,3,exact,已归一,autohome,
+马自达EZ-6,马自达EZ-6,quant_sample.Q3_22_1__1,1,fuzzy,已归一,unverified,业务改判：原自动结果 马自达EZ-60
+马自达EZ6,马自达EZ-6,quant_sample.Q3_22_1__1,1,fuzzy,已归一,unverified,业务改判：原自动结果 马自达EZ-60
+马自达EZ6,马自达EZ-6,quant_sample.Q3_22_1__3,1,fuzzy,已归一,unverified,业务改判：原自动结果 马自达EZ-60
+马自达EZ-60,马自达EZ-60,autohome_koubei.carname,89,exact,已归一,autohome,
+马自达EZ-60,马自达EZ-60,dongchedi_koubei.carname,103,exact,已归一,autohome,
+马自达EZ-60,马自达EZ-60,miit.ods_pz_base_info.model_name,19,exact,已归一,autohome,
+比亚迪驱逐舰05,驱逐舰05,quant_sample.Q3_22_1__1,2,business_confirm,已归一,unverified,业务确认口径：对应「驱逐舰05」
+比亚迪驱逐舰05,驱逐舰05,quant_sample.Q3_22_1__2,2,business_confirm,已归一,unverified,业务确认口径：对应「驱逐舰05」
+比亚迪驱逐舰05,驱逐舰05,quant_sample.Q3_22_1__3,3,business_confirm,已归一,unverified,业务确认口径：对应「驱逐舰05」
+高顶格瑞维亚 罗伦士·旅行家,高顶格瑞维亚 罗伦士·旅行家,miit.ods_pz_base_info.model_name,3,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名
+魏牌 V8X,魏牌 V8X,autohome_koubei.carname,96,exact,已归一,autohome,
+魏牌 V8X,魏牌 V8X,miit.ods_pz_base_info.model_name,5,exact,已归一,autohome,
+魏牌 V9X,魏牌 V9X,autohome_koubei.carname,158,exact,已归一,autohome,
+魏牌 V9X,魏牌 V9X,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+魏牌 摩卡新能源,魏牌 摩卡,autohome_koubei.carname,40,exact,已归一,autohome,
+摩卡PHEV,魏牌 摩卡,dongchedi_koubei.carname,31,business_confirm,已归一,autohome,匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）
+魏牌 摩卡新能源,魏牌 摩卡,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+魏牌蓝山,魏牌 蓝山,quant_sample.Q3_22_1__1,5,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+魏牌蓝山,魏牌 蓝山,quant_sample.Q3_22_1__2,10,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+魏牌蓝山,魏牌 蓝山,quant_sample.Q3_22_1__3,17,business_confirm,已归一,unverified,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+魏牌 高山,魏牌 高山,autohome_koubei.carname,50,exact,已归一,autohome,
+魏牌 高山新能源,魏牌 高山,autohome_koubei.carname,150,exact,已归一,autohome,
+魏牌 高山,魏牌 高山,miit.ods_pz_base_info.model_name,2,exact,已归一,autohome,
+魏牌 高山新能源,魏牌 高山,miit.ods_pz_base_info.model_name,4,exact,已归一,autohome,
+魏牌高山8,魏牌 高山,quant_sample.Q3_22_1__1,6,fuzzy,已归一,autohome,
+魏牌高山8,魏牌 高山,quant_sample.Q3_22_1__2,1,fuzzy,已归一,autohome,
+魏派蓝山,魏牌 高山,quant_sample.Q3_22_1__3,2,business_confirm,已归一,autohome,业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）
+魏牌高山8,魏牌 高山,quant_sample.Q3_22_1__3,4,fuzzy,已归一,autohome,

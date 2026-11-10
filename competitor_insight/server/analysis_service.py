@@ -4,8 +4,10 @@
 
 - 用户画像：`user_insight.quant_sample` 结构化字段 + `user_insight.interview/answer` 逐人引语
 - 购车关注：`Q3_13__1..16` 多选勾选率
-- 战胜战败：`Q3_23__1..16`（选择本车原因）、`Q3_24_1__1..16`（放弃核心对比车型原因）、
-  `Q3_22_1__1`（核心对比车型自由文本）
+- 战胜战败：`Q3_23__1..16`（选择本车原因）、`Q3_22_1__1/2/3`（三款对比车型自由文本）、
+  `Q3_24_1/3/5__1..16`（对应槽位的放弃原因）
+- 战败口径：以当前车型为靶心反查对比过它、最终买了别的车的人，按实际购车车型逐行「XX 胜出」；
+  原因按靶心所在槽位取 `Q3_24_1`（第 1 格）/`Q3_24_3`（第 2 格）/`Q3_24_5`（第 3 格）。
 - 满意度：`Q5_1` 整体、`Q5_2__1..16` 分维度、`Q5_5` 推荐意愿、口碑正负向
 
 口径约定（与 `docs/analysis-tab-feasibility.md` 一致）：
@@ -20,6 +22,7 @@ from __future__ import annotations
 import json
 import math
 import re
+from collections import Counter
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable
@@ -27,7 +30,7 @@ from typing import Any, Iterable
 import psycopg2
 import psycopg2.extras
 
-from competitor_insight.server import db
+from competitor_insight.server import db, name_rules, tile_summary
 
 CONFIG_PATH = Path(__file__).resolve().parents[1] / "config" / "analysis_models.json"
 
@@ -106,7 +109,8 @@ def tag_dimensions(text: str) -> list[str]:
             hits.append(label)
     return hits
 
-TILE_ORDER = ("profile", "attention", "winloss", "satisfaction")
+# 用户 2026-11-10 确认：只有画像、购车关注、战胜战败三块生成 AI 结论，满意度不生成。
+TILE_ORDER = ("profile", "attention", "winloss")
 
 
 class AnalysisError(RuntimeError):
@@ -178,12 +182,22 @@ def parse_recommendation(value: Any) -> tuple[int, str] | None:
     return score, match.group(2).strip()
 
 
+def _name_key(value: Any) -> str:
+    """车型名归一键：去空白、统一大小写，用于别名与反查匹配。"""
+    return re.sub(r"\s+", "", str(value or "")).casefold()
+
+
 def normalize_competitor(value: str, aliases: dict[str, str]) -> str:
+    """对比车型归一到车系标准名：先按别名改写，再去动力/能源后缀。
+
+    去后缀保证「宋PLUS新能源 / 宋PLUS EV」与「宋PLUS」在战胜战败里是同一行（车系整体出数），
+    动力形式的拆分由问卷题项另给，不从名称推断。
+    """
     text = re.sub(r"\s+", " ", str(value or "")).strip()
     if not text:
         return ""
-    merged = {str(k).casefold(): v for k, v in (aliases or {}).items()}
-    return merged.get(text.casefold(), text)
+    merged = {_name_key(k): v for k, v in (aliases or {}).items()}
+    return name_rules.strip_power_suffix(merged.get(_name_key(text), text))
 
 
 def display_purchase_type(value: str) -> str:
@@ -218,10 +232,21 @@ def _top_with_other(items: list[dict[str, Any]], limit: int) -> list[dict[str, A
 class PostgresReader:
     """四源只读访问。问卷/深访/配置用 loader，口碑用 NEW_CAR 账号。"""
 
-    def __init__(self, cfg: dict[str, str]) -> None:
+    def __init__(self, cfg: dict[str, str], power_form: str | None = None) -> None:
         self._cfg = cfg
         self._loader = None
         self._catalog = None
+        # 动力形式按受访燃料题项 Q2_2 逐样本取，不用名称推断；None 表示不切分。
+        self.power_form = power_form or None
+        if self.power_form:
+            # 购买侧 Q2_2 只有纯电动/插电混动/增程式三个取值；纯燃油、油电混动没有对应值，
+            # 按本类名匹配即 0 行，返回空样本而不是报错。
+            prefix = name_rules.SURVEY_POWER_FORM.get(self.power_form, self.power_form)
+            self._power_sql = " AND answers_text->>'Q2_2' LIKE %s"
+            self._power_params: tuple[Any, ...] = (f"{prefix}%",)
+        else:
+            self._power_sql = ""
+            self._power_params = ()
 
     def _connect(self, *, catalog: bool = False):
         if catalog:
@@ -258,8 +283,9 @@ class PostgresReader:
 
     def source_counts(self, model: dict[str, Any]) -> dict[str, int]:
         quant = self._fetch(
-            "SELECT count(*) AS n FROM user_insight.quant_sample WHERE purchase_model = ANY(%s)",
-            (model["quant_models"],),
+            "SELECT count(*) AS n FROM user_insight.quant_sample "
+            f"WHERE purchase_model = ANY(%s){self._power_sql}",
+            (model["quant_models"], *self._power_params),
         )
         interview = self._fetch(
             "SELECT count(*) AS n FROM user_insight.interview WHERE vehicle_model = ANY(%s)",
@@ -296,8 +322,8 @@ class PostgresReader:
         )
         rows = self._fetch(
             f"SELECT count(*) AS n, {select} FROM user_insight.quant_sample "
-            "WHERE purchase_model = ANY(%s)",
-            (model["quant_models"],),
+            f"WHERE purchase_model = ANY(%s){self._power_sql}",
+            (model["quant_models"], *self._power_params),
         )
         row = rows[0] if rows else {}
         return {
@@ -315,8 +341,8 @@ class PostgresReader:
         extra = self._fetch(
             "SELECT count(*) FILTER (WHERE answers_text ? 'Q5_1') AS q51, "
             "count(*) FILTER (WHERE answers_text ? 'Q5_5') AS q55 "
-            "FROM user_insight.quant_sample WHERE purchase_model = ANY(%s)",
-            (model["quant_models"],),
+            f"FROM user_insight.quant_sample WHERE purchase_model = ANY(%s){self._power_sql}",
+            (model["quant_models"], *self._power_params),
         )
         row = extra[0] if extra else {}
         base["Q5_1"] = int(row.get("q51") or 0)
@@ -336,8 +362,8 @@ class PostgresReader:
             expr = f"answers_text->>'{field}'"
         rows = self._fetch(
             f"SELECT {expr} AS value, count(*) AS count FROM user_insight.quant_sample "
-            "WHERE purchase_model = ANY(%s) GROUP BY 1 ORDER BY count DESC, value",
-            (model["quant_models"],),
+            f"WHERE purchase_model = ANY(%s){self._power_sql} GROUP BY 1 ORDER BY count DESC, value",
+            (model["quant_models"], *self._power_params),
         )
         items = []
         for row in rows:
@@ -358,8 +384,8 @@ class PostgresReader:
     def budget_values(self, model: dict[str, Any]) -> list[float]:
         rows = self._fetch(
             "SELECT answers_text->>'Q3_1' AS value FROM user_insight.quant_sample "
-            "WHERE purchase_model = ANY(%s) AND answers_text ? 'Q3_1'",
-            (model["quant_models"],),
+            f"WHERE purchase_model = ANY(%s) AND answers_text ? 'Q3_1'{self._power_sql}",
+            (model["quant_models"], *self._power_params),
         )
         values: list[float] = []
         for row in rows:
@@ -402,8 +428,8 @@ class PostgresReader:
         )
         rows = self._fetch(
             f"SELECT count(*) FILTER (WHERE answers_text ?| ARRAY[{', '.join(repr(k) for k in keys)}]::text[]) AS answered, "
-            f"{select} FROM user_insight.quant_sample WHERE purchase_model = ANY(%s)",
-            (model["quant_models"],),
+            f"{select} FROM user_insight.quant_sample WHERE purchase_model = ANY(%s){self._power_sql}",
+            (model["quant_models"], *self._power_params),
         )
         return rows[0] if rows else {"answered": 0}
 
@@ -422,8 +448,8 @@ class PostgresReader:
             )
         rows = self._fetch(
             "SELECT " + ", ".join(blocks) + " FROM user_insight.quant_sample "
-            "WHERE purchase_model = ANY(%s)",
-            (model["quant_models"],),
+            f"WHERE purchase_model = ANY(%s){self._power_sql}",
+            (model["quant_models"], *self._power_params),
         )
         return rows[0] if rows else {}
 
@@ -432,30 +458,64 @@ class PostgresReader:
             "SELECT avg(CASE WHEN answers_text->>'Q5_1' ~ '^[0-9]+$' "
             "THEN (answers_text->>'Q5_1')::numeric END) AS mean, "
             "count(*) FILTER (WHERE answers_text->>'Q5_1' ~ '^[0-9]+$') AS answered "
-            "FROM user_insight.quant_sample WHERE purchase_model = ANY(%s)",
-            (model["quant_models"],),
+            f"FROM user_insight.quant_sample WHERE purchase_model = ANY(%s){self._power_sql}",
+            (model["quant_models"], *self._power_params),
         )
         return rows[0] if rows else {}
 
     def recommendation_values(self, model: dict[str, Any]) -> list[str]:
         rows = self._fetch(
             "SELECT answers_text->>'Q5_5' AS value FROM user_insight.quant_sample "
-            "WHERE purchase_model = ANY(%s) AND answers_text ? 'Q5_5'",
-            (model["quant_models"],),
+            f"WHERE purchase_model = ANY(%s) AND answers_text ? 'Q5_5'{self._power_sql}",
+            (model["quant_models"], *self._power_params),
         )
         return [str(row.get("value") or "") for row in rows]
 
     # -------------------------------------------------------------- 对比车型
 
-    def competitor_texts(self, model: dict[str, Any]) -> list[dict[str, Any]]:
+    def loss_rows(self, model: dict[str, Any]) -> list[dict[str, Any]]:
+        """全量反查行：实际购车车型 + 三格对比车型 + 三套 16 维放弃原因勾选。
+
+        反查不按当前车型过滤，靶心由服务层用别名归一做等值匹配；
+        原因按槽位取：第 1 格 Q3_24_1、第 2 格 Q3_24_3、第 3 格 Q3_24_5。
+        """
+        compare_keys = ("Q3_22_1__1", "Q3_22_1__2", "Q3_22_1__3")
+        fuel_keys = ("Q3_22_2_1", "Q3_22_2_2", "Q3_22_2_3")
+        reason_prefixes = ("Q3_24_1__", "Q3_24_3__", "Q3_24_5__")
+        select = ["purchase_model"]
+        # 「无」是问卷里的没填占位，业务 2026-11-10 定稿按空值处理：不参与分组、不产生未匹配。
+        select += [
+            f"CASE WHEN btrim(coalesce(answers_text->>'{key}', '')) IN ('', '无') THEN NULL "
+            f"ELSE answers_text->>'{key}' END AS c{index}"
+            for index, key in enumerate(compare_keys)
+        ]
+        # 三格对比车型各自的燃料类型（矩单），与分析同槽位配对，用于动力构成，不从名称推断。
+        select += [
+            f"answers_text->>'{key}' AS f{index}" for index, key in enumerate(fuel_keys)
+        ]
+        for slot, prefix in enumerate(reason_prefixes):
+            select += [
+                f"answers_text ? '{prefix}{index}' AS r{slot}_{index}"
+                for index, _ in DIMENSIONS
+            ]
         return self._fetch(
-            "SELECT answers_text->>'Q3_22_1__1' AS value, count(*) AS count "
-            "FROM user_insight.quant_sample "
-            "WHERE purchase_model = ANY(%s) AND answers_text ? 'Q3_22_1__1' "
-            "AND coalesce(trim(answers_text->>'Q3_22_1__1'), '') <> '' "
-            "GROUP BY 1 ORDER BY count DESC",
-            (model["quant_models"],),
+            "SELECT " + ", ".join(select) + f" FROM user_insight.quant_sample WHERE TRUE{self._power_sql}",
+            self._power_params,
         )
+
+    def power_breakdown(self, model: dict[str, Any]) -> dict[str, int]:
+        """靶心动力构成：按 Q2_2 受访燃料类型逐样本统计，覆盖 1380/1380。"""
+        rows = self._fetch(
+            "SELECT answers_text->>'Q2_2' AS value, count(*) AS n FROM user_insight.quant_sample "
+            f"WHERE purchase_model = ANY(%s){self._power_sql} GROUP BY 1",
+            (model["quant_models"], *self._power_params),
+        )
+        bucket = {form: 0 for form in name_rules.POWER_FORMS}
+        bucket[name_rules.UNLABELED] = 0
+        for row in rows:
+            form = name_rules.normalize_power_form(row.get("value")) or name_rules.UNLABELED
+            bucket[form] += int(row["n"])
+        return bucket
 
     def reputation(self, model: dict[str, Any]) -> list[dict[str, Any]]:
         return self._fetch(
@@ -477,10 +537,10 @@ class AnalysisService:
     def config(self) -> dict[str, Any]:
         return load_config(self._config_path)
 
-    def _reader(self):
+    def _reader(self, power_form: str | None = None):
         if self._reader_factory is not None:
             return self._reader_factory()
-        return PostgresReader(db.load_env())
+        return PostgresReader(db.load_env(), power_form)
 
     # ------------------------------------------------------------------ 车型
 
@@ -532,13 +592,30 @@ class AnalysisService:
 
     # ------------------------------------------------------------------ 分析
 
-    def analyze(self, model_key: str) -> dict[str, Any]:
+    def analyze(self, model_key: str, power_form: str | None = None) -> dict[str, Any]:
+        """即时分析。`power_form` 可选：不传＝车系整体；传五类之一只算该动力形式的样本。
+
+        五类为 纯电 / 插混 / 增程 / 纯燃油 / 油电混动（`name_rules.POWER_FORMS`）。
+        切分依据是问卷题项 Q2_2「受访燃料类型」（逐样本有值，覆盖 1380/1380），
+        不从车名推断；购买侧没有纯燃油/油电混动取值，传这两类时定量样本为 0。
+        前端暂不接入，仅后端能力。
+        """
         config = self.config()
         model = self._model(model_key)
-        reader = self._reader()
+        selected = None
+        if str(power_form or "").strip():
+            selected = name_rules.normalize_power_form(power_form)
+            if not selected:
+                raise AnalysisError(
+                    "invalid_power_form",
+                    f"power_form 只支持 {' / '.join(name_rules.POWER_FORMS)}，收到：{power_form}",
+                    400,
+                )
+        reader = self._reader(selected)
         try:
             sources = reader.source_counts(model)
             counts = reader.quant_answered_full(model)
+            fuel_breakdown = reader.power_breakdown(model)
             tiles = {
                 "profile": self._profile(reader, model, counts, sources),
                 "attention": self._attention(reader, model, counts),
@@ -556,9 +633,35 @@ class AnalysisService:
         return {
             "model": self._model_brief(model, sources),
             "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
+            "power_form": selected,
+            "power_form_source": "Q2_2 受访燃料类型（逐样本）",
+            "power_forms": fuel_breakdown,
             "sources": sources,
             "tiles": tiles,
             "summary": summary,
+        }
+
+    def summaries(self, model_key: str, llm=None) -> dict[str, Any]:
+        """三个磁贴底部的块内 AI 结论（画像 / 关注 / 战胜战败，满意度不生成）。
+
+        只吃各磁贴已经算出的数字与深访原话（不重新查库、不跨磁贴取数），
+        按「车型 key + 磁贴 + 提示词哈希 + 本块数据哈希」缓存；
+        模型失败时返回 error，由页面如实展示，不用模板句顶替。
+        """
+        data = self.analyze(model_key)
+        label = data["model"]["label"]
+        key = data["model"]["key"]
+        tiles = {
+            name: tile_summary.summarize_tile(
+                name, data["tiles"].get(name) or {}, label, key, llm=llm
+            )
+            for name in TILE_ORDER
+        }
+        return {
+            "model": data["model"],
+            "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
+            "prompt_version": tile_summary.PROMPT_VERSION,
+            "tiles": tiles,
         }
 
     # ------------------------------------------------------------------ 磁贴①
@@ -826,6 +929,113 @@ class AnalysisService:
         metric["note"] = "".join(notes)
         return metric
 
+    def _loss_split(self, reader, model, config) -> dict[str, Any]:
+        """战败：以当前车型为靶心反查对比过它的人，按实际购车车型逐行「XX 胜出」。
+
+        口径（用户 2026-11-10 确认）：
+        - 靶心 = 当前目标车型；Q3_22_1__1/2/3 任一列归一后等于靶心即「对比过」。
+        - 按 purchase_model 分组，不设人数门槛、不合并「其他」、不删行。
+        - 原因按槽位取：靶心在第 1 格用 Q3_24_1、第 2 格用 Q3_24_3、第 3 格用 Q3_24_5。
+        - 买了靶心自己的人不算战败。
+        """
+        alias_map = config.get("competitor_aliases") or {}
+        target = model["label"]
+        target_key = _name_key(normalize_competitor(target, alias_map))
+
+        groups: dict[str, dict[str, Any]] = {}
+        compared = 0
+        for row in reader.loss_rows(model):
+            bought = normalize_competitor(row.get("purchase_model") or "", alias_map)
+            if _name_key(bought) == target_key:
+                continue
+            slot = next(
+                (
+                    index for index in range(3)
+                    if _name_key(normalize_competitor(row.get(f"c{index}") or "", alias_map)) == target_key
+                ),
+                None,
+            )
+            if slot is None:
+                continue
+            compared += 1
+            group = groups.setdefault(
+                _name_key(bought),
+                {"label": bought or "(未填写)", "count": 0, "dims": {}, "fuels": Counter()},
+            )
+            group["count"] += 1
+            # 动力构成取同槽位的 Q3_22_2 矩单，不按车名推断。
+            fuel = name_rules.normalize_power_form(row.get(f"f{slot}")) or name_rules.UNLABELED
+            group["fuels"][fuel] += 1
+            for index, name in DIMENSIONS:
+                if row.get(f"r{slot}_{index}"):
+                    group["dims"][name] = group["dims"].get(name, 0) + 1
+
+        def ratio_of(count: int) -> dict[str, Any]:
+            if count >= 5 and compared >= 10:
+                return {"ratio": round(count / compared * 100, 1)}
+            # 两条门槛分开写，只输出真实命中的原因，避免「总数 35 人不足 10 人」这类自相矛盾的提示。
+            blockers = []
+            if compared < 10:
+                blockers.append(f"对比总数 {compared} 人，不足 10 人")
+            if count < 5:
+                blockers.append(f"该行 {count} 人，不足 5 人")
+            return {
+                "ratio": None,
+                "ratio_hidden_reason": "；".join(blockers) + "，只给人数",
+            }
+
+        items = []
+        for group in sorted(groups.values(), key=lambda item: (-item["count"], item["label"])):
+            count = group["count"]
+            reasons = [
+                {"label": name, "count": hits, "n": count, **ratio_of(hits)}
+                for name, hits in sorted(group["dims"].items(), key=lambda pair: (-pair[1], pair[0]))[:3]
+            ]
+            items.append(
+                {
+                    "label": group["label"],
+                    "count": count,
+                    "n": compared,
+                    "sample_flag": sample_flag(compared),
+                    "power_forms": {
+                        form: group["fuels"].get(form, 0)
+                        for form in (*name_rules.POWER_FORMS, name_rules.UNLABELED)
+                    },
+                    "reasons": reasons,
+                    **ratio_of(count),
+                }
+            )
+
+        metric = {
+            "key": "loss_split",
+            "label": f"战败：对比过{target}后买了别的车",
+            "kind": "loss_split",
+            "target": target,
+            "question": "Q3_22_1__1/2/3 × Q3_24_1/3/5",
+            "basis": (
+                "靶心落在 Q3_22_1__1 → 取 Q3_24_1__1..16；落在 __2 → 取 Q3_24_3__1..16；"
+                "落在 __3 → 取 Q3_24_5__1..16"
+            ),
+            "n": compared,
+            "answered": compared,
+            "sample_flag": sample_flag(compared),
+            "items": items,
+            "note": (
+                f"共 {compared} 人在 Q3_22_1 三格里对比过{target}、最终买了别的车；"
+                "行内人数为真实人数，不设门槛、不合并「其他」；行内百分比分母为对比过总人数，"
+                "该行不足 5 人或总数不足 10 人时只给人数。"
+            ),
+        }
+        if not compared:
+            metric["status"] = "empty"
+            metric["reason"] = f"定量库中没有对比过{target}且买了别的车的样本。"
+        elif compared < 10:
+            metric["status"] = "insufficient"
+            metric["reason"] = f"仅 {compared} 人对比过{target}，行内只给人数，不出百分比。"
+        else:
+            metric["status"] = "ok"
+        return metric
+
     def _winloss(self, reader, model, counts, config) -> dict[str, Any]:
         total = counts["n"]
 
@@ -840,67 +1050,19 @@ class AnalysisService:
             "选择当前车辆的原因（Q3_23）", win_quotes,
             extra_note="与深访 Q29 使用同一套 16 维标签。",
         )
-        abandon = self._reason_metric(
-            reader, model, total, counts["Q3_24_1"], ABANDON_PREFIX,
-            "放弃核心对比车型的原因（Q3_24_1）", abandon_quotes,
-            extra_note=(
-                "Q3_24_1 逐维题面只给维度名（安全性/操控性/…/电池特性）；"
-                "与深访 Q27/Q28 使用同一套 16 维标签。"
-            ),
-        )
+        loss = self._loss_split(reader, model, config)
 
-        alias_map = config.get("competitor_aliases") or {}
-        merged: dict[str, int] = {}
-        for row in reader.competitor_texts(model):
-            name = normalize_competitor(row.get("value") or "", alias_map)
-            if not name:
-                continue
-            merged[name] = merged.get(name, 0) + int(row.get("count") or 0)
-        ordered = sorted(merged.items(), key=lambda pair: (-pair[1], pair[0]))
-        mention_total = sum(merged.values())
-        competitor_items = [
-            ratio_payload(count, total, mention_total) | {"label": name}
-            for name, count in ordered[:10]
-        ]
-        competitors = {
-            "key": "competitors",
-            "label": "核心对比车型（Q3_22_1__1 自由文本）",
-            "kind": "distribution",
-            "n": total,
-            "answered": mention_total,
-            "items": competitor_items,
-            "note": "自由文本已做名称归并与大小写统一；一条回答计一次。",
-        }
-        if not competitor_items:
-            competitors["status"] = "empty"
-            competitors["reason"] = "该车型没有可用的核心对比车型文本。"
-        elif mention_total < 10:
-            competitors["status"] = "insufficient"
-            competitors["reason"] = f"仅 {mention_total} 条有效文本，低于 10 条展示门槛，不展示比例。"
-        else:
-            competitors["status"] = "ok"
-
-        opponent = {
-            "key": "opponent_why_win",
-            "label": "对手为什么赢",
-            "kind": "empty",
-            "status": "empty",
-            "reason": (
-                "库内无对手视角的观测题；本库样本均为最终购车者，没有未购车用户样本，"
-                "「对手为什么赢」无法实测。v1 不做推断，避免把近似值混进实测结论。"
-            ),
-        }
         return {
             "key": "winloss",
-            "title": "选择与放弃",
-            "subtitle": "战胜战败：选择当前车辆的原因 / 放弃核心对比车型的原因；两边同一套 16 维",
+            "title": "战胜战败原因洞察",
+            "subtitle": "战胜战败：选择当前车辆的原因（Q3_23）/ 对比过当前车辆后实际买了哪款车（Q3_22 反查 + Q3_24 槽位取因）",
             "status": "partial",
             "n": total,
             "banner": (
-                "首增换购属性是人群分类（见用户画像），不是原因；本库无未购车用户样本，"
-                "「放弃核心对比车型的原因」不等于「被竞品战胜的原因」。"
+                f"战败＝在 Q3_22_1 三格里对比过{model['label']}、最终买了别的车的人，"
+                "按实际购车车型分行，行标题为「XX 胜出」；战胜（Q3_23）与战败原因是两套题项，不混算。"
             ),
-            "metrics": [win, win_quotes, abandon, abandon_quotes, competitors, opponent],
+            "metrics": [win, win_quotes, loss, abandon_quotes],
         }
 
     # ------------------------------------------------------------------ 磁贴④
@@ -1024,7 +1186,7 @@ class AnalysisService:
             status = "partial"
         return {
             "key": "satisfaction",
-            "title": "满意度",
+            "title": "产品满意度评价",
             "subtitle": "使用后打分 + 推荐意愿 + 外部口碑；分数均附样本数",
             "status": status,
             "n": total,
@@ -1076,12 +1238,13 @@ class AnalysisService:
                 "逐人原话，不做比例。"
             )
 
-        abandon = next((m for m in tiles["winloss"]["metrics"] if m["key"] == "q3_24_1"), None)
-        if abandon and abandon["status"] == "ok" and abandon.get("top"):
-            parts = [f"{item['label']} {item['count']}/{item['n']}（{item['ratio']}%）" for item in abandon["top"][:3]]
+        loss = next((m for m in tiles["winloss"]["metrics"] if m["key"] == "loss_split"), None)
+        if loss and loss["status"] != "empty" and loss.get("items"):
+            top = loss["items"][0]
+            ratio = f"（{top['ratio']}%）" if top.get("ratio") is not None else ""
             bullets.append(
-                "放弃核心对比车型的原因 TOP3：" + "、".join(parts)
-                + f"；本题实际作答 {abandon['answered']}/{abandon['n']}。"
+                f"战败：{loss['n']} 人对比过{loss['target']}后买了别的车；"
+                f"{top['label']} 胜出 {top['count']} 人{ratio}，共分 {len(loss['items'])} 行列出。"
             )
 
         satisfaction = tiles["satisfaction"]["metrics"]

@@ -8,11 +8,11 @@
 - 五款配置车型四源计数均 >0；
 - 每款车四个磁贴齐全，样本基数 n 与定量源计数一致；
 - 所有比例项同时带分子/分母；n<10 或题目作答<10 时不出比例并给原因；
-- 「第一排序」「对手为什么赢」为空态且有具体原因；
-- 选择/放弃原因各 16 维，且两侧维度标签一致；
+- 「第一排序」为空态且有具体原因；
+- 选择原因 Q3_23 为 16 维；战败为逐行「XX 胜出」，不合并「其他」、不含靶心自己、<5 人不出比例；
 - Q29 / Q27-Q28 定性原话带人数，未命中原话单列；
 - Q5_5 推荐意愿用真实文本打分计算；
-- 抽查 5 个指标回表重算，与接口数值一致。
+- 抽查关注 1 维、战败反查人数、满意度均分，与接口数值一致。
 """
 
 from __future__ import annotations
@@ -30,7 +30,7 @@ if str(ROOT) not in sys.path:
 from competitor_insight.server import db  # noqa: E402
 from competitor_insight.server.analysis_service import load_config  # noqa: E402
 
-EXPECTED_LABELS = ["零跑B10", "铂智3X", "奇瑞iCAR V23", "海狮05 EV", "钛3"]
+EXPECTED_LABELS = ["零跑B10", "铂智3X", "iCAR 超级V23", "海狮05", "钛3"]
 FAILURES: list[str] = []
 
 
@@ -88,14 +88,36 @@ def main() -> int:
 
         metrics = {m["key"]: m for m in tiles["winloss"]["metrics"]}
         check(len(metrics["q3_23"]["items"]) == 16, f"{model['label']} 选择原因 16 维")
-        check(len(metrics["q3_24_1"]["items"]) == 16, f"{model['label']} 放弃原因 16 维")
+        loss = metrics["loss_split"]
+        check(loss["kind"] == "loss_split", f"{model['label']} 战败为逐行「XX 胜出」结构")
+        check(loss["target"] == model["label"], f"{model['label']} 战败靶心等于当前车型")
+        check(loss["n"] > 0, f"{model['label']} 战败反查到对比过它的人（{loss['n']}）")
         check(
-            [i["label"] for i in metrics["q3_23"]["items"]]
-            == [i["label"] for i in metrics["q3_24_1"]["items"]],
-            f"{model['label']} 选择/放弃两侧维度标签一致",
+            sum(item["count"] for item in loss["items"]) == loss["n"],
+            f"{model['label']} 战败各行人数之和等于对比过总人数",
         )
-        check(metrics["opponent_why_win"]["status"] == "empty", f"{model['label']} 对手为什么赢为空态")
-        check(bool(metrics["opponent_why_win"]["reason"]), f"{model['label']} 对手为什么赢有空态原因")
+        check(
+            all(item["label"] != "其他" for item in loss["items"]),
+            f"{model['label']} 战败不合并「其他」",
+        )
+        check(
+            all(item["label"] != model["label"] for item in loss["items"]),
+            f"{model['label']} 战败不含买了靶心自己的人",
+        )
+        check(
+            all(("ratio" in item) for item in loss["items"]),
+            f"{model['label']} 战败每行都带比例字段",
+        )
+        check(
+            all(item["ratio"] is not None or item.get("ratio_hidden_reason") for item in loss["items"]),
+            f"{model['label']} 战败隐藏比例的行有原因",
+        )
+        check(
+            all(item["ratio"] is None for item in loss["items"] if item["count"] < 5),
+            f"{model['label']} 战败不足 5 人的行只给人数",
+        )
+        for question in ("Q3_24_1", "Q3_24_3", "Q3_24_5"):
+            check(question in loss["basis"], f"{model['label']} 战败标注依据题号 {question}")
         for key in ("win_quotes", "abandon_quotes"):
             quotes = metrics[key]
             check(quotes["status"] in {"ok", "insufficient", "empty"}, f"{model['label']} {key} 状态合法")
@@ -138,6 +160,7 @@ def main() -> int:
     conn.set_session(readonly=True, autocommit=True)
     cur = conn.cursor()
     config_models = {item["label"]: item for item in load_config()["models"]}
+    aliases = load_config()["competitor_aliases"]
     for label, data in analyses.items():
         model = config_models[label]
         attention = next(m for m in data["tiles"]["attention"]["metrics"] if m["key"] == "attention")
@@ -151,16 +174,17 @@ def main() -> int:
         actual = int(cur.fetchone()[0])
         check(actual == sample["count"], f"{label} 回表重算关注 {qid} = {actual}")
 
-        abandon = next(m for m in data["tiles"]["winloss"]["metrics"] if m["key"] == "q3_24_1")
-        sample = next(item for item in abandon["items"] if item["count"] > 0)
-        qid = sample["key"]
+        loss = next(m for m in data["tiles"]["winloss"]["metrics"] if m["key"] == "loss_split")
+        spellings = [label] + [raw for raw, canon in aliases.items() if canon == label]
         cur.execute(
             "SELECT count(*) FROM user_insight.quant_sample "
-            "WHERE purchase_model = ANY(%s) AND answers_text ? %s",
-            (model["quant_models"], qid),
+            "WHERE purchase_model <> %s AND purchase_model <> ALL(%s) AND ("
+            "answers_text->>'Q3_22_1__1' = ANY(%s) OR answers_text->>'Q3_22_1__2' = ANY(%s) "
+            "OR answers_text->>'Q3_22_1__3' = ANY(%s))",
+            (label, spellings, spellings, spellings, spellings),
         )
         actual = int(cur.fetchone()[0])
-        check(actual == sample["count"], f"{label} 回表重算放弃 {qid} = {actual}")
+        check(actual == loss["n"], f"{label} 回表重算战败对比人数 {actual} = {loss['n']}")
 
         dims = next(m for m in data["tiles"]["satisfaction"]["metrics"] if m["key"] == "dimensions")
         sample = dims["top"][0]

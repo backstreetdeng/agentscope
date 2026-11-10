@@ -93,7 +93,7 @@ def main() -> int:
         text = page.locator("[data-bci-analysis]").inner_text()
         for phrase in (
             "零跑B10", "定量样本", "深访", "口碑提及", "配置款型",
-            "用户画像", "购车关注", "选择与放弃", "满意度", "综合结论",
+            "用户画像", "购车关注", "战胜战败原因洞察", "产品满意度评价", "综合结论",
         ):
             check(phrase in text, f"页面出现「{phrase}」")
         check("n=41" in text, "页面显示样本基数 n=41")
@@ -101,9 +101,13 @@ def main() -> int:
         check("16 维多选勾选率（非首选率）" in text, "购车关注明确标注非首选率")
         check("首选率（产品 / 品牌 / 服务 第一排序）" in text, "空态卡补齐首选率指标名")
         check("待业务补排序题，不估算、不填 0" in text, "首选率标注待补排序题且不估算")
-        check("对手为什么赢" in text and "没有未购车用户样本" in text, "对手为什么赢空态 + 具体原因")
-        check("放弃核心对比车型的原因" in text, "使用用户确认的「放弃核心对比车型的原因」措辞")
-        check("首增换购属性是人群分类" in text, "明确首增换购是人群分类而非原因")
+        check(page.locator(".bci-a-loss__row").count() > 0, "战败按实际购车车型逐行渲染")
+        check(
+            (page.locator(".bci-a-loss__title").first.text_content() or "").strip().endswith("胜出"),
+            "战败行标题为「XX 胜出」",
+        )
+        check("依据题号" in text and "Q3_24_1" in text, "战败标注原因依据题号")
+        check("不设门槛、不合并「其他」" in text, "战败声明不设门槛、不合并其他")
         check("深访 4 人" in text, "深访原话标注人数")
         check("不做比例" in text, "深访原话声明不做比例")
         check("定性 " in text, "16 维明细带定性人数")

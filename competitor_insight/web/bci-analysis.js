@@ -211,11 +211,41 @@
       (metric.note ? '<p class="bci-a-note">' + esc(metric.note) + '</p>' : '');
   }
 
+  function lossSplit(metric) {
+    const rows = (metric.items || []).map(function (item) {
+      const why = (item.reasons || []).map(function (reason) {
+        return esc(reason.label) + ' ' + esc(reason.count) + '/' + esc(reason.n) +
+          (reason.ratio != null ? '（' + pct(reason.ratio) + '）' : '');
+      }).join('、');
+      return (
+        '<div class="bci-a-loss__row">' +
+          '<div class="bci-a-loss__head">' +
+            '<span class="bci-a-loss__title">' + esc(item.label) + ' 胜出</span>' +
+            '<span class="bci-a-loss__count"><b>' + esc(item.count) + '</b> 人</span>' +
+            (item.ratio != null
+              ? '<span class="bci-a-loss__ratio">' + pct(item.ratio) + ' · 占对比过 ' + esc(item.n) + ' 人</span>'
+              : '<span class="bci-a-loss__ratio is-hidden">' + esc(item.ratio_hidden_reason || '不足 5 人，不给百分比') + '</span>') +
+          '</div>' +
+          '<p class="bci-a-loss__why">' +
+            (why ? '胜出原因（本行 ' + esc(item.count) + ' 人）：' + why : '本行没有 16 维勾选记录') +
+          '</p>' +
+        '</div>'
+      );
+    }).join('');
+    return (
+      '<div class="bci-a-loss">' + rows + '</div>' +
+      '<p class="bci-a-basis">依据题号：' + esc(metric.basis) + '</p>' +
+      (metric.note ? '<p class="bci-a-note">' + esc(metric.note) + '</p>' : '')
+    );
+  }
+
   function renderMetric(metric) {
     const head = metricHeader(metric);
     let body = '';
     if (metric.status === 'empty') {
       body = emptyBox(metric);
+    } else if (metric.kind === 'loss_split') {
+      body = lossSplit(metric);
     } else if (metric.kind === 'qualitative') {
       body = qualitative(metric);
     } else if (metric.kind === 'numeric') {
@@ -227,7 +257,7 @@
     } else if (metric.kind === 'reputation') {
       body = reputationMetric(metric);
     } else {
-      const ranked = ['attention', 'q3_23', 'q3_24_1'].indexOf(metric.key) >= 0;
+      const ranked = ['attention', 'q3_23'].indexOf(metric.key) >= 0;
       body = distribution(metric, {
         items: ranked ? (metric.top || []).slice(0, 5) : metric.items,
         details: ranked,
@@ -241,7 +271,27 @@
       head + body + reason + note + '</section>';
   }
 
-  function renderTile(tile, index) {
+  function aiRow(ai) {
+    if (!ai) return '';
+    if (ai.source === 'error' || ai.source === 'empty') {
+      return (
+        '<div class="bci-a-ai is-error">' +
+          '<span class="bci-a-ai__tag">AI 结论</span>' +
+          '<p class="bci-a-ai__text">' + esc(ai.error || 'AI 结论生成失败') + '</p>' +
+        '</div>'
+      );
+    }
+    if (!ai.summary) return '';
+    return (
+      '<div class="bci-a-ai">' +
+        '<span class="bci-a-ai__tag">AI 结论</span>' +
+        '<p class="bci-a-ai__text">' + esc(ai.summary) + '</p>' +
+        '<em class="bci-a-ai__note">基于本块数据生成</em>' +
+      '</div>'
+    );
+  }
+
+  function renderTile(tile, index, ai) {
     return (
       '<article class="bci-a-tile">' +
         '<header class="bci-a-tile__head">' +
@@ -253,6 +303,7 @@
         '</header>' +
         (tile.banner ? '<p class="bci-a-banner">' + esc(tile.banner) + '</p>' : '') +
         '<div class="bci-a-metrics">' + (tile.metrics || []).map(renderMetric).join('') + '</div>' +
+        aiRow(ai) +
       '</article>'
     );
   }
@@ -297,8 +348,8 @@
   const TILE_HEAD = {
     profile: '用户画像',
     attention: '购车关注',
-    winloss: '选择与放弃',
-    satisfaction: '满意度',
+    winloss: '战胜战败原因洞察',
+    satisfaction: '产品满意度评价',
   };
 
   function renderEntry(tile, key, isOpen) {
@@ -316,8 +367,9 @@
     );
   }
 
-  function renderBody(data, expanded) {
+  function renderBody(data, expanded, ai) {
     const tiles = data.tiles || {};
+    const summaries = ai || {};
     const open = (expanded || []).filter(function (key) { return tiles[key]; });
     return (
       '<section class="bci-a-summary"><header><span>综合结论</span>' +
@@ -338,22 +390,24 @@
         }).join('') + '</div>' +
       '</section>' +
       '<div class="bci-a-stack">' + open.map(function (key) {
-        return '<div id="bci-a-panel-' + esc(key) + '">' + renderTile(tiles[key], TILE_ORDER.indexOf(key)) + '</div>';
+        return '<div id="bci-a-panel-' + esc(key) + '">' +
+          renderTile(tiles[key], TILE_ORDER.indexOf(key), summaries[key]) + '</div>';
       }).join('') + '</div>' +
       '<p class="bci-a-foot">口径：比例分母为车型定量总样本；题目作答 &lt;10 人不展示比例；' +
-        '深访 3–4 人只做逐人原话；口碑为外部评论标签，与问卷满意度不同源。</p>'
+        '战败按实际购车车型分行，行内不足 5 人只给人数；深访 3–4 人只做逐人原话；' +
+        '口碑为外部评论标签，与问卷满意度不同源。</p>'
     );
   }
 
   function init(host) {
     if (!host || host.dataset.ready === '1') return;
     host.dataset.ready = '1';
-    const state = { models: [], current: '', data: null, loading: false, expanded: ['profile'] };
+    const state = { models: [], current: '', data: null, ai: {}, loading: false, expanded: ['profile'] };
 
     function paint() {
       host.innerHTML = renderShell(state);
       const body = host.querySelector('[data-bci-analysis-body]');
-      if (body && state.data) body.innerHTML = renderBody(state.data, state.expanded);
+      if (body && state.data) body.innerHTML = renderBody(state.data, state.expanded, state.ai);
     }
 
     function fail(error) {
@@ -386,15 +440,30 @@
       });
     }
 
+    function loadSummaries() {
+      const model = state.current;
+      return getJSON('/api/bci/analysis/summaries?model=' + encodeURIComponent(model))
+        .then(function (data) {
+          if (model !== state.current) return;
+          state.ai = (data && data.tiles) || {};
+          paint();
+        })
+        .catch(function () {
+          /* AI 结论失败不阻塞主视图，磁贴仍按确定性数字展示 */
+        });
+    }
+
     function analyze() {
       if (!state.current) return;
       state.loading = true;
+      state.ai = {};
       paint();
       return getJSON('/api/bci/analysis/analyze?model=' + encodeURIComponent(state.current))
         .then(function (data) {
           state.loading = false;
           state.data = data;
           paint();
+          loadSummaries();
         })
         .catch(fail);
     }

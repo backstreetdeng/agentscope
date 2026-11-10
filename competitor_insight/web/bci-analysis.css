@@ -334,6 +334,52 @@
 .bci-a-table th { background: #F6F9FF; color: #56698C; font-weight: 650; }
 .bci-a-table td:nth-child(2), .bci-a-table td:nth-child(3) { white-space: nowrap; }
 
+/* 战败：逐行「XX 胜出」 -------------------------------------------------- */
+.bci-a-loss { display: flex; flex-direction: column; gap: 8px; }
+.bci-a-loss__row {
+  padding: 9px 11px;
+  border: 1px solid var(--a-line);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #FFFFFF, #FBFCFE);
+}
+.bci-a-loss__head { display: flex; align-items: baseline; gap: 10px; }
+.bci-a-loss__title { font-size: 13px; font-weight: 750; color: var(--a-ink); }
+.bci-a-loss__count { font-size: 11.5px; color: var(--a-muted); }
+.bci-a-loss__count b { font-size: 15px; color: var(--a-blue); }
+.bci-a-loss__ratio { margin-left: auto; font-size: 11.5px; font-weight: 650; color: #23406E; white-space: nowrap; }
+.bci-a-loss__ratio.is-hidden { font-weight: 500; color: var(--a-faint); }
+.bci-a-loss__why { margin: 5px 0 0; font-size: 11.5px; line-height: 1.6; color: #4A5D7C; }
+.bci-a-basis { margin: 8px 0 0; font-size: 11px; line-height: 1.55; color: #7A8CA8; }
+
+/* 磁贴级 AI 结论：独立一行，与顶部综合结论区分 ------------------------- */
+.bci-a-ai {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 10px;
+  margin-top: 14px;
+  padding: 9px 12px 9px 11px;
+  border-top: 1px dashed var(--a-line);
+  border-left: 3px solid #7FA6E8;
+  border-radius: 0 8px 8px 0;
+  background: linear-gradient(180deg, #FBFDFF, #F3F7FF);
+}
+.bci-a-ai__tag {
+  flex: none;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #E4EEFF;
+  color: #21497F;
+  font-size: 10.5px;
+  font-weight: 750;
+  letter-spacing: .04em;
+}
+.bci-a-ai__text { flex: 1 1 60%; margin: 0; font-size: 12.8px; line-height: 1.6; color: #1E3355; }
+.bci-a-ai__note { flex: none; margin-left: auto; font-style: normal; font-size: 10.5px; color: var(--a-faint); }
+.bci-a-ai.is-error { border-left-color: #D9A23B; background: var(--a-warn-bg); }
+.bci-a-ai.is-error .bci-a-ai__tag { background: #F6E7C6; color: #6B4E10; }
+.bci-a-ai.is-error .bci-a-ai__text { color: #6B4E10; }
+
 /* 定性原话 --------------------------------------------------------------- */
 .bci-a-note { margin: 6px 0 0; font-size: 11.2px; line-height: 1.6; color: #7A8CA8; }
 .bci-a-warn { margin: 6px 0 0; padding: 6px 8px; border-radius: 5px; background: var(--a-warn-bg); font-size: 11.3px; line-height: 1.55; color: #6B4E10; }

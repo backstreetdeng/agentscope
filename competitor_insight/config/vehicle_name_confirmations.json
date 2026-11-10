@@ -1,0 +1,1993 @@
+{
+  "_meta": {
+    "purpose": "业务回填的车型写法确认结果，优先级高于自动匹配；重跑 build 不会被覆盖",
+    "source_file": "车系名称映射表_20261110-补填.xlsx",
+    "sheet1_confirmed": 262,
+    "sheet2_corrected": 14,
+    "conflicts_skipped": [],
+    "conflicts_resolved": {
+      "宋PLUS": "宋PLUS",
+      "海豹05": "海豹05",
+      "领克07": "领克07",
+      "领克08": "领克08"
+    },
+    "unverified_against_local_catalog": 206,
+    "catalog_note": "库内 autohome_series 448 条 + new_car_model 543 条，非汽车之家全量车系表"
+  },
+  "confirmations": [
+    {
+      "raw": "BJ40",
+      "standard": "北京越野BJ40",
+      "kind": "pending_confirm",
+      "note": "匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "FORESTER森林人",
+      "standard": "森林人",
+      "kind": "pending_confirm",
+      "note": "匹配依据：包含匹配（原名是之家车系名的简写或带修饰词）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "Grecale",
+      "standard": "Grecale格雷嘉",
+      "kind": "pending_confirm",
+      "note": "匹配依据：包含匹配（原名是之家车系名的简写或带修饰词）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "Lorinser LS系列",
+      "standard": "Lorinser LS系列",
+      "kind": "auto_corrected",
+      "previous_standard": "Lorinser VS系列",
+      "note": "业务改判：原自动结果 Lorinser VS系列",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "Lorinser LW系列",
+      "standard": "Lorinser LW系列",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "Lorinser MH系列",
+      "standard": "Lorinser MH系列",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "Temerario",
+      "standard": "Temerario",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "ZEEKR 007",
+      "standard": "极氪007",
+      "kind": "pending_confirm",
+      "note": "匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "ZEEKR 007GT",
+      "standard": "极氪007GT",
+      "kind": "pending_confirm",
+      "note": "匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "ZEEKR 8X",
+      "standard": "极氪8X",
+      "kind": "pending_confirm",
+      "note": "匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "一汽丰田卡罗拉",
+      "standard": "卡罗拉",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「卡罗拉」，合资厂商前缀已归并",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "一汽丰田荣放",
+      "standard": "RAV4荣放",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：汽车之家全称为「RAV4荣放」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "一汽大众CC",
+      "standard": "一汽-大众CC",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「一汽-大众CC」，品牌写法归一",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "一汽大众ID4X",
+      "standard": "大众ID.4",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：统一填不带版本后缀的「大众ID.4」（原文含X但厂商为一汽-大众，版本信息冲突，故不细分 X / CROZZ）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "一汽大众id4",
+      "standard": "大众ID.4",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：统一填不带版本后缀的「大众ID.4」；原文标注一汽-大众，对应 ID.4 CROZZ",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "一汽大众id4x",
+      "standard": "大众ID.4",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：统一填不带版本后缀的「大众ID.4」（原文含X但厂商为一汽-大众，版本信息冲突，故不细分 X / CROZZ）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "上海大众ID3",
+      "standard": "大众ID.3",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「大众ID.3」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "上海大众帕萨特",
+      "standard": "帕萨特",
+      "kind": "pending_confirm",
+      "note": "匹配依据：去除品牌前缀/名称规范化后同名",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "上海大众朗逸",
+      "standard": "朗逸",
+      "kind": "pending_confirm",
+      "note": "匹配依据：去厂牌前缀后同名（工信部表扩充）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "上海大众途岳",
+      "standard": "途岳",
+      "kind": "pending_confirm",
+      "note": "匹配依据：去厂牌前缀后同名（工信部表扩充）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "东风奕派007",
+      "standard": "eπ007",
+      "kind": "pending_confirm",
+      "note": "匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "东风奕派008",
+      "standard": "eπ008",
+      "kind": "pending_confirm",
+      "note": "匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "东风本田CRV",
+      "standard": "本田CR-V",
+      "kind": "pending_confirm",
+      "note": "匹配依据：去厂牌前缀+写法归一（工信部表扩充）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "东风风神E80",
+      "standard": "东风风神E80",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "丰田塞纳",
+      "standard": "赛那SIENNA",
+      "kind": "pending_confirm",
+      "note": "匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "丰田威兰达",
+      "standard": "威兰达",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「威兰达」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "丰田荣放",
+      "standard": "RAV4荣放",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：汽车之家全称为「RAV4荣放」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "丰田赛那",
+      "standard": "赛那SIENNA",
+      "kind": "pending_confirm",
+      "note": "匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "丰田陆放",
+      "standard": "皇冠陆放",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「皇冠陆放」，之家全称带皇冠前缀",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "五菱星光",
+      "standard": "五菱星光",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "五菱星光S",
+      "standard": "五菱星光S",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：可直接对应",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "五菱缤果",
+      "standard": "五菱缤果",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「五菱缤果」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "五菱缤果PLUS",
+      "standard": "五菱缤果PLUS",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「五菱缤果PLUS」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "传祺E8",
+      "standard": "传祺E8 PHEV",
+      "kind": "pending_confirm",
+      "note": "匹配依据：能量型式后缀等价（PHEV）（工信部表扩充）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "传祺E9",
+      "standard": "传祺E9",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「传祺E9」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "傲旋",
+      "standard": "傲旋",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "克慕勒世纪MH系列",
+      "standard": "克慕勒世纪MH系列",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "克慕勒阿尔法AH系列",
+      "standard": "克慕勒阿尔法AH系列",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "克慕勒阿尔法AL系列",
+      "standard": "克慕勒阿尔法AL系列",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "克慕勒阿尔法A系列",
+      "standard": "克慕勒阿尔法A系列",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "克蒂圣姆峰",
+      "standard": "克蒂圣姆峰",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "克蒂宸辉",
+      "standard": "克蒂宸辉",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "克蒂山河",
+      "standard": "克蒂山河",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "克蒂怪兽SV3",
+      "standard": "克蒂怪兽SV3",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "克蒂怪兽SV7",
+      "standard": "克蒂怪兽SV7",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "克蒂昆仑",
+      "standard": "克蒂昆仑",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "凌际星云系列",
+      "standard": "凌际星云系列",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "凯迪拉克CT5",
+      "standard": "凯迪拉克CT5",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「凯迪拉克CT5」，大小写归一",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "凯迪拉克XT5",
+      "standard": "凯迪拉克XT5",
+      "kind": "auto_corrected",
+      "previous_standard": "凯迪拉克XT4",
+      "note": "业务改判：原自动结果 凯迪拉克XT4",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "凯迪拉克ct5",
+      "standard": "凯迪拉克CT5",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「凯迪拉克CT5」，大小写归一",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "别克 E5",
+      "standard": "别克E5",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「别克E5」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "别克E5",
+      "standard": "别克E5",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「别克E5」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "别克GL8高定",
+      "standard": "别克GL8高定",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "别克君威",
+      "standard": "君威",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「君威」，品牌前缀归一",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "别克昂科旗",
+      "standard": "昂科旗",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「昂科旗」，品牌前缀归一",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "北京X7",
+      "standard": "北京X7",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "北铃梦想家",
+      "standard": "北铃梦想家",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "华东祥云",
+      "standard": "华东祥云",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "华东祥云 插电混动",
+      "standard": "华东祥云 插电混动",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "华为 M5",
+      "standard": "问界M5",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「问界M5」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "卡尔森 GLS",
+      "standard": "卡尔森 GLS",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "吉利iCAR V23",
+      "standard": "iCAR 超级V23",
+      "kind": "pending_confirm",
+      "note": "匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "吉利几何APRO",
+      "standard": "吉利几何A",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「吉利几何A」，PRO 视为配置后缀",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "吉利几何G6",
+      "standard": "吉利几何G6",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「吉利几何G6」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "吉利星舰7",
+      "standard": "银河星舰7",
+      "kind": "pending_confirm",
+      "note": "匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "吉利银河E8",
+      "standard": "银河E8",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「银河E8」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "吉利银河L6",
+      "standard": "银河L6",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「银河L6」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "吉利银河L7",
+      "standard": "银河L7",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「银河L7」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "名爵4",
+      "standard": "MG4",
+      "kind": "pending_confirm",
+      "note": "匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "启源 Q07",
+      "standard": "长安启源Q07",
+      "kind": "pending_confirm",
+      "note": "匹配依据：名称归一（补品牌前缀）（工信部表扩充）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "启源A05",
+      "standard": "启源A05",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "启源A07",
+      "standard": "长安启源A07",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "启源Q07",
+      "standard": "长安启源Q07",
+      "kind": "pending_confirm",
+      "note": "匹配依据：名称归一（补品牌前缀）（工信部表扩充）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "启源a07",
+      "standard": "长安启源A07",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「长安启源A07」，EV 为动力版本",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "哈佛二代大狗",
+      "standard": "哈弗大狗 PLUS",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「哈弗大狗 PLUS」，哈佛/哈弗 写法归一",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "哈佛二代大狗新能源",
+      "standard": "哈弗大狗 PLUS 新能源",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「哈弗大狗 PLUS 新能源」；二代大狗为代际命名，之家归入大狗 PLUS 新能源",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "哈佛大狗",
+      "standard": "长城大狗",
+      "kind": "pending_confirm",
+      "note": "匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "哈弗二代大狗PHEV",
+      "standard": "哈弗大狗 PLUS 新能源",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「哈弗大狗 PLUS 新能源」；二代大狗为代际命名，之家归入大狗 PLUS 新能源",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "哈弗二代枭龙MAX",
+      "standard": "哈弗枭龙MAX",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「哈弗枭龙MAX」；原文「哈弗枭龙」按同族归入，如为独立车系请修正",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "哈弗大狗",
+      "standard": "长城大狗",
+      "kind": "pending_confirm",
+      "note": "匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "哈弗大狗PLUS PHEV",
+      "standard": "哈弗大狗 PLUS 新能源",
+      "kind": "pending_confirm",
+      "note": "匹配依据：能量型式后缀等价（DM/PHEV≈新能源、EV≈纯电）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "哈弗枭龙",
+      "standard": "哈弗枭龙",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「哈弗枭龙」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "哈弗枭龙MAX",
+      "standard": "哈弗枭龙MAX",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "哈弗猛龙",
+      "standard": "哈弗猛龙新能源",
+      "kind": "pending_confirm",
+      "note": "匹配依据：能量型式后缀等价（新能源）（工信部表扩充）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "哈弗猛龙 PHEV",
+      "standard": "哈弗猛龙新能源",
+      "kind": "pending_confirm",
+      "note": "匹配依据：能量型式后缀等价（新能源）（工信部表扩充）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "哪吒L",
+      "standard": "哪吒L",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "哪吒S",
+      "standard": "哪吒S",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "哪吒S EV",
+      "standard": "哪吒S EV",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "哪吒U",
+      "standard": "哪吒U",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "哪吒X",
+      "standard": "哪吒X",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "唐L",
+      "standard": "唐L",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：独立车系，可直接对应",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "图雅诺X5",
+      "standard": "图雅诺X5",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "坦克400",
+      "standard": "坦克400",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「坦克400」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "坦克500 Hi4-T",
+      "standard": "坦克500新能源",
+      "kind": "pending_confirm",
+      "note": "匹配依据：能量型式后缀等价（DM/PHEV≈新能源、EV≈纯电）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "坦克700 Hi4-T",
+      "standard": "坦克700新能源",
+      "kind": "pending_confirm",
+      "note": "匹配依据：能量型式后缀等价（DM/PHEV≈新能源、EV≈纯电）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "埃安AION V",
+      "standard": "AION V",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「AION V」，品牌前缀归一",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "埃安V",
+      "standard": "AION V",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "埃安Y PLUS",
+      "standard": "AION Y",
+      "kind": "pending_confirm",
+      "note": "匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "埃安YPLUS",
+      "standard": "AION Y",
+      "kind": "pending_confirm",
+      "note": "匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "夏",
+      "standard": "夏",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "多拉小货",
+      "standard": "多拉小货",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "大众ID.3",
+      "standard": "大众ID.3",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「大众ID.3」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "大众ID.4",
+      "standard": "大众ID.4",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：原文未标合资厂商，统一填不带版本后缀的「大众ID.4」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "大众ID.7 VIZZION",
+      "standard": "大众ID.7 VIZZION",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「大众ID.7 VIZZION」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "大众ID3",
+      "standard": "大众ID.3",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「大众ID.3」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "大众ID4X",
+      "standard": "大众ID.4",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：统一填不带版本后缀的「大众ID.4」；原文标注 X 版（上汽大众 ID.4 X）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "大众ID6",
+      "standard": "大众ID.6",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：原文未标合资厂商，统一填不带版本后缀的「大众ID.6」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "大众id3",
+      "standard": "大众ID.3",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「大众ID.3」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "大众id4",
+      "standard": "大众ID.4",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：原文未标合资厂商，统一填不带版本后缀的「大众ID.4」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "大众lD3",
+      "standard": "大众ID.3",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「大众ID.3」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "大拿V1 L",
+      "standard": "拾光大拿V1L",
+      "kind": "pending_confirm",
+      "note": "匹配依据：去除品牌前缀/名称规范化后同名",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "奇瑞T8",
+      "standard": "风云T8",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：原文「奇瑞T8」按风云T8 归入（若实为瑞虎8 系列请修正）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "奇瑞iCAR 03",
+      "standard": "iCAR 03",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「iCAR 03」，品牌前缀归一",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "奇瑞iCAR V23",
+      "standard": "iCAR 超级V23",
+      "kind": "pending_confirm",
+      "note": "匹配依据：包含匹配（原名是之家车系名的简写或带修饰词）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "奇瑞iCAR03",
+      "standard": "iCAR 03",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「iCAR 03」，品牌前缀归一",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "奇瑞iCAR03T",
+      "standard": "iCAR 03T",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「iCAR 03T」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "奇瑞iCARV23",
+      "standard": "iCAR 超级V23",
+      "kind": "pending_confirm",
+      "note": "匹配依据：包含匹配（原名是之家车系名的简写或带修饰词）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "奇瑞icar03",
+      "standard": "iCAR 03",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「iCAR 03」，品牌前缀归一",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "奇瑞瑞虎8",
+      "standard": "瑞虎8",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "奇瑞瑞虎8L",
+      "standard": "瑞虎8L",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "奇瑞风云T8",
+      "standard": "风云T8",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「风云T8」，品牌前缀归一",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "奔腾悦意03",
+      "standard": "悦意03",
+      "kind": "pending_confirm",
+      "note": "匹配依据：去除品牌前缀/名称规范化后同名",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "奔驰smart",
+      "standard": "奔驰smart",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：smart 旗下分精灵#1~#6 多个车系，无法唯一区分，统一用奔驰smart",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "奕派007",
+      "standard": "eπ007",
+      "kind": "pending_confirm",
+      "note": "匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "奕派008",
+      "standard": "eπ008",
+      "kind": "pending_confirm",
+      "note": "匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "奥迪Q2",
+      "standard": "奥迪Q2L",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「奥迪Q2L」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "宋L",
+      "standard": "宋L",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：之家拆分为「宋L DM-i」「宋L EV」两个车系，统一合并为宋L",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "宋Pro DM",
+      "standard": "宋Pro新能源",
+      "kind": "pending_confirm",
+      "note": "匹配依据：能量型式后缀等价（DM/PHEV≈新能源、EV≈纯电）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "宏运高顶格瑞维亚",
+      "standard": "宏运高顶格瑞维亚",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "宝骏悦也PLUS",
+      "standard": "宝骏悦也Plus",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「宝骏悦也Plus」，Plus 大小写归一",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "宸辉VL900",
+      "standard": "宸辉VL900",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "将军F9SUV",
+      "standard": "将军F9SUV",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "小鹏 M03",
+      "standard": "小鹏MONA M03",
+      "kind": "pending_confirm",
+      "note": "匹配依据：包含匹配（原名是之家车系名的简写或带修饰词）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "小鹏M03",
+      "standard": "小鹏MONA M03",
+      "kind": "pending_confirm",
+      "note": "匹配依据：包含匹配（原名是之家车系名的简写或带修饰词）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "小鹏M03 EV",
+      "standard": "小鹏MONA M03",
+      "kind": "pending_confirm",
+      "note": "匹配依据：能量型式后缀等价（DM/PHEV≈新能源、EV≈纯电）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "小鹏P5",
+      "standard": "小鹏P5",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「小鹏P5」，EV 为纯电版本标注",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "小鹏P5-EV",
+      "standard": "小鹏P5",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「小鹏P5」，EV 为纯电版本标注",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "岚图FREE",
+      "standard": "岚图FREE",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「岚图FREE」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "布鲁德",
+      "standard": "布鲁德",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "帕里斯帝",
+      "standard": "帕里斯帝",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "广州丰田凯美瑞",
+      "standard": "凯美瑞",
+      "kind": "pending_confirm",
+      "note": "匹配依据：去除品牌前缀/名称规范化后同名",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "广汽丰田汉兰达",
+      "standard": "汉兰达",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「汉兰达」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "拉帝",
+      "standard": "拉帝",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "拾光星光730福祉车",
+      "standard": "拾光星光730福祉车",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "拾光福祉车",
+      "standard": "拾光福祉车",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "拾月",
+      "standard": "凯翼拾月",
+      "kind": "pending_confirm",
+      "note": "匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "捷途山海L6",
+      "standard": "捷途山海L6",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「捷途山海L6」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "捷途山海L9",
+      "standard": "捷途山海L9",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「捷途山海L9」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "捷途山海T2",
+      "standard": "捷途旅行者C-DM",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「捷途旅行者C-DM」，山海T2 为同一车型的渠道命名",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "摩卡PHEV",
+      "standard": "魏牌 摩卡新能源",
+      "kind": "pending_confirm",
+      "note": "匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "昊铂HL",
+      "standard": "昊铂HL",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「昊铂HL」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "星悦L",
+      "standard": "星越L",
+      "kind": "pending_confirm",
+      "note": "匹配依据：拼写纠正（如 PIUS→PLUS、智已→智己）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "星纪元ET",
+      "standard": "星纪元 ET",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「星纪元 ET」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "星舰7",
+      "standard": "银河星舰7",
+      "kind": "pending_confirm",
+      "note": "匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "星途星纪元ES",
+      "standard": "星途ES",
+      "kind": "pending_confirm",
+      "note": "匹配依据：去除品牌前缀/名称规范化后同名",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "智己LS7",
+      "standard": "智己LS7",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「智己LS7」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "智已L6",
+      "standard": "智己L6",
+      "kind": "pending_confirm",
+      "note": "匹配依据：拼写纠正（如 PIUS→PLUS、智已→智己）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "本田P7",
+      "standard": "广汽本田P7",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「广汽本田P7」，之家全称含合资厂商",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "极氪7X",
+      "standard": "极氪7X",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「极氪7X」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "极氪X",
+      "standard": "极氪X",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "极狐s5",
+      "standard": "极狐 阿尔法S5",
+      "kind": "pending_confirm",
+      "note": "匹配依据：去除品牌前缀/名称规范化后同名",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "极狐考拉",
+      "standard": "极狐考拉",
+      "kind": "auto_corrected",
+      "previous_standard": "极狐 考拉S",
+      "note": "业务改判：原自动结果 极狐 考拉S",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "极石01",
+      "standard": "极石01",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「极石01」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "林肯z",
+      "standard": "林肯Z",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「林肯Z」，大小写归一",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "欧拉5SUV燃油版",
+      "standard": "欧拉5",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "比亚迪 宋PLUS",
+      "standard": "宋PLUS新能源",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：汽车之家将宋PLUS插混/纯电版本归入「宋PLUS新能源」车系",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪元",
+      "standard": "元",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：元基础款对应「元」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪唐",
+      "standard": "唐新能源",
+      "kind": "pending_confirm",
+      "note": "匹配依据：能量型式后缀等价（新能源）（工信部表扩充）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "比亚迪唐 DMi",
+      "standard": "唐新能源",
+      "kind": "pending_confirm",
+      "note": "匹配依据：能量型式后缀等价（DM≈新能源）（工信部表扩充）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "比亚迪唐DMI",
+      "standard": "唐新能源",
+      "kind": "pending_confirm",
+      "note": "匹配依据：能量型式后缀等价（DM≈新能源）（工信部表扩充）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "比亚迪唐Dmi",
+      "standard": "唐新能源",
+      "kind": "pending_confirm",
+      "note": "匹配依据：能量型式后缀等价（DM≈新能源）（工信部表扩充）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "比亚迪唐L",
+      "standard": "唐L",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：独立车系，可直接对应",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪唐dmi",
+      "standard": "唐新能源",
+      "kind": "pending_confirm",
+      "note": "匹配依据：能量型式后缀等价（DM≈新能源）（工信部表扩充）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "比亚迪夏",
+      "standard": "夏",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪宋",
+      "standard": "宋",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪宋 PLUS",
+      "standard": "宋PLUS新能源",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：汽车之家将宋PLUS插混/纯电版本归入「宋PLUS新能源」车系",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪宋L",
+      "standard": "宋L",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：之家拆分为「宋L DM-i」「宋L EV」两个车系，统一合并为宋L",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪宋L DMI",
+      "standard": "宋L",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：之家拆分为「宋L DM-i」「宋L EV」两个车系，统一合并为宋L",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪宋L DMi",
+      "standard": "宋L",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：之家拆分为「宋L DM-i」「宋L EV」两个车系，统一合并为宋L",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪宋L EV",
+      "standard": "宋L",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：之家拆分为「宋L DM-i」「宋L EV」两个车系，统一合并为宋L",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪宋LUSE EV",
+      "standard": "宋L EV",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：原文「宋LUSE EV」按宋L EV 归入；宋L 家族另有宋L DM-i",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪宋PLUS",
+      "standard": "宋PLUS新能源",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：汽车之家将宋PLUS插混/纯电版本归入「宋PLUS新能源」车系",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪宋PLUS DMI",
+      "standard": "宋PLUS新能源",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：汽车之家将宋PLUS插混/纯电版本归入「宋PLUS新能源」车系",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪宋PLUS EV",
+      "standard": "宋PLUS新能源",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：汽车之家将宋PLUS插混/纯电版本归入「宋PLUS新能源」车系",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪宋PRO",
+      "standard": "宋Pro新能源",
+      "kind": "pending_confirm",
+      "note": "匹配依据：能量型式后缀等价（新能源）（工信部表扩充）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "比亚迪宋PRO DMI",
+      "standard": "宋Pro新能源",
+      "kind": "pending_confirm",
+      "note": "匹配依据：能量型式后缀等价（DM/PHEV≈新能源、EV≈纯电）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "比亚迪宋PlUS",
+      "standard": "宋PLUS新能源",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：汽车之家将宋PLUS插混/纯电版本归入「宋PLUS新能源」车系",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪宋Plus DMi",
+      "standard": "宋PLUS新能源",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：汽车之家将宋PLUS插混/纯电版本归入「宋PLUS新能源」车系",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪宋Pro",
+      "standard": "宋Pro新能源",
+      "kind": "pending_confirm",
+      "note": "匹配依据：能量型式后缀等价（DM/PHEV≈新能源、EV≈纯电）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "比亚迪宋plus",
+      "standard": "宋PLUS新能源",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：汽车之家将宋PLUS插混/纯电版本归入「宋PLUS新能源」车系",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪宋plus EV",
+      "standard": "宋PLUS新能源",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：汽车之家将宋PLUS插混/纯电版本归入「宋PLUS新能源」车系",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪宋plus dmi",
+      "standard": "宋PLUS新能源",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：汽车之家将宋PLUS插混/纯电版本归入「宋PLUS新能源」车系",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪宋pro",
+      "standard": "宋Pro新能源",
+      "kind": "pending_confirm",
+      "note": "匹配依据：能量型式后缀等价（DM/PHEV≈新能源、EV≈纯电）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "比亚迪护卫舰07",
+      "standard": "护卫舰07",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「护卫舰07」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪汉L",
+      "standard": "汉L",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：可直接对应",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪海狮05",
+      "standard": "海狮05",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：之家拆分为「海狮05 DM-i」「海狮05 EV」两个车系，无法唯一选择，统一合并为海狮05",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪海狮07",
+      "standard": "海狮07",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：与「海狮07」同口径合并；海狮07 家族含 海狮07 DM-i / 海狮07 EV",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪海狮07 DMI",
+      "standard": "海狮07 DM-i",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪海豚",
+      "standard": "海豚",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「海豚」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪海豹",
+      "standard": "海豹",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪海豹 EV",
+      "standard": "海豹",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「海豹」；海豹家族另有海豹05/06/06GT/07/08（之家拆为独立车系）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪海豹07",
+      "standard": "海豹07 EV",
+      "kind": "pending_confirm",
+      "note": "匹配依据：能量型式后缀等价（DM/PHEV≈新能源、EV≈纯电）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "比亚迪秦",
+      "standard": "秦",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「秦」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "比亚迪秦PIUS",
+      "standard": "秦PLUS",
+      "kind": "pending_confirm",
+      "note": "匹配依据：拼写纠正（如 PIUS→PLUS、智已→智己）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "比亚迪驱逐舰05",
+      "standard": "驱逐舰05",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「驱逐舰05」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "沃尔沃XC60",
+      "standard": "沃尔沃XC60",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "沃尔沃XC70",
+      "standard": "沃尔沃XC70插电式混动",
+      "kind": "pending_confirm",
+      "note": "匹配依据：包含匹配（原名是之家车系名的简写或带修饰词）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "沃尔沃XC90",
+      "standard": "沃尔沃XC90",
+      "kind": "auto_corrected",
+      "previous_standard": "沃尔沃EX90",
+      "note": "业务改判：原自动结果 沃尔沃EX90",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "沃尔法海狮",
+      "standard": "沃尔法海狮",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "海狮05",
+      "standard": "海狮05",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：之家拆分为「海狮05 DM-i」「海狮05 EV」两个车系，无法唯一选择，统一合并为海狮05",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "海狮07",
+      "standard": "海狮07",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "海狮07DMI",
+      "standard": "海狮07",
+      "kind": "auto_corrected",
+      "previous_standard": "海狮05 DM-i",
+      "note": "业务改判：原自动结果 海狮05 DM-i",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "海豹05 EV",
+      "standard": "海豹05 EV",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "海豹07",
+      "standard": "海豹07 EV",
+      "kind": "pending_confirm",
+      "note": "匹配依据：能量型式后缀等价（DM/PHEV≈新能源、EV≈纯电）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "深蓝",
+      "standard": "深蓝",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "深蓝 L07",
+      "standard": "深蓝L07",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：可直接对应",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "深蓝L07",
+      "standard": "深蓝L07",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：可直接对应",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "深蓝L07 EV",
+      "standard": "深蓝L07",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：可直接对应",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "深蓝SL03",
+      "standard": "深蓝SL03",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：可直接对应",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "深蓝SL03 EV",
+      "standard": "深蓝SL03",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：可直接对应",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "深蓝l07",
+      "standard": "深蓝L07",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：可直接对应",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "深蓝sL03",
+      "standard": "深蓝SL03",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：可直接对应",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "焜驰麒麟",
+      "standard": "焜驰麒麟",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "特斯拉Y",
+      "standard": "Model Y",
+      "kind": "pending_confirm",
+      "note": "匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "现代库斯途",
+      "standard": "库斯途",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「库斯途」，品牌前缀归一",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "理想",
+      "standard": "理想",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "理想 L7",
+      "standard": "理想L7",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「理想L7」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "理想L7",
+      "standard": "理想L7",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「理想L7」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "示界06",
+      "standard": "示界06",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「示界06」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "福特翼虎",
+      "standard": "翼虎",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「翼虎」，品牌前缀归一",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "红旗EH7",
+      "standard": "红旗EH7",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「红旗EH7」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "维努斯",
+      "standard": "维努斯",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "罗伦士烈马",
+      "standard": "罗伦士烈马",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "腾势N7",
+      "standard": "腾势N7",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「腾势N7」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "荣威D5X",
+      "standard": "荣威D5X DMH",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「荣威D5X DMH」，DMH 为动力标识",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "荣威D7",
+      "standard": "荣威D7",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「荣威D7」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "荣威M7",
+      "standard": "荣威M7 DMH",
+      "kind": "pending_confirm",
+      "note": "匹配依据：能量型式后缀等价（DM/PHEV≈新能源、EV≈纯电）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "蓝电E5",
+      "standard": "蓝电E5",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「蓝电E5」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "蔚来萤火虫",
+      "standard": "firefly萤火虫",
+      "kind": "pending_confirm",
+      "note": "匹配依据：品牌别名/写法归一（如 ZEEKR=极氪、奕派=eπ、赛那/塞纳）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "赫菲特高顶赛那",
+      "standard": "赫菲特高顶赛那",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "超级VAN",
+      "standard": "远程超级VAN",
+      "kind": "pending_confirm",
+      "note": "匹配依据：包含匹配（原名是之家车系名的简写或带修饰词）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "迈凯宾",
+      "standard": "迈凯宾",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "银河E8",
+      "standard": "银河E8",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「银河E8」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "银河L6",
+      "standard": "银河L6",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「银河L6」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "银河L7",
+      "standard": "银河L7",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「银河L7」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "银河L7max",
+      "standard": "银河L7",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：原文银河L7max 按银河L7系列归入（若 max 为独立车系请修正）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "长安CS75",
+      "standard": "长安CS75",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "长安Q07",
+      "standard": "长安启源Q07",
+      "kind": "pending_confirm",
+      "note": "匹配依据：名称归一（补品牌前缀）（工信部表扩充）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "长安启源A07",
+      "standard": "长安启源A07",
+      "kind": "auto_corrected",
+      "previous_standard": "长安启源A06",
+      "note": "业务改判：原自动结果 长安启源A06",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "长安启源A07 EV",
+      "standard": "长安启源A07",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「长安启源A07」，EV 为动力版本",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "长安启源Q07",
+      "standard": "长安启源Q07",
+      "kind": "auto_corrected",
+      "previous_standard": "长安启源Q05",
+      "note": "业务改判：原自动结果 长安启源Q05",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "问界",
+      "standard": "问界",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "问界M5",
+      "standard": "问界M5",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「问界M5」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "阿尔法S5",
+      "standard": "极狐 阿尔法S5",
+      "kind": "pending_confirm",
+      "note": "匹配依据：去除品牌前缀/名称规范化后同名",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "阿维塔 07",
+      "standard": "阿维塔07",
+      "kind": "auto_corrected",
+      "previous_standard": "阿维塔07L",
+      "note": "业务改判：原自动结果 阿维塔07L",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "阿维塔07",
+      "standard": "阿维塔07",
+      "kind": "auto_corrected",
+      "previous_standard": "阿维塔07L",
+      "note": "业务改判：原自动结果 阿维塔07L",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "阿维塔11",
+      "standard": "阿维塔11",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "零跑C01",
+      "standard": "零跑C01",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「零跑C01」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "零跑T03",
+      "standard": "零跑T03",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「零跑T03」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "领克01",
+      "standard": "领克01",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：可直接对应",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "领克05",
+      "standard": "领克05",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：可直接对应",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "领克06",
+      "standard": "领克06",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：可直接对应",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "领克06 EMP",
+      "standard": "领克06",
+      "kind": "auto_corrected",
+      "previous_standard": "领克08 EM-P",
+      "note": "业务改判：原自动结果 领克08 EM-P",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "领克09",
+      "standard": "领克09",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：标准名领克09；含燃油版与插混版，插混版对应「领克09 EM-P」，需按动力形式确认",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "领克09EMP",
+      "standard": "领克09",
+      "kind": "auto_corrected",
+      "previous_standard": "领克08 EM-P",
+      "note": "业务改判：原自动结果 领克08 EM-P",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "领汇e9",
+      "standard": "领汇e9",
+      "kind": "auto_corrected",
+      "previous_standard": "领汇e",
+      "note": "业务改判：原自动结果 领汇e",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "风云T10",
+      "standard": "风云T10",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「风云T10」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "风云T8",
+      "standard": "风云T8",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「风云T8」，品牌前缀归一",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "风神L7",
+      "standard": "东风风神L7",
+      "kind": "pending_confirm",
+      "note": "匹配依据：去除品牌前缀/名称规范化后同名",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "风神L8",
+      "standard": "东风风神L8",
+      "kind": "pending_confirm",
+      "note": "匹配依据：去除品牌前缀/名称规范化后同名",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "飞凡R7",
+      "standard": "飞凡R7",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：对应「飞凡R7」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "马自达EZ-6",
+      "standard": "马自达EZ-6",
+      "kind": "auto_corrected",
+      "previous_standard": "马自达EZ-60",
+      "note": "业务改判：原自动结果 马自达EZ-60",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "马自达EZ6",
+      "standard": "马自达EZ-6",
+      "kind": "auto_corrected",
+      "previous_standard": "马自达EZ-60",
+      "note": "业务改判：原自动结果 马自达EZ-60",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "高顶格瑞维亚 罗伦士·旅行家",
+      "standard": "高顶格瑞维亚 罗伦士·旅行家",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "魏派蓝山",
+      "standard": "魏牌 高山",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "autohome"
+    },
+    {
+      "raw": "魏牌蓝山",
+      "standard": "魏牌 蓝山",
+      "kind": "pending_confirm",
+      "note": "业务确认口径：业务侧确认标准名（之家标准库未收录该车系，按业务口径归并）",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "宋PLUS",
+      "standard": "宋PLUS",
+      "kind": "conflict_resolved",
+      "note": "业务 2026-11-10 定稿：Sheet1 全名「宋PLUS新能源」不用，统一用简称「宋PLUS」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "海豹05",
+      "standard": "海豹05",
+      "kind": "conflict_resolved",
+      "note": "业务 2026-11-10 定稿：Sheet1 全名「海豹05 DM-i」不用，统一用简称「海豹05」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "领克07",
+      "standard": "领克07",
+      "kind": "conflict_resolved",
+      "note": "业务 2026-11-10 定稿：Sheet1 全名「领克07 EM-P」不用，统一用简称「领克07」",
+      "standard_source": "unverified"
+    },
+    {
+      "raw": "领克08",
+      "standard": "领克08",
+      "kind": "conflict_resolved",
+      "note": "业务 2026-11-10 定稿：Sheet1 全名「领克08 EM-P」不用，统一用简称「领克08」",
+      "standard_source": "unverified"
+    }
+  ]
+}

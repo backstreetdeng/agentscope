@@ -7,10 +7,10 @@ stage: TESTED
 owner: TRAE
 port: 7860
 frozen_paths: none
-commit_paths: competitor_insight/server/analysis_service.py, competitor_insight/config/analysis_models.json, competitor_insight/web/bci-analysis.js, competitor_insight/web/bci-analysis.css, competitor_insight/tests/test_analysis_service.py, competitor_insight/tests/e2e_analysis_api.py, competitor_insight/tests/e2e_analysis_page.py, competitor_insight/docs/analysis-tab-feasibility.md, competitor_insight/tasks/BCI-006/, outputs/competitor-insights/BCI-006/20261107-analysis/, outputs/competitor-insights/BCI-006/20261107-feasibility/, home.html, competitor_insight/web/bci.js
-updated: 2026-11-09
+commit_paths: competitor_insight/server/analysis_service.py, competitor_insight/server/name_rules.py, competitor_insight/config/analysis_models.json, competitor_insight/config/vehicle_name_map.json, competitor_insight/config/vehicle_name_map.csv, competitor_insight/config/vehicle_name_confirmations.json, scripts/build_vehicle_name_map.py, competitor_insight/web/bci-analysis.js, competitor_insight/web/bci-analysis.css, competitor_insight/tests/test_analysis_service.py, competitor_insight/tests/e2e_analysis_api.py, competitor_insight/tests/e2e_analysis_page.py, competitor_insight/docs/analysis-tab-feasibility.md, competitor_insight/tasks/BCI-006/, outputs/competitor-insights/BCI-006/20261107-analysis/, outputs/competitor-insights/BCI-006/20261107-feasibility/, home.html, competitor_insight/web/bci.js
+updated: 2026-11-10
 blocked: no
-next: 用户明早验收 7860「即时分析」tab；业务确认 §8 数据缺失清单的后续补数范围
+next: 用户确认「动力形式切分」是否接入 UI（当前只有后端参数，前端无控件）；业务验收映射库 701 标准名与下拉五款
 evidence: outputs/competitor-insights/BCI-006/20261107-analysis/
 ```
 
@@ -54,6 +54,11 @@ evidence: outputs/competitor-insights/BCI-006/20261107-analysis/
 | S8 | 四子功能改为入口卡片展开/收起 | 完成 | 默认只展开「用户画像」，四卡横排、`已选 x/4` 与「已展开/点击展开」标记；展开块按选中顺序纵向堆叠，收起即不占版面；只改显示策略，未加指标/图表 | `bci-analysis.js`、`bci-analysis.css`、`e2e_analysis_page.py` |
 | S9 | 「换车型重新查询失败」定位与常驻 | 完成 | 根因为 7860 服务被父 shell 回收，浏览器连接层失败（`Failed to fetch`），非接口逻辑；WMI 脱离终端启动后五款车接口全部 200、日志无 traceback；E2E 切换钛3 无异常 | `logs/web-service-20261109.log` |
 | S10 | 方案 A：购车关注措辞与空态卡 | 完成 | 标题/副标题写明「16 维多选勾选率（非首选率）」；空态卡补齐指标名，标注「首选率 · 待业务补排序题，不估算、不填 0」；后端与指标未改 | `bci-analysis.js`、`bci-analysis.css`、`e2e_analysis_page.py` |
+| S11 | 标准名去动力后缀 + `power_form` 后端切分 | 完成 | 新增 `name_rules`（`strip_power_suffix`/`power_form_of`/`normalize_power_form`）；映射库重建为 1024 写法 / 1024 已归一 / 0 待确认 / **701 标准名** / 2065 明细 / 280 业务确认，56 个标准名受影响、行数与键集合不变；`normalize_competitor` 先别名再去后缀；`analyze` 增可选 `power_form`（纯电/插混/增程，按受访者 `Q2_2` 切分，非法值 400 `invalid_power_form`），响应新增 `power_form`/`power_form_source`/`power_forms`，战败行增 `power_forms`；`analysis_models.json` 海狮05 四源合并为 `海狮05 EV`/`海狮05 DM-i`/`海狮05` 并把 label 改 `海狮05`；**前端未改**（无筛选控件、无页面改动）；单测 29 项 + 隔离端口 7873 e2e 全通过 | `competitor_insight/server/name_rules.py`、`analysis_service.py`、`scripts/build_vehicle_name_map.py`、`config/vehicle_name_map.json`、`temp/20261110-bci006-name-finalize/` |
+| S12 | 只读核实动力/燃料题项（不设静态列） | 完成 | 购买侧 `Q2_2` 覆盖 1380/1380（纯电动 601 / 插电混动 523 / 增程式 256）；对比侧 `Q3_22_2_1/2/3` 覆盖 1380/1378/1154，取值 纯电/插混/增程/纯燃油/油电混动；`Q2_1` 与 `purchase_model` 1380/1380 一致；476 种对比写法中 76 种含 ≥2 种动力；结论：映射表不加静态动力列，按题项实时取 | `temp/20261110-bci006-name-finalize/probe_q3_22_2.py`、`probe_q2_2.py`、`probe_q2_1.py` |
+| S13 | 动力改五类 + 小鹏M03 别名解环 | 完成 | `POWER_FORMS` 扩为 纯电/插混/增程/纯燃油/油电混动，新增 `POWER_FORM_ALIASES` 原始写法对照（不再做名称推断，`power_form_of` 已删除）；`未标注` 只剩真正没答：对比侧 229 条（228 条空白 + 1 条「无」占位，全是没填该款车，写了车却燃料为空 0 条），购买侧 0；`power_form` 接受五类，传纯燃油/油电混动定量为 0 不报错；`analysis_models.json` 的 `小鹏MONA M03→小鹏M03` 反向环改为自指，新增单测 `test_competitor_aliases_resolve_in_one_hop`；37 项单测通过；五车重跑仅「纯电」有样本（其余四类 0），零跑C16 进程内仍为 纯电 31 / 增程 34；海狮05 整体战败 35 人/10 行，纯电切分 29 人/9 行（余下 3 插混 + 3 增程受访者） | `competitor_insight/server/name_rules.py`、`analysis_service.py`、`config/analysis_models.json`、`temp/20261110-bci006-name-finalize/probe_final_report.py`、`probe_compare_dist.py`、`probe_loss_fuel.py` |
+| S14 | 三块 AI 结论诊断与提示词重写 | 完成 | 诊断：用户截图三句均来自模型，非模板兜底——旧缓存 `source=llm`、`prompt_version=2026-11-10.3`、`generated_at=2026-11-10T11:37:41~43+08:00`，单块耗时约 1 秒，旧 System Prompt 明确要求「最突出特征+数字、次一级差异+数字」，模型照做才成统计播报。重写：画像改定性标签（技术理性派/事业上升期/理性消费等，禁百分比与「最突出/次之」）；关注固定分层（入场券/第一触点、必备项/竞争重点、加分项/底线筛查）；战胜战败给核心归因+流失痛点+「下一步重点防御Y」，满意度不再生成 AI 结论；战败/战胜喂深访 Q27/Q28、Q29 原话并标「来源：深访」+人数；输出 50–65 字（硬上限 70），格式不合格重写一次仍不合格则报错；缓存键含提示词版本号与提示词哈希；模型失败直接返回 error，不再用模板句顶替。五车 15 块实测全部 `source=llm`（1.2–3.2 秒/块），单测 35 项通过；7860 常驻进程仍是旧代码，需用户授权后重启才对页面生效 | `competitor_insight/server/tile_summary.py`、`analysis_service.py`、`app.py`、`competitor_insight/web/bci-analysis.js`、`bci-analysis.css`、`competitor_insight/tests/test_analysis_service.py`、`temp/20261110-bci-tile-ai/` |
+| S15 | 重启 7860 + 清缓存 + 五车复跑与截图验收 | 完成 | 重启前确认月报专用 Chrome 未运行；本机 shell 存在 116 位失效 `DASHSCOPE_API_KEY`（末四位 2A5E），改用 `temp/20261110-restart-service/launch.ps1` 在进程内注入 `.env` 的 35 位键（末四位 9f70）后经 WMI 脱离终端启动；7860 监听 PID 20196，`/api/health` ok、`/api/bci/analysis/analyze?model=` 返回 ok；旧 `.3` 缓存已归档 `backup/20261110-bci-tile-ai-cache/`，`runtime/bci-analysis/tile-summary/` 现存 15 个文件全为 `prompt_version=2026-11-10.8`、`source=llm`；五车 15 块经 HTTP 重新生成全部 `source=llm`（1.3–2.2 秒/块），本次无格式重写、无 error；iCAR 超级V23 与 铂智3X 三块 AI 结论同图截图已归档 | `outputs/competitor-insights/BCI-006/20261110-tile-ai/`、`temp/20261110-restart-service/` |
 
 ## 4. 证据索引
 
@@ -65,6 +70,8 @@ evidence: outputs/competitor-insights/BCI-006/20261107-analysis/
 - 浏览器与接口断言脚本：`competitor_insight/tests/e2e_analysis_page.py`、`e2e_analysis_api.py`、`test_analysis_service.py`
 - 只读探查脚本：`temp/20261107-bci006/`（probe_data*.py、probe_align.py、probe_names.py、probe_candidates.py、probe_size.py、probe_five.py、probe_bases.py、probe_proto.py、probe_price.py、probe_pool.py；可清理，结论已固化到测评文档）
 - 候选池四源明细：`temp/20261107-bci006/pool.csv`
+- 三块 AI 结论实测：`temp/20261110-bci-tile-ai/`（`run_tiles.py` 五车真实模型调用、`tiles.json` 每块 source/耗时/结论/真实 user 内容/System Prompt、`probe_bz3x.py` 截断探针）
+- 重启与截图验收：`outputs/competitor-insights/BCI-006/20261110-tile-ai/`（`manifest.json`、`screenshots/toyota-bz3x-three-tiles.png`、`screenshots/chery-icar-v23-three-tiles.png`）、`temp/20261110-restart-service/`（`launch.ps1` 注入 `.env` 键并脱离终端启动、`summaries.json` 五车 15 块结论与耗时、`shot_tiles.py` Playwright 截图脚本）
 
 ## 5. 已知边界（不是缺陷，但下游必须知道）
 
@@ -73,8 +80,18 @@ evidence: outputs/competitor-insights/BCI-006/20261107-analysis/
 - 勾选率分母为车型定量总样本，页面同时给分子/分母与「实际作答 n/总样本」。
 - 库内无车型级别字段，「10–15 万 SUV」为公开定位推断，需业务确认。
 - 口碑为外部评论标签，与问卷满意度不同源，不合并成单一分数。
-- 「战败」只能定义为「放弃核心对比车型的原因」（Q3_24_1），不是双边市场口径；本库无未购车用户样本。
+- 「战败」口径（2026-11-10 用户定稿）：定量 `Q3_22_1__1/2/3` 任一列（别名归一后）等于当前目标车型，即「对比过靶心」；按 `purchase_model` 分组，每行「实际购车车型 胜出 + 人数 + 比例 + 原因 TOP3」，买了靶心的人不算战败；原因按靶心所在槽位取 `Q3_24_1/3/5`。不设样本量门槛、不并「其他」、不删行；行内 ≥5 人且对比总数 ≥10 才给百分比。本库无未购车用户样本。
 - 原型五车三项关键数据为零，不能作为默认车型。
+- **车型范围现状（2026-11-09 只读盘点）**：页面下拉只有五款，是 `config/analysis_models.json` 的**演示集硬编码**，没有样本量阈值筛选；`analysis_service` 的 `models()` 只返回该配置。库内定量实际共有 **40 种车型写法 / 1380 人**（最多零跑C16 65 人，最少海狮06、银河L7 各 1 人），深访 22 种写法 / 63 人（归并后全部落在定量 40 款内），口碑 313 种写法 / 35609 条（仅 24 种能对上定量车型、3893 条），配置 605 种车型写法 / 3458 款（仅 28 种对上、199 款）。全量清单见 `outputs/competitor-insights/BCI-006/20261109-model-scope/`（`model_scope.csv`、`README.md`），供业务确认车型范围；本轮未改下拉、未改业务代码。比例展示门槛（2026-11-10 现状）：通用 `ratio_payload` 在车型样本 <10 或本题作答 <10 时只给人数；战败行单独用「该行 ≥5 人且对比总数 ≥10」才给百分比；两者都不参与选车、不删行。
+- **口碑取数口径（2026-11-10 用户确认，待实施）**：**不做迁移、不碰采集**；采集继续在旧电脑运行，本项目只读 `vectordb` 库里的结果表。口碑指标不再使用 `public.new_car_reputation_summary`（POC 表，标签命中次数、批次 20260921），改为：
+  - 评论条数、时间窗（2026-01-01 起）、评分均值 → `public.autohome_koubei`（34,649 条，至 2026-11-04）与 `public.dongchedi_koubei`（10,964 条，至 2026-11-04），按 `count(DISTINCT dedupe_key)` 计，分平台列示。
+  - 标签/正负向结构 → `public.new_car_reputation_taxonomy_summary` + `new_car_reputation_review_tag`（批次 20261013T075620，378 款 / 13,310 条评论，含原文可回溯）；其 `mention_count` 仍是标签命中，不得当评论量。
+  - 两者关系：taxonomy 是抽样的标注成品（滞后约 3 周），原始两表是底座；页面正式改造前先用本口径试算，五款演示车数字见 `temp/20261110-bci006-reputation-source/`。
+- 名称归一：汽车之家 `iCAR 超级V23`、懂车帝 `iCAR超级V23`、taxonomy 两种写法并存；`海狮05 EV / 海狮05EV / 海狮05 DM-i` 需按车型别名合并，不能只按同名统计。
+- **标准名去动力后缀（2026-11-10 用户定稿）**：标准名一律去动力/能源后缀只留简称（`海狮05 EV`/`海狮05 DM-i`→`海狮05`、`宋PLUS新能源`→`宋PLUS`、`领克07 EM-P`→`领克07`、`领克08 EM-P`→`领克08`），保留 PLUS 与型号字母；一个原始写法只对一个标准名，同名条目合并去重。影响 56 个标准名（736→701），2065 条明细的键集合与条数均未变。**该定稿取代 §6 BCI-006-L09 的「海狮05 ≠ 海狮05 EV」**：海狮05 战败块回到 35 人/10 行，页面标签为 `海狮05`。
+- **动力形式五类（2026-11-10 用户定稿，取代三分类）**：`纯电`/`插混`/`增程`/`纯燃油`/`油电混动`，全部中文。原始写法对照见 `name_rules.POWER_FORM_ALIASES`：纯电动/纯电/EV/BEV→纯电；插电混动/插电式混合动力/PHEV/DM-i→插混；增程式/增程式电动/EREV→增程；纯燃油/燃油/汽油→纯燃油；油电混动/HEV→油电混动；裸「混动」不认（分不清插混与油电混动）。`未标注` 只保留真正没答的：对比侧 229 条（228 条空白 + 1 条「无」占位）全部是「没填该款车」（写了车却燃料为空 0 条），购买侧 0 条。
+- **`power_form` 接受五类入参**：购买侧 Q2_2 只有纯电动/插电混动/增程式三个取值，传 `纯燃油`/`油电混动` 不报错但定量样本为 0（不是数据缺失，是本侧没有该取值）；非法值返回 400 `invalid_power_form` 并列出五类。
+- 受影响的对比写法里「同一写法多种动力」普遍存在（476 种写法中 76 种），说明按名称推断动力不可靠，例如 `比亚迪宋PLUS` 插混 32 + 纯电 59、`零跑C11` 增程 41 + 纯电 43。
 
 ## 6. 遗留问题
 
@@ -82,12 +99,14 @@ evidence: outputs/competitor-insights/BCI-006/20261107-analysis/
 |---|---|---|---|---|---|---|
 | BCI-006-L01 | 关注「第一排序」结构无题项 | 原型「产品/品牌/服务 占比」不可复刻 | 已确认 `quant_question` 中「排序」0 条 | 业务补排序题或确认改用多选勾选率 | 业务 | 测评 §3 |
 | BCI-006-L02 | ~~`Q5_5` 推荐意愿 0 条作答~~ | 已更正视作可做 | 文本分值 100% 有作答，已实现均值/分档 | 已解除 | TRAE | 测评 §11 C1 |
-| BCI-006-L03 | 「对手为什么赢」无直接观测题 | 只能推断 | 页面空态 + 原因，v1 不做推断 | 业务提供未购车/流失用户样本或对手视角题 | 业务 | 测评 §4 |
+| BCI-006-L03 | ~~「对手为什么赢」无直接观测题~~ | 指标名已由用户撤回（2026-11-10），不再提 | 页面空态保留但不再作为分析口径 | 无 | 用户 | 测评 §4 |
 | BCI-006-L04 | 车型名称多源不一致（iCAR 超级V23 / 奇瑞iCAR V23；MG 07 / MG07；小鹏MONA M03 / 小鹏M03） | 跨源计数易错 | 已落地 `config/analysis_models.json` 别名并有单测 | 已解除 | TRAE | 测评 §1.2、§5 |
 | BCI-006-L05 | 车型级别/车身形式库内无字段 | 「同级对比」只能按价格段 | 已标注为推断 | 业务确认级别口径或补数据 | 业务 | 测评 §1.2 |
 | BCI-006-L06 | 定性 16 维归类为关键词启发式 | 个别原话可能漏归或误归 | 未命中原话单列展示，不强行匹配 | 后续可接语义模型或人工校对；当前不改判实测比例 | TRAE/业务 | 测评 §11 C4 |
-| BCI-006-L07 | 满意度「本品进攻点 / 被进攻点」需跨车差值 | v1 未做 | 页面不出现该图，避免小样本推导冒充实测 | 业务确认接受「推导」标记与对比车选择规则 | 业务 | 测评 §5 |
+| BCI-006-L07 | ~~满意度「本品进攻点 / 被进攻点」~~ | 「被进攻点」为我方外延，原型无依据，用户 2026-11-10 撤回 | 不再实现、不再提 | 无 | 用户 | 测评 §5 |
 | BCI-006-L08 | 「分车型关注 TOP5」口径待定：业务希望按 63 位深访用户各自车型做关注 TOP5 | 深访 3–4 人与定量 30–41 人不是同一口径，不能混排 | **暂停**：2026-11-09 用户决定分车型 TOP5 与首选率都先不做，拿口径与业务商量；页面不加深访视图，首选率维持现有空态卡，A 方案文案不动 | 业务确认范围、并列规则与归类规则后再启动 | 业务/用户 | 本节探查结论；`temp/20261109-bci006-qual/` |
+| BCI-006-L09 | ~~2026-11-10 定稿「海狮05 ≠ 海狮05 EV」~~ | 已被同日晚「标准名只留简称 + 同名合并」定稿取代 | 已解除：`海狮05 EV`/`海狮05 DM-i`/`海狮05` 合并为 `海狮05`，战败 35 人/10 行，纯电 29 人/9 行 | 无（如业务以后要按动力拆，用接口 `power_form`，不改映射） | 用户 | §5 标准名去动力后缀；`temp/20261110-bci006-name-finalize/` |
+| BCI-006-L10 | ~~标准名仍并存全名与简称：`宋PLUS新能源` 14 行、`海豹05 DM-i` 3 行、`领克07 EM-P` 2 行、`领克08 EM-P` 3 行~~ | 同一车系被拆成两个标准名 | 已解除：全库标准名统一去动力后缀，`宋PLUS`、`海豹05`、`领克07`、`领克08` 等 56 个标准名完成合并 | 无 | TRAE | `config/vehicle_name_map.json`、S11 |
 
 - BCI-006-L08 口径差别：**定量口径**按车型定量总样本（五款 n=30~41）算 16 维勾选率，可出分子/分母与比例；**深访口径**把 63 人深访名单按车型分组（每车 3–4 人），只能出「提及人数 / 该车深访人数」，是线索不是比例，不能与定量数据混排或合并。
 - 探查依据（只读，2026-11-09）：
@@ -109,6 +128,20 @@ evidence: outputs/competitor-insights/BCI-006/20261107-analysis/
 | 2026-11-07 | TESTED | 浏览器端到端验收通过；五车实测数字与数据缺失清单归档；代码与证据已提交 `5e8f964`、文档 `ca18f37`，均已推送（本地 HEAD 与 `@{u}` 均为 `6775c56`，`@{u}..HEAD` 为 0），待用户业务验收 | `outputs/.../20261107-analysis/manifest.json` | TRAE |
 | 2026-11-09 | TESTED | 用户核对后要求四子功能改为入口卡片展开/收起；已完成并重跑浏览器 E2E（37 项全通过，含默认展开、多选叠加、选中顺序、收起不占版面）；同时定位「换车型查询失败」为服务被回收的连接层问题，服务改为 WMI 脱离终端启动；提交 `93ce621` 已推送 | `tests/e2e_analysis_page.py`、`screenshots/analysis-b10-entries-20261109-181238.png` | TRAE |
 | 2026-11-09 | TESTED | 方案 A 文案上线（购车关注标「非首选率」、首选率空态补指标名与待补排序题说明，E2E 42 项全通过，`a0f9ebc` 已推送）；L08 深访口径 TOP5 经用户决定暂不实现并暂停，探查依据入档 | `screenshots/tile-2-b10-20261109-193324.png`、本节 L08 | TRAE |
+| 2026-11-09 | TESTED | 车型范围只读盘点：确认下拉五款为演示集硬编码、无阈值；产出全量 40 款四源清单供业务确认范围，未改下拉与业务代码 | `outputs/competitor-insights/BCI-006/20261109-model-scope/manifest.json` | TRAE |
+| 2026-11-10 | TESTED | 口碑口径纠偏并试算：弃用 POC 汇总表的标签命中次数，改为只读 `autohome_koubei`/`dongchedi_koubei` 计评论条数与评分、taxonomy 一套取标签；五款演示车两平台真实条数已出，页面未改 | `temp/20261110-bci006-reputation-source/table_choice.txt` | TRAE |
+| 2026-11-10 | TESTED | 「战胜战败」只读取证：零跑B10 面板（n=41）截图 3 段 + 入口态 + 完整长图，含定量 TOP5/16 维、Q29 原话、Q27/Q28 原话、核心对比车型分布、「对手为什么赢」空态；原型回查确认「进攻点」只在满意度模块、「被进攻点」无原型依据；未改代码 | `outputs/competitor-insights/BCI-006/20261110-winloss-shot/manifest.json` | TRAE |
+| 2026-11-10 | TESTED | 战败口径二次纠正并实测（只读）：战败改为定量 Q3_22_1__1/2/3 任意一列等于靶心、按 purchase_model 分行。实测五款靶心被对比 40/17/35/11/21 人；严格仅用 Q3_24_1 时只剩核心对比 16/7/10/3/7 人。发现 Q3_24_1 只对应第一格，靶心在第二/三格时须改用 Q3_24_3/5；定量表无 Q27/Q28/Q29 原话。未改页面 | `temp/20261110-bci006-loss-scope/quant_loss_report2.txt` | TRAE |
+| 2026-11-10 | TESTED | 战败块按用户口径实现：撤掉 ≥5 人门槛、不并「其他」、不删行；按 `Q3_22_1__1/2/3` 别名归一反查 + `purchase_model` 分行，原因按槽位取 `Q3_24_1/3/5` 的组内 TOP3；页面标依据题号。铂智3X 7 行/17 人（4/3/3/3/2/1/1）、钛3 5 行/21 人（14/3/2/1/1），与用户硬核对值一致。原「核心对比车型分布」块与「XX 胜出」重复，已合并删除。25→28 个单测、e2e_api、e2e_page 全通过 | `outputs/competitor-insights/BCI-006/20261110-ai-summary/screenshots/02-winloss-*.png` | TRAE |
+| 2026-11-10 | TESTED | 四个入口文案按原型逐字回改（用户画像/购车关注/战胜战败原因洞察/产品满意度评价）；车型别名归一扩到海狮05 EV 五种写法、领跑B10、方程豹钛3、iCAR 三种写法；新增共享名称映射库 `config/vehicle_name_map.json`/`.csv`（1032 种写法，已归一 758、待确认 274，含来源表与命中条数） | `config/vehicle_name_map.json`、`screenshots/01-entries.png` | TRAE |
+| 2026-11-10 | TESTED | 四磁贴新增「块内 AI 结论」：`server/tile_summary.py` 只吃本块数字拼三段式提示词，走项目现有 agentscope 模型（`app.py: bci_tile_summary_llm`），按「车型+磁贴+数据哈希」缓存到 `runtime/bci-analysis/tile-summary/`，模型失败降级模板句；`/api/bci/analysis/summaries` 供前端填充，页面独立一行标注「基于本块数据生成」。注意原型 sat 块原本没有 AI 结论行，四块全覆盖是按用户 2026-11-10 要求扩展 | `temp/20261110-bci006-satisfaction-audit/prompts.txt`、`screenshots/06-ai-rows-*.png` | TRAE |
+| 2026-11-10 | TESTED | 满意度块只读现状核对（未改代码）：确认实现为 Q5_1 整体分 + Q5_2 16 维 top5/bottom5 + Q5_5 推荐分档 + 口碑标签，五款均 100% 作答；与原型「满意点/不满意点/本品进攻点」差第三部分，原型进攻点无对应题项 | `temp/20261110-bci006-satisfaction-audit/audit-output.txt`、`screenshots/03-satisfaction-*.png` | TRAE |
+| 2026-11-10 | TESTED | 名称映射库导出业务核对 Excel：三表 274/758/14 行，表头冻结+筛选、输入列浅黄、Sheet2 按标准名交替底色，Sheet1 按来源分组+条数降序；同目录 README 说明填写与回收。生成器 `scripts/export_vehicle_name_map_xlsx.py`，校验脚本 `temp/20261110-bci006-vehicle-name-map-export/verify_xlsx.py` 全项通过 | `outputs/competitor-insights/BCI-006/20261110-vehicle-name-map/车系名称映射表_20261110.xlsx`、`README.md` | TRAE |
+| 2026-11-10 | TESTED | 业务补填表回灌：Sheet1 266/267 填、Sheet2 改判 14、Sheet3 补 14；262 条写待确认→已归一（映射明细 +408 行）、139 条新增别名、12 条仍待确认（4 冲突 + 7 删行 + 「无」）；映射库 1020/12、标准名 732。五款演示车重跑：人数/比例/原因勾选率零变化，仅 3 处标签改名与 1 处同人数并列换位。未提交、未推送、未重启 7860 | `outputs/competitor-insights/BCI-006/20261110-vehicle-name-map/业务回填差异报告_20261110.md`、`competitor_insight/config/vehicle_name_confirmations.json` | TRAE |
+| 2026-11-10 | TESTED | 业务定稿「无=没填」：① `analysis_service` 战败块取 `Q3_22_1__1/2/3` 时把「无」当空值（`CASE WHEN btrim(...) IN ('','无') THEN NULL`），不分组、不产生未匹配；② `build_vehicle_name_map.py` 新增 `COMPARE_EMPTY_RAW`，三格「无」不再收集；③ 删掉「无」待确认记录，待确认归零：写法 1024、已归一 1024、待确认 0、标准名 736、映射明细 2065、CSV 2066 行；④ `ratio_hidden_reason` 按真实命中原因分开输出（对比总数不足 10 / 该行不足 5），前端改为直接展示该原因。五车重跑：除文案外快照完全一致，海狮05 EV 仍 14 人 5 行。28 个单测通过。未提交、未推送 | `competitor_insight/server/analysis_service.py`、`scripts/build_vehicle_name_map.py`、`competitor_insight/web/bci-analysis.js`、`temp/20261110-bci006-name-finalize/` | TRAE |
+| 2026-11-10 | TESTED | 名称映射遗留项按用户定稿执行完毕：① 4 条冲突一律用简称（宋PLUS/海豹05/领克07/领克08，`conflict_resolved`）；② 7 条不存在车型（吉利星耀E5、吉普自由者、小鹏YU7、红旗SH7、阿尔法T1、领克001、风行S7）在 `build_vehicle_name_map.py` 新增 `EXCLUDED_RAW` 重跑时剔除，json/csv/pending 均无残留；③ 靶心定稿 `iCAR 超级V23`/`海狮05`，别名、`models` label、战败行标题、映射表同步。重跑后：写法 1025、已归一 1024、待确认 1（「无」）、标准名 736、映射明细 2065、CSV 2067 行。28 个单测通过；五车快照对比：B10 无差异、铂智3X 与钛3 仅对手行改名、iCAR 人数不变仅标签改名、海狮05 EV 战败由 35 人/10 行降至 14 人/5 行（见 L09）。未提交、未推送 | `config/vehicle_name_map.json`、`config/vehicle_name_map.csv`、`config/analysis_models.json`、`temp/20261110-bci006-name-finalize/` | TRAE |
+| 2026-11-10 | TESTED | 用户批准「标准名只留简称 + 动力形式单独一列」：S11 全库去动力后缀（1024 写法/701 标准名/2065 明细不变，56 个标准名合并），`normalize_competitor` 先别名再去后缀，`analyze` 增可选 `power_form`；用户中途修正「燃料是题项不是映射属性」后 S12 只读核实 `Q2_2`(1380/1380) 与 `Q3_22_2_1/2/3`(1380/1378/1154) 覆盖，确认映射表不设静态动力列；海狮05 合并后战败回到 35 人/10 行、纯电 29 人/9 行；前端未改；29 个单测 + 隔离端口 7873 的 API e2e 全通过；未提交、未推远程 | `temp/20261110-bci006-name-finalize/`、`competitor_insight/server/name_rules.py` | TRAE |
+| 2026-11-10 | TESTED | 五类动力与 `小鹏MONA M03` 定稿：① `POWER_FORMS` 改 纯电/插混/增程/纯燃油/油电混动，Q3_22_2_x 的 纯燃油 131、油电混动 27 单列不再落「未标注」；② `小鹏M03`/`小鹏 M03`/`小鹏M03 EV` 与 `小鹏MONA M03` 全部归到 `小鹏MONA M03`，环状别名改为自指并加单跳单测；③ 验证：37 项单测通过、`check_board.py` 仅 `TASK-COMMITTED` 未过（文件未入库）、`workspace_hygiene.py` 仅既有 `debug.log`；五车人数 40/17/11/35/21，海狮05 整体 35 人/10 行、纯电切分 29 人/9 行（3 插混 + 3 增程受访者），零跑C16 纯电 31 / 增程 34；④ 按用户要求整理提交清单待确认，未提交、未推远程 | `temp/20261110-bci006-name-finalize/probe_final_report.py`、`probe_compare_dist.py`、`probe_loss_fuel.py`、`probe_c16.py` | TRAE |
 
 ## 8. 因数据缺失而未做的指标（可对外说明）
 

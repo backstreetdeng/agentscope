@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-07",
+  "updated": "2026-11-10",
   "default_model": "leapmotor-b10",
   "note": "五款默认车型与多源别名集中在此文件。换车组只改 models，不改代码；别名必须覆盖定量、深访、口碑、配置四个数据源。",
   "models": [
@@ -9,61 +9,266 @@
       "label": "零跑B10",
       "price_note": "10–15 万（37/41）",
       "body_note": "紧凑型纯电 SUV（公开定位推断，库内无级别字段）",
-      "quant_models": ["零跑B10"],
-      "interview_models": ["零跑B10"],
-      "reputation_models": ["零跑B10"],
-      "miit_models": ["零跑B10"]
+      "quant_models": [
+        "零跑B10"
+      ],
+      "interview_models": [
+        "零跑B10"
+      ],
+      "reputation_models": [
+        "零跑B10"
+      ],
+      "miit_models": [
+        "零跑B10"
+      ]
     },
     {
       "key": "toyota-bz3x",
       "label": "铂智3X",
       "price_note": "10–15 万（36/39）",
       "body_note": "紧凑型纯电 SUV（公开定位推断，库内无级别字段）",
-      "quant_models": ["铂智3X"],
-      "interview_models": ["铂智3X"],
-      "reputation_models": ["铂智3X"],
-      "miit_models": ["铂智3X"]
+      "quant_models": [
+        "铂智3X"
+      ],
+      "interview_models": [
+        "铂智3X"
+      ],
+      "reputation_models": [
+        "铂智3X"
+      ],
+      "miit_models": [
+        "铂智3X"
+      ]
     },
     {
       "key": "chery-icar-v23",
-      "label": "奇瑞iCAR V23",
+      "label": "iCAR 超级V23",
       "price_note": "10–15 万（27/30）",
       "body_note": "紧凑型纯电 SUV（公开定位推断，库内无级别字段）",
-      "quant_models": ["奇瑞iCAR V23", "iCAR V23"],
-      "interview_models": ["奇瑞iCAR V23", "iCAR V23"],
-      "reputation_models": ["iCAR 超级V23"],
-      "miit_models": ["iCAR 超级V23"]
+      "quant_models": [
+        "iCAR 超级V23",
+        "奇瑞iCAR V23",
+        "iCAR V23"
+      ],
+      "interview_models": [
+        "iCAR 超级V23",
+        "奇瑞iCAR V23",
+        "iCAR V23"
+      ],
+      "reputation_models": [
+        "iCAR 超级V23"
+      ],
+      "miit_models": [
+        "iCAR 超级V23"
+      ]
     },
     {
       "key": "byd-sealion-05-ev",
-      "label": "海狮05 EV",
+      "label": "海狮05",
       "price_note": "10–15 万（31/31）",
-      "body_note": "紧凑型纯电 SUV（公开定位推断，库内无级别字段）",
-      "quant_models": ["海狮05 EV"],
-      "interview_models": ["海狮05 EV"],
-      "reputation_models": ["海狮05 EV"],
-      "miit_models": ["海狮05 EV"]
+      "body_note": "紧凑型 SUV（公开定位推断，库内无级别字段）；标准名只留简称，动力形式按问卷题项另给",
+      "quant_models": [
+        "海狮05 EV",
+        "海狮05 DM-i",
+        "海狮05"
+      ],
+      "interview_models": [
+        "海狮05 EV",
+        "海狮05 DM-i",
+        "海狮05"
+      ],
+      "reputation_models": [
+        "海狮05 EV",
+        "海狮05 DM-i",
+        "海狮05"
+      ],
+      "miit_models": [
+        "海狮05 EV",
+        "海狮05 DM-i",
+        "海狮05"
+      ]
     },
     {
       "key": "fangchengbao-tai3",
       "label": "钛3",
       "price_note": "10–20 万（10–15 万 19 人、15–20 万 11 人）",
       "body_note": "紧凑型纯电 SUV（公开定位推断，库内无级别字段）",
-      "quant_models": ["钛3"],
-      "interview_models": ["钛3"],
-      "reputation_models": ["钛3"],
-      "miit_models": ["钛3"]
+      "quant_models": [
+        "钛3"
+      ],
+      "interview_models": [
+        "钛3"
+      ],
+      "reputation_models": [
+        "钛3"
+      ],
+      "miit_models": [
+        "钛3"
+      ]
     }
   ],
   "competitor_aliases": {
+    "BJ40": "北京越野BJ40",
+    "FORESTER森林人": "森林人",
+    "Grecale": "Grecale格雷嘉",
+    "MG 07": "MG07",
+    "ZEEKR 007": "极氪007",
+    "ZEEKR 007GT": "极氪007GT",
+    "ZEEKR 8X": "极氪8X",
+    "iCAR V23": "iCAR 超级V23",
+    "iCAR 超级V23": "iCAR 超级V23",
+    "iCAR超级V23": "iCAR 超级V23",
+    "一汽丰田卡罗拉": "卡罗拉",
+    "一汽丰田荣放": "RAV4荣放",
+    "一汽大众ID4X": "大众ID.4",
+    "一汽大众id4": "大众ID.4",
+    "一汽大众id4x": "大众ID.4",
+    "上海大众ID3": "大众ID.3",
+    "上海大众帕萨特": "帕萨特",
+    "上海大众朗逸": "朗逸",
+    "上海大众途岳": "途岳",
+    "东风奕派007": "eπ007",
+    "东风奕派008": "eπ008",
+    "东风本田CRV": "本田CR-V",
+    "丰田塞纳": "赛那SIENNA",
+    "丰田威兰达": "威兰达",
+    "丰田荣放": "RAV4荣放",
+    "丰田赛那": "赛那SIENNA",
+    "丰田陆放": "皇冠陆放",
+    "传祺E8": "传祺E8 PHEV",
+    "别克君威": "君威",
+    "别克昂科旗": "昂科旗",
+    "华为 M5": "问界M5",
+    "博智3X": "铂智3X",
+    "吉利iCAR V23": "iCAR 超级V23",
+    "吉利几何APRO": "吉利几何A",
+    "吉利星舰7": "银河星舰7",
+    "吉利银河E8": "银河E8",
+    "吉利银河L6": "银河L6",
+    "吉利银河L7": "银河L7",
+    "名爵4": "MG4",
+    "启源 Q07": "长安启源Q07",
+    "启源A07": "长安启源A07",
+    "启源Q07": "长安启源Q07",
+    "启源a07": "长安启源A07",
+    "哈佛二代大狗": "哈弗大狗 PLUS",
+    "哈佛二代大狗新能源": "哈弗大狗 PLUS 新能源",
+    "哈佛大狗": "长城大狗",
+    "哈弗二代大狗PHEV": "哈弗大狗 PLUS 新能源",
+    "哈弗二代枭龙MAX": "哈弗枭龙MAX",
+    "哈弗大狗": "长城大狗",
+    "哈弗大狗PLUS PHEV": "哈弗大狗 PLUS 新能源",
+    "哈弗猛龙": "哈弗猛龙新能源",
+    "哈弗猛龙 PHEV": "哈弗猛龙新能源",
+    "坦克500 Hi4-T": "坦克500新能源",
+    "坦克700 Hi4-T": "坦克700新能源",
+    "埃安AION V": "AION V",
+    "埃安V": "AION V",
+    "埃安Y PLUS": "AION Y",
+    "埃安YPLUS": "AION Y",
+    "大众ID4X": "大众ID.4",
+    "大众lD3": "大众ID.3",
+    "大拿V1 L": "拾光大拿V1L",
+    "奇瑞T8": "风云T8",
+    "奇瑞iCAR V23": "iCAR 超级V23",
+    "奇瑞iCAR 03": "iCAR 03",
+    "奇瑞iCAR03": "iCAR 03",
+    "奇瑞iCAR03T": "iCAR 03T",
+    "奇瑞iCARV23": "iCAR 超级V23",
+    "奇瑞icar03": "iCAR 03",
+    "奇瑞瑞虎8": "瑞虎8",
+    "奇瑞瑞虎8L": "瑞虎8L",
+    "奇瑞风云T8": "风云T8",
+    "奔腾悦意03": "悦意03",
+    "奕派007": "eπ007",
+    "奕派008": "eπ008",
+    "奥迪Q2": "奥迪Q2L",
+    "宋Pro DM": "宋Pro新能源",
+    "小鹏 M03": "小鹏MONA M03",
+    "小鹏M03": "小鹏MONA M03",
+    "小鹏M03 EV": "小鹏MONA M03",
+    "小鹏MONA M03": "小鹏MONA M03",
+    "小鹏P5-EV": "小鹏P5",
+    "广州丰田凯美瑞": "凯美瑞",
+    "广汽丰田汉兰达": "汉兰达",
+    "拾月": "凯翼拾月",
+    "捷途山海T2": "捷途旅行者C-DM",
+    "摩卡PHEV": "魏牌 摩卡新能源",
+    "方程豹钛3": "钛3",
+    "星悦L": "星越L",
+    "星舰7": "银河星舰7",
+    "星途星纪元ES": "星途ES",
+    "智已L6": "智己L6",
+    "本田P7": "广汽本田P7",
+    "极狐s5": "极狐 阿尔法S5",
+    "欧拉5SUV燃油版": "欧拉5",
+    "比亚迪元": "元",
+    "比亚迪唐": "唐新能源",
+    "比亚迪唐 DMi": "唐新能源",
+    "比亚迪唐DMI": "唐新能源",
+    "比亚迪唐Dmi": "唐新能源",
+    "比亚迪唐L": "唐L",
+    "比亚迪唐dmi": "唐新能源",
+    "比亚迪夏": "夏",
+    "比亚迪宋": "宋",
+    "比亚迪宋L": "宋L",
+    "比亚迪宋L DMI": "宋L",
+    "比亚迪宋L DMi": "宋L",
+    "比亚迪宋L EV": "宋L",
+    "比亚迪宋LUSE EV": "宋L EV",
+    "比亚迪宋PLUS DMI": "宋PLUS新能源",
+    "比亚迪宋PLUS EV": "宋PLUS新能源",
+    "比亚迪宋PRO": "宋Pro新能源",
+    "比亚迪宋PRO DMI": "宋Pro新能源",
     "比亚迪宋PlUS": "比亚迪宋PLUS",
+    "比亚迪宋Plus DMi": "宋PLUS新能源",
+    "比亚迪宋Pro": "宋Pro新能源",
     "比亚迪宋plus": "比亚迪宋PLUS",
-    "海狮05EV": "海狮05 EV",
-    "海狮05ev": "海狮05 EV",
-    "iCAR 超级V23": "奇瑞iCAR V23",
-    "iCAR超级V23": "奇瑞iCAR V23",
-    "奇瑞iCARV23": "奇瑞iCAR V23",
-    "小鹏MONA M03": "小鹏M03",
-    "MG 07": "MG07"
+    "比亚迪宋plus EV": "宋PLUS新能源",
+    "比亚迪宋plus dmi": "宋PLUS新能源",
+    "比亚迪宋pro": "宋Pro新能源",
+    "比亚迪护卫舰07": "护卫舰07",
+    "比亚迪汉L": "汉L",
+    "比亚迪海狮05": "海狮05",
+    "比亚迪海狮05 EV": "海狮05",
+    "比亚迪海狮07": "海狮07",
+    "比亚迪海狮07 DMI": "海狮07 DM-i",
+    "比亚迪海豚": "海豚",
+    "比亚迪海豹": "海豹",
+    "比亚迪海豹 EV": "海豹",
+    "比亚迪海豹07": "海豹07 EV",
+    "比亚迪秦": "秦",
+    "比亚迪秦PIUS": "秦PLUS",
+    "比亚迪驱逐舰05": "驱逐舰05",
+    "沃尔沃XC70": "沃尔沃XC70插电式混动",
+    "泰3": "钛3",
+    "海狮05": "海狮05",
+    "海狮05 EV": "海狮05",
+    "海狮05EV": "海狮05",
+    "海狮05ev": "海狮05",
+    "海狮05 DM-i": "海狮05",
+    "海狮05DMi": "海狮05",
+    "海狮07DMI": "海狮07",
+    "海豹07": "海豹07 EV",
+    "深蓝L07 EV": "深蓝L07",
+    "深蓝SL03 EV": "深蓝SL03",
+    "特斯拉Y": "Model Y",
+    "现代库斯途": "库斯途",
+    "福特翼虎": "翼虎",
+    "荣威D5X": "荣威D5X DMH",
+    "荣威M7": "荣威M7 DMH",
+    "蔚来萤火虫": "firefly萤火虫",
+    "超级VAN": "远程超级VAN",
+    "钛三": "钛3",
+    "银河L7max": "银河L7",
+    "长安Q07": "长安启源Q07",
+    "长安启源A07 EV": "长安启源A07",
+    "阿尔法S5": "极狐 阿尔法S5",
+    "领克06 EMP": "领克06",
+    "领克09EMP": "领克09",
+    "领跑B10": "零跑B10",
+    "风神L7": "东风风神L7",
+    "风神L8": "东风风神L8",
+    "魏派蓝山": "魏牌 高山"
   }
 }

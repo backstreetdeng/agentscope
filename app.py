@@ -1197,6 +1197,30 @@ def bci_analysis_service() -> Any:
     return BCI_ANALYSIS_SERVICE
 
 
+def bci_tile_summary_llm(system_prompt: str, message: str) -> str:
+    """竞品洞察磁贴 AI 结论：复用项目现有 agentscope 模型通道。
+
+    每个磁贴有各自的 System Prompt（画像 / 关注 / 战胜战败），few-shot 也在其中；
+    这里只发本磁贴拼好的统计事实与深访原话，输出一句话（≤70 字，max_tokens 300）。
+    模型不可用时由 `tile_summary` 如实返回错误，不影响主视图。
+    """
+    from agentscope.agent import Agent
+    from agentscope.message import UserMsg
+    from utils.model_factory import build_model
+
+    agent = Agent(
+        name="竞品洞察磁贴结论",
+        system_prompt=system_prompt,
+        model=build_model(load_json_config(), max_tokens_override=300),
+    )
+
+    async def run() -> str:
+        reply = await agent.reply(UserMsg(name="业务用户", content=message))
+        return strip_thinking(reply.get_text_content())
+
+    return AGENT_LOOP_RUNNER.run(run())
+
+
 HTML = (PROJECT_DIR / 'home.html').read_text(encoding='utf-8')
 LEGACY_WORKBENCH_HTML = (PROJECT_DIR / 'legacy_workbench.html').read_text(encoding='utf-8')
 STRATEGY_ANALYSIS_HTML = (PROJECT_DIR / 'strategy-analysis.html').read_text(encoding='utf-8')
@@ -2426,7 +2450,14 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
             if operation == 'models':
                 payload = service.models()
             elif operation == 'analyze':
-                payload = service.analyze((query.get('model') or [''])[0])
+                payload = service.analyze(
+                    (query.get('model') or [''])[0],
+                    power_form=(query.get('power_form') or [''])[0] or None,
+                )
+            elif operation == 'summaries':
+                payload = service.summaries(
+                    (query.get('model') or [''])[0], llm=bci_tile_summary_llm
+                )
             else:
                 self._send_json(
                     {'ok': False, 'error': {'code': 'not_found', 'message': '未找到即时分析接口。'}},
