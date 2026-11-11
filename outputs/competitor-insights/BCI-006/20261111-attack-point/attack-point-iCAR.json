@@ -1,0 +1,90 @@
+﻿{
+    "model":  {
+                  "key":  "chery-icar-v23",
+                  "label":  "iCAR 超级V23"
+              },
+    "directions":  [
+                       {
+                           "direction":  "车内气味",
+                           "competitor":  "钛3",
+                           "count":  18,
+                           "denominator":  195,
+                           "ref":  "reputation:negative:钛3:车内气味",
+                           "text":  "座舱气味管控",
+                           "ratio":  9.2
+                       },
+                       {
+                           "direction":  "实际续航",
+                           "competitor":  "零跑B10",
+                           "count":  11,
+                           "denominator":  103,
+                           "ref":  "reputation:negative:零跑B10:实际续航",
+                           "text":  "续航表现可信度",
+                           "ratio":  10.7
+                       },
+                       {
+                           "direction":  "路面滤震",
+                           "competitor":  "钛3",
+                           "count":  10,
+                           "denominator":  195,
+                           "ref":  "reputation:negative:钛3:路面滤震",
+                           "text":  "颠簸路面滤震",
+                           "ratio":  5.1
+                       }
+                   ],
+    "attack":  "座舱气味管控、续航表现可信度、颠簸路面滤震",
+    "basis":  "依据：钛3 车内气味 18/195 条（9.2%）、零跑B10 实际续航 11/103 条（10.7%）、钛3 路面滤震 10/195 条（5.1%）",
+    "source":  "cache",
+    "error":  "",
+    "problem":  "",
+    "verification":  {
+                         "status":  "partial",
+                         "fetched_at":  "2026-11-11",
+                         "items":  [
+                                       {
+                                           "direction":  "车内气味",
+                                           "verdict":  "",
+                                           "text":  "未做现状核验",
+                                           "domain":  "",
+                                           "url":  "",
+                                           "quote":  "",
+                                           "fetched_at":  "2026-11-11"
+                                       },
+                                       {
+                                           "direction":  "实际续航",
+                                           "verdict":  "still_reported",
+                                           "text":  "仍被车主反馈",
+                                           "domain":  "mp.ofweek.com",
+                                           "url":  "https://mp.ofweek.com/nev/a756714776567",
+                                           "quote":  "问题主要集中在动力电池衰减、续航虚标、吃胎偏磨、车身异响等问题。",
+                                           "fetched_at":  "2026-11-11"
+                                       },
+                                       {
+                                           "direction":  "路面滤震",
+                                           "verdict":  "",
+                                           "text":  "未做现状核验",
+                                           "domain":  "",
+                                           "url":  "",
+                                           "quote":  "",
+                                           "fetched_at":  "2026-11-11"
+                                       }
+                                   ],
+                         "line":  "竞品口碑现状：车内气味未做现状核验；实际续航仍被车主反馈（mp.ofweek.com）；路面滤震未做现状核验 · 抓取 2026-11-11"
+                     },
+    "prompt_version":  "2026-11-11.5",
+    "data_hash":  "947a33b8dec369bb",
+    "search_hash":  "ff6391f7f9a48ce9",
+    "search_error":  false,
+    "elapsed_ms":  0,
+    "generated_at":  "2026-11-11T18:18:52+08:00",
+    "competitors":  [
+                        "钛3",
+                        "海狮05",
+                        "铂智3X",
+                        "零跑B10"
+                    ],
+    "skipped":  [
+
+                ],
+    "loss_n":  11
+}

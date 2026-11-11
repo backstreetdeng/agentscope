@@ -339,7 +339,28 @@
     );
   }
 
-  function renderTile(tile, index, ai) {
+  function attackBlock(attack, label) {
+    if (!attack) return '';
+    if (attack.loading) {
+      return '<div class="bci-a-attack is-loading">' +
+        '<p class="bci-a-attack__line">正在提炼进攻点并核验现状…</p></div>';
+    }
+    if (attack.source === 'error' || attack.source === 'empty') {
+      return '<div class="bci-a-attack is-error">' +
+        '<p class="bci-a-attack__line">进攻点暂未生成</p>' +
+        '<p class="bci-a-attack__basis">' + esc(attack.error || '没有可用的竞品负向口碑点。') + '</p></div>';
+    }
+    if (!attack.attack) return '';
+    const live = attack.verification && attack.verification.line
+      ? '<p class="bci-a-attack__live">' + esc(attack.verification.line) + '</p>' : '';
+    return '<div class="bci-a-attack">' +
+      '<p class="bci-a-attack__line"><span>' + esc(label || '本品') + ' 进攻点：</span>' +
+        esc(attack.attack) + '</p>' +
+      (attack.basis ? '<p class="bci-a-attack__basis">' + esc(attack.basis) + '</p>' : '') +
+      live + '</div>';
+  }
+
+  function renderTile(tile, index, ai, attack, label) {
     return (
       '<article class="bci-a-tile">' +
         '<header class="bci-a-tile__head">' +
@@ -351,6 +372,7 @@
         '</header>' +
         (tile.banner ? '<p class="bci-a-banner">' + esc(tile.banner) + '</p>' : '') +
         '<div class="bci-a-metrics">' + (tile.metrics || []).map(renderMetric).join('') + '</div>' +
+        (tile.key === 'satisfaction' ? attackBlock(attack, label) : '') +
         aiRow(ai) +
       '</article>'
     );
@@ -524,7 +546,7 @@
     );
   }
 
-  function renderBody(data, expanded, ai) {
+  function renderBody(data, expanded, ai, attack) {
     const tiles = data.tiles || {};
     const summaries = ai || {};
     const open = (expanded || []).filter(function (key) { return tiles[key]; });
@@ -548,7 +570,8 @@
       '</section>' +
       '<div class="bci-a-stack">' + open.map(function (key) {
         return '<div id="bci-a-panel-' + esc(key) + '">' +
-          renderTile(tiles[key], TILE_ORDER.indexOf(key), summaries[key]) + '</div>';
+          renderTile(tiles[key], TILE_ORDER.indexOf(key), summaries[key],
+            key === 'satisfaction' ? attack : null, data.model && data.model.label) + '</div>';
       }).join('') + '</div>' +
       '<p class="bci-a-foot">口径：比例分母为车型定量总样本；题目作答 &lt;10 人不展示比例；' +
         '战败按实际购车车型分行，行内不足 5 人只给人数；深访 3–4 人只做逐人原话；' +
@@ -560,7 +583,8 @@
     if (!host || host.dataset.ready === '1') return;
     host.dataset.ready = '1';
     const state = {
-      models: [], current: '', currentLabel: '', data: null, ai: {}, loading: false, expanded: ['profile'],
+      models: [], current: '', currentLabel: '', data: null, ai: {}, attack: null, loading: false,
+      expanded: ['profile'],
       agent: { question: '', loading: false, result: null, error: null },
     };
 
@@ -572,7 +596,7 @@
     function paint() {
       host.innerHTML = renderShell(state);
       const body = host.querySelector('[data-bci-analysis-body]');
-      if (body && state.data) body.innerHTML = renderBody(state.data, state.expanded, state.ai);
+      if (body && state.data) body.innerHTML = renderBody(state.data, state.expanded, state.ai, state.attack);
     }
 
     function fail(error) {
@@ -619,11 +643,34 @@
         });
     }
 
+    function loadAttack() {
+      const model = state.current;
+      if (!model) return Promise.resolve();
+      state.attack = { loading: true };
+      paint();
+      return getJSON('/api/bci/analysis/attack-point?model=' + encodeURIComponent(model))
+        .then(function (data) {
+          if (model !== state.current) return;
+          state.attack = data || null;
+          paint();
+        })
+        .catch(function (error) {
+          /* 进攻点失败不阻塞磁贴；错误只落在本块 */
+          if (model !== state.current) return;
+          state.attack = {
+            source: 'error',
+            error: error && error.message ? error.message : '进攻点接口不可用，请稍后重试。',
+          };
+          paint();
+        });
+    }
+
     function analyze() {
       if (!state.current) return;
       const model = state.current;
       state.loading = true;
       state.ai = {};
+      state.attack = null;
       paint();
       return getJSON('/api/bci/analysis/analyze?model=' + encodeURIComponent(model))
         .then(function (data) {
@@ -632,6 +679,7 @@
           state.data = data;
           paint();
           loadSummaries();
+          loadAttack();
         })
         .catch(fail);
     }
@@ -675,9 +723,14 @@
         .catch(function (error) {
           if (model !== state.current) return;
           state.agent.loading = false;
+          const code = error && error.code ? error.code : '';
+          const raw = error && error.message ? error.message : '';
           state.agent.error = {
-            code: error && error.code ? error.code : '',
-            message: error && error.message ? error.message : '接口不可用，请稍后重试。',
+            code: code,
+            message: code
+              ? raw
+              : '连不上本地分析服务（127.0.0.1:7860）。服务可能已退出，请确认服务在运行后重试。'
+                + (raw ? '（原始错误：' + raw + '）' : ''),
           };
           paint();
         });
@@ -706,6 +759,7 @@
       syncCurrentLabel();
       state.agent.result = null;
       state.agent.error = null;
+      state.attack = null;
       analyze();
     });
 

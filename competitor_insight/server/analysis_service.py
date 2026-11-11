@@ -30,7 +30,7 @@ from typing import Any, Iterable
 import psycopg2
 import psycopg2.extras
 
-from competitor_insight.server import db, name_rules, tile_summary
+from competitor_insight.server import attack_point, db, name_rules, tile_summary
 
 CONFIG_PATH = Path(__file__).resolve().parents[1] / "config" / "analysis_models.json"
 
@@ -605,6 +605,89 @@ class PostgresReader:
             },
         }
 
+    def reputation_models_for(self, name: str) -> list[str]:
+        """把战败里的车系标准名映射到口碑库的 `model` 写法。
+
+        标准名已去动力后缀（如「海狮05」），口碑库保留完整写法（«海狮05 EV»），
+        因此先做归一键相等匹配，再对长度 ≥2 的名字做包含匹配；短名只认完全相等，
+        避免「秦」这类单字名把所有「秦PLUS」都吞进来。
+        """
+        key = _name_key(name)
+        if not key:
+            return []
+        catalog = getattr(self, "_reputation_model_catalog", None)
+        if catalog is None:
+            rows = self._fetch(
+                "SELECT DISTINCT model FROM public.new_car_reputation_review_tag "
+                "WHERE source = 'autohome' AND btrim(coalesce(model, '')) <> ''",
+                catalog=True,
+            )
+            catalog = [str(row["model"]) for row in rows]
+            self._reputation_model_catalog = catalog
+        matched = [model for model in catalog if _name_key(model) == key]
+        if len(key) >= 2:
+            matched += [
+                model for model in catalog
+                if model not in matched and key in _name_key(model)
+            ]
+        return matched
+
+    def competitor_negative_points(self, groups: dict[str, list[str]]) -> dict[str, dict[str, Any]]:
+        """一次取回多个竞品的负向 L3 与不满意分母，口径与 `reputation()` 一致。"""
+        names = sorted({name for models in groups.values() for name in models})
+        if not names:
+            return {}
+        meta = self._fetch(
+            "SELECT max(import_batch) AS batch FROM public.new_car_reputation_review_tag "
+            "WHERE source = 'autohome' AND model = ANY(%s)",
+            (names,),
+            catalog=True,
+        )
+        batch = (meta[0] if meta else {}).get("batch")
+        if not batch:
+            return {}
+        rows = self._fetch(
+            "SELECT model, tertiary_label, count(DISTINCT review_key) AS n "
+            "FROM public.new_car_reputation_review_tag "
+            "WHERE source = 'autohome' AND model = ANY(%s) AND import_batch = %s "
+            "AND direction = 'negative' AND btrim(coalesce(tertiary_label, '')) <> '' "
+            "AND (coalesce(primary_label, '') <> ALL(%s) "
+            "OR coalesce(tertiary_label, '') = ANY(%s)) "
+            "GROUP BY 1, 2 HAVING count(DISTINCT review_key) >= %s",
+            (
+                names,
+                batch,
+                list(REPUTATION_SERVICE_L1),
+                list(REPUTATION_PRODUCT_L3),
+                REPUTATION_MIN_POINTS,
+            ),
+            catalog=True,
+        )
+        denominators = self._fetch(
+            "SELECT carname, count(*) FILTER "
+            "(WHERE btrim(coalesce(dissatisfied, '')) <> '') AS negative "
+            "FROM public.autohome_koubei WHERE carname = ANY(%s) GROUP BY 1",
+            (names,),
+            catalog=True,
+        )
+        negative_by_name = {
+            str(row["carname"]): int(row["negative"] or 0) for row in denominators
+        }
+        result: dict[str, dict[str, Any]] = {}
+        for label, models in groups.items():
+            owned = set(models)
+            points: dict[str, int] = {}
+            for row in rows:
+                if str(row["model"]) in owned:
+                    key = str(row["tertiary_label"])
+                    points[key] = points.get(key, 0) + int(row["n"] or 0)
+            result[label] = {
+                "models": models,
+                "denominator": sum(negative_by_name.get(model, 0) for model in models),
+                "points": points,
+            }
+        return result
+
 
 class AnalysisService:
     """对外只暴露 models() 与 analyze()；取数全部只读。"""
@@ -742,6 +825,86 @@ class AnalysisService:
             "prompt_version": tile_summary.PROMPT_VERSION,
             "tiles": tiles,
         }
+
+    def attack_point(self, model_key: str, llm=None, search=None, cache_dir=None) -> dict[str, Any]:
+        """满意度磁贴的「本品进攻点」：竞品负向 L3 → 模型提炼 → 联网现状核验。
+
+        竞品集合复用 `_loss_split`（不另建池）；负向 L3 沿用口碑口径
+        （汽车之家单源、最新批次、单点 ≥3 条、分母 ≥50），按去重条数降序取前 3。
+        模型输出与联网核验由 `attack_point` 模块负责，失败如实返回，不用模板句顶替。
+        """
+        config = self.config()
+        model = self._model(model_key)
+        reader = self._reader()
+        try:
+            loss = self._loss_split(reader, model, config)
+            competitors = [str(item["label"]) for item in loss.get("items") or []]
+            groups: dict[str, list[str]] = {}
+            skipped: list[dict[str, str]] = []
+            for label in competitors:
+                names = reader.reputation_models_for(label)
+                if names:
+                    groups[label] = names
+                else:
+                    skipped.append({"competitor": label, "reason": "口碑库无对应车型名"})
+            stats = reader.competitor_negative_points(groups)
+        except AnalysisError:
+            raise
+        except Exception as exc:  # noqa: BLE001
+            raise AnalysisError(
+                "database_unavailable", f"进攻点取数失败：{exc.__class__.__name__}", 503
+            ) from exc
+        finally:
+            reader.close()
+
+        candidates: list[dict[str, Any]] = []
+        for label in competitors:
+            stat = stats.get(label)
+            if not stat:
+                continue
+            denominator = int(stat.get("denominator") or 0)
+            if denominator < REPUTATION_MIN_DENOMINATOR:
+                skipped.append({
+                    "competitor": label,
+                    "reason": f"不满意分母 {denominator} 条，不足 {REPUTATION_MIN_DENOMINATOR}",
+                })
+                continue
+            for direction, count in (stat.get("points") or {}).items():
+                candidates.append({
+                    "direction": str(direction),
+                    "competitor": label,
+                    "count": int(count),
+                    "denominator": denominator,
+                    "ref": f"reputation:negative:{label}:{direction}",
+                })
+        candidates.sort(key=lambda item: (-item["count"], item["direction"], item["competitor"]))
+        picked: list[dict[str, Any]] = []
+        seen: set[str] = set()
+        for candidate in candidates:
+            if candidate["direction"] in seen:
+                continue
+            seen.add(candidate["direction"])
+            picked.append(candidate)
+            if len(picked) == 3:
+                break
+
+        price_band = str(model.get("price_note") or "").split("（")[0].strip()
+        position = "；".join(
+            part for part in (str(model.get("body_note") or "").strip(), price_band) if part
+        ) or "车型定位未提供"
+        result = attack_point.build_attack(
+            model["key"],
+            model["label"],
+            position,
+            picked,
+            llm=llm,
+            search=search,
+            cache_dir=cache_dir,
+        )
+        result["competitors"] = competitors
+        result["skipped"] = skipped
+        result["loss_n"] = int(loss.get("n") or 0)
+        return result
 
     # ------------------------------------------------------------------ 磁贴①
 

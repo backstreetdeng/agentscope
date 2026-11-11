@@ -1,0 +1,17 @@
+{
+  "task_id": "BCI-006",
+  "run_id": "20261111-attack-point",
+  "purpose": "即时分析「产品满意度评价」磁贴新增「本品进攻点」的实跑证据（数据层 + 模型提炼 + 联网现状核验）。",
+  "source": "真实库（user_insight.* / public.new_car_reputation_* / public.autohome_koubei）+ DeepSeek 模型 + Tavily 检索",
+  "model": "chery-icar-v23（iCAR 超级V23）",
+  "files": {
+    "attack-point-iCAR.json": "接口实际返回（prompt_version=2026-11-11.5，source=cache 命中），进攻点为 3 个 4–8 字能力方向，附条数/分母/占比/refs、现状核验与来源。",
+    "screenshots/satisfaction-attack.png": "页面满意度磁贴底部，橙字「进攻点：3 个短方向词」+ 依据行 + 现状行。"
+  },
+  "rebuild": [
+    "启动 7860 后请求 GET http://127.0.0.1:7860/api/bci/analysis/attack-point?model=chery-icar-v23",
+    "页面：http://127.0.0.1:7860/#bci → 即时分析 → iCAR 超级V23 → 展开「产品满意度评价」"
+  ],
+  "cleanup": "可清理；删除后重新请求接口即可按当前提示词与联网结果重建。",
+  "created_at": "2026-11-11"
+}

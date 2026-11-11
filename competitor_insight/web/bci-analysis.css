@@ -556,3 +556,40 @@
   .bci-a-sides, .bci-a-reps { grid-template-columns: minmax(0, 1fr); }
   .bci-a-row { grid-template-columns: minmax(56px, 76px) minmax(0, 1fr); }
 }
+
+/* 本品进攻点（满意度磁贴底部） ------------------------------------------- */
+.bci-a-attack {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid #FAD7B0;
+  border-radius: 10px;
+  background: #FFF9F1;
+}
+.bci-a-attack__line {
+  margin: 0;
+  color: #C2410C;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+.bci-a-attack__line span { color: #9A3412; }
+.bci-a-attack__basis,
+.bci-a-attack__live {
+  margin: 6px 0 0;
+  color: var(--a-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.bci-a-attack__live { color: var(--a-faint); }
+.bci-a-attack.is-loading .bci-a-attack__line {
+  color: var(--a-muted);
+  font-weight: 500;
+}
+.bci-a-attack.is-error {
+  border-color: var(--a-line);
+  background: #FAFBFD;
+}
+.bci-a-attack.is-error .bci-a-attack__line {
+  color: var(--a-bad);
+  font-weight: 600;
+}
