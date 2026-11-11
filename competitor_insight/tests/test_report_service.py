@@ -1,0 +1,439 @@
+"""BCI-007 · 报告服务单测（不连数据库、不跑模型）。"""
+
+from __future__ import annotations
+
+import copy
+import json
+import unittest
+from pathlib import Path
+
+from competitor_insight.server.report_archive_aggregate import ArchiveAggregator
+from competitor_insight.server.report_service import (
+    BciReportService,
+    ReportError,
+    SOURCE_REGISTRY,
+    load_outline,
+    validate_outline,
+)
+
+SERVICE_SOURCE = Path(__file__).resolve().parents[1] / "server/report_service.py"
+RENDER_SOURCE = Path(__file__).resolve().parents[1] / "server/report_render_html.py"
+
+
+def _metric(label, count, n=41, ratio=50.0):
+    return {"label": label, "count": count, "n": n, "ratio": ratio}
+
+
+class FakeAnalysis:
+    def __init__(self):
+        self._keys = ["fake-a", "fake-b"]
+        self.source_counts = {key: {"quant": 41, "interview": 4, "reputation": 120, "miit": 6} for key in self._keys}
+
+    def config(self):
+        return {
+            "version": "test-1",
+            "updated": "2026-11-11",
+            "default_model": "fake-a",
+            "models": [
+                {"key": "fake-a", "label": "测试车A", "interview_models": ["测试车A", "测试车A DM-i"]},
+                {"key": "fake-b", "label": "测试车B", "interview_models": ["测试车B"]},
+            ],
+        }
+
+    def models(self):
+        return {
+            "version": "test-1",
+            "default_model": "fake-a",
+            "models": [
+                {"key": key, "label": self.config()["models"][index]["label"], "sources": self.source_counts[key], "missing_sources": []}
+                for index, key in enumerate(self._keys)
+            ],
+        }
+
+    def analyze(self, key):
+        n = 41
+        return {
+            "model": {"key": key, "label": self.config()["models"][self._keys.index(key)]["label"]},
+            "sources": self.source_counts[key],
+            "tiles": {
+                "profile": {
+                    "metrics": [
+                        {
+                            "key": "age_band",
+                            "label": "年龄段",
+                            "kind": "distribution",
+                            "status": "ok",
+                            "n": n,
+                            "items": [_metric("26-30岁", 12, n, 29.3), _metric("36-40岁", 11, n, 26.8)],
+                        },
+                        {"key": "city_tier", "label": "城市级别", "kind": "empty", "status": "empty", "n": n, "items": []},
+                    ]
+                },
+                "attention": {
+                    "metrics": [
+                        {
+                            "key": "attention",
+                            "n": n,
+                            "answered": n,
+                            "status": "ok",
+                            "top": [_metric("纯电续航里程", 25, n, 61.0), _metric("空间", 20, n, 48.8)],
+                        }
+                    ]
+                },
+                "winloss": {
+                    "metrics": [
+                        {
+                            "key": "q3_23",
+                            "n": n,
+                            "answered": n,
+                            "status": "ok",
+                            "items": [_metric("续航长", 21, n, 51.2), _metric("空间大", 18, n, 43.9)],
+                            "top": [_metric("续航长", 21, n, 51.2)],
+                        },
+                        {
+                            "key": "win_quotes",
+                            "status": "ok",
+                            "people": 3,
+                            "items": [{"respondent_code": "R001", "quote": "续航够用，一周一充"}],
+                        },
+                        {
+                            "key": "loss_split",
+                            "n": 40,
+                            "status": "ok",
+                            "items": [
+                                {
+                                    "label": "测试车B",
+                                    "count": 15,
+                                    "ratio": 37.5,
+                                    "reasons": [{"label": "品牌信任", "count": 8, "n": 15, "ratio": 53.3}],
+                                }
+                            ],
+                        },
+                    ]
+                },
+                "satisfaction": {
+                    "metrics": [
+                        {"key": "overall", "n": n, "answered": n, "mean": 8.24, "status": "ok"},
+                        {
+                            "key": "dimensions",
+                            "n": n,
+                            "status": "ok",
+                            "top": [{"label": "空间", "mean": 8.6, "answered": n, "n": n}],
+                        },
+                        {
+                            "key": "recommendation",
+                            "n": n,
+                            "answered": n,
+                            "mean": 7.9,
+                            "status": "ok",
+                            "items": [{"label": "9-10 分", "count": 20, "n": n, "ratio": 48.8}],
+                        },
+                        {
+                            "key": "reputation",
+                            "status": "ok",
+                            "positive": [{"label": "空间大", "count": 30, "ratio": 12.5}],
+                            "negative": [{"label": "实际续航", "count": 11, "ratio": 4.7}],
+                            "denominators": {"positive": 240, "negative": 234},
+                        },
+                    ]
+                },
+            },
+        }
+
+
+class FakeArchive:
+    template_id = "user_insight_archive"
+    _version = "v1"
+
+    def template_version(self):
+        return self._version
+
+    def __init__(self):
+        self._names = {"测试车A": 2, "测试车A DM-i": 2, "测试车B": 3}
+
+    def template(self):
+        return {"template_id": self.template_id, "version": self.template_version()}
+
+    def interviews(self, names):
+        count = max((self._names.get(name, 0) for name in names), default=0)
+        return [
+            {
+                "archive_id": index + 1,
+                "interview_id": f"R00{index + 1}",
+                "revision": 1,
+                "template_version": self.template_version(),
+                "updated_at": "2026-11-11T10:00:00+08:00",
+                "respondent_code": f"R00{index + 1}",
+                "city": "杭州",
+                "vehicle_model": list(names)[0],
+            }
+            for index in range(count)
+        ]
+
+    def interview_total(self, names):
+        return 4
+
+    def aggregate(self, names):
+        interviews = self.interviews(names)
+        total = len(interviews)
+        values = {
+            "personality_interest_social": [
+                {"interview_id": item["interview_id"], "respondent_code": item["respondent_code"], "text": "关注科技与体育", "items": [], "suspect": False}
+                for item in interviews
+            ],
+            "purchase_motivation": [
+                {"interview_id": interviews[0]["interview_id"], "respondent_code": interviews[0]["respondent_code"], "text": "换掉高油耗旧车", "items": [], "suspect": False}
+            ]
+            if interviews
+            else [],
+            "info_channels": [
+                {
+                    "interview_id": item["interview_id"],
+                    "respondent_code": item["respondent_code"],
+                    "text": "",
+                    "items": ["抖音", "汽车之家"] if index == 0 else ["抖音"],
+                    "suspect": False,
+                }
+                for index, item in enumerate(interviews)
+            ],
+            "content_format_preference": [
+                {"interview_id": item["interview_id"], "respondent_code": item["respondent_code"], "text": "", "items": ["参数对比"], "suspect": False}
+                for item in interviews
+            ],
+            "conversion_opportunity_risk": [
+                {"interview_id": item["interview_id"], "respondent_code": item["respondent_code"], "text": "", "items": ["若支持快充则更倾向"], "suspect": False}
+                for item in interviews
+            ],
+            "satisfaction_points": [],
+            "dissatisfaction_points": [],
+            "brand_product_service_rank": [],
+        }
+        dimensions = {name: {"total": total, "filled": len(items), "suspects": 0} for name, items in values.items()}
+        return {
+            "template_id": self.template_id,
+            "template_version": self.template_version(),
+            "interviews": interviews,
+            "dimensions": dimensions,
+            "values": values,
+            "coverage": {"archived": total, "interview_total": 4},
+        }
+
+
+class FakeStore:
+    def __init__(self):
+        self.versions = []
+        self.reports = {}
+        self.saved = 0
+        self.stale = []
+
+    def ensure_report(self, title, model_keys, scope, created_by):
+        key = tuple(model_keys)
+        if key not in self.reports:
+            self.reports[key] = f"report-{len(self.reports) + 1}"
+        return self.reports[key]
+
+    def find_by_fingerprint(self, fingerprint, model_keys):
+        for row in self.versions:
+            if row["data_fingerprint"] == fingerprint and row["model_keys"] == model_keys and row["status"] == "valid":
+                return {
+                    "report_version_id": row["report_version_id"],
+                    "report_id": row["report_id"],
+                    "version_no": row["version_no"],
+                    "generated_at": "2026-11-11T12:00:00+08:00",
+                    "title": row["title"],
+                }
+        return None
+
+    def save_version(self, report_id, content, html, fingerprint, snapshot):
+        self.saved += 1
+        version = {
+            "report_version_id": f"version-{self.saved}",
+            "report_id": report_id,
+            "version_no": self.saved,
+            "content": content,
+            "html": html,
+            "data_fingerprint": fingerprint,
+            "source_snapshot": snapshot,
+            "generated_at": "2026-11-11T12:00:00+08:00",
+            "status": "valid",
+            "model_keys": [model["key"] for model in content["models"]],
+            "title": content["title"],
+        }
+        self.versions.append(version)
+        return {
+            "report_version_id": version["report_version_id"],
+            "report_id": report_id,
+            "version_no": version["version_no"],
+            "generated_at": version["generated_at"],
+        }
+
+    def list_reports(self, limit=20):
+        return self.versions[:limit]
+
+    def get_version(self, report_version_id):
+        for row in self.versions:
+            if row["report_version_id"] == report_version_id:
+                return row
+        return None
+
+    def mark_stale(self, report_version_id, reason):
+        self.stale.append((report_version_id, reason))
+
+
+def make_service() -> BciReportService:
+    return BciReportService(analysis=FakeAnalysis(), archive=FakeArchive(), store=FakeStore())
+
+
+class OutlineContractTest(unittest.TestCase):
+    def test_outline_is_valid_and_sources_registered(self):
+        outline = load_outline()
+        validate_outline(outline)
+        blocks = [block for page in outline["pages"] + outline["appendices"] for block in page["blocks"]]
+        self.assertGreaterEqual(len(blocks), 12)
+        self.assertEqual(len({block["id"] for block in blocks}), len(blocks))
+        self.assertTrue(all(block["source"] in SOURCE_REGISTRY for block in blocks))
+
+    def test_outline_rejects_unknown_source(self):
+        outline = copy.deepcopy(load_outline())
+        outline["pages"][0]["blocks"][0]["source"] = "somewhere.magic"
+        with self.assertRaises(ReportError) as ctx:
+            validate_outline(outline)
+        self.assertEqual(ctx.exception.code, "outline_invalid")
+
+    def test_outline_requires_boolean_required(self):
+        outline = copy.deepcopy(load_outline())
+        outline["pages"][0]["blocks"][0]["required"] = "yes"
+        with self.assertRaises(ReportError):
+            validate_outline(outline)
+
+
+class BuildContentTest(unittest.TestCase):
+    def setUp(self):
+        self.service = make_service()
+        self.content, self.snapshot = self.service.build(["fake-a"])
+
+    def test_every_declared_block_is_rendered(self):
+        outline = load_outline()
+        declared = {block["id"] for page in outline["pages"] + outline["appendices"] for block in page["blocks"]}
+        rendered = {block["id"] for page in self.content["pages"] + self.content["appendices"] for block in page["blocks"]}
+        self.assertEqual(declared, rendered)
+
+    def test_table_blocks_carry_denominator(self):
+        for page in self.content["pages"]:
+            for block in page["blocks"]:
+                if block["type"] not in {"table", "bars", "kv"}:
+                    continue
+                if block.get("kind") == "matrix":
+                    self.assertTrue(block["rows"])
+                    continue
+                for model in block["models"]:
+                    self.assertIsNotNone(model["n"], f"{block['id']} / {model['label']} 缺分母")
+
+    def test_missing_block_is_recorded_as_gap(self):
+        block = next(
+            block
+            for page in self.content["pages"]
+            for block in page["blocks"]
+            if block["id"] == "P04.BRAND_ROLE"
+        )
+        self.assertEqual(block["availability"], "missing")
+        self.assertTrue(any(gap["block"] == "P04.BRAND_ROLE" for gap in self.content["gaps"]))
+
+    def test_labels_come_from_config_not_code(self):
+        self.assertIn("测试车A", json.dumps(self.content, ensure_ascii=False))
+        for source in (SERVICE_SOURCE, RENDER_SOURCE):
+            text = source.read_text(encoding="utf-8")
+            for label in ("零跑B10", "铂智3X", "iCAR 超级V23", "海狮05", "钛3"):
+                self.assertNotIn(label, text, f"{source.name} 硬编码了车型名 {label}")
+
+    def test_bullets_reference_existing_blocks(self):
+        rendered_ids = {block["id"] for page in self.content["pages"] for block in page["blocks"]}
+        bullets = next(
+            block for page in self.content["pages"] for block in page["blocks"] if block["id"] == "P11.BULLETS"
+        )
+        for item in bullets["items"]:
+            for ref in item["refs"]:
+                if ref.startswith("A."):
+                    continue
+                self.assertIn(ref, rendered_ids)
+
+    def test_fingerprint_is_stable_for_same_data(self):
+        content, _ = self.service.build(["fake-a"])
+        self.assertEqual(content["data_fingerprint"], self.content["data_fingerprint"])
+
+    def test_fingerprint_changes_when_sample_changes(self):
+        baseline = self.content["data_fingerprint"]
+        self.service.analysis.source_counts["fake-a"]["quant"] = 42
+        content, _ = self.service.build(["fake-a"])
+        self.assertNotEqual(content["data_fingerprint"], baseline)
+
+
+class GenerateIdempotencyTest(unittest.TestCase):
+    def test_generate_reuses_same_fingerprint(self):
+        service = make_service()
+        result1 = service.generate(["fake-a"])
+        result2 = service.generate(["fake-a"])
+        self.assertTrue(result1["created"])
+        self.assertFalse(result2["created"])
+        self.assertTrue(result2["reused"])
+        self.assertEqual(result1["report_version_id"], result2["report_version_id"])
+        self.assertEqual(len(service.store.versions), 1)
+
+    def test_unknown_model_is_rejected(self):
+        service = make_service()
+        with self.assertRaises(ReportError) as ctx:
+            service.generate(["no-such-model"])
+        self.assertEqual(ctx.exception.status, 404)
+
+    def test_empty_model_keys_falls_back_to_default(self):
+        service = make_service()
+        result = service.generate([])
+        self.assertEqual(result["title"].count("1 款"), 1)
+
+
+class AggregatorUnitTest(unittest.TestCase):
+    def test_value_items_flattens_structures(self):
+        from competitor_insight.server.report_archive_aggregate import value_items
+
+        self.assertEqual(value_items(["抖音", {"label": "汽车之家"}]), ["抖音", "汽车之家"])
+        self.assertEqual(value_items({"items": ["小红书"]}), ["小红书"])
+        self.assertEqual(value_items(None, "抖音；朋友推荐"), ["抖音", "朋友推荐"])
+        self.assertEqual(value_items(None, "未提及"), [])
+
+    def test_channel_counts_dedupes_alias_and_person(self):
+        entries = [
+            {"items": ["抖音", "短视频"]},
+            {"items": ["抖音"]},
+            {"items": ["懂车帝"]},
+        ]
+        counts = ArchiveAggregator.channel_counts(entries)
+        self.assertEqual(counts["抖音"], 2)
+        self.assertEqual(counts["懂车帝"], 1)
+
+    def test_interviews_query_is_model_scoped(self):
+        captured = {}
+
+        def fake_fetch(sql, params):
+            captured["sql"] = sql
+            captured["params"] = params
+            return []
+
+        aggregator = ArchiveAggregator(fetch=fake_fetch, template_path=Path(__file__).resolve().parents[1] / "templates/user_insight_archive_template.json")
+        aggregator.interviews(["测试车A", "测试车A DM-i"])
+        self.assertIn("i.vehicle_model = any(%s)", captured["sql"])
+        self.assertIn("template_version", captured["sql"])
+        self.assertEqual(captured["params"][2], ["测试车A", "测试车A DM-i"])
+
+    def test_aggregate_uses_archive_count_as_denominator(self):
+        aggregator = ArchiveAggregator(fetch=lambda sql, params: [], template_path=Path(__file__).resolve().parents[1] / "templates/user_insight_archive_template.json")
+        aggregator.interviews = lambda names: [{"archive_id": 1, "interview_id": "R001", "revision": 1, "template_version": "v1", "updated_at": "", "respondent_code": "R001", "city": "", "vehicle_model": "测试车A"}]
+        aggregator.interview_total = lambda names: 4
+        aggregator._query = lambda sql, params: [(1, "info_channels", "", ["抖音"], "", "valid")]
+        result = aggregator.aggregate(["测试车A"])
+        self.assertEqual(result["coverage"], {"archived": 1, "interview_total": 4})
+        self.assertEqual(result["dimensions"]["info_channels"]["total"], 1)
+        self.assertEqual(result["dimensions"]["info_channels"]["filled"], 1)
+
+
+if __name__ == "__main__":
+    unittest.main()

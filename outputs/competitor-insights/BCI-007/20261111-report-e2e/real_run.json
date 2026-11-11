@@ -1,0 +1,167 @@
+{
+  "options": {
+    "status": 200,
+    "models": [
+      "零跑B10",
+      "铂智3X",
+      "iCAR 超级V23",
+      "海狮05",
+      "钛3"
+    ],
+    "outline_pages": [
+      "P01",
+      "P04",
+      "P05",
+      "P07",
+      "P08",
+      "P10",
+      "P11",
+      "APPENDIX"
+    ],
+    "archive": {
+      "template_id": "user_insight_archive",
+      "template_version": "v1"
+    }
+  },
+  "generate": {
+    "status": 200,
+    "elapsed": 4.55,
+    "data": {
+      "created": false,
+      "reused": true,
+      "report_id": "c882a856-2159-4538-85f1-e8cac8188505",
+      "report_version_id": "318c2886-7cef-467e-ac75-75658b0c7c67",
+      "version_no": 1,
+      "generated_at": "2026-11-11T15:23:19.130976+08:00",
+      "title": "5 款车型竞品用户洞察报告",
+      "summary": null
+    },
+    "error": null
+  },
+  "generate_again": {
+    "status": 200,
+    "elapsed": 5.23,
+    "data": {
+      "created": false,
+      "reused": true,
+      "report_id": "c882a856-2159-4538-85f1-e8cac8188505",
+      "report_version_id": "318c2886-7cef-467e-ac75-75658b0c7c67",
+      "version_no": 1,
+      "generated_at": "2026-11-11T15:23:19.130976+08:00",
+      "title": "5 款车型竞品用户洞察报告",
+      "summary": null
+    }
+  },
+  "versions": {
+    "status": 200,
+    "items": [
+      {
+        "report_version_id": "318c2886-7cef-467e-ac75-75658b0c7c67",
+        "report_id": "c882a856-2159-4538-85f1-e8cac8188505",
+        "title": "5 款车型竞品用户洞察报告",
+        "model_keys": [
+          "leapmotor-b10",
+          "toyota-bz3x",
+          "chery-icar-v23",
+          "byd-sealion-05-ev",
+          "fangchengbao-tai3"
+        ],
+        "version_no": 1,
+        "generated_at": "2026-11-11T15:23:19.130976+08:00",
+        "status": "valid",
+        "stale_reason": "",
+        "data_fingerprint": "a3151914fd98e2c0687883a64f35cd2ca3de8da8cafcc802fab5344ee6e1bd52"
+      }
+    ]
+  },
+  "detail": {
+    "status": 200,
+    "version_no": 1,
+    "stale": false,
+    "pages": [
+      [
+        "P01",
+        "partial",
+        3
+      ],
+      [
+        "P04",
+        "partial",
+        3
+      ],
+      [
+        "P05",
+        "ok",
+        3
+      ],
+      [
+        "P07",
+        "partial",
+        5
+      ],
+      [
+        "P08",
+        "ok",
+        2
+      ],
+      [
+        "P10",
+        "partial",
+        1
+      ],
+      [
+        "P11",
+        "ok",
+        1
+      ]
+    ],
+    "appendix": [
+      [
+        "APPENDIX",
+        3
+      ]
+    ],
+    "gaps": 1,
+    "fingerprint": "a3151914fd98",
+    "block_status": [
+      "ok",
+      "partial",
+      "partial",
+      "ok",
+      "ok",
+      "missing",
+      "ok",
+      "ok",
+      "ok",
+      "ok",
+      "ok",
+      "ok",
+      "ok",
+      "partial",
+      "ok",
+      "ok",
+      "partial",
+      "ok"
+    ]
+  },
+  "preview": {
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "disposition": "inline; filename=report.html; filename*=UTF-8''%E7%AB%9E%E5%93%81%E7%94%A8%E6%88%B7%E6%B4%9E%E5%AF%9F%E6%8A%A5%E5%91%8A_v1_20261111.html",
+    "len": 84443,
+    "has_script": false
+  },
+  "export": {
+    "status": 200,
+    "disposition": "attachment; filename=report.html; filename*=UTF-8''%E7%AB%9E%E5%93%81%E7%94%A8%E6%88%B7%E6%B4%9E%E5%AF%9F%E6%8A%A5%E5%91%8A_v1_20261111.html",
+    "len": 84443
+  },
+  "ui": {
+    "status_text": "同版本数据已存在，复用已有报告：v1，耗时 11.9 秒。",
+    "versions": 1,
+    "frames": 1,
+    "report_sections": 8,
+    "report_title": "5 款车型竞品用户洞察报告"
+  },
+  "console": []
+}

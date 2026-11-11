@@ -1255,6 +1255,23 @@ def bci_agent_service() -> Any:
     return BCI_AGENT_SERVICE
 
 
+BCI_REPORT_API: Any = None
+BCI_REPORT_API_LOCK = Lock()
+
+
+def bci_report_api() -> Any:
+    """惰性构造报告输出接口；首次请求才连库。"""
+    global BCI_REPORT_API
+    if BCI_REPORT_API is not None:
+        return BCI_REPORT_API
+    with BCI_REPORT_API_LOCK:
+        if BCI_REPORT_API is None:
+            from competitor_insight.server.report_api import ReportApi
+
+            BCI_REPORT_API = ReportApi()
+    return BCI_REPORT_API
+
+
 HTML = (PROJECT_DIR / 'home.html').read_text(encoding='utf-8')
 LEGACY_WORKBENCH_HTML = (PROJECT_DIR / 'legacy_workbench.html').read_text(encoding='utf-8')
 STRATEGY_ANALYSIS_HTML = (PROJECT_DIR / 'strategy-analysis.html').read_text(encoding='utf-8')
@@ -1424,6 +1441,10 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
 
         if request_path.startswith('/api/bci/analysis/'):
             self._handle_bci_analysis_get(parsed)
+            return
+
+        if request_path.startswith('/api/bci/report/'):
+            self._handle_bci_report_get(parsed)
             return
 
         if request_path == "/api/config":
@@ -1779,6 +1800,9 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
             return
         if parsed.path.startswith('/api/bci/archive/'):
             self._handle_bci_archive_post(parsed)
+            return
+        if parsed.path == '/api/bci/report/generate':
+            self._handle_bci_report_post(parsed)
             return
         if self.path not in {"/api/assistant/chat", "/api/chat", "/api/ppt", "/api/audio-tags/run", "/api/quality-gate", "/api/market-skill/validate", "/api/intelligence/export", "/api/projects/update", "/api/macro-ledger", "/api/monthly-report/jobs", "/api/monthly-report/jobs/cancel", "/api/monthly-report/jobs/resume", "/api/macro-report/jobs", "/api/macro-report/jobs/cancel", "/api/macro-report/jobs/resume", "/api/insight/interview/query", "/api/insight/battle/analyze", "/api/insight/quant/stat", "/api/insight/quant/options", "/api/insight/joint/analyze", "/api/insight/segment/clusters", "/api/insight/satisfaction/painpoints", "/api/insight/repurchase/intent", "/api/insight/matrix/match", "/api/insight/compare", "/api/insight/cross/validate", "/api/insight/agent/query", "/api/insight/agent/stream"}:
             self.send_error(HTTPStatus.NOT_FOUND)
@@ -2563,6 +2587,113 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
             )
             return
         self._send_json({'ok': True, 'data': result})
+
+    def _handle_bci_report_get(self, parsed: Any) -> None:
+        """GET /api/bci/report/*：车型与大纲、版本列表、详情、预览与下载。"""
+        from competitor_insight.server.db import DatabaseUnavailable
+        from competitor_insight.server.report_service import ReportError
+
+        query = parse_qs(parsed.query)
+        operation = parsed.path[len('/api/bci/report/'):]
+
+        def one(name: str) -> str:
+            return (query.get(name) or [''])[0]
+
+        try:
+            api = bci_report_api()
+            if operation == 'options':
+                payload = api.options()
+            elif operation == 'outline':
+                payload = api.outline()
+            elif operation == 'versions':
+                payload = api.versions(bci_query_int(one('limit'), 20))
+            elif operation == 'detail':
+                payload = api.detail(one('id'))
+            elif operation in {'preview', 'export'}:
+                result = api.preview(one('id')) if operation == 'preview' else api.export(one('id'))
+                self._send_download(
+                    result['html'].encode('utf-8'),
+                    'text/html; charset=utf-8',
+                    result['filename'],
+                    inline=operation == 'preview',
+                )
+                return
+            else:
+                self._send_json(
+                    {'ok': False, 'error': {'code': 'not_found', 'message': '未找到报告接口。'}},
+                    status=404,
+                )
+                return
+        except ReportError as exc:
+            self._send_json({'ok': False, 'error': {'code': exc.code, 'message': str(exc)}}, status=exc.status)
+            return
+        except DatabaseUnavailable as exc:
+            self._send_json(
+                {'ok': False, 'error': {'code': 'database_unavailable', 'message': str(exc)}},
+                status=503,
+            )
+            return
+        except (ValueError, OSError, KeyError) as exc:
+            self._send_json(
+                {'ok': False, 'error': {'code': 'invalid_request', 'message': str(exc)}},
+                status=400,
+            )
+            return
+        except Exception as exc:  # noqa: BLE001
+            self._send_json(
+                {'ok': False, 'error': {'code': 'internal_error', 'message': exc.__class__.__name__}},
+                status=500,
+            )
+            return
+        self._send_json({'ok': True, 'data': payload})
+
+    def _handle_bci_report_post(self, parsed: Any) -> None:
+        """POST /api/bci/report/generate：同步生成（5 车约 20–30 秒）。"""
+        from competitor_insight.server.db import DatabaseUnavailable
+        from competitor_insight.server.report_service import ReportError
+
+        try:
+            length = int(self.headers.get('Content-Length', '0'))
+            if length <= 0 or length > 8000:
+                raise ValueError('报告请求为空或过大。')
+            payload = json.loads(self.rfile.read(length).decode('utf-8'))
+            if not isinstance(payload, dict):
+                raise ValueError('报告请求必须为对象。')
+            result = bci_report_api().generate(payload)
+        except ReportError as exc:
+            self._send_json({'ok': False, 'error': {'code': exc.code, 'message': str(exc)}}, status=exc.status)
+            return
+        except DatabaseUnavailable as exc:
+            self._send_json(
+                {'ok': False, 'error': {'code': 'database_unavailable', 'message': str(exc)}},
+                status=503,
+            )
+            return
+        except (ValueError, OSError, KeyError) as exc:
+            self._send_json(
+                {'ok': False, 'error': {'code': 'invalid_request', 'message': str(exc)}},
+                status=400,
+            )
+            return
+        except Exception as exc:  # noqa: BLE001
+            self._send_json(
+                {'ok': False, 'error': {'code': 'internal_error', 'message': exc.__class__.__name__}},
+                status=500,
+            )
+            return
+        self._send_json({'ok': True, 'data': result})
+
+    def _send_download(self, data: bytes, content_type: str, filename: str, *, inline: bool = False) -> None:
+        disposition = 'inline' if inline else 'attachment'
+        safe_name = quote(filename)
+        self.send_response(HTTPStatus.OK)
+        self.send_header('Content-Type', content_type)
+        self.send_header('Content-Disposition', f"{disposition}; filename=report.html; filename*=UTF-8''{safe_name}")
+        self.send_header('Content-Length', str(len(data)))
+        self.send_header('Cache-Control', 'no-store, max-age=0')
+        self.send_header('X-Content-Type-Options', 'nosniff')
+        self.end_headers()
+        self.wfile.write(data)
 
     def _handle_bci_archive_post(self, parsed: Any) -> None:
         """POST /api/bci/archive/*：生成档案（后台任务）与 xlsx / md 导出。"""

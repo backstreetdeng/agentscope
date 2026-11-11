@@ -1,6 +1,6 @@
 # 竞品洞察看板 · BOARD
 
-- 更新：2026-11-09（Asia/Shanghai）
+- 更新：2026-11-11（Asia/Shanghai）
 - 状态源：各 `tasks/<编号>/TASK.md`；`tasks/tasks.md` 与各 TASK.md 同步。三者冲突时以 TASK.md 为准，并同时回改总表与本文件。
 - 一致性检查：`../Scripts/python.exe -B competitor_insight/check_board.py`（校验 `tasks.md` ↔ `BOARD.md` ↔ 各 `TASK.md` 三方一致；不通过不得声称阶段完成）。
 - 阶段定义与准入条件见 [RULES.md](RULES.md) 第 6 节。
@@ -10,6 +10,8 @@
 > **一句话**：六个已交付任务全部有结论、全部入库并已推送（`origin/feature/user-insight-t0-t4` = `6775c56`，本地与远端 0/0）；新增 [BCI-007](tasks/BCI-007/TASK.md) 报告输出，本轮只出方案与业务待提供清单，**未入库、未写业务代码**。`check_board.py` 以本次运行结果为准（见 HANDOFF 最新一条）。
 >
 > **2026-11-09 更新**：BCI-001 选源页越界修复（去掉「本次分析口径」「报告输出」两块）已入库 `acc8e96`（41/41 断言）；BCI-002「查看模板」只读弹窗已入库 `17c2193`（21/21 断言）；BCI-003 文档收敛为三块决策记录并转 `TESTED`。
+>
+> **2026-11-11 更新**：BCI-007 报告输出 HTML v1 已实现并转 `TESTED`：单测 22/22、真实库 API 全链路、Playwright tab ④ 实测通过；新增 `bci.report` / `bci.report_version` 两表；7860 需重启后前端 tab ④ 才生效。PPT（S5/S6）二期等业务模板。
 >
 > 7860 仍在运行：`GET /api/bci/analysis/models` 与 `GET /competitor-insight/templates.json` 实测 200。若明早打不开，按 `start_agent.cmd` 常规启动（先看下面「坑」第 6 条）。
 >
@@ -23,7 +25,7 @@
 | [BCI-004](tasks/BCI-004/TASK.md) 洞察档案 tab | TESTED | 已入库 | `7dc91aa` → `01da692`（枚举归一 + 渠道归并） | L01 剩 Q5/Q6/Q7/Q10、L05/L07/L08 已决策维持、L11 已决策不轮换；L10/L04 已解除（2026-11-09） |
 | [BCI-005](tasks/BCI-005/TASK.md) 任务机制 | DEV_DONE | 已入库 | `1bd7eee` | L01 业务接口无三态、L02 reader 仅词法检查、L06 commit_paths 靠人工声明（L07 已决策不修） |
 | [BCI-006](tasks/BCI-006/TASK.md) 即时分析 tab | TESTED | 已入库 | `5e8f964`（文档 `ca18f37`；已推送 `6775c56`） | L01 无排序题、L03 无胜出观测题、L05 无级别字段、L06 定性归类为启发式、L07 v1 不做 |
-| [BCI-007](tasks/BCI-007/TASK.md) 报告输出 tab | CREATED | **未入库（方案轮）** | — | L01 本品无样本、L02 前车来源无数据、L03 无排序题、L06 改稿未做、L08 业务模板未提供 |
+| [BCI-007](tasks/BCI-007/TASK.md) 报告输出 tab | TESTED | 已入库（本批） | BCI-007（报告服务/渲染/接口/前端 + DDL） | L01 本品无样本、L02 前车来源无数据、L03 无排序题、L06 改稿未做、L08 业务模板未提供、L09 五车可读档案仅 4 份 |
 
 ### 等你拍板的一件事
 
@@ -53,7 +55,7 @@
 
 | 任务 | 标题 | 负责人 | 下一步 | 更新 |
 |---|---|---|---|---|
-| [BCI-007](tasks/BCI-007/TASK.md) | 竞品洞察 · 报告输出 tab | TRAE | 用户确认方案 §11 的 Q1–Q10（含 11 页→8 页、HTML 先行、改稿本轮不做）后进入 EXECUTING，执行 S1 | 2026-11-08 |
+| 暂无 | | | | |
 
 ### 2. 执行中（EXECUTING）
 
@@ -82,6 +84,7 @@
 | [BCI-003](tasks/BCI-003/TASK.md) | 学习 DeepSeek Harness 工程方法并评估对竞品洞察的适用性 | TRAE | 用户抽样复核三块决策记录（已采纳 4 / 已推翻 4 / 不立项 5）；纯文档无可访问入口，无 LIVE 动作，确认后关单 | 2026-11-09 |
 | [BCI-004](tasks/BCI-004/TASK.md) | 竞品洞察 · 用户洞察档案 tab | TRAE | 用户验收 7860 页面与 10 人试点数据后确认上线 | 2026-11-07 |
 | [BCI-006](tasks/BCI-006/TASK.md) | 竞品洞察 · 即时分析 tab | TRAE | 用户确认「动力形式切分」是否接入 UI（当前只有后端参数，前端无控件）；业务验收映射库 701 标准名与下拉五款 | 2026-11-10 |
+| [BCI-007](tasks/BCI-007/TASK.md) | 竞品洞察 · 报告输出 tab | TRAE | 用户验收 7860 报告输出 tab（需重启服务加载 home.html）；PPT（S5/S6）等业务模板与用户确认后另起阶段 | 2026-11-11 |
 
 ### 6. 已上线（LIVE）
 
@@ -131,7 +134,7 @@
 | BCI-007-L06 | 2023/2024 定量未入库 | 不做多年趋势 | 完成入库并验证题项对齐 | 数据/TRAE | [BCI-007](tasks/BCI-007/TASK.md) |
 | BCI-007-L07 | 对话改稿未做（原型为 3 条正则假实现） | 无自然语言改稿 | 用户确认立项 + 20 份回归样本 + 数字白名单校验 | 用户 | [BCI-007](tasks/BCI-007/TASK.md) |
 | BCI-007-L08 | 业务 PPT 模板未提供 | S6 无法开工 | 业务交付 `.pptx` 模板 | 用户/业务 | [BCI-007](tasks/BCI-007/TASK.md) |
-| BCI-007-L09 | 洞察档案仅 10/63 人 | 定性模块分母小 | 用户放开全量生成并完成 | 用户 | [BCI-007](tasks/BCI-007/TASK.md) |
+| BCI-007-L09 | 五车范围可读档案仅 4 份（全库 14 份多属其他车系） | 定性模块分母小，页面按车显示 x/y | 用户放开五车相关受访者的档案生成并完成 | 用户 | [BCI-007](tasks/BCI-007/TASK.md) |
 | BCI-007-L10 | 「学历」无来源 | P01 该行删除 | 业务补题或接受不展示 | 业务 | [BCI-007](tasks/BCI-007/TASK.md) |
 
 ## 入库状态（TASK-COMMITTED）
@@ -146,7 +149,7 @@
 | [BCI-004](tasks/BCI-004/TASK.md) | TESTED | **已入库** | 提交 `7dc91aa`（59 文件：`server/`、`tests/`、`web/bci-profile.*`、`ops/` DDL、BCI 文档与证据）；`app.py` 仅 4 处 BCI hunk，深度调研等改动未纳入；`*.log` 受 `.gitignore` 限制只在本机 | 用户验收后上线；如需日志入库需先决定 `.gitignore` |
 | [BCI-005](tasks/BCI-005/TASK.md) | DEV_DONE | **已入库** | 机制文件与证据随本次提交入库 | 用户复核后转 TESTED |
 | [BCI-006](tasks/BCI-006/TASK.md) | TESTED | **已入库（`5e8f964`）** | `analysis_service.py`、配置、前端、6 套测试/脚本、文档与 `outputs/competitor-insights/BCI-006/` 证据；`app.py` 仅 BCI 分析路由 hunk | 用户验收后上线；业务确认 §8 补数范围 |
-| [BCI-007](tasks/BCI-007/TASK.md) | CREATED | **未入库（方案轮）** | 独占文件：两份 docs + `tasks/BCI-007` + `outputs/competitor-insights/BCI-007/`；未改任何业务代码 | 用户确认方案后进入 EXECUTING，交付时再提交 |
+| [BCI-007](tasks/BCI-007/TASK.md) | TESTED | 已入库（本批） | 11 个独占文件 + 两份 docs + TASK 目录 + 证据目录；共享 hunk：`app.py`（report 路由/处理器/下载）、`home.html`（tab ④ 面板与引用）、`bci.js`（`initReport`） | 见任务 §6 遗留 |
 
 > 首次入库范围与排除项见 [BCI-005/TASK.md](tasks/BCI-005/TASK.md) 第 4 节 S12；`app.py` / `home.html` / `home.css` / `share-files/TASKS.md` 里其他任务的 hunk 一律未带入。
 

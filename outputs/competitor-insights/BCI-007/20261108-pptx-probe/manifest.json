@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "BCI-007-20261108-pptx-probe",
+  "purpose": "为报告输出方案提供 python-pptx / openpyxl 能力边界的本机实测证据，特别是 .pptx/.potx 打开、表格、原生图表、图片占位符、本机渲染能力",
+  "created_by": "TRAE（BCI-007 方案轮）",
+  "status": "completed",
+  "reproduce": "在项目根执行：..\\Scripts\\python.exe -B temp\\20261108-bci007-probe\\probe_pptx.py 与 probe_pptx2.py，输出重定向到本目录 probe.log",
+  "files": [
+    {
+      "path": "probe.log",
+      "purpose": "两段探针的完整输出：库版本、图表类型可用性、版式占位符、表格/图表写入、.potx 直读失败与改写后成功、图片占位符、fit_text、本机渲染工具缺失",
+      "source": "temp/20261108-bci007-probe/probe_pptx.py、probe_pptx2.py",
+      "rebuildable": true,
+      "retention": "保留（方案依据）"
+    }
+  ],
+  "cleanup_conditions": "方案无需再引用这些库能力结论、且临时脚本已归档时可清理；当前保留",
+  "restore": "无需恢复；重新执行 reproduce 命令即可重建"
+}

@@ -361,6 +361,7 @@
           });
           if (key === 'profile') initProfile(root);
           if (key === 'analyze') initAnalysis(root);
+          if (key === 'report') initReport(root);
         }
       });
 
@@ -383,6 +384,12 @@
     function initAnalysis(root) {
       const host = qs('[data-bci-analysis]', root);
       if (host && window.BciAnalysis) window.BciAnalysis.init(host);
+    }
+
+    // tab ④ 首次进入时才初始化报告输出，避免首页加载即查库与渲染版本。
+    function initReport(root) {
+      const host = qs('[data-bci-report]', root);
+      if (host && window.BciReport) window.BciReport.init(host);
     }
 
     let entering = null;

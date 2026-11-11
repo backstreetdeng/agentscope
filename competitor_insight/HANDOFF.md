@@ -1,6 +1,16 @@
 # 竞品洞察 · 最近交接
 
-更新：2026-11-09（Asia/Shanghai）。新条目追加在最上面。写法见 [RULES.md](RULES.md) 第 9 节；本文件与 TASK.md 冲突时以 TASK.md 为准。
+更新：2026-11-11（Asia/Shanghai）。新条目追加在最上面。写法见 [RULES.md](RULES.md) 第 9 节；本文件与 TASK.md 冲突时以 TASK.md 为准。
+
+## 2026-11-11 · BCI-007 报告输出 HTML v1 实现并转 TESTED
+
+- **结论**：方案评估「需改后可行」，6 项 P0 全部按改进口径落地，未停下等确认；HTML v1 已跑通，PPT（S5/S6）留二期。
+- **实现**：`config/report_outline.json` 唯一契约（7 页 + 附录，块 `type/source/required`）；`report_archive_aggregate.py` 按 `vehicle_model = any(...)` 收口档案、按最大 revision 去重；`report_service.py` 先轻量指纹查重再 build（同指纹复用不升版）；`report_render_html.py` 单文件、全量转义、无脚本/外链；`report_api.py` + `bci-report.js/css` 接入 tab ④；`ops/bci_report_ddl.sql` 建 `bci.report`/`bci.report_version`。
+- **实测（7861 临时端口）**：单测 22/22；`options` 5 车 + 8 页；`generate` 命中原 v1 `reused:true` 4.55s（HTTP）；`versions` 1 条 valid；`detail` `stale:false`、`gaps=1`（P04.BRAND_ROLE 无档案值）；`preview/export` 200、84,443 字节、无 `<script>`；Playwright tab ④ 状态文案正确、版本 1 条、iframe 1 个、8 个 section、console 0 条。
+- **数据口径**：五车范围可读档案 4 份（零跑B10 2、铂智3X 1、iCAR 1、海狮05 0、钛3 0）/ 16 场访谈；全库 14 份档案多属其他车系，不进本报告。页面分母实时统计，不再写死 10/63。
+- **运维**：DDL 已以 loader 账号执行并冒烟；**7860 未重启**，前端 tab ④ 需重启加载 `home.html` 后才生效（重启前先确认月报专用 Chrome 未运行）。
+- **证据**：[20261111-report-e2e](outputs/competitor-insights/BCI-007/20261111-report-e2e/)、[20261111-report-ddl](outputs/competitor-insights/BCI-007/20261111-report-ddl/)。
+- **下一步**：用户重启 7860 验收 tab ④；业务提供 `.pptx` 模板后开 PPT 二期；对话改稿未立项。
 
 ## 2026-11-09 · BCI-004 R002 归档失败排查与修复（已重生成成功）
 

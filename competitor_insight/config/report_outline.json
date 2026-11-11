@@ -1,0 +1,94 @@
+{
+  "version": "report-outline/1.0.0",
+  "updated": "2026-11-11",
+  "title_pattern": "{group}组竞品用户洞察报告",
+  "scope_note": "本期仅覆盖竞品侧，不含本品（埃安RT）侧，不做本品与竞品对标；定性模块分母为已生成洞察档案人数，只出原话与人数，不出比例。",
+  "archive_template_id": "user_insight_archive",
+  "pages": [
+    {
+      "page": "P01",
+      "title": "用户画像",
+      "subtitle": "人群结构、生活状态与购车特征",
+      "blocks": [
+        {"id": "P01.BASIC", "type": "table", "title": "基本特征（定量）", "source": "analysis.profile", "required": true},
+        {"id": "P01.LIFESTYLE", "type": "quotes", "title": "生活状态与价值观（深访）", "source": "archive.lifestyle", "required": true},
+        {"id": "P01.MOTIVATION", "type": "quotes", "title": "购车动机（深访）", "source": "archive.motivation", "required": true}
+      ]
+    },
+    {
+      "page": "P04",
+      "title": "购车关注",
+      "subtitle": "关注什么；16 维多选勾选率，非排序",
+      "blocks": [
+        {"id": "P04.CHART", "type": "bars", "title": "关注点 TOP5（勾选率）", "source": "analysis.attention", "required": true},
+        {"id": "P04.TOP5", "type": "table", "title": "关注点 TOP5 明细（人数 / 分母）", "source": "analysis.attention", "required": true},
+        {"id": "P04.BRAND_ROLE", "type": "quotes", "title": "品牌 / 产品 / 服务 第一排序（深访）", "source": "archive.brand_role", "required": true}
+      ]
+    },
+    {
+      "page": "P05",
+      "title": "选择原因与核心对比",
+      "subtitle": "为什么买它；对比过它的人最后买了谁",
+      "blocks": [
+        {"id": "P05.WIN", "type": "table", "title": "选择当前车辆的原因（Q3_23，16 维勾选率）", "source": "analysis.winloss", "required": true},
+        {"id": "P05.COMPETITORS", "type": "table", "title": "对比过当前车型后买了别的车（Q3_22 × Q3_24）", "source": "analysis.winloss", "required": true},
+        {"id": "P05.WIN_QUOTES", "type": "quotes", "title": "深访原话：选择当前车辆的原因（Q29）", "source": "analysis.winloss", "required": true}
+      ]
+    },
+    {
+      "page": "P07",
+      "title": "用户满意度",
+      "subtitle": "整体、分维、推荐与外部口碑",
+      "blocks": [
+        {"id": "P07.OVERALL", "type": "kv", "title": "整体使用满意度（Q5_1，2–10 分）", "source": "analysis.satisfaction", "required": true},
+        {"id": "P07.DIMENSIONS", "type": "bars", "title": "16 维使用满意度（Q5_2，1–10 分）", "source": "analysis.satisfaction", "required": true},
+        {"id": "P07.RECOMMEND", "type": "kv", "title": "推荐意愿（Q5_5，1–10 分）", "source": "analysis.satisfaction", "required": true},
+        {"id": "P07.REPUTATION", "type": "table", "title": "外部口碑 正 / 负向 TOP5（非问卷）", "source": "analysis.satisfaction", "required": true},
+        {"id": "P07.POINTS", "type": "quotes", "title": "满意与不满意的具体点（深访）", "source": "archive.satisfaction_points", "required": true}
+      ]
+    },
+    {
+      "page": "P08",
+      "title": "信息渠道与内容偏好",
+      "subtitle": "从哪知道、看什么内容；深访口径，非比例",
+      "blocks": [
+        {"id": "P08.CHANNELS", "type": "table", "title": "信息渠道提及人数", "source": "archive.info_channels", "required": true},
+        {"id": "P08.CONTENT", "type": "table", "title": "内容形式偏好提及人数", "source": "archive.content_format", "required": true}
+      ]
+    },
+    {
+      "page": "P10",
+      "title": "转化机会与风险",
+      "subtitle": "决策阻碍、放弃原因与潜在机会（深访）",
+      "blocks": [
+        {"id": "P10.RISK", "type": "quotes", "title": "阻碍与风险 / 机会原话", "source": "archive.conversion", "required": true}
+      ]
+    },
+    {
+      "page": "P11",
+      "title": "小结",
+      "subtitle": "逐车型一句话结论，数字全部来自本报告",
+      "blocks": [
+        {"id": "P11.BULLETS", "type": "bullets", "title": "逐车型要点", "source": "derived.summary", "required": true}
+      ]
+    }
+  ],
+  "appendices": [
+    {
+      "page": "APPENDIX",
+      "title": "附录A 数据边界",
+      "subtitle": "样本、来源、缺失项与未纳入页面",
+      "blocks": [
+        {"id": "A.BOUNDARY", "type": "table", "title": "各车型样本与来源覆盖", "source": "derived.boundary", "required": true},
+        {"id": "A.GAPS", "type": "table", "title": "数据缺口", "source": "derived.boundary", "required": true},
+        {"id": "A.SOURCES", "type": "table", "title": "数据源与批次", "source": "derived.boundary", "required": true}
+      ]
+    }
+  ],
+  "excluded_pages": [
+    {"page": "P02", "title": "用户来源", "reason": "单一车型（小鹏M03）专题，与组竞品不匹配；数据保留在即时分析"},
+    {"page": "P03", "title": "触点与决策流程", "reason": "库内无对应题目与字段，不编造"},
+    {"page": "P06", "title": "产品评价 / 配置", "reason": "配置与流通数据未接入，二期"},
+    {"page": "P09", "title": "本品（埃安RT）侧", "reason": "库内无本品样本，本期不做对标"}
+  ]
+}

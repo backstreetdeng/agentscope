@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "BCI-007-report-ddl",
+  "purpose": "在本地 vectordb 库执行 bci.report / bci.report_version DDL，并核对表、约束、索引与读写冒烟",
+  "created_by": "TRAE",
+  "status": "completed",
+  "reproduce": "在项目根执行 ../Scripts/python.exe -B ops/apply_bci_report_ddl.py；脚本以 loader 账号执行 IF NOT EXISTS DDL、结构核对与 insert/select/delete 冒烟",
+  "files": [
+    {
+      "path": "apply.log",
+      "purpose": "DDL 执行与冒烟结果（user、has_schema_create、select_ok、delete_ok）",
+      "source": "ops/apply_bci_report_ddl.py",
+      "rebuildable": true,
+      "retention": "保留"
+    }
+  ],
+  "cleanup_conditions": "表结构已入库且后续版本迁移不需要回溯时，可作为历史证据清理；不自动删除",
+  "restore": "无需恢复；重建方式为重跑 ops/apply_bci_report_ddl.py（幂等）"
+}

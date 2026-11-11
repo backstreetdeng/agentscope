@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "task_id": "BCI-007-report-e2e",
+  "purpose": "报告输出 HTML v1 全链路实测：单测、真实库生成/复用/版本/详情/预览/下载、浏览器 tab ④ 渲染",
+  "created_by": "TRAE",
+  "status": "completed",
+  "reproduce": "1) ../Scripts/python.exe -B -m unittest competitor_insight.tests.test_report_service competitor_insight.tests.test_report_render_html -v；2) 在 myproject 根启动 python -B app.py（临时端口 7861，同一条命令内完成测试并停进程）；3) 依次请求 /api/bci/report/options、/generate（5 车）、/versions、/detail、/preview、/export；4) Playwright headless 打开 http://127.0.0.1:7861/home.html#bci，切 tab ④，点生成，断言状态文案、版本数、iframe 与 section 数、console 无 error",
+  "files": [
+    {
+      "path": "tests.log",
+      "purpose": "22 项单测输出（Ran 22 tests, OK）",
+      "source": "competitor_insight/tests/test_report_service.py、test_report_render_html.py",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "real_run.json",
+      "purpose": "真实库 API 响应摘要（options/generate/复用/versions/detail/preview/export/UI/console）",
+      "source": "7861 临时服务实测",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "preview.html",
+      "purpose": "本次导出的单文件 HTML 报告（84,443 字节，无 script/外链）",
+      "source": "GET /api/bci/report/preview?id=318c2886-7cef-467e-ac75-75658b0c7c67",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "screenshots/01-report-config.png",
+      "purpose": "tab ④ 报告配置与车型复选",
+      "source": "Playwright headless 截图",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "screenshots/02-report-preview.png",
+      "purpose": "生成后版本列表与逐页预览",
+      "source": "Playwright headless 截图",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "screenshots/03-report-full.png",
+      "purpose": "报告整页（8 个页面单元）",
+      "source": "Playwright headless 截图",
+      "rebuildable": true,
+      "retention": "保留"
+    }
+  ],
+  "cleanup_conditions": "交付验收完成后保留；报告中含业务聚合数字，不对外分发",
+  "restore": "无需恢复；重跑命令见 reproduce"
+}
