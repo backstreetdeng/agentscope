@@ -10,6 +10,7 @@ import re
 from typing import Any
 
 from competitor_insight.server.report_service import SOURCE_REGISTRY, BciReportService, ReportError
+from competitor_insight.server.report_render_html import render_report_page_html
 
 
 class ReportApi:
@@ -63,6 +64,25 @@ class ReportApi:
             "filename": self._filename(row),
             "stale": stale,
             "stale_reason": stale_reason,
+        }
+
+    def page(self, report_version_id: str, page_id: str) -> dict[str, Any]:
+        """单页视图：只渲染这一页；整篇导出仍走 export。"""
+        row = self._version(report_version_id)
+        page = str(page_id or "").strip()
+        if not re.fullmatch(r"(P\d{2}|APPENDIX)", page):
+            raise ReportError("invalid_request", "page 参数不合法", 400)
+        pages = list((row["content"] or {}).get("pages") or [])
+        target = next((item for item in pages if str(item.get("page")) == page), None)
+        if target is None:
+            raise ReportError("page_not_found", f"报告里没有这一页：{page}", 404)
+        return {
+            "html": render_report_page_html(row["content"], page),
+            "page": page,
+            "title": target.get("title"),
+            "ordinal": pages.index(target) + 1,
+            "total": len(pages),
+            "filename": self._filename(row),
         }
 
     def export(self, report_version_id: str) -> dict[str, Any]:

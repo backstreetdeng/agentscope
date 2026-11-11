@@ -11,7 +11,7 @@ from __future__ import annotations
 import html
 from typing import Any
 
-RENDERER_VERSION = "report-render-html/1.0.2"
+RENDERER_VERSION = "report-render-html/1.0.4"
 
 _STATUS_LABELS = {
     "ok": "完整",
@@ -81,6 +81,8 @@ ul.bullets .who { color: #1f5fbf; font-weight: 600; }
 .src-note { margin: 3px 0 0; font-size: 11px; color: #8a97a6; }
 .unavailable { margin: 18px 0 6px; padding: 56px 20px; border: 1px dashed #c9d6e5; border-radius: 10px;
   background: #fbfcfe; text-align: center; color: #8a97a6; font-size: 14px; }
+body.single { padding: 18px 22px 28px; background: #fff; }
+body.single .page { max-width: none; padding: 8px 6px 12px; box-shadow: none; }
 .foot { margin-top: 36px; padding-top: 12px; border-top: 1px solid #eaecf0; color: #98a2b3; font-size: 11.5px; }
 .toc { columns: 2; font-size: 12.5px; color: #475467; margin: 6px 0 0; padding-left: 18px; }
 @media print {
@@ -105,6 +107,16 @@ def _badge(status: str) -> str:
 def _block_note(block: dict[str, Any]) -> str:
     note = block.get("note") or ""
     return f'<p class="note">{_e(note)}</p>' if note else ""
+
+
+def _extra_block_note(block: dict[str, Any]) -> str:
+    """块级说明若与任一 model 说明重复就不再重复渲染。"""
+    note = block.get("note") or ""
+    if not note:
+        return ""
+    if any((model.get("note") or "") == note for model in block.get("models") or []):
+        return ""
+    return _block_note(block)
 
 
 def _table(models: list[dict[str, Any]]) -> str:
@@ -150,7 +162,6 @@ def _matrix(block: dict[str, Any]) -> str:
             parts.append(f"<td{cls}>{_e(cell)}</td>")
         parts.append("</tr>")
     parts.append("</tbody></table>")
-    parts.append(_block_note(block))
     return "".join(parts)
 
 
@@ -262,6 +273,8 @@ def _render_block(block: dict[str, Any], sources: dict[str, str]) -> str:
         body = _matrix(block) if block.get("kind") == "matrix" else _table(block.get("models") or [])
     else:
         body = _RENDERERS[block["type"]](block)
+    if block.get("type") != "bullets" or block.get("items"):
+        body = f"{body}{_extra_block_note(block)}"
     source = sources.get(block.get("source"), block.get("source"))
     refs = block.get("refs") or []
     refs_html = f'<p class="refs">来源引用：{_e("、".join(str(ref) for ref in refs))}</p>' if refs else ""
@@ -294,6 +307,52 @@ def _page_sources(page: dict[str, Any]) -> str:
     return html
 
 
+def _page_body(page: dict[str, Any], sources: dict[str, str]) -> str:
+    """渲染单页正文（导语 + 块 / 整页不可用 + 页脚数据来源）。"""
+    lead = f'<p class="lead">{_e(page.get("lead"))}</p>' if page.get("lead") else ""
+    if page.get("data_status") == "unavailable":
+        body = (
+            f'<div class="unavailable"><p>{_e(page.get("empty_note") or "暂未提供数据")}</p>'
+            + (f'<p class="note">{_e(page.get("missing_reason"))}</p>' if page.get("missing_reason") else "")
+            + "</div>"
+        )
+    else:
+        body = "".join(_render_block(block, sources) for block in page.get("blocks") or [])
+    return f'<h2>{_e(page.get("page"))} · {_e(page.get("title"))}</h2>' \
+           f'<p class="sub">{_e(page.get("subtitle"))}</p>{lead}{body}{_page_sources(page)}'
+
+
+def render_report_page_html(content: dict[str, Any], page_id: str) -> str:
+    """单页视图：只渲染大纲中的一页，样式与整篇报告一致；导出仍是完整 11 页。"""
+    pages = list(content.get("pages") or [])
+    all_pages = pages + list(content.get("appendices") or [])
+    target = next((page for page in all_pages if str(page.get("page")) == str(page_id)), None)
+    if target is None:
+        raise KeyError(page_id)
+    sources = {row["name"]: row["description"] for row in content.get("sources") or []}
+    ordinal = next(
+        (index + 1 for index, page in enumerate(pages) if str(page.get("page")) == str(page_id)),
+        None,
+    )
+    position = f"第 {ordinal} / {len(pages)} 页" if ordinal else "附录"
+    return f"""<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{_e(target.get("page"))} · {_e(target.get("title"))}</title>
+<style>{_CSS}</style>
+</head>
+<body class="single">
+<div class="page">
+  {_page_body(target, sources)}
+  <div class="foot">{_e(content.get("title"))} · {_e(position)} · 版本指纹 {_e((content.get("data_fingerprint") or "")[:12])}</div>
+</div>
+</body>
+</html>
+"""
+
+
 def render_report_html(content: dict[str, Any]) -> str:
     sources = {row["name"]: row["description"] for row in content.get("sources") or []}
     models = content.get("models") or []
@@ -309,21 +368,7 @@ def render_report_html(content: dict[str, Any]) -> str:
 
     sections: list[str] = []
     for page in content.get("pages") or []:
-        lead = f'<p class="lead">{_e(page.get("lead"))}</p>' if page.get("lead") else ""
-        if page.get("data_status") == "unavailable":
-            body = (
-                f'<div class="unavailable"><p>{_e(page.get("empty_note") or "暂未提供数据")}</p>'
-                + (f'<p class="note">{_e(page.get("missing_reason"))}</p>' if page.get("missing_reason") else "")
-                + "</div>"
-            )
-        else:
-            body = "".join(_render_block(block, sources) for block in page.get("blocks") or [])
-        sections.append(
-            f'<section id="{_e(page.get("page"))}">'
-            f'<h2>{_e(page.get("page"))} · {_e(page.get("title"))}</h2>'
-            f'<p class="sub">{_e(page.get("subtitle"))}</p>'
-            f"{lead}{body}{_page_sources(page)}</section>"
-        )
+        sections.append(f'<section id="{_e(page.get("page"))}">{_page_body(page, sources)}</section>')
 
     appendix_blocks = "".join(
         _render_block(block, sources) for page in content.get("appendices") or [] for block in page.get("blocks") or []
@@ -378,4 +423,4 @@ def render_report_html(content: dict[str, Any]) -> str:
 """
 
 
-__all__ = ["RENDERER_VERSION", "render_report_html"]
+__all__ = ["RENDERER_VERSION", "render_report_html", "render_report_page_html"]

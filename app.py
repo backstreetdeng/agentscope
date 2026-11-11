@@ -2617,6 +2617,15 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
                 payload = api.compare(one('base'), one('target'))
             elif operation == 'detail':
                 payload = api.detail(one('id'))
+            elif operation == 'page':
+                result = api.page(one('id'), one('page'))
+                self._send_download(
+                    result['html'].encode('utf-8'),
+                    'text/html; charset=utf-8',
+                    result['filename'],
+                    inline=True,
+                )
+                return
             elif operation in {'preview', 'export'}:
                 result = api.preview(one('id')) if operation == 'preview' else api.export(one('id'))
                 self._send_download(

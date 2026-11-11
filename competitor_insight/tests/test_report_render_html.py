@@ -5,7 +5,11 @@ from __future__ import annotations
 import re
 import unittest
 
-from competitor_insight.server.report_render_html import RENDERER_VERSION, render_report_html
+from competitor_insight.server.report_render_html import (
+    RENDERER_VERSION,
+    render_report_html,
+    render_report_page_html,
+)
 
 
 def content_with(quote: str = "正常原话") -> dict:
@@ -133,7 +137,13 @@ class RenderHtmlTest(unittest.TestCase):
         self.assertIn("P08 · 信息渠道", html)
         self.assertIn("附录 · 数据边界", html)
         self.assertIn(RENDERER_VERSION, html)
-        self.assertIn("未纳入的页面", html)
+
+    def test_renders_single_page_only(self):
+        html = render_report_page_html(content_with(), "P08")
+        self.assertIn("P08 · 信息渠道", html)
+        self.assertNotIn("P01 · 用户画像", html)
+        self.assertIn("第 2 / 2 页", html)
+        self.assertIn("body class=\"single\"", html)
 
     def test_missing_block_shows_reason(self):
         html = render_report_html(content_with())

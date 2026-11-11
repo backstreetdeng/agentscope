@@ -350,18 +350,7 @@
 
         const tab = ev.target.closest('[data-bci-tab]');
         if (tab && !tab.disabled) {
-          const key = tab.getAttribute('data-bci-tab');
-          qsa('[data-bci-tab]', root).forEach((t) => {
-            const on = t === tab;
-            t.classList.toggle('is-active', on);
-            t.setAttribute('aria-selected', on ? 'true' : 'false');
-          });
-          qsa('[data-bci-panel]', root).forEach((p) => {
-            p.hidden = p.getAttribute('data-bci-panel') !== key;
-          });
-          if (key === 'profile') initProfile(root);
-          if (key === 'analyze') initAnalysis(root);
-          if (key === 'report') initReport(root);
+          selectTab(root, tab.getAttribute('data-bci-tab'));
         }
       });
 
@@ -372,6 +361,22 @@
       on(document, 'keydown', (ev) => {
         if (ev.key === 'Escape') closePanels(null);
       });
+    }
+
+    function selectTab(root, key) {
+      const tab = qs(`[data-bci-tab='${key}']`, root);
+      if (!tab || tab.disabled) return;
+      qsa('[data-bci-tab]', root).forEach((t) => {
+        const on = t === tab;
+        t.classList.toggle('is-active', on);
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      qsa('[data-bci-panel]', root).forEach((p) => {
+        p.hidden = p.getAttribute('data-bci-panel') !== key;
+      });
+      if (key === 'profile') initProfile(root);
+      if (key === 'analyze') initAnalysis(root);
+      if (key === 'report') initReport(root);
     }
 
     // tab ② 首次进入时才初始化档案模块，避免首页加载即查询数据库。
@@ -407,6 +412,7 @@
         window.BCI_SCOPE = buildScope();
         state.ready = true;
         entering = null;
+        if (new URLSearchParams(location.search).get('report')) selectTab(viewRoot(), 'report');
       });
       return entering;
     }
