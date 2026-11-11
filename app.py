@@ -2523,6 +2523,10 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
                 payload = service.attack_point(
                     (query.get('model') or [''])[0], llm=bci_tile_summary_llm
                 )
+            elif operation == 'satisfaction-cards':
+                payload = service.satisfaction_cards(
+                    (query.get('model') or [''])[0], llm=bci_tile_summary_llm
+                )
             else:
                 self._send_json(
                     {'ok': False, 'error': {'code': 'not_found', 'message': '未找到即时分析接口。'}},

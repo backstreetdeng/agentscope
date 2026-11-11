@@ -1,0 +1,18 @@
+{
+  "task": "BCI-006 即时分析原型逐项对照",
+  "created": "2026-11-11",
+  "purpose": "按业务交互原型核对即时分析四卡与智能化分析，补齐导出与堆叠顺序；满意度磁贴改为逐竞品卡片（16 维与推荐意愿收进折叠区）",
+  "source": [
+    "D:/work/2026/7.1 同事 义欣/用户洞察需求/目标车型本竞品洞察智能体_交互原型v2.html",
+    "competitor_insight/web/bci-analysis.js",
+    "competitor_insight/web/bci-analysis.css",
+    "competitor_insight/server/analysis_service.py"
+  ],
+  "rebuild": "../Scripts/python.exe -B temp/20261111-analysis-audit/shot.py；../Scripts/python.exe -B temp/20261111-analysis-audit/shot_cards.py（需 7860 已启动，卡片首跑需联网核验）",
+  "cleanable": true,
+  "restore": "无需恢复；均为可重生成的截图与导出样例",
+  "files": {
+    "README.md": "对照表、满意度差异与改造代价、逐竞品卡片落地结果、剩余缺口",
+    "screenshots/": "入口区、四卡全展开、智能化分析、导出预览、满意度逐竞品卡片与折叠区展开，以及导出的 HTML 本身"
+  }
+}

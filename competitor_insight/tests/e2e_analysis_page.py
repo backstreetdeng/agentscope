@@ -69,12 +69,13 @@ def main() -> int:
         check(page.evaluate(stack_ids) == ["bci-a-panel-profile"], "默认只渲染用户画像内容块")
         check(page.locator(".bci-a-tile").count() == 1, "未选中的三块不占版面")
         check(page.locator("[data-bci-analysis-model] option").count() == 5, "车型下拉 5 款")
+        check(page.locator("[data-bci-agent-export]").is_disabled(), "无结论时「导出结论」按钮为禁用态")
 
         page.locator("[data-bci-analysis]").scroll_into_view_if_needed()
         page.screenshot(path=str(SHOT_DIR / f"analysis-b10-entries-{stamp}.png"))
 
-        # 逐卡展开，验证多选叠加与选中顺序。
-        for key, expect_count in (("attention", 2), ("winloss", 3), ("satisfaction", 4)):
+        # 逐卡展开，验证多选叠加与固定顺序（与原型一致：按 ①②③④ 堆叠，不按点击先后）。
+        for key, expect_count in (("satisfaction", 2), ("attention", 3), ("winloss", 4)):
             page.click(f"[data-bci-analysis-toggle='{key}']")
             page.wait_for_function(
                 f"() => document.querySelectorAll('.bci-a-stack > div').length === {expect_count}",
@@ -85,10 +86,52 @@ def main() -> int:
                 "bci-a-panel-profile", "bci-a-panel-attention",
                 "bci-a-panel-winloss", "bci-a-panel-satisfaction",
             ],
-            "内容块按选中顺序纵向堆叠",
+            "乱序点击后内容块仍按 ①②③④ 固定顺序堆叠",
         )
         check(page.locator(".bci-a-entry.is-open").count() == 4, "四张卡片均为展开态")
         check(page.locator(".bci-a-tile").count() == 4, "四块内容全部可见")
+
+        # 满意度磁贴：主视图为逐竞品卡片；16 维与推荐意愿收进默认收起的折叠区。
+        page.wait_for_selector(".bci-a-card", timeout=240000)
+        page.wait_for_selector(".bci-a-cards.is-loading", state="detached", timeout=240000)
+        check(page.locator(".bci-a-card").count() == 4, "满意度主视图渲染 4 张逐竞品卡片")
+        check(
+            page.locator(".bci-a-card .bci-a-card__score b").count() == 4,
+            "每张竞品卡都有满意度分",
+        )
+        check(
+            all("Q5_1" in (text or "") and "10 分制" in (text or "")
+                for text in page.locator(".bci-a-card__score span").all_inner_texts()),
+            "卡片分数标注 Q5_1 · 10 分制",
+        )
+        check(
+            all("n=" in (text or "") for text in page.locator(".bci-a-card__score em").all_inner_texts()),
+            "卡片分数标注 n",
+        )
+        check(
+            page.locator(".bci-a-card__col.is-ok").count() == 4
+            and page.locator(".bci-a-card__col.is-bad").count() == 4,
+            "每张卡都有满意点与不满意点两列",
+        )
+        fold = page.locator(".bci-a-selfeval")
+        check(fold.count() == 1, "本品自评折叠区存在")
+        check(not fold.evaluate("el => el.open"), "本品自评折叠区默认收起")
+        check(
+            "本品自评：16 维与推荐意愿" in (fold.locator("> summary").inner_text() or ""),
+            "折叠区标题为「本品自评：16 维与推荐意愿」",
+        )
+        check(fold.locator(".bci-a-metrics").count() == 1, "折叠区内保留 16 维、推荐意愿与整体满意度")
+        check(page.locator(".bci-a-attack").count() == 0, "旧的仪表盘式独立进攻点区块已移除")
+
+        # 原型「两种入口均可导出结果」：导出已展开模块。
+        check(page.locator("[data-bci-analysis-export]").count() == 1, "顶部有「导出结果」按钮")
+        with page.expect_download(timeout=60000) as download_info:
+            page.click("[data-bci-analysis-export]")
+        download = download_info.value
+        check(download.suggested_filename.endswith("_4模块.html"), "导出文件名带已展开模块数")
+        exported = Path(download.path()).read_text(encoding="utf-8")
+        check("即时分析结果" in exported and "bci-a-stack" in exported, "导出文件含标题与内容块")
+        check('class="bci-a-entry' not in exported, "导出只含内容块、不含入口卡片")
 
         text = page.locator("[data-bci-analysis]").inner_text()
         for phrase in (
@@ -121,7 +164,7 @@ def main() -> int:
             tile.screenshot(path=str(SHOT_DIR / f"tile-{index}-b10-{stamp}.png"))
         print(f"SHOT  {SHOT_DIR / f'analysis-b10-{stamp}.png'}")
 
-        # 收起单卡：内容块消失且其余顺序不变；再展开追加到末尾。
+        # 收起单卡：内容块消失且其余顺序不变；再展开回到 ① 位（固定顺序）。
         page.click("[data-bci-analysis-toggle='profile']")
         page.wait_for_function(
             "() => document.querySelectorAll('.bci-a-stack > div').length === 3",
@@ -140,7 +183,7 @@ def main() -> int:
             "() => document.querySelectorAll('.bci-a-stack > div').length === 4",
             timeout=30000,
         )
-        check(page.evaluate(stack_ids)[-1] == "bci-a-panel-profile", "重新展开的内容块追加到堆叠末尾")
+        check(page.evaluate(stack_ids)[0] == "bci-a-panel-profile", "重新展开后回到 ① 位（与原型一致）")
 
         # 切到钛3，验证车型切换与 n=30。
         page.select_option("[data-bci-analysis-model]", "fangchengbao-tai3")

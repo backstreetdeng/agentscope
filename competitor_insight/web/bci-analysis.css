@@ -476,6 +476,7 @@
 }
 .bci-a-agent__query textarea:focus-visible { outline: 2px solid rgba(63, 123, 250, .35); outline-offset: 1px; }
 .bci-a-agent__actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.bci-a-agent__buttons { display: flex; align-items: center; gap: 8px; }
 .bci-a-agent__samples { display: flex; flex-wrap: wrap; gap: 7px; }
 .bci-a-agent__samples button {
   padding: 5px 10px;
@@ -557,39 +558,82 @@
   .bci-a-row { grid-template-columns: minmax(56px, 76px) minmax(0, 1fr); }
 }
 
-/* 本品进攻点（满意度磁贴底部） ------------------------------------------- */
-.bci-a-attack {
-  margin-top: 12px;
-  padding: 12px 14px;
-  border: 1px solid #FAD7B0;
+/* 逐竞品卡片（满意度磁贴主视图） ----------------------------------------- */
+.bci-a-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.bci-a-cards.is-loading {
+  display: block;
+  padding: 14px 16px;
+  border: 1px dashed var(--a-line);
   border-radius: 10px;
+  background: #FAFCFF;
+}
+.bci-a-cards__loading { margin: 0; font-size: 12.2px; line-height: 1.7; color: var(--a-muted); }
+
+.bci-a-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px 13px;
+  border: 1px solid #E7EEF9;
+  border-radius: 10px;
+  background: #FCFDFF;
+}
+.bci-a-card__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.bci-a-card__name { min-width: 0; }
+.bci-a-card__name h5 { margin: 0 0 3px; font-size: 13.5px; line-height: 1.35; color: #1C2E4A; }
+.bci-a-card__loss { display: block; font-size: 10.8px; line-height: 1.5; color: #8A9AB2; }
+.bci-a-card__score { flex: 0 0 auto; text-align: right; line-height: 1.25; }
+.bci-a-card__score b { display: block; font-size: 22px; font-weight: 750; color: var(--a-blue); }
+.bci-a-card__score span { display: block; font-size: 10.2px; color: #7A8CA8; white-space: nowrap; }
+.bci-a-card__score em { display: block; font-style: normal; font-size: 10.5px; font-weight: 650; color: #56698C; }
+
+.bci-a-card__points { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.bci-a-card__col { padding: 8px 9px; border-radius: 8px; background: #F4FBF8; }
+.bci-a-card__col.is-bad { background: #FFF9F9; }
+.bci-a-card__col h6 { margin: 0 0 6px; font-size: 11.2px; color: #56698C; }
+.bci-a-card__col h6 span { display: block; margin-top: 2px; font-weight: 500; font-size: 10.2px; color: #8A9AB2; }
+.bci-a-card__col ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 5px; }
+.bci-a-card__col li { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.bci-a-card__col li span { font-size: 11.6px; line-height: 1.4; color: #2F4467; }
+.bci-a-card__col li em { font-style: normal; font-size: 10.4px; color: #7A8CA8; }
+.bci-a-card__col .bci-a-card__none { font-size: 11px; color: #8A9AB2; }
+
+.bci-a-card__attack {
+  padding: 9px 11px;
+  border: 1px solid #FAD7B0;
+  border-radius: 8px;
   background: #FFF9F1;
 }
-.bci-a-attack__line {
-  margin: 0;
-  color: #C2410C;
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1.6;
+.bci-a-card__attack-line { margin: 0; font-size: 12.6px; font-weight: 700; line-height: 1.6; color: #C2410C; }
+.bci-a-card__attack-line span {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: #FDE7CF;
+  font-size: 10.4px;
+  font-weight: 650;
+  color: #9A3412;
 }
-.bci-a-attack__line span { color: #9A3412; }
-.bci-a-attack__basis,
-.bci-a-attack__live {
-  margin: 6px 0 0;
-  color: var(--a-muted);
-  font-size: 12px;
-  line-height: 1.6;
+.bci-a-card__attack-basis,
+.bci-a-card__attack-live { margin: 5px 0 0; font-size: 10.8px; line-height: 1.6; color: var(--a-muted); }
+.bci-a-card__attack-live { color: var(--a-faint); }
+.bci-a-card__attack.is-error { border-color: var(--a-line); background: #FAFBFD; }
+.bci-a-card__attack.is-error .bci-a-card__attack-line { color: var(--a-bad); font-weight: 600; }
+
+/* 本品自评折叠区（默认收起） -------------------------------------------- */
+.bci-a-selfeval {
+  margin-top: 4px;
+  padding: 10px 12px;
+  border: 1px solid #EAF0F9;
+  border-radius: 10px;
+  background: #FBFCFE;
 }
-.bci-a-attack__live { color: var(--a-faint); }
-.bci-a-attack.is-loading .bci-a-attack__line {
-  color: var(--a-muted);
-  font-weight: 500;
-}
-.bci-a-attack.is-error {
-  border-color: var(--a-line);
-  background: #FAFBFD;
-}
-.bci-a-attack.is-error .bci-a-attack__line {
-  color: var(--a-bad);
-  font-weight: 600;
+.bci-a-selfeval > summary { font-size: 12.2px; }
+.bci-a-selfeval > .bci-a-metrics { margin-top: 10px; }
+
+@media (max-width: 900px) {
+  .bci-a-cards { grid-template-columns: minmax(0, 1fr); }
+  .bci-a-card__points { grid-template-columns: minmax(0, 1fr); }
 }

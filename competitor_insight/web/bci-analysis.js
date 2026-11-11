@@ -12,6 +12,7 @@
   // 仅前端措辞覆盖，后端口径与字段不变。
   const TILE_SUBTITLE_OVERRIDE = {
     attention: '关注什么；16 维多选勾选率（非首选率），可展开看完整明细',
+    satisfaction: '逐竞品卡片：竞品名 + Q5_1 满意度分（标 n）+ 满意点 / 不满意点 + 本品进攻点',
   };
   const METRIC_LABEL_OVERRIDE = {
     attention: '购车关注（16 维多选勾选率，非首选率）',
@@ -339,28 +340,126 @@
     );
   }
 
-  function attackBlock(attack, label) {
-    if (!attack) return '';
-    if (attack.loading) {
-      return '<div class="bci-a-attack is-loading">' +
-        '<p class="bci-a-attack__line">正在提炼进攻点并核验现状…</p></div>';
+  // ---------------------------------------------------------------- 逐竞品卡片
+  const CARD_POINT_LIMIT = 4;
+
+  function cardPointList(block) {
+    const items = ((block && block.items) || []).slice(0, CARD_POINT_LIMIT);
+    if (!items.length) {
+      return '<li class="bci-a-card__none">无可展示项</li>';
     }
+    return items.map(function (item) {
+      if (block.source === 'quant') {
+        return '<li><span>' + esc(item.label) + '</span>' +
+          '<em>均分 ' + esc(num(item.mean)) + ' · ' + esc(item.answered) + ' 人作答</em></li>';
+      }
+      return '<li><span>' + esc(item.label) + '</span>' +
+        '<em>' + esc(item.count) + '/' + esc(block.denominator) + ' 条 · ' + pct(item.ratio) + '</em></li>';
+    }).join('');
+  }
+
+  function cardSource(block) {
+    if (!block) return '';
+    if (block.source === 'quant') return '来源：该车问卷 16 维 · n=' + esc(block.denominator) + ' 人';
+    return '来源：该车口碑 · 分母 ' + esc(block.denominator) + ' 条';
+  }
+
+  function cardAttack(attack) {
+    if (!attack) return '';
     if (attack.source === 'error' || attack.source === 'empty') {
-      return '<div class="bci-a-attack is-error">' +
-        '<p class="bci-a-attack__line">进攻点暂未生成</p>' +
-        '<p class="bci-a-attack__basis">' + esc(attack.error || '没有可用的竞品负向口碑点。') + '</p></div>';
+      return '<div class="bci-a-card__attack is-error">' +
+        '<p class="bci-a-card__attack-line"><span>本品进攻点</span>暂未生成</p>' +
+        '<p class="bci-a-card__attack-basis">' + esc(attack.error || '没有可用的竞品负向口碑点。') + '</p></div>';
     }
     if (!attack.attack) return '';
     const live = attack.verification && attack.verification.line
-      ? '<p class="bci-a-attack__live">' + esc(attack.verification.line) + '</p>' : '';
-    return '<div class="bci-a-attack">' +
-      '<p class="bci-a-attack__line"><span>' + esc(label || '本品') + ' 进攻点：</span>' +
-        esc(attack.attack) + '</p>' +
-      (attack.basis ? '<p class="bci-a-attack__basis">' + esc(attack.basis) + '</p>' : '') +
+      ? '<p class="bci-a-card__attack-live">' + esc(attack.verification.line) + '</p>' : '';
+    return '<div class="bci-a-card__attack">' +
+      '<p class="bci-a-card__attack-line"><span>本品进攻点</span>' + esc(attack.attack) + '</p>' +
+      (attack.basis ? '<p class="bci-a-card__attack-basis">' + esc(attack.basis) + '</p>' : '') +
       live + '</div>';
   }
 
-  function renderTile(tile, index, ai, attack, label) {
+  function cardLoss(card) {
+    if (card.loss_ratio != null) {
+      return '战败 ' + esc(card.loss_count) + ' 人 · 占对比过 ' + esc(card.loss_denominator) + ' 人 ' + pct(card.loss_ratio);
+    }
+    return '战败 ' + esc(card.loss_count) + ' 人 · 对比过 ' + esc(card.loss_denominator) + ' 人' +
+      (card.ratio_hidden_reason ? '（' + esc(card.ratio_hidden_reason) + '）' : '');
+  }
+
+  function renderCard(card) {
+    const score = card.score || {};
+    return (
+      '<article class="bci-a-card">' +
+        '<header class="bci-a-card__head">' +
+          '<div class="bci-a-card__name"><h5>' + esc(card.competitor) + '</h5>' +
+            '<span class="bci-a-card__loss">' + cardLoss(card) + '</span></div>' +
+          '<div class="bci-a-card__score">' +
+            '<b>' + esc(score.mean == null ? '—' : score.mean) + '</b>' +
+            '<span>' + esc(score.scale || 'Q5_1 · 10 分制') + '</span>' +
+            '<em>n=' + esc(score.answered == null ? '—' : score.answered) + '</em>' +
+          '</div>' +
+        '</header>' +
+        '<div class="bci-a-card__points">' +
+          '<div class="bci-a-card__col is-ok"><h6>满意点 <span>' + esc(cardSource(card.positive)) + '</span></h6>' +
+            '<ul>' + cardPointList(card.positive) + '</ul></div>' +
+          '<div class="bci-a-card__col is-bad"><h6>不满意点 <span>' + esc(cardSource(card.negative)) + '</span></h6>' +
+            '<ul>' + cardPointList(card.negative) + '</ul></div>' +
+        '</div>' +
+        (card.fallback_reason ? '<p class="bci-a-note">' + esc(card.fallback_reason) + '</p>' : '') +
+        cardAttack(card.attack) +
+      '</article>'
+    );
+  }
+
+  function renderCards(cards) {
+    if (!cards) {
+      return '<div class="bci-a-cards is-loading">' +
+        '<p class="bci-a-cards__loading">正在按该车战胜战败竞品生成卡片…' +
+        '首次需模型提炼方向并联网核验现状，约 10–40 秒；命中缓存时秒回。</p></div>';
+    }
+    if (cards.error) {
+      return '<div class="bci-a-empty"><b>竞品卡片未生成</b><p>' +
+        esc(cards.error) + '</p></div>';
+    }
+    const list = cards.cards || [];
+    if (!list.length) {
+      return '<div class="bci-a-empty"><b>空态 · 无竞品样本</b><p>' +
+        '该车战胜战败里没有对比过它的竞品，无法生成逐竞品卡片。</p></div>';
+    }
+    const skipped = (cards.skipped || []).length
+      ? '<p class="bci-a-note">口碑库未匹配：' +
+        (cards.skipped || []).map(function (item) {
+          return esc(item.competitor) + '（' + esc(item.reason) + '）';
+        }).join('、') + '</p>'
+      : '';
+    return (
+      '<p class="bci-a-note">竞品与战胜战败同口径（对比过本品的人最终买了谁），最多 4 张；' +
+        '满意度分只用问卷 Q5_1（10 分制）并标 n，口碑五分制不进入卡片分数。</p>' +
+      '<div class="bci-a-cards">' + list.map(renderCard).join('') + '</div>' + skipped
+    );
+  }
+
+  // 本品自评（16 维 / 推荐意愿 / 整体满意度 / 本品口碑）收进折叠区，默认收起。
+  const SELF_EVAL_TITLE = '本品自评：16 维与推荐意愿';
+
+  function renderSelfEval(tile) {
+    const metrics = tile.metrics || [];
+    if (!metrics.length) return '';
+    return (
+      '<details class="bci-a-details bci-a-selfeval">' +
+        '<summary>' + SELF_EVAL_TITLE + '</summary>' +
+        '<div class="bci-a-metrics">' + metrics.map(renderMetric).join('') + '</div>' +
+      '</details>'
+    );
+  }
+
+  function renderTile(tile, index, ai, cards) {
+    const isSatisfaction = tile.key === 'satisfaction';
+    const body = isSatisfaction
+      ? renderCards(cards) + renderSelfEval(tile)
+      : '<div class="bci-a-metrics">' + (tile.metrics || []).map(renderMetric).join('') + '</div>';
     return (
       '<article class="bci-a-tile">' +
         '<header class="bci-a-tile__head">' +
@@ -371,8 +470,7 @@
             (tile.n != null ? '<span class="bci-a-chip">n=' + esc(tile.n) + '</span>' : '') + '</div>' +
         '</header>' +
         (tile.banner ? '<p class="bci-a-banner">' + esc(tile.banner) + '</p>' : '') +
-        '<div class="bci-a-metrics">' + (tile.metrics || []).map(renderMetric).join('') + '</div>' +
-        (tile.key === 'satisfaction' ? attackBlock(attack, label) : '') +
+        body +
         aiRow(ai) +
       '</article>'
     );
@@ -491,13 +589,64 @@
           '<textarea data-bci-agent-question rows="2" maxlength="300" placeholder="例如：综合看用户购车关注、战胜战败和满意度，应该如何对标竞品开展营销">' +
             esc(agent.question || '') + '</textarea>' +
           '<div class="bci-a-agent__actions"><div class="bci-a-agent__samples">' + samples + '</div>' +
-            '<button type="button" class="btn btn--primary" data-bci-agent-run' +
-              (agent.loading ? ' disabled' : '') + '>' + (agent.loading ? '分析中…' : '开始分析') + '</button>' +
+            '<div class="bci-a-agent__buttons">' +
+              '<button type="button" class="btn btn--ghost" data-bci-agent-export' +
+                (agent.result && !agent.error ? '' : ' disabled') + '>导出结论</button>' +
+              '<button type="button" class="btn btn--primary" data-bci-agent-run' +
+                (agent.loading ? ' disabled' : '') + '>' + (agent.loading ? '分析中…' : '开始分析') + '</button>' +
+            '</div>' +
           '</div>' +
         '</div>' +
         '<div class="bci-a-agent__result">' + renderAgentResult(agent) + '</div>' +
       '</section>'
     );
+  }
+
+  const EXPORT_CSS_PATH = '/competitor-insight/bci-analysis.css';
+  let exportCss = '';
+
+  function ensureExportCss() {
+    if (exportCss) return Promise.resolve(exportCss);
+    return fetch(EXPORT_CSS_PATH, { credentials: 'same-origin' })
+      .then(function (response) { return response.ok ? response.text() : ''; })
+      .then(function (text) { exportCss = text || ''; return exportCss; })
+      .catch(function () { return ''; });
+  }
+
+  function stamp() {
+    const now = new Date();
+    function pad(value) { return (value < 10 ? '0' : '') + value; }
+    return now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) + ' ' +
+      pad(now.getHours()) + ':' + pad(now.getMinutes());
+  }
+
+  function downloadFile(filename, html) {
+    const url = URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 3000);
+  }
+
+  function exportDoc(title, lead, body) {
+    return '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>' + esc(title) + '</title>' +
+      '<style>' + (exportCss || '') +
+      'body{margin:0;padding:24px 18px;background:#F5F8FD;font-family:"Microsoft YaHei",Arial,sans-serif}' +
+      '.bci-analysis{max-width:1120px;margin:0 auto}' +
+      '.bci-a-export__head{max-width:1120px;margin:0 auto 12px;padding:14px 18px;border:1px solid #E2E9F4;' +
+      'border-radius:12px;background:#fff;color:#16233A}' +
+      '.bci-a-export__head h1{margin:0 0 6px;font-size:18px}' +
+      '.bci-a-export__head p{margin:0 0 4px;font-size:12.5px;line-height:1.7;color:#5C6B84}' +
+      '@media print{body{background:#fff;padding:0}.bci-a-export__head{border:none}}' +
+      '</style></head><body>' +
+      '<header class="bci-a-export__head"><h1>' + esc(title) + '</h1>' + lead + '</header>' +
+      '<div class="bci-analysis">' + body + '</div>' +
+      '<p style="max-width:1120px;margin:14px auto 0;font-size:11.5px;color:#8C9AB2">' +
+        '本文件由「目标车型本竞品洞察系统」即时分析导出 · ' + esc(stamp()) + '</p>' +
+      '</body></html>';
   }
 
   function renderShell(state) {
@@ -514,11 +663,15 @@
           '<p>所有比例同时给分子/分母与样本基数；算不出来的指标显示空态与原因，不用近似值填充。</p></div>' +
         '<div class="bci-a-top__actions"><label class="bci-a-field"><span>车型</span>' +
           '<select data-bci-analysis-model>' + options + '</select></label>' +
+          '<button type="button" class="btn btn--ghost" data-bci-analysis-export' +
+            (state.data ? '' : ' disabled') + '>导出结果</button>' +
           '<button type="button" class="btn btn--ghost" data-bci-analysis-refresh>重新查询</button></div>' +
       '</div>' +
       '<div class="bci-a-sourcebar">' + renderSources(state.data && state.data.sources) + '</div>' +
-      renderAgent(state) +
-      '<div data-bci-analysis-body>' + (state.loading ? '<div class="bci-a-loading">正在按真实库计算四类磁贴…</div>' : '') + '</div>'
+      (state.exportNote ? '<p class="bci-a-warn">' + esc(state.exportNote) + '</p>' : '') +
+      '<div data-bci-analysis-body>' + (state.loading ? '<div class="bci-a-loading">正在按真实库计算四类磁贴…</div>' : '') + '</div>' +
+      // 与原型一致：智能化分析在四卡内容下方独立成块，不与上方入口联动。
+      renderAgent(state)
     );
   }
 
@@ -546,10 +699,18 @@
     );
   }
 
-  function renderBody(data, expanded, ai, attack) {
+  function openKeys(data, expanded) {
+    const tiles = (data && data.tiles) || {};
+    // 与原型一致：展开块按 ①②③④ 固定顺序堆叠，不按点击先后。
+    return TILE_ORDER.filter(function (key) {
+      return tiles[key] && (expanded || []).indexOf(key) >= 0;
+    });
+  }
+
+  function renderBody(data, expanded, ai, cards) {
     const tiles = data.tiles || {};
     const summaries = ai || {};
-    const open = (expanded || []).filter(function (key) { return tiles[key]; });
+    const open = openKeys(data, expanded);
     return (
       '<section class="bci-a-summary"><header><span>综合结论</span>' +
         '<em>由已算出的真实数字确定性拼装，不接自由生成</em></header>' +
@@ -571,7 +732,7 @@
       '<div class="bci-a-stack">' + open.map(function (key) {
         return '<div id="bci-a-panel-' + esc(key) + '">' +
           renderTile(tiles[key], TILE_ORDER.indexOf(key), summaries[key],
-            key === 'satisfaction' ? attack : null, data.model && data.model.label) + '</div>';
+            key === 'satisfaction' ? cards : null) + '</div>';
       }).join('') + '</div>' +
       '<p class="bci-a-foot">口径：比例分母为车型定量总样本；题目作答 &lt;10 人不展示比例；' +
         '战败按实际购车车型分行，行内不足 5 人只给人数；深访 3–4 人只做逐人原话；' +
@@ -583,8 +744,8 @@
     if (!host || host.dataset.ready === '1') return;
     host.dataset.ready = '1';
     const state = {
-      models: [], current: '', currentLabel: '', data: null, ai: {}, attack: null, loading: false,
-      expanded: ['profile'],
+      models: [], current: '', currentLabel: '', data: null, ai: {}, cards: null, loading: false,
+      expanded: ['profile'], exportNote: '',
       agent: { question: '', loading: false, result: null, error: null },
     };
 
@@ -596,7 +757,7 @@
     function paint() {
       host.innerHTML = renderShell(state);
       const body = host.querySelector('[data-bci-analysis-body]');
-      if (body && state.data) body.innerHTML = renderBody(state.data, state.expanded, state.ai, state.attack);
+      if (body && state.data) body.innerHTML = renderBody(state.data, state.expanded, state.ai, state.cards);
     }
 
     function fail(error) {
@@ -643,23 +804,24 @@
         });
     }
 
-    function loadAttack() {
+    function loadCards() {
       const model = state.current;
       if (!model) return Promise.resolve();
-      state.attack = { loading: true };
+      // null 表示加载中，渲染骨架；与四磁贴分开拉取，进攻点慢也不挡主视图。
+      state.cards = null;
       paint();
-      return getJSON('/api/bci/analysis/attack-point?model=' + encodeURIComponent(model))
+      return getJSON('/api/bci/analysis/satisfaction-cards?model=' + encodeURIComponent(model))
         .then(function (data) {
           if (model !== state.current) return;
-          state.attack = data || null;
+          state.cards = data || { cards: [] };
           paint();
         })
         .catch(function (error) {
-          /* 进攻点失败不阻塞磁贴；错误只落在本块 */
+          /* 卡片失败不阻塞其余磁贴；错误只落在满意度块 */
           if (model !== state.current) return;
-          state.attack = {
-            source: 'error',
-            error: error && error.message ? error.message : '进攻点接口不可用，请稍后重试。',
+          state.cards = {
+            cards: [],
+            error: error && error.message ? error.message : '竞品卡片接口不可用，请稍后重试。',
           };
           paint();
         });
@@ -670,7 +832,7 @@
       const model = state.current;
       state.loading = true;
       state.ai = {};
-      state.attack = null;
+      state.cards = null;
       paint();
       return getJSON('/api/bci/analysis/analyze?model=' + encodeURIComponent(model))
         .then(function (data) {
@@ -679,7 +841,7 @@
           state.data = data;
           paint();
           loadSummaries();
-          loadAttack();
+          loadCards();
         })
         .catch(fail);
     }
@@ -736,6 +898,60 @@
         });
     }
 
+    function exportPanels() {
+      const open = openKeys(state.data, state.expanded);
+      if (!state.data || !open.length) {
+        state.exportNote = '请先展开至少一个功能模块，再导出结果。';
+        paint();
+        return;
+      }
+      state.exportNote = '';
+      const stack = host.querySelector('[data-bci-analysis-body] .bci-a-stack');
+      const body = stack ? stack.innerHTML : '';
+      if (!body) {
+        state.exportNote = '当前没有可导出的内容块，请重新查询后再试。';
+        paint();
+        return;
+      }
+      const sources = state.data.sources || {};
+      const lead =
+        '<p>目标车型：' + esc(state.currentLabel) + ' ｜ 定量 ' + esc(sources.quant || 0) + ' 人 ｜ 深访 ' +
+        esc(sources.interview || 0) + ' 人 ｜ 口碑 ' + esc(sources.reputation || 0) + ' 条 ｜ 已展开 ' +
+        open.length + '/4 模块</p>' +
+        '<p>' + esc((state.data.summary || []).join(' ')) + '</p>';
+      ensureExportCss().then(function () {
+        downloadFile(
+          '即时分析_' + state.currentLabel + '_' + open.length + '模块.html',
+          exportDoc('即时分析结果（目标：' + state.currentLabel + '）', lead,
+            '<div class="bci-a-stack">' + body + '</div>')
+        );
+      });
+    }
+
+    function exportConclusion() {
+      if (!state.agent.result || state.agent.error) {
+        state.exportNote = '还没有可导出的结论，请先执行一次智能化分析。';
+        paint();
+        return;
+      }
+      const box = host.querySelector('.bci-a-agent__result');
+      const body = box ? box.innerHTML : '';
+      if (!body.trim()) {
+        state.exportNote = '结论内容为空，请重新执行一次分析。';
+        paint();
+        return;
+      }
+      state.exportNote = '';
+      const lead = '<p>目标车型：' + esc(state.currentLabel) + ' ｜ 指令：' + esc(state.agent.question || '') + '</p>';
+      ensureExportCss().then(function () {
+        downloadFile(
+          '智能化分析结论_' + state.currentLabel + '.html',
+          exportDoc('智能化分析结论（目标：' + state.currentLabel + '）', lead,
+            '<div class="bci-a-agent__result">' + body + '</div>')
+        );
+      });
+    }
+
     host.addEventListener('input', function (event) {
       const input = event.target.closest('[data-bci-agent-question]');
       if (!input) return;
@@ -750,6 +966,7 @@
         return;
       }
       if (event.target.closest('[data-bci-agent-run]')) runAgent();
+      if (event.target.closest('[data-bci-agent-export]')) exportConclusion();
     });
 
     host.addEventListener('change', function (event) {
@@ -759,7 +976,8 @@
       syncCurrentLabel();
       state.agent.result = null;
       state.agent.error = null;
-      state.attack = null;
+      state.cards = null;
+      state.exportNote = '';
       analyze();
     });
 
@@ -774,7 +992,12 @@
         } else {
           state.expanded.push(key);
         }
+        state.exportNote = '';
         paint();
+        return;
+      }
+      if (event.target.closest('[data-bci-analysis-export]')) {
+        exportPanels();
         return;
       }
       if (!event.target.closest('[data-bci-analysis-refresh]')) return;
@@ -784,7 +1007,6 @@
         analyze();
       }
     });
-
     paint();
     loadModels().then(analyze).catch(fail);
   }

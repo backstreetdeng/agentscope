@@ -1,0 +1,597 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><title>即时分析结果（目标：零跑B10）</title><style>/* ==========================================================================
+   竞品洞察 ③ 即时分析 — 自包含样式
+   沿用现有深蓝主色、8px 卡片、圆角与阴影；所有选择器限定在 .bci-analysis。
+   ========================================================================== */
+.bci-analysis {
+  --a-ink: #16233A;
+  --a-muted: #5C6B84;
+  --a-faint: #8C9AB2;
+  --a-line: #E2E9F4;
+  --a-blue: #2F6BDA;
+  --a-blue-soft: #EEF4FF;
+  --a-ok: #0F9F72;
+  --a-ok-bg: #E9F8F1;
+  --a-warn: #9A6B12;
+  --a-warn-bg: #FFF7E6;
+  --a-bad: #A63B3B;
+  --a-bad-bg: #FBEEEE;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: var(--a-ink);
+}
+
+.bci-analysis * { box-sizing: border-box; }
+
+/* 顶部工具条 ------------------------------------------------------------- */
+.bci-a-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 20px 22px;
+  border: 1px solid var(--a-line);
+  border-radius: 12px;
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgba(63, 123, 250, .10), transparent 55%),
+    linear-gradient(180deg, #FFFFFF, #F7FAFF);
+  box-shadow: 0 8px 22px rgba(22, 35, 58, .06);
+}
+.bci-a-top__text { min-width: 0; }
+.bci-a-eyebrow {
+  display: inline-block;
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  color: #6E85AE;
+  text-transform: uppercase;
+}
+.bci-a-top h3 { margin: 0 0 6px; font-size: 21px; line-height: 1.25; }
+.bci-a-top p { margin: 0; max-width: 640px; font-size: 13px; line-height: 1.6; color: var(--a-muted); }
+.bci-a-top__actions { display: flex; align-items: flex-end; gap: 10px; flex: 0 0 auto; }
+.bci-a-field { display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: var(--a-muted); }
+.bci-a-field span { font-weight: 650; color: #41577A; }
+.bci-a-field select {
+  min-width: 260px;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid #CBD8EA;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--a-ink);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.bci-a-field select:focus-visible { outline: 2px solid rgba(63, 123, 250, .35); outline-offset: 2px; }
+
+/* 数据源徽标 ------------------------------------------------------------- */
+.bci-a-sourcebar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px dashed #D6E2F5;
+  border-radius: 10px;
+  background: #FAFCFF;
+}
+.bci-a-source {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: 5px 11px;
+  border: 1px solid #DCE7F7;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 12px;
+  color: var(--a-muted);
+}
+.bci-a-source em { font-style: normal; color: #6E85AE; }
+.bci-a-source b { font-size: 14px; color: #23406E; }
+.bci-a-source.is-missing { border-color: #F0CCCC; background: #FFF8F8; color: var(--a-bad); }
+.bci-a-source.is-missing b { color: var(--a-bad); }
+
+/* 综合结论 --------------------------------------------------------------- */
+.bci-a-summary {
+  position: relative;
+  overflow: hidden;
+  padding: 18px 20px;
+  border: 1px solid #D6E4FF;
+  border-radius: 12px;
+  background:
+    radial-gradient(90% 160% at 100% 0%, rgba(63, 123, 250, .16), transparent 60%),
+    linear-gradient(135deg, #F7FAFF, #EEF4FF);
+}
+.bci-a-summary header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.bci-a-summary header span { font-size: 13px; font-weight: 750; letter-spacing: .04em; color: #23406E; }
+.bci-a-summary header em { font-style: normal; font-size: 11.5px; color: #6E85AE; }
+.bci-a-summary ul { margin: 10px 0 0; padding-left: 18px; display: grid; gap: 7px; }
+.bci-a-summary li { font-size: 13.2px; line-height: 1.65; color: #2B3B57; }
+.bci-a-summary footer { margin-top: 10px; font-size: 11.5px; color: #7A8CA8; }
+
+/* 入口卡片 + 展开堆叠 ---------------------------------------------------- */
+.bci-a-entries {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bci-a-entries__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--a-muted);
+}
+.bci-a-entries__head em {
+  font-style: normal;
+  font-size: 11.5px;
+  color: var(--a-blue);
+  font-weight: 650;
+  white-space: nowrap;
+}
+.bci-a-entries__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.bci-a-entry {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 92px;
+  padding: 13px 14px;
+  border: 1px solid var(--a-line);
+  border-radius: 10px;
+  background: linear-gradient(180deg, #FFFFFF, #FBFCFE);
+  color: var(--a-ink);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease, background .16s ease;
+}
+.bci-a-entry:hover {
+  border-color: #B9CDEF;
+  box-shadow: 0 8px 20px rgba(22, 35, 58, .08);
+  transform: translateY(-1px);
+}
+.bci-a-entry:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(63, 123, 250, .22);
+}
+.bci-a-entry.is-open {
+  border-color: var(--a-blue);
+  background:
+    radial-gradient(120% 150% at 8% -20%, rgba(63, 123, 250, .16), transparent 62%),
+    linear-gradient(180deg, #F7FAFF, #EDF3FF);
+  box-shadow: inset 0 0 0 1px rgba(63, 123, 250, .22), 0 8px 20px rgba(63, 123, 250, .12);
+}
+.bci-a-entry__mark {
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: #EEF2F8;
+  color: #7A8CA8;
+  font-size: 12.5px;
+  font-weight: 750;
+}
+.bci-a-entry.is-open .bci-a-entry__mark {
+  background: var(--a-blue);
+  color: #fff;
+}
+.bci-a-entry__body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.bci-a-entry__title {
+  font-size: 13.2px;
+  font-weight: 700;
+  letter-spacing: .01em;
+}
+.bci-a-entry__desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 11.4px;
+  line-height: 1.5;
+  color: var(--a-muted);
+}
+.bci-a-entry__state {
+  position: absolute;
+  right: 12px;
+  bottom: 10px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #F1F4F9;
+  color: #8A9AB2;
+  font-size: 10.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.bci-a-entry.is-open .bci-a-entry__state {
+  background: var(--a-blue);
+  color: #fff;
+}
+.bci-a-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.bci-a-stack:empty { display: none; }
+.bci-a-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--a-line);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(22, 35, 58, .05);
+  min-width: 0;
+}
+.bci-a-tile__head { display: flex; align-items: flex-start; gap: 10px; }
+.bci-a-tile__mark {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: var(--a-blue-soft);
+  color: var(--a-blue);
+  font-size: 13px;
+  font-weight: 750;
+}
+.bci-a-tile__title { flex: 1 1 auto; min-width: 0; }
+.bci-a-tile__title h4 { margin: 0 0 4px; font-size: 15px; line-height: 1.3; }
+.bci-a-tile__title p { margin: 0; font-size: 11.5px; line-height: 1.5; color: var(--a-muted); }
+.bci-a-tile__chips { display: flex; flex-wrap: wrap; gap: 5px; justify-content: flex-end; }
+.bci-a-banner {
+  margin: 0;
+  padding: 8px 10px;
+  border-left: 3px solid #EFC978;
+  border-radius: 4px;
+  background: var(--a-warn-bg);
+  font-size: 11.8px;
+  line-height: 1.55;
+  color: #6B4E10;
+}
+.bci-a-metrics { display: flex; flex-direction: column; gap: 12px; }
+
+/* 指标块 ----------------------------------------------------------------- */
+.bci-a-metric {
+  padding: 12px;
+  border: 1px solid #EAF0F9;
+  border-radius: 10px;
+  background: #FCFDFF;
+}
+.bci-a-metric.is-empty { background: #FFFBFB; border-color: #F4DEDE; }
+.bci-a-metric__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 9px; }
+.bci-a-metric__title { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.bci-a-metric__title h5 { margin: 0; font-size: 12.8px; line-height: 1.4; color: #243754; }
+.bci-a-metric__meta { flex: 0 0 auto; font-size: 11px; color: var(--a-faint); white-space: nowrap; }
+
+/* 徽标 ------------------------------------------------------------------- */
+.bci-a-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid #DCE6F5;
+  background: #fff;
+  font-size: 10.5px;
+  font-weight: 650;
+  color: #5C6B84;
+  white-space: nowrap;
+}
+.bci-a-chip--ok { border-color: #C7EBDD; background: var(--a-ok-bg); color: var(--a-ok); }
+.bci-a-chip--warn { border-color: #F1D9A6; background: var(--a-warn-bg); color: var(--a-warn); }
+.bci-a-chip--bad { border-color: #F0CCCC; background: var(--a-bad-bg); color: var(--a-bad); }
+
+/* 条形 ------------------------------------------------------------------- */
+.bci-a-row { display: grid; grid-template-columns: minmax(64px, 92px) minmax(0, 1fr); gap: 8px; align-items: center; padding: 4px 0; }
+.bci-a-row__label { font-size: 12px; color: #33486A; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bci-a-row__body { min-width: 0; }
+.bci-a-bar { height: 7px; border-radius: 999px; background: #EDF2FA; overflow: hidden; }
+.bci-a-bar__fill { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #8FB4FF, #3F7BFA); }
+.bci-a-row__meta { display: block; margin-top: 3px; font-size: 10.8px; color: #7A8CA8; }
+.bci-a-row__qual { grid-column: 2; margin-top: -2px; font-size: 10.8px; color: #5D7DB0; }
+
+/* 空态 ------------------------------------------------------------------- */
+.bci-a-empty {
+  padding: 12px 13px;
+  border: 1px dashed #E4BDBD;
+  border-radius: 8px;
+  background: #FFF8F8;
+}
+.bci-a-empty b { display: block; margin-bottom: 4px; font-size: 12px; color: var(--a-bad); }
+.bci-a-empty p { margin: 0; font-size: 11.8px; line-height: 1.6; color: #6E4B4B; }
+.bci-a-empty .bci-a-empty__note { margin-bottom: 6px; font-size: 12px; font-weight: 650; color: #6E4B4B; }
+.bci-a-empty--error { margin-top: 12px; }
+.bci-a-empty--error button { margin-top: 10px; }
+
+/* 明细表 ----------------------------------------------------------------- */
+.bci-a-details { margin-top: 8px; }
+.bci-a-details > summary {
+  cursor: pointer;
+  font-size: 11.5px;
+  font-weight: 650;
+  color: var(--a-blue);
+  list-style: none;
+}
+.bci-a-details > summary::-webkit-details-marker { display: none; }
+.bci-a-details > summary::before { content: '▸ '; }
+.bci-a-details[open] > summary::before { content: '▾ '; }
+.bci-a-table { width: 100%; margin-top: 8px; border-collapse: collapse; font-size: 11.5px; }
+.bci-a-table th, .bci-a-table td { padding: 6px 7px; border-bottom: 1px solid #EDF2FA; text-align: left; vertical-align: top; }
+.bci-a-table th { background: #F6F9FF; color: #56698C; font-weight: 650; }
+.bci-a-table td:nth-child(2), .bci-a-table td:nth-child(3) { white-space: nowrap; }
+
+/* 战败：逐行「XX 胜出」 -------------------------------------------------- */
+.bci-a-loss { display: flex; flex-direction: column; gap: 8px; }
+.bci-a-loss__row {
+  padding: 9px 11px;
+  border: 1px solid var(--a-line);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #FFFFFF, #FBFCFE);
+}
+.bci-a-loss__head { display: flex; align-items: baseline; gap: 10px; }
+.bci-a-loss__title { font-size: 13px; font-weight: 750; color: var(--a-ink); }
+.bci-a-loss__count { font-size: 11.5px; color: var(--a-muted); }
+.bci-a-loss__count b { font-size: 15px; color: var(--a-blue); }
+.bci-a-loss__ratio { margin-left: auto; font-size: 11.5px; font-weight: 650; color: #23406E; white-space: nowrap; }
+.bci-a-loss__ratio.is-hidden { font-weight: 500; color: var(--a-faint); }
+.bci-a-loss__why { margin: 5px 0 0; font-size: 11.5px; line-height: 1.6; color: #4A5D7C; }
+.bci-a-basis { margin: 8px 0 0; font-size: 11px; line-height: 1.55; color: #7A8CA8; }
+
+/* 磁贴级 AI 结论：独立一行，与顶部综合结论区分 ------------------------- */
+.bci-a-ai {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 10px;
+  margin-top: 14px;
+  padding: 9px 12px 9px 11px;
+  border-top: 1px dashed var(--a-line);
+  border-left: 3px solid #7FA6E8;
+  border-radius: 0 8px 8px 0;
+  background: linear-gradient(180deg, #FBFDFF, #F3F7FF);
+}
+.bci-a-ai__tag {
+  flex: none;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #E4EEFF;
+  color: #21497F;
+  font-size: 10.5px;
+  font-weight: 750;
+  letter-spacing: .04em;
+}
+.bci-a-ai__text { flex: 1 1 60%; margin: 0; font-size: 12.8px; line-height: 1.6; color: #1E3355; }
+.bci-a-ai__note { flex: none; margin-left: auto; font-style: normal; font-size: 10.5px; color: var(--a-faint); }
+.bci-a-ai.is-error { border-left-color: #D9A23B; background: var(--a-warn-bg); }
+.bci-a-ai.is-error .bci-a-ai__tag { background: #F6E7C6; color: #6B4E10; }
+.bci-a-ai.is-error .bci-a-ai__text { color: #6B4E10; }
+
+/* 定性原话 --------------------------------------------------------------- */
+.bci-a-note { margin: 6px 0 0; font-size: 11.2px; line-height: 1.6; color: #7A8CA8; }
+.bci-a-warn { margin: 6px 0 0; padding: 6px 8px; border-radius: 5px; background: var(--a-warn-bg); font-size: 11.3px; line-height: 1.55; color: #6B4E10; }
+.bci-a-tags { display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0; }
+.bci-a-tag {
+  display: inline-flex;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #EEF4FF;
+  color: #33557F;
+  font-size: 10.5px;
+  font-weight: 600;
+}
+.bci-a-tag--soft { background: #F2F5FA; color: #6A7C98; font-weight: 500; }
+.bci-a-quotes { display: grid; gap: 8px; }
+.bci-a-quote {
+  margin: 0;
+  padding: 9px 11px;
+  border-left: 3px solid #BBD2FF;
+  border-radius: 4px;
+  background: #F8FBFF;
+}
+.bci-a-quote--plain { border-left-color: #DFE6F0; background: #FAFBFD; }
+.bci-a-quote p { margin: 0 0 6px; font-size: 11.8px; line-height: 1.65; color: #33486A; }
+.bci-a-quote footer { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; font-size: 10.5px; color: #7A8CA8; }
+
+/* 分数 ------------------------------------------------------------------- */
+.bci-a-score { display: flex; align-items: baseline; gap: 6px; margin-bottom: 8px; }
+.bci-a-score b { font-size: 28px; line-height: 1; color: #23406E; }
+.bci-a-score span { font-size: 11.5px; color: #7A8CA8; }
+.bci-a-median { margin-bottom: 6px; font-size: 12px; color: #56698C; }
+.bci-a-median b { font-size: 16px; color: #23406E; }
+.bci-a-median span { margin-left: 8px; font-size: 11px; color: #7A8CA8; }
+.bci-a-sides { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.bci-a-side { padding: 9px 10px; border-radius: 8px; background: #F8FBFF; }
+.bci-a-side--ok { background: #F4FBF8; }
+.bci-a-side--bad { background: #FFF9F9; }
+.bci-a-side h6 { margin: 0 0 6px; font-size: 11.5px; color: #56698C; }
+.bci-a-scoreline { display: grid; grid-template-columns: minmax(0, 1fr) 38px 44px; gap: 6px; align-items: baseline; padding: 3px 0; font-size: 11.5px; color: #33486A; }
+.bci-a-scoreline b { color: #23406E; }
+.bci-a-scoreline em { font-style: normal; font-size: 10.5px; color: #7A8CA8; text-align: right; }
+
+/* 口碑 ------------------------------------------------------------------- */
+.bci-a-reps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.bci-a-rep { padding: 9px 10px; border-radius: 8px; background: #F4FBF8; }
+.bci-a-rep--bad { background: #FFF9F9; }
+.bci-a-rep h6 { margin: 0 0 6px; font-size: 11.5px; color: #56698C; }
+.bci-a-rep h6 span { font-weight: 500; color: #8A9AB2; }
+.bci-a-rep__row { display: flex; justify-content: space-between; gap: 8px; padding: 3px 0; font-size: 11.5px; color: #33486A; }
+.bci-a-rep__row b { color: #23406E; }
+.bci-a-rep__row b em { margin-left: 6px; font-style: normal; font-weight: 500; color: #7A8CA8; }
+
+/* 加载与页脚 ------------------------------------------------------------- */
+.bci-a-loading { padding: 28px; text-align: center; font-size: 12.5px; color: #7A8CA8; }
+.bci-a-foot { margin: 0; padding-top: 4px; font-size: 11px; line-height: 1.6; color: #8A9AB2; }
+
+/* 智能化分析（独立区域） -------------------------------------------------- */
+.bci-a-agent {
+  position: relative;
+  padding: 18px 20px 16px;
+  border: 1px solid #CBDCF8;
+  border-radius: 12px;
+  background:
+    radial-gradient(90% 150% at 0% 0%, rgba(47, 107, 218, .09), transparent 58%),
+    linear-gradient(180deg, #FFFFFF, #F8FBFF);
+  box-shadow: 0 8px 22px rgba(22, 35, 58, .05);
+}
+.bci-a-agent__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+.bci-a-agent__head h3 { margin: 0 0 5px; font-size: 17px; line-height: 1.3; }
+.bci-a-agent__head p { margin: 0; max-width: 720px; font-size: 12.5px; line-height: 1.6; color: var(--a-muted); }
+.bci-a-agent__badge {
+  flex: 0 0 auto;
+  padding: 6px 12px;
+  border: 1px solid #D6E4FF;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 650;
+  color: #23406E;
+}
+.bci-a-agent__query { margin-top: 12px; display: flex; flex-direction: column; gap: 9px; }
+.bci-a-agent__query textarea {
+  width: 100%;
+  min-height: 62px;
+  padding: 10px 12px;
+  border: 1px solid #CBD8EA;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--a-ink);
+  font: inherit;
+  font-size: 13.5px;
+  line-height: 1.6;
+  resize: vertical;
+}
+.bci-a-agent__query textarea:focus-visible { outline: 2px solid rgba(63, 123, 250, .35); outline-offset: 1px; }
+.bci-a-agent__actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.bci-a-agent__buttons { display: flex; align-items: center; gap: 8px; }
+.bci-a-agent__samples { display: flex; flex-wrap: wrap; gap: 7px; }
+.bci-a-agent__samples button {
+  padding: 5px 10px;
+  border: 1px solid #D6E2F5;
+  border-radius: 999px;
+  background: #F6F9FF;
+  color: #35507A;
+  font: inherit;
+  font-size: 11.5px;
+  cursor: pointer;
+}
+.bci-a-agent__samples button:hover { border-color: #9DBCEF; background: #EEF4FF; }
+.bci-a-agent__result { margin-top: 13px; padding-top: 12px; border-top: 1px dashed var(--a-line); }
+.bci-a-agent__muted { margin: 0; font-size: 12px; line-height: 1.65; color: var(--a-faint); }
+.bci-a-agent__status { display: flex; align-items: center; gap: 9px; padding: 10px 2px; font-size: 12.5px; color: #35507A; }
+.bci-a-agent__spinner {
+  width: 14px; height: 14px;
+  border: 2px solid #C9DAF6;
+  border-top-color: var(--a-blue);
+  border-radius: 50%;
+  animation: bci-a-spin .9s linear infinite;
+}
+@keyframes bci-a-spin { to { transform: rotate(360deg); } }
+.bci-a-agent__notice {
+  padding: 12px 14px;
+  border: 1px solid #F1D9A6;
+  border-radius: 8px;
+  background: var(--a-warn-bg);
+}
+.bci-a-agent__notice b { display: block; margin-bottom: 4px; font-size: 13px; color: #6B4E10; }
+.bci-a-agent__notice p { margin: 0; font-size: 12.5px; line-height: 1.65; color: #6B4E10; }
+.bci-a-agent__meta { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 12px; color: var(--a-muted); }
+.bci-a-agent__meta b { font-size: 14px; color: var(--a-ink); }
+.bci-a-agent__meta em { margin-left: auto; font-style: normal; font-size: 11px; color: var(--a-ok); }
+.bci-a-agent__block { margin-top: 12px; }
+.bci-a-agent__benchmark {
+  margin: 0;
+  font-size: 12px;
+  color: var(--a-muted);
+}
+.bci-a-agent__block h4 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: .05em;
+  color: #23406E;
+}
+.bci-a-agent__list { margin: 0; padding-left: 17px; display: grid; gap: 7px; }
+.bci-a-agent__list li { font-size: 13px; line-height: 1.7; color: #2B3B57; }
+.bci-a-agent__refs { display: inline-flex; flex-wrap: wrap; gap: 4px; margin-left: 6px; vertical-align: middle; }
+.bci-a-agent__ref {
+  padding: 1px 5px;
+  border: 1px solid #DCE7F7;
+  border-radius: 4px;
+  background: #F7FAFF;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px;
+  color: #5B77A4;
+}
+.bci-a-agent__note { margin: 12px 0 0; padding: 8px 10px; border-radius: 6px; background: #F5F8FD; font-size: 11.5px; line-height: 1.6; color: #6A7C98; }
+.bci-a-agent__warnings { margin: 9px 0 0; padding-left: 17px; font-size: 11.5px; line-height: 1.6; color: var(--a-warn); }
+.bci-a-agent__tools { margin-top: 10px; font-size: 11.5px; color: var(--a-muted); }
+.bci-a-agent__tools summary { cursor: pointer; color: #5B77A4; }
+.bci-a-agent__tools ul { margin: 7px 0 0; padding: 0; list-style: none; display: grid; gap: 5px; }
+.bci-a-agent__tools li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 7px; padding: 4px 0; border-bottom: 1px solid #F0F4FA; }
+.bci-a-agent__tools code { font-size: 10.5px; color: #43587A; }
+.bci-a-agent__tools em { margin-left: auto; font-style: normal; font-size: 10.5px; color: var(--a-ok); }
+
+@media (max-width: 1180px) {
+  .bci-a-entries__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 720px) {
+  .bci-a-top { flex-direction: column; align-items: stretch; }
+  .bci-a-top__actions { flex-wrap: wrap; }
+  .bci-a-field select { min-width: 0; width: 100%; }
+  .bci-a-entries__grid { grid-template-columns: minmax(0, 1fr); }
+  .bci-a-entry { min-height: 0; }
+  .bci-a-sides, .bci-a-reps { grid-template-columns: minmax(0, 1fr); }
+  .bci-a-row { grid-template-columns: minmax(56px, 76px) minmax(0, 1fr); }
+}
+
+/* 本品进攻点（满意度磁贴底部） ------------------------------------------- */
+.bci-a-attack {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid #FAD7B0;
+  border-radius: 10px;
+  background: #FFF9F1;
+}
+.bci-a-attack__line {
+  margin: 0;
+  color: #C2410C;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+.bci-a-attack__line span { color: #9A3412; }
+.bci-a-attack__basis,
+.bci-a-attack__live {
+  margin: 6px 0 0;
+  color: var(--a-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.bci-a-attack__live { color: var(--a-faint); }
+.bci-a-attack.is-loading .bci-a-attack__line {
+  color: var(--a-muted);
+  font-weight: 500;
+}
+.bci-a-attack.is-error {
+  border-color: var(--a-line);
+  background: #FAFBFD;
+}
+.bci-a-attack.is-error .bci-a-attack__line {
+  color: var(--a-bad);
+  font-weight: 600;
+}
+body{margin:0;padding:24px 18px;background:#F5F8FD;font-family:"Microsoft YaHei",Arial,sans-serif}.bci-analysis{max-width:1120px;margin:0 auto}.bci-a-export__head{max-width:1120px;margin:0 auto 12px;padding:14px 18px;border:1px solid #E2E9F4;border-radius:12px;background:#fff;color:#16233A}.bci-a-export__head h1{margin:0 0 6px;font-size:18px}.bci-a-export__head p{margin:0 0 4px;font-size:12.5px;line-height:1.7;color:#5C6B84}@media print{body{background:#fff;padding:0}.bci-a-export__head{border:none}}</style></head><body><header class="bci-a-export__head"><h1>即时分析结果（目标：零跑B10）</h1><p>目标车型：零跑B10 ｜ 定量 41 人 ｜ 深访 4 人 ｜ 口碑 103 条 ｜ 已展开 4/4 模块</p><p>零跑B10：定量样本 41 人，深访 4 人，口碑提及 103 条，配置 6 个款型。 画像：年龄段以「26-30岁」为主（12/41）；性别以「男性」为主（30/41）；城市以「成都」为主（9/41）。 购车关注 TOP3：纯电续航里程 25/41（61.0%）、外观 17/41（41.5%）、安全性 15/41（36.6%）；本题实际作答 41/41。 选择当前车辆的原因 TOP3：纯电续航里程 21/41（51.2%）、舒适性 18/41（43.9%）、外观 16/41（39.0%）；本题实际作答 41/41。 深访定性：Q29 选择原因 4 人、Q27/Q28 放弃原因 4 人；逐人原话，不做比例。 战败：40 人对比过零跑B10后买了别的车；铂智3X 胜出 15 人（37.5%），共分 6 行列出。 整体满意度 8.24 分（41/41）；最高维度 外观 8.68 分（n=41），最低维度 智能座舱 7.68 分（n=41）；推荐意愿均分 8.2 分（n=41）。</p></header><div class="bci-analysis"><div class="bci-a-stack"><div id="bci-a-panel-profile"><article class="bci-a-tile"><header class="bci-a-tile__head"><div class="bci-a-tile__mark">①</div><div class="bci-a-tile__title"><h4>用户画像</h4><p>结构化问卷 + 深访逐人引语；比例分母为车型定量总样本</p></div><div class="bci-a-tile__chips"><span class="bci-a-chip bci-a-chip--ok">可计算</span><span class="bci-a-chip">n=41</span></div></header><div class="bci-a-metrics"><section class="bci-a-metric"><header class="bci-a-metric__head"><div class="bci-a-metric__title"><h5>年龄段</h5><span class="bci-a-chip bci-a-chip--ok">可计算</span></div><div class="bci-a-metric__meta">n=41 · 作答=41</div></header><div class="bci-a-row"><span class="bci-a-row__label" title="26-30岁">26-30岁</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:29.3%"></span></div><span class="bci-a-row__meta">12/41 · 29.3% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="36-40岁">36-40岁</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:26.8%"></span></div><span class="bci-a-row__meta">11/41 · 26.8% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="31-35岁">31-35岁</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:19.5%"></span></div><span class="bci-a-row__meta">8/41 · 19.5% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="25岁及以下">25岁及以下</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:7.3%"></span></div><span class="bci-a-row__meta">3/41 · 7.3% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="41-45岁">41-45岁</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:7.3%"></span></div><span class="bci-a-row__meta">3/41 · 7.3% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="46-50岁">46-50岁</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:4.9%"></span></div><span class="bci-a-row__meta">2/41 · 4.9% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="51岁及以上">51岁及以上</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:4.9%"></span></div><span class="bci-a-row__meta">2/41 · 4.9% · n=41</span></div></div></section><section class="bci-a-metric"><header class="bci-a-metric__head"><div class="bci-a-metric__title"><h5>性别</h5><span class="bci-a-chip bci-a-chip--ok">可计算</span></div><div class="bci-a-metric__meta">n=41 · 作答=41</div></header><div class="bci-a-row"><span class="bci-a-row__label" title="男性">男性</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:73.2%"></span></div><span class="bci-a-row__meta">30/41 · 73.2% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="女性">女性</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:26.8%"></span></div><span class="bci-a-row__meta">11/41 · 26.8% · n=41</span></div></div></section><section class="bci-a-metric"><header class="bci-a-metric__head"><div class="bci-a-metric__title"><h5>城市</h5><span class="bci-a-chip bci-a-chip--ok">可计算</span></div><div class="bci-a-metric__meta">n=41 · 作答=41</div></header><div class="bci-a-row"><span class="bci-a-row__label" title="成都">成都</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:22.0%"></span></div><span class="bci-a-row__meta">9/41 · 22.0% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="宁波">宁波</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:17.1%"></span></div><span class="bci-a-row__meta">7/41 · 17.1% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="合肥">合肥</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:12.2%"></span></div><span class="bci-a-row__meta">5/41 · 12.2% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="天津">天津</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:12.2%"></span></div><span class="bci-a-row__meta">5/41 · 12.2% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="武汉">武汉</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:9.8%"></span></div><span class="bci-a-row__meta">4/41 · 9.8% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="西安">西安</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:7.3%"></span></div><span class="bci-a-row__meta">3/41 · 7.3% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="郑州">郑州</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:7.3%"></span></div><span class="bci-a-row__meta">3/41 · 7.3% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="重庆">重庆</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:7.3%"></span></div><span class="bci-a-row__meta">3/41 · 7.3% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="其他">其他</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:4.9%"></span></div><span class="bci-a-row__meta">2/41 · 4.9% · n=41</span></div></div></section><section class="bci-a-metric"><header class="bci-a-metric__head"><div class="bci-a-metric__title"><h5>购车价格段</h5><span class="bci-a-chip bci-a-chip--ok">可计算</span></div><div class="bci-a-metric__meta">n=41 · 作答=41</div></header><div class="bci-a-row"><span class="bci-a-row__label" title="10-15万">10-15万</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:90.2%"></span></div><span class="bci-a-row__meta">37/41 · 90.2% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="10万以下">10万以下</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:9.8%"></span></div><span class="bci-a-row__meta">4/41 · 9.8% · n=41</span></div></div></section><section class="bci-a-metric"><header class="bci-a-metric__head"><div class="bci-a-metric__title"><h5>购车类型</h5><span class="bci-a-chip bci-a-chip--ok">可计算</span></div><div class="bci-a-metric__meta">n=41 · 作答=41</div></header><div class="bci-a-row"><span class="bci-a-row__label" title="首购">首购</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:61.0%"></span></div><span class="bci-a-row__meta">25/41 · 61.0% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="换购（卖掉旧车）">换购（卖掉旧车）</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:24.4%"></span></div><span class="bci-a-row__meta">10/41 · 24.4% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="增购">增购</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:14.6%"></span></div><span class="bci-a-row__meta">6/41 · 14.6% · n=41</span></div></div></section><section class="bci-a-metric"><header class="bci-a-metric__head"><div class="bci-a-metric__title"><h5>婚姻状况</h5><span class="bci-a-chip bci-a-chip--ok">可计算</span></div><div class="bci-a-metric__meta">n=41 · 作答=41</div></header><div class="bci-a-row"><span class="bci-a-row__label" title="已婚">已婚</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:73.2%"></span></div><span class="bci-a-row__meta">30/41 · 73.2% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="未婚">未婚</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:26.8%"></span></div><span class="bci-a-row__meta">11/41 · 26.8% · n=41</span></div></div></section><section class="bci-a-metric"><header class="bci-a-metric__head"><div class="bci-a-metric__title"><h5>职业类型</h5><span class="bci-a-chip bci-a-chip--ok">可计算</span></div><div class="bci-a-metric__meta">n=41 · 作答=41</div></header><div class="bci-a-row"><span class="bci-a-row__label" title="基层管理人员（业务负责人）">基层管理人员（业务负责人）</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:29.3%"></span></div><span class="bci-a-row__meta">12/41 · 29.3% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="初级技术人员">初级技术人员</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:14.6%"></span></div><span class="bci-a-row__meta">6/41 · 14.6% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="中级管理人员（部门负责人）">中级管理人员（部门负责人）</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:12.2%"></span></div><span class="bci-a-row__meta">5/41 · 12.2% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="中级技术人员">中级技术人员</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:9.8%"></span></div><span class="bci-a-row__meta">4/41 · 9.8% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="工人">工人</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:9.8%"></span></div><span class="bci-a-row__meta">4/41 · 9.8% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="合伙人">合伙人</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:7.3%"></span></div><span class="bci-a-row__meta">3/41 · 7.3% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="个体户">个体户</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:4.9%"></span></div><span class="bci-a-row__meta">2/41 · 4.9% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="行政/事务人员">行政/事务人员</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:4.9%"></span></div><span class="bci-a-row__meta">2/41 · 4.9% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="其他">其他</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:7.3%"></span></div><span class="bci-a-row__meta">3/41 · 7.3% · n=41</span></div></div></section><section class="bci-a-metric"><header class="bci-a-metric__head"><div class="bci-a-metric__title"><h5>家庭税后年收入</h5><span class="bci-a-chip bci-a-chip--ok">可计算</span></div><div class="bci-a-metric__meta">n=41 · 作答=41</div></header><div class="bci-a-row"><span class="bci-a-row__label" title="15-20万">15-20万</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:31.7%"></span></div><span class="bci-a-row__meta">13/41 · 31.7% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="10-15万">10-15万</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:19.5%"></span></div><span class="bci-a-row__meta">8/41 · 19.5% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="20-25万">20-25万</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:19.5%"></span></div><span class="bci-a-row__meta">8/41 · 19.5% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="25-30万">25-30万</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:12.2%"></span></div><span class="bci-a-row__meta">5/41 · 12.2% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="35-40万">35-40万</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:7.3%"></span></div><span class="bci-a-row__meta">3/41 · 7.3% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="30-35万">30-35万</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:4.9%"></span></div><span class="bci-a-row__meta">2/41 · 4.9% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="40万以上">40万以上</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:2.4%"></span></div><span class="bci-a-row__meta">1/41 · 2.4% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="5-10万">5-10万</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:2.4%"></span></div><span class="bci-a-row__meta">1/41 · 2.4% · n=41</span></div></div></section><section class="bci-a-metric"><header class="bci-a-metric__head"><div class="bci-a-metric__title"><h5>家庭购车情形</h5><span class="bci-a-chip bci-a-chip--ok">可计算</span></div><div class="bci-a-metric__meta">n=41 · 作答=41</div></header><div class="bci-a-row"><span class="bci-a-row__label" title="首购，家庭第一次购车（夫妻婚前均没有其他车辆）">首购，家庭第一次购车（夫妻婚前均没有其他车辆）</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:56.1%"></span></div><span class="bci-a-row__meta">23/41 · 56.1% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="换购，上一辆车卖掉了，再购买的这辆车">换购，上一辆车卖掉了，再购买的这辆车</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:24.4%"></span></div><span class="bci-a-row__meta">10/41 · 24.4% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="增购，增加一辆车">增购，增加一辆车</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:19.5%"></span></div><span class="bci-a-row__meta">8/41 · 19.5% · n=41</span></div></div></section><section class="bci-a-metric"><header class="bci-a-metric__head"><div class="bci-a-metric__title"><h5>购车预算</h5><span class="bci-a-chip bci-a-chip--ok">可计算</span></div><div class="bci-a-metric__meta">n=41 · 作答=41</div></header><div class="bci-a-median">中位数 <b>12 万</b><span>作答 41/41</span></div><div class="bci-a-row"><span class="bci-a-row__label">10 万以下</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:2.0%"></span></div><span class="bci-a-row__meta">0/41 · 0.0% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label">10–15 万</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:63.4%"></span></div><span class="bci-a-row__meta">26/41 · 63.4% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label">15–20 万</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:31.7%"></span></div><span class="bci-a-row__meta">13/41 · 31.7% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label">20 万及以上</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:4.9%"></span></div><span class="bci-a-row__meta">2/41 · 4.9% · n=41</span></div></div><p class="bci-a-note">Q3_1 为预算数值（万元），按区间汇总；中位数基于实际作答值。</p></section><section class="bci-a-metric"><header class="bci-a-metric__head"><div class="bci-a-metric__title"><h5>车对用户意味着什么（深访原话）</h5><span class="bci-a-chip bci-a-chip--ok">可计算</span></div><div class="bci-a-metric__meta">作答=4</div></header><p class="bci-a-note">深访 4 人 · 有效原话 4 条；逐人原话，不做比例。</p><div class="bci-a-quotes"><blockquote class="bci-a-quote"><p>认为汽车主要是出行工具，没有赋予身份、个性表达等特别属性。</p><footer><span>R003 · </span></footer></blockquote><blockquote class="bci-a-quote"><p>汽车首先是代步工具；智能车也有能对话、类似伙伴的一面。</p><footer><span>R004 · </span></footer></blockquote><blockquote class="bci-a-quote"><p>未提及</p><footer><span>R017 · </span></footer></blockquote><blockquote class="bci-a-quote"><p>认为汽车是“日常伙伴”。</p><footer><span>R056 · </span></footer></blockquote></div><p class="bci-a-note">深访 4 人，逐人原话，不做比例，不能外推为群体结论。</p></section></div></article></div><div id="bci-a-panel-attention"><article class="bci-a-tile"><header class="bci-a-tile__head"><div class="bci-a-tile__mark">②</div><div class="bci-a-tile__title"><h4>购车关注</h4><p>关注什么；16 维多选勾选率（非首选率），可展开看完整明细</p></div><div class="bci-a-tile__chips"><span class="bci-a-chip bci-a-chip--warn">部分可计算</span><span class="bci-a-chip">n=41</span></div></header><div class="bci-a-metrics"><section class="bci-a-metric"><header class="bci-a-metric__head"><div class="bci-a-metric__title"><h5>购车关注（16 维多选勾选率，非首选率）</h5><span class="bci-a-chip bci-a-chip--ok">可计算</span></div><div class="bci-a-metric__meta">n=41 · 作答=41</div></header><div class="bci-a-row"><span class="bci-a-row__label" title="纯电续航里程">纯电续航里程</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:61.0%"></span></div><span class="bci-a-row__meta">25/41 · 61.0% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="外观">外观</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:41.5%"></span></div><span class="bci-a-row__meta">17/41 · 41.5% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="安全性">安全性</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:36.6%"></span></div><span class="bci-a-row__meta">15/41 · 36.6% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="舒适性">舒适性</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:36.6%"></span></div><span class="bci-a-row__meta">15/41 · 36.6% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="购车价格">购车价格</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:34.1%"></span></div><span class="bci-a-row__meta">14/41 · 34.1% · n=41</span></div></div><details class="bci-a-details"><summary>查看全部 16 维明细</summary><table class="bci-a-table"><thead><tr><th>维度</th><th>定量</th><th>定性人数</th></tr></thead><tbody><tr><td>纯电续航里程</td><td>25/41 · 61.0% · n=41</td><td>—</td></tr><tr><td>外观</td><td>17/41 · 41.5% · n=41</td><td>—</td></tr><tr><td>安全性</td><td>15/41 · 36.6% · n=41</td><td>—</td></tr><tr><td>舒适性</td><td>15/41 · 36.6% · n=41</td><td>—</td></tr><tr><td>购车价格</td><td>14/41 · 34.1% · n=41</td><td>—</td></tr><tr><td>智能驾驶</td><td>11/41 · 26.8% · n=41</td><td>—</td></tr><tr><td>空间</td><td>11/41 · 26.8% · n=41</td><td>—</td></tr><tr><td>动力性</td><td>9/41 · 22.0% · n=41</td><td>—</td></tr><tr><td>操控性</td><td>9/41 · 22.0% · n=41</td><td>—</td></tr><tr><td>电池特性（电池安全/品牌/类型）</td><td>9/41 · 22.0% · n=41</td><td>—</td></tr><tr><td>质量</td><td>8/41 · 19.5% · n=41</td><td>—</td></tr><tr><td>使用费用</td><td>7/41 · 17.1% · n=41</td><td>—</td></tr><tr><td>内饰</td><td>6/41 · 14.6% · n=41</td><td>—</td></tr><tr><td>智能座舱</td><td>6/41 · 14.6% · n=41</td><td>—</td></tr><tr><td>品牌</td><td>5/41 · 12.2% · n=41</td><td>—</td></tr><tr><td>服务</td><td>4/41 · 9.8% · n=41</td><td>—</td></tr></tbody></table></details><p class="bci-a-note">多选勾选题，可多选，不等同于第一关注；本题实际作答 41/41。分母为车型定量总样本，未作答者不计入分子但计入分母（沿用 quant_service 口径）。</p></section><section class="bci-a-metric is-empty"><header class="bci-a-metric__head"><div class="bci-a-metric__title"><h5>首选率（产品 / 品牌 / 服务 第一排序）</h5><span class="bci-a-chip bci-a-chip--bad">空态</span></div><div class="bci-a-metric__meta"></div></header><div class="bci-a-empty" role="note"><b>空态 · 不计算</b><p class="bci-a-empty__note">首选率 · 待业务补排序题，不估算、不填 0。</p><p>库内无排序题：quant_question 检索「排序」0 条；Q3_13 为多选勾选，答案不含第一顺位权重，无法计算三类第一排序占比。</p></div></section></div></article></div><div id="bci-a-panel-winloss"><article class="bci-a-tile"><header class="bci-a-tile__head"><div class="bci-a-tile__mark">③</div><div class="bci-a-tile__title"><h4>战胜战败原因洞察</h4><p>战胜战败：选择当前车辆的原因（Q3_23）/ 对比过当前车辆后实际买了哪款车（Q3_22 反查 + Q3_24 槽位取因）</p></div><div class="bci-a-tile__chips"><span class="bci-a-chip bci-a-chip--warn">部分可计算</span><span class="bci-a-chip">n=41</span></div></header><p class="bci-a-banner">战败＝在 Q3_22_1 三格里对比过零跑B10、最终买了别的车的人，按实际购车车型分行，行标题为「XX 胜出」；战胜（Q3_23）与战败原因是两套题项，不混算。</p><div class="bci-a-metrics"><section class="bci-a-metric"><header class="bci-a-metric__head"><div class="bci-a-metric__title"><h5>选择当前车辆的原因（Q3_23）</h5><span class="bci-a-chip bci-a-chip--ok">可计算</span></div><div class="bci-a-metric__meta">n=41 · 作答=41</div></header><div class="bci-a-row"><span class="bci-a-row__label" title="纯电续航里程">纯电续航里程</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:51.2%"></span></div><span class="bci-a-row__meta">21/41 · 51.2% · n=41</span></div><span class="bci-a-row__qual">定性 2 人</span></div><div class="bci-a-row"><span class="bci-a-row__label" title="舒适性">舒适性</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:43.9%"></span></div><span class="bci-a-row__meta">18/41 · 43.9% · n=41</span></div><span class="bci-a-row__qual">定性 0 人</span></div><div class="bci-a-row"><span class="bci-a-row__label" title="外观">外观</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:39.0%"></span></div><span class="bci-a-row__meta">16/41 · 39.0% · n=41</span></div><span class="bci-a-row__qual">定性 1 人</span></div><div class="bci-a-row"><span class="bci-a-row__label" title="购车价格">购车价格</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:36.6%"></span></div><span class="bci-a-row__meta">15/41 · 36.6% · n=41</span></div><span class="bci-a-row__qual">定性 4 人</span></div><div class="bci-a-row"><span class="bci-a-row__label" title="内饰">内饰</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:26.8%"></span></div><span class="bci-a-row__meta">11/41 · 26.8% · n=41</span></div><span class="bci-a-row__qual">定性 2 人</span></div><details class="bci-a-details"><summary>查看全部 16 维明细</summary><table class="bci-a-table"><thead><tr><th>维度</th><th>定量</th><th>定性人数</th></tr></thead><tbody><tr><td>安全性</td><td>6/41 · 14.6% · n=41</td><td>0 人</td></tr><tr><td>操控性</td><td>6/41 · 14.6% · n=41</td><td>1 人</td></tr><tr><td>动力性</td><td>6/41 · 14.6% · n=41</td><td>0 人</td></tr><tr><td>舒适性</td><td>18/41 · 43.9% · n=41</td><td>0 人</td></tr><tr><td>空间</td><td>9/41 · 22.0% · n=41</td><td>1 人</td></tr><tr><td>外观</td><td>16/41 · 39.0% · n=41</td><td>1 人</td></tr><tr><td>内饰</td><td>11/41 · 26.8% · n=41</td><td>2 人</td></tr><tr><td>质量</td><td>7/41 · 17.1% · n=41</td><td>1 人</td></tr><tr><td>使用费用</td><td>7/41 · 17.1% · n=41</td><td>0 人</td></tr><tr><td>购车价格</td><td>15/41 · 36.6% · n=41</td><td>4 人</td></tr><tr><td>品牌</td><td>5/41 · 12.2% · n=41</td><td>1 人</td></tr><tr><td>服务</td><td>7/41 · 17.1% · n=41</td><td>1 人</td></tr><tr><td>智能座舱</td><td>4/41 · 9.8% · n=41</td><td>1 人</td></tr><tr><td>智能驾驶</td><td>10/41 · 24.4% · n=41</td><td>0 人</td></tr><tr><td>纯电续航里程</td><td>21/41 · 51.2% · n=41</td><td>2 人</td></tr><tr><td>电池特性（电池安全/品牌/类型）</td><td>5/41 · 12.2% · n=41</td><td>1 人</td></tr></tbody></table></details><p class="bci-a-note">本题实际作答 41/41；分母为车型定量总样本。与深访 Q29 使用同一套 16 维标签。</p></section><section class="bci-a-metric"><header class="bci-a-metric__head"><div class="bci-a-metric__title"><h5>深访原话：选择当前车辆的原因（Q29）</h5><span class="bci-a-chip bci-a-chip--ok">可计算</span><span class="bci-a-chip bci-a-chip--bad">样本不足</span></div><div class="bci-a-metric__meta">作答=4</div></header><p class="bci-a-note">深访 4 人 · 有效原话 4 条；逐人原话，不做比例。</p><div class="bci-a-tags"><span class="bci-a-tag">操控性 · 1 人</span><span class="bci-a-tag">空间 · 1 人</span><span class="bci-a-tag">外观 · 1 人</span><span class="bci-a-tag">内饰 · 2 人</span><span class="bci-a-tag">质量 · 1 人</span><span class="bci-a-tag">购车价格 · 4 人</span><span class="bci-a-tag">品牌 · 1 人</span><span class="bci-a-tag">服务 · 1 人</span><span class="bci-a-tag">智能座舱 · 1 人</span><span class="bci-a-tag">纯电续航里程 · 2 人</span><span class="bci-a-tag">电池特性（电池安全/品牌/类型） · 1 人</span></div><div class="bci-a-quotes"><blockquote class="bci-a-quote"><p>最终选择零跑B10主要因价格和性价比；到店看实车后认为内饰、做工和驾驶感受均可接受，并不显得简陋或拼凑。</p><footer><span>R003 · Q29</span><span class="bci-a-tag bci-a-tag--soft">操控性</span><span class="bci-a-tag bci-a-tag--soft">内饰</span><span class="bci-a-tag bci-a-tag--soft">购车价格</span></footer></blockquote><blockquote class="bci-a-quote"><p>选择领跑B10因配置较全（如氛围灯）、续航、空间、性价比好，且销量和口碑较好；软件/车机更友好。</p><footer><span>R004 · Q29</span><span class="bci-a-tag bci-a-tag--soft">空间</span><span class="bci-a-tag bci-a-tag--soft">内饰</span><span class="bci-a-tag bci-a-tag--soft">购车价格</span><span class="bci-a-tag bci-a-tag--soft">品牌</span><span class="bci-a-tag bci-a-tag--soft">智能座舱</span><span class="bci-a-tag bci-a-tag--soft">纯电续航里程</span></footer></blockquote><blockquote class="bci-a-quote"><p>最终选择零跑B10的原因包括：夫妻更喜欢外观；试驾后对电车体验感到惊喜；12.98万元顶配在预算内，性价比高；600公里续航、所选电池和激光雷达配置符合需求；首任车主终身质保以及零跑海外出口、与传统车企合作等信息增强了信任。</p><footer><span>R017 · Q29</span><span class="bci-a-tag bci-a-tag--soft">外观</span><span class="bci-a-tag bci-a-tag--soft">购车价格</span><span class="bci-a-tag bci-a-tag--soft">服务</span><span class="bci-a-tag bci-a-tag--soft">纯电续航里程</span><span class="bci-a-tag bci-a-tag--soft">电池特性（电池安全/品牌/类型）</span></footer></blockquote><blockquote class="bci-a-quote"><p>最终选择零跑B10主要因为性价比高：同配置下其他车可能贵两三万元；朋友的零跑C11使用三年多没什么大小毛病，也增强了对其可靠性的信心。</p><footer><span>R056 · Q29</span><span class="bci-a-tag bci-a-tag--soft">质量</span><span class="bci-a-tag bci-a-tag--soft">购车价格</span></footer></blockquote></div><p class="bci-a-note">深访 4 人，逐人原话，不做比例；按维度关键词自动归类，一条原话可命中多个维度。未命中任何维度的原话单独列在下方，不强行匹配。</p></section><section class="bci-a-metric"><header class="bci-a-metric__head"><div class="bci-a-metric__title"><h5>战败：对比过零跑B10后买了别的车</h5><span class="bci-a-chip bci-a-chip--ok">可计算</span></div><div class="bci-a-metric__meta">n=40 · 作答=40</div></header><div class="bci-a-loss"><div class="bci-a-loss__row"><div class="bci-a-loss__head"><span class="bci-a-loss__title">铂智3X 胜出</span><span class="bci-a-loss__count"><b>15</b> 人</span><span class="bci-a-loss__ratio">37.5% · 占对比过 40 人</span></div><p class="bci-a-loss__why">胜出原因（本行 15 人）：品牌 7/15（17.5%）、安全性 6/15（15.0%）、质量 6/15（15.0%）</p></div><div class="bci-a-loss__row"><div class="bci-a-loss__head"><span class="bci-a-loss__title">海狮05 胜出</span><span class="bci-a-loss__count"><b>7</b> 人</span><span class="bci-a-loss__ratio">17.5% · 占对比过 40 人</span></div><p class="bci-a-loss__why">胜出原因（本行 7 人）：品牌 4/7、内饰 3/7、外观 3/7</p></div><div class="bci-a-loss__row"><div class="bci-a-loss__head"><span class="bci-a-loss__title">深蓝S05 胜出</span><span class="bci-a-loss__count"><b>7</b> 人</span><span class="bci-a-loss__ratio">17.5% · 占对比过 40 人</span></div><p class="bci-a-loss__why">胜出原因（本行 7 人）：空间 4/7、动力性 3/7、外观 3/7</p></div><div class="bci-a-loss__row"><div class="bci-a-loss__head"><span class="bci-a-loss__title">日产N7 胜出</span><span class="bci-a-loss__count"><b>6</b> 人</span><span class="bci-a-loss__ratio">15.0% · 占对比过 40 人</span></div><p class="bci-a-loss__why">胜出原因（本行 6 人）：外观 3/6、空间 3/6、动力性 2/6</p></div><div class="bci-a-loss__row"><div class="bci-a-loss__head"><span class="bci-a-loss__title">钛3 胜出</span><span class="bci-a-loss__count"><b>3</b> 人</span><span class="bci-a-loss__ratio is-hidden">该行 3 人，不足 5 人，只给人数</span></div><p class="bci-a-loss__why">胜出原因（本行 3 人）：品牌 2/3、质量 2/3、电池特性（电池安全/品牌/类型） 1/3</p></div><div class="bci-a-loss__row"><div class="bci-a-loss__head"><span class="bci-a-loss__title">小鹏MONA M03 胜出</span><span class="bci-a-loss__count"><b>2</b> 人</span><span class="bci-a-loss__ratio is-hidden">该行 2 人，不足 5 人，只给人数</span></div><p class="bci-a-loss__why">胜出原因（本行 2 人）：内饰 1/2、外观 1/2、操控性 1/2</p></div></div><p class="bci-a-basis">依据题号：靶心落在 Q3_22_1__1 → 取 Q3_24_1__1..16；落在 __2 → 取 Q3_24_3__1..16；落在 __3 → 取 Q3_24_5__1..16</p><p class="bci-a-note">共 40 人在 Q3_22_1 三格里对比过零跑B10、最终买了别的车；行内人数为真实人数，不设门槛、不合并「其他」；行内百分比分母为对比过总人数，该行不足 5 人或总数不足 10 人时只给人数。</p><p class="bci-a-note">共 40 人在 Q3_22_1 三格里对比过零跑B10、最终买了别的车；行内人数为真实人数，不设门槛、不合并「其他」；行内百分比分母为对比过总人数，该行不足 5 人或总数不足 10 人时只给人数。</p></section><section class="bci-a-metric"><header class="bci-a-metric__head"><div class="bci-a-metric__title"><h5>深访原话：放弃核心对比车型的原因（Q27/Q28）</h5><span class="bci-a-chip bci-a-chip--ok">可计算</span><span class="bci-a-chip bci-a-chip--bad">样本不足</span></div><div class="bci-a-metric__meta">作答=8</div></header><p class="bci-a-note">深访 4 人 · 有效原话 8 条；逐人原话，不做比例。</p><div class="bci-a-tags"><span class="bci-a-tag">舒适性 · 1 人</span><span class="bci-a-tag">空间 · 1 人</span><span class="bci-a-tag">外观 · 3 人</span><span class="bci-a-tag">内饰 · 1 人</span><span class="bci-a-tag">购车价格 · 2 人</span><span class="bci-a-tag">服务 · 1 人</span><span class="bci-a-tag">纯电续航里程 · 3 人</span></div><div class="bci-a-quotes"><blockquote class="bci-a-quote"><p>放弃深蓝：价格更高、外观偏年轻化且第一眼不够喜欢；若同价位会更愿意考虑。放弃银河E5：价格较零跑B10高。放弃埃安Y/YP：车型推出多年但价格未如预期低、外观一般，且认为该车满街都是、偏网约车/大众化。</p><footer><span>R003 · Q27</span><span class="bci-a-tag bci-a-tag--soft">外观</span><span class="bci-a-tag bci-a-tag--soft">购车价格</span></footer></blockquote><blockquote class="bci-a-quote"><p>主要在到店看车后因外观第一眼不够喜欢而降低对深蓝的选择意愿；同时价格比较促使放弃深蓝、银河和埃安。</p><footer><span>R003 · Q28</span><span class="bci-a-tag bci-a-tag--soft">外观</span><span class="bci-a-tag bci-a-tag--soft">购车价格</span></footer></blockquote><blockquote class="bci-a-quote"><p>放弃元PLUS因续航较低；AION Y因觉得偏大、停车不便；深蓝S5因没有目标价位现车、需等待；ID3因人机交互不够好。</p><footer><span>R004 · Q27</span><span class="bci-a-tag bci-a-tag--soft">纯电续航里程</span></footer></blockquote><blockquote class="bci-a-quote"><p>主要在线上先看视频/对比，再到店看车和试驾；深蓝在到店阶段因无目标价位现车、需要等车而被放弃。</p><footer><span>R004 · Q28</span></footer></blockquote><blockquote class="bci-a-quote"><p>银河E5在线下看实车、坐进车内后觉得外形、内饰和灯带不合眼缘；零跑C10当时面临改款且没有激光雷达；宋PLUS EV和海狮07EV主要因夫妻不喜欢海洋网前灯外观，座椅包裹性也不理想。唐还因车太大、纯电续航冬季可能不够而放弃。</p><footer><span>R017 · Q27</span><span class="bci-a-tag bci-a-tag--soft">舒适性</span><span class="bci-a-tag bci-a-tag--soft">外观</span><span class="bci-a-tag bci-a-tag--soft">内饰</span><span class="bci-a-tag bci-a-tag--soft">纯电续航里程</span></footer></blockquote><blockquote class="bci-a-quote"><p>银河E5在到店看实车和内饰时放弃，原因是实车外形、内饰、灯带不合眼缘；宋PLUS/海狮07在看车和试驾后仍主要因外观灯组及座椅包裹性不理想而放弃；C10在比较配置时因当时无激光雷达、又临近改款而放弃。</p><footer><span>R017 · Q28</span><span class="bci-a-tag bci-a-tag--soft">舒适性</span><span class="bci-a-tag bci-a-tag--soft">外观</span><span class="bci-a-tag bci-a-tag--soft">内饰</span></footer></blockquote><blockquote class="bci-a-quote"><p>放弃深蓝S05：外观不算特别喜欢、朋友已买不想相同、后备箱较小、价格没谈拢且无优惠；放弃S07：车更大，找车位和停车麻烦；阿尔法T1太小且续航最多423；iCAR车型听朋友说问题较多。</p><footer><span>R056 · Q27</span><span class="bci-a-tag bci-a-tag--soft">空间</span><span class="bci-a-tag bci-a-tag--soft">外观</span><span class="bci-a-tag bci-a-tag--soft">购车价格</span><span class="bci-a-tag bci-a-tag--soft">纯电续航里程</span></footer></blockquote><blockquote class="bci-a-quote"><p>深蓝S05/S07在线下4S店看过但没有试驾；S05在外观、空间和谈价无优惠环节被放弃，S07因尺寸和停车问题被放弃。阿尔法T1仅在线上及向朋友了解后未继续。</p><footer><span>R056 · Q28</span><span class="bci-a-tag bci-a-tag--soft">空间</span><span class="bci-a-tag bci-a-tag--soft">外观</span><span class="bci-a-tag bci-a-tag--soft">购车价格</span><span class="bci-a-tag bci-a-tag--soft">服务</span></footer></blockquote></div><details class="bci-a-details"><summary>未匹配到 16 维的原话（1 条）</summary><blockquote class="bci-a-quote bci-a-quote--plain"><p>主要在线上先看视频/对比，再到店看车和试驾；深蓝在到店阶段因无目标价位现车、需要等车而被放弃。</p><footer><span>R004 · Q28</span></footer></blockquote></details><p class="bci-a-note">深访 4 人，逐人原话，不做比例；按维度关键词自动归类，一条原话可命中多个维度。未命中任何维度的原话单独列在下方，不强行匹配。</p></section></div></article></div><div id="bci-a-panel-satisfaction"><article class="bci-a-tile"><header class="bci-a-tile__head"><div class="bci-a-tile__mark">④</div><div class="bci-a-tile__title"><h4>产品满意度评价</h4><p>使用后打分 + 推荐意愿 + 外部口碑；分数均附样本数</p></div><div class="bci-a-tile__chips"><span class="bci-a-chip bci-a-chip--ok">可计算</span><span class="bci-a-chip">n=41</span></div></header><div class="bci-a-metrics"><section class="bci-a-metric"><header class="bci-a-metric__head"><div class="bci-a-metric__title"><h5>整体使用满意度（Q5_1，2–10 分）</h5><span class="bci-a-chip bci-a-chip--ok">可计算</span></div><div class="bci-a-metric__meta">n=41 · 作答=41</div></header><div class="bci-a-score"><b>8.24</b><span>分 · 作答 41/41</span></div></section><section class="bci-a-metric"><header class="bci-a-metric__head"><div class="bci-a-metric__title"><h5>16 维使用满意度（Q5_2，1–10 分）</h5><span class="bci-a-chip bci-a-chip--ok">可计算</span></div><div class="bci-a-metric__meta">n=41 · 作答=41</div></header><div class="bci-a-sides"><div class="bci-a-side bci-a-side--ok"><h6>满意度最高 5 项</h6><div class="bci-a-scoreline"><span>外观</span><b>8.68</b><em>41 人</em></div><div class="bci-a-scoreline"><span>服务</span><b>8.61</b><em>41 人</em></div><div class="bci-a-scoreline"><span>空间</span><b>8.54</b><em>41 人</em></div><div class="bci-a-scoreline"><span>动力性</span><b>8.49</b><em>41 人</em></div><div class="bci-a-scoreline"><span>舒适性</span><b>8.44</b><em>41 人</em></div></div><div class="bci-a-side bci-a-side--bad"><h6>满意度最低 5 项</h6><div class="bci-a-scoreline"><span>智能座舱</span><b>7.68</b><em>41 人</em></div><div class="bci-a-scoreline"><span>纯电续航里程</span><b>7.8</b><em>41 人</em></div><div class="bci-a-scoreline"><span>智能驾驶</span><b>7.83</b><em>41 人</em></div><div class="bci-a-scoreline"><span>电池特性（电池安全/品牌/类型）</span><b>7.95</b><em>41 人</em></div><div class="bci-a-scoreline"><span>质量</span><b>8.15</b><em>41 人</em></div></div></div><details class="bci-a-details"><summary>查看全部 16 维打分</summary><table class="bci-a-table"><thead><tr><th>维度</th><th>均分</th><th>作答</th><th>低分率（≤6）</th></tr></thead><tbody><tr><td>安全性</td><td>8.2</td><td>41</td><td>7.3%（3/41）</td></tr><tr><td>操控性</td><td>8.39</td><td>41</td><td>7.3%（3/41）</td></tr><tr><td>动力性</td><td>8.49</td><td>41</td><td>2.4%（1/41）</td></tr><tr><td>舒适性</td><td>8.44</td><td>41</td><td>4.9%（2/41）</td></tr><tr><td>空间</td><td>8.54</td><td>41</td><td>4.9%（2/41）</td></tr><tr><td>外观</td><td>8.68</td><td>41</td><td>4.9%（2/41）</td></tr><tr><td>内饰</td><td>8.24</td><td>41</td><td>4.9%（2/41）</td></tr><tr><td>质量</td><td>8.15</td><td>41</td><td>4.9%（2/41）</td></tr><tr><td>使用费用</td><td>8.41</td><td>41</td><td>4.9%（2/41）</td></tr><tr><td>购车价格</td><td>8.44</td><td>41</td><td>4.9%（2/41）</td></tr><tr><td>品牌</td><td>8.24</td><td>41</td><td>4.9%（2/41）</td></tr><tr><td>服务</td><td>8.61</td><td>41</td><td>4.9%（2/41）</td></tr><tr><td>智能座舱</td><td>7.68</td><td>41</td><td>9.8%（4/41）</td></tr><tr><td>智能驾驶</td><td>7.83</td><td>41</td><td>7.3%（3/41）</td></tr><tr><td>纯电续航里程</td><td>7.8</td><td>41</td><td>14.6%（6/41）</td></tr><tr><td>电池特性（电池安全/品牌/类型）</td><td>7.95</td><td>41</td><td>9.8%（4/41）</td></tr></tbody></table></details></section><section class="bci-a-metric"><header class="bci-a-metric__head"><div class="bci-a-metric__title"><h5>推荐意愿（Q5_5，1–10 分）</h5><span class="bci-a-chip bci-a-chip--ok">可计算</span></div><div class="bci-a-metric__meta">n=41 · 作答=41</div></header><div class="bci-a-score"><b>8.2</b><span>分 · 作答 41/41</span></div><div class="bci-a-row"><span class="bci-a-row__label" title="9–10 分 十分推荐">9–10 分 十分推荐</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:43.9%"></span></div><span class="bci-a-row__meta">18/41 · 43.9% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="7–8 分 比较推荐">7–8 分 比较推荐</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:51.2%"></span></div><span class="bci-a-row__meta">21/41 · 51.2% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="5–6 分 说不好">5–6 分 说不好</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:4.9%"></span></div><span class="bci-a-row__meta">2/41 · 4.9% · n=41</span></div></div><div class="bci-a-row"><span class="bci-a-row__label" title="4 分及以下 不推荐">4 分及以下 不推荐</span><div class="bci-a-row__body"><div class="bci-a-bar"><span class="bci-a-bar__fill" style="width:2.0%"></span></div><span class="bci-a-row__meta">0/41 · 0.0% · n=41</span></div></div><p class="bci-a-note">Q5_5 原值为「9十分推荐」这类文本，按前置数字折算 1–10 分。</p></section><section class="bci-a-metric"><header class="bci-a-metric__head"><div class="bci-a-metric__title"><h5>外部口碑（非问卷）· 正 / 负向关注点</h5><span class="bci-a-chip bci-a-chip--ok">可计算</span></div><div class="bci-a-metric__meta"></div></header><p class="bci-a-note">当前车型：零跑B10（n=103，截至 2026-11-04）· 本车自身口碑分布，非竞品份额</p><div class="bci-a-reps"><div class="bci-a-rep bci-a-rep--ok"><h6>正向关注 TOP5 <span>分母 103 条</span></h6><div class="bci-a-rep__row"><span>整体造型</span><b>6 条<em>5.8%</em></b></div><div class="bci-a-rep__row"><span>实际续航</span><b>3 条<em>2.9%</em></b></div><div class="bci-a-rep__row"><span>整体性价比</span><b>3 条<em>2.9%</em></b></div><div class="bci-a-rep__row"><span>起步响应</span><b>3 条<em>2.9%</em></b></div></div><div class="bci-a-rep bci-a-rep--bad"><h6>负向关注 TOP5 <span>分母 103 条</span></h6><div class="bci-a-rep__row"><span>实际续航</span><b>11 条<em>10.7%</em></b></div><div class="bci-a-rep__row"><span>异常响声</span><b>4 条<em>3.9%</em></b></div><div class="bci-a-rep__row"><span>路面滤震</span><b>3 条<em>2.9%</em></b></div></div></div><details class="bci-a-details"><summary>查看类目上卷（16 类，样本不足时兜底）</summary><table class="bci-a-table"><thead><tr><th>类目</th><th>正向条数</th><th>负向条数</th></tr></thead><tbody><tr><td>外观</td><td>8</td><td>1</td></tr><tr><td>动力与操控</td><td>4</td><td>0</td></tr><tr><td>购车价格</td><td>3</td><td>1</td></tr><tr><td>续航与能耗</td><td>3</td><td>11</td></tr><tr><td>智能驾驶</td><td>3</td><td>0</td></tr><tr><td>舒适性</td><td>1</td><td>8</td></tr><tr><td>内饰</td><td>1</td><td>1</td></tr><tr><td>安全性</td><td>1</td><td>0</td></tr><tr><td>整体评价与推荐</td><td>1</td><td>0</td></tr><tr><td>智能座舱</td><td>1</td><td>0</td></tr><tr><td>空间</td><td>1</td><td>2</td></tr><tr><td>购车与交付体验</td><td>1</td><td>0</td></tr></tbody></table></details><p class="bci-a-note">仅汽车之家（满意 / 不满意分栏）（时间 2026-01 至 2026-11-04，每车系最多 200 条）；懂车帝无分离字段，未混入；方向按原句情感判定。</p></section></div><div class="bci-a-attack"><p class="bci-a-attack__line"><span>零跑B10 进攻点：</span>座舱空气质量、颠簸路面滤震、续航达成率</p><p class="bci-a-attack__basis">依据：钛3 车内气味 18/195 条（9.2%）、小鹏MONA M03 路面滤震 12/79 条（15.2%）、钛3 实际续航 10/195 条（5.1%）</p><p class="bci-a-attack__live">竞品口碑现状：车内气味未做现状核验；路面滤震未做现状核验；实际续航未做现状核验 · 抓取 2026-11-11</p></div></article></div></div></div><p style="max-width:1120px;margin:14px auto 0;font-size:11.5px;color:#8C9AB2">本文件由「目标车型本竞品洞察系统」即时分析导出 · 2026-11-11 19:55</p></body></html>

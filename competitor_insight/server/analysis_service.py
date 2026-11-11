@@ -1307,6 +1307,207 @@ class AnalysisService:
             "metrics": [win, win_quotes, loss, abandon_quotes],
         }
 
+    # ------------------------------------------------------------------ 磁贴④ 逐竞品卡片
+
+    def satisfaction_cards(
+        self,
+        model_key: str,
+        *,
+        llm: Any = None,
+        search: Any = None,
+        cache_dir: Path | None = None,
+    ) -> dict[str, Any]:
+        """满意度主视图：逐竞品卡片（竞品名 + Q5_1 满意度分 + 满意点 + 不满意点 + 本品进攻点）。
+
+        竞品集合复用 `_loss_split`，最多 4 张；满意度分只用问卷 Q5_1（10 分制）并标 n，
+        不与口碑五分制并排。满意点/不满意点优先用该竞品口碑正负向 L3（带条数与分母），
+        口碑样本不足时退回该竞品问卷 Q5_2 的高低分项并标明来源。
+        """
+        config = self.config()
+        model = self._model(model_key)
+        reader = self._reader()
+        try:
+            loss = self._loss_split(reader, model, config)
+            items = list(loss.get("items") or [])[:4]
+            quant = self._competitor_quant(reader, config.get("competitor_aliases") or {})
+            rep_data: dict[str, dict[str, Any]] = {}
+            neg_stats: dict[str, list[str]] = {}
+            skipped: list[dict[str, str]] = []
+            for item in items:
+                label = str(item.get("label") or "")
+                names = reader.reputation_models_for(label) or []
+                if names:
+                    rep_data[label] = reader.reputation({"reputation_models": names})
+                    neg_stats[label] = names
+                else:
+                    skipped.append({"competitor": label, "reason": "口碑库无对应车型名"})
+            negative_points = reader.competitor_negative_points(neg_stats) if neg_stats else {}
+        except AnalysisError:
+            raise
+        except Exception as exc:  # noqa: BLE001
+            raise AnalysisError(
+                "database_unavailable", f"满意度卡片取数失败：{exc.__class__.__name__}", 503
+            ) from exc
+        finally:
+            reader.close()
+
+        price_band = str(model.get("price_note") or "").split("（")[0].strip()
+        position = "；".join(
+            part for part in (str(model.get("body_note") or "").strip(), price_band) if part
+        ) or "车型定位未提供"
+
+        cards: list[dict[str, Any]] = []
+        for item in items:
+            label = str(item.get("label") or "")
+            loss_count = int(item.get("count") or 0)
+            loss_ratio = item.get("ratio")
+            q = quant.get(_name_key(label)) or {}
+            score = {
+                "mean": round(float(q["mean"]), 2) if q.get("mean") is not None else None,
+                "answered": int(q.get("answered") or 0),
+                "scale": "Q5_1 · 10 分制",
+                "source": "问卷 · 该车购车人",
+            }
+            card = {
+                "competitor": label,
+                "loss_count": loss_count,
+                "loss_ratio": loss_ratio,
+                "loss_denominator": int(item.get("n") or 0),
+                "ratio_hidden_reason": item.get("ratio_hidden_reason") or "",
+                "score": score,
+            }
+            reputation = rep_data.get(label)
+            positive = self._card_points(reputation, "positive", "positive") if reputation else []
+            negative = self._card_points(reputation, "negative", "negative") if reputation else []
+            pos_denom = int((reputation or {}).get("denominators", {}).get("positive") or 0)
+            neg_denom = int((reputation or {}).get("denominators", {}).get("negative") or 0)
+
+            reputation_ok = bool(positive) and bool(negative) and min(pos_denom, neg_denom) >= REPUTATION_MIN_DENOMINATOR
+            if reputation_ok:
+                card["positive"] = {"source": "reputation", "denominator": pos_denom, "items": positive}
+                card["negative"] = {"source": "reputation", "denominator": neg_denom, "items": negative}
+            else:
+                fallback = self._competitor_quant_points(q)
+                card["positive"] = {"source": "quant", "denominator": int(q.get("answered_dims") or 0), "items": fallback["positive"]}
+                card["negative"] = {"source": "quant", "denominator": int(q.get("answered_dims") or 0), "items": fallback["negative"]}
+                card["fallback_reason"] = (
+                    f"该竞品口碑正/负向分母 {pos_denom}/{neg_denom} 条，不足 {REPUTATION_MIN_DENOMINATOR}，"
+                    "改用该车问卷 16 维高低分项。"
+                )
+
+            picked: list[dict[str, Any]] = []
+            stat = negative_points.get(label) if negative_points else None
+            denominator = int((stat or {}).get("denominator") or 0)
+            if stat and denominator >= REPUTATION_MIN_DENOMINATOR:
+                rows = sorted(
+                    (stat.get("points") or {}).items(),
+                    key=lambda pair: (-int(pair[1]), str(pair[0])),
+                )[:3]
+                for direction, count in rows:
+                    picked.append({
+                        "direction": str(direction),
+                        "competitor": label,
+                        "count": int(count),
+                        "denominator": denominator,
+                    })
+            if len(picked) == 3:
+                card["attack"] = attack_point.build_attack(
+                    f"{model['key']}#card#{_name_key(label)}",
+                    str(model["label"]),
+                    position,
+                    picked,
+                    llm=llm,
+                    search=search,
+                    cache_dir=cache_dir,
+                )
+            else:
+                card["attack"] = {
+                    "attack": "",
+                    "basis": "",
+                    "source": "empty",
+                    "error": f"{label} 负向口碑点不足 3 条，未生成该卡进攻点。",
+                    "verification": {"status": "unverified", "items": [], "line": "竞品口碑现状：未做现状核验"},
+                }
+            cards.append(card)
+
+        return {
+            "model": {"key": model["key"], "label": model["label"]},
+            "scale": "满意度分只用问卷 Q5_1（10 分制），不与口碑五分制并排",
+            "loss_label": loss.get("label"),
+            "loss_n": int(loss.get("n") or 0),
+            "cards": cards,
+            "skipped": skipped,
+            "max_cards": 4,
+        }
+
+    def _competitor_quant(self, reader, alias_map: dict[str, str]) -> dict[str, dict[str, Any]]:
+        """全库按实际购车车型聚合 Q5_1 与 Q5_2 十六维（竞品满意度分与问卷兜底用）。"""
+        select = [
+            "purchase_model",
+            "avg(CASE WHEN answers_text->>'Q5_1' ~ '^[0-9]+$' THEN (answers_text->>'Q5_1')::numeric END) AS q51_mean",
+            "count(*) FILTER (WHERE answers_text->>'Q5_1' ~ '^[0-9]+$') AS q51_answered",
+        ]
+        for index, _ in DIMENSIONS:
+            key = f"{SCORE_PREFIX}{index}"
+            select.append(
+                f"avg(CASE WHEN answers_text->>'{key}' ~ '^[0-9]+$' "
+                f"THEN (answers_text->>'{key}')::numeric END) AS m{index}"
+            )
+            select.append(
+                f"count(*) FILTER (WHERE answers_text->>'{key}' ~ '^[0-9]+$') AS a{index}"
+            )
+        rows = reader._fetch(
+            "SELECT " + ", ".join(select) + " FROM user_insight.quant_sample GROUP BY purchase_model"
+        )
+        result: dict[str, dict[str, Any]] = {}
+        for row in rows:
+            key = _name_key(normalize_competitor(str(row.get("purchase_model") or ""), alias_map))
+            if not key:
+                continue
+            dims = []
+            for index, label in DIMENSIONS:
+                mean = row.get(f"m{index}")
+                answered = int(row.get(f"a{index}") or 0)
+                if mean is None or answered < 10:
+                    continue
+                dims.append({"label": label, "mean": round(float(mean), 2), "answered": answered})
+            result[key] = {
+                "mean": row.get("q51_mean"),
+                "answered": int(row.get("q51_answered") or 0),
+                "dims": dims,
+                "answered_dims": max([item["answered"] for item in dims] or [0]),
+            }
+        return result
+
+    def _competitor_quant_points(self, q: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
+        dims = list(q.get("dims") or [])
+        if len(dims) < 3:
+            return {"positive": [], "negative": []}
+        ranked = sorted(dims, key=lambda item: (-item["mean"], item["label"]))
+        return {
+            "positive": [
+                {"label": item["label"], "answered": item["answered"], "mean": item["mean"]}
+                for item in ranked[:3]
+            ],
+            "negative": [
+                {"label": item["label"], "answered": item["answered"], "mean": item["mean"]}
+                for item in sorted(dims, key=lambda item: (item["mean"], item["label"]))[:3]
+            ],
+        }
+
+    def _card_points(self, reputation: dict[str, Any], direction: str, denom_key: str) -> list[dict[str, Any]]:
+        denom = int(reputation.get("denominators", {}).get(denom_key) or 0)
+        items = []
+        for row in [item for item in reputation.get("points") or [] if item.get("direction") == direction][:4]:
+            count = int(row.get("n") or 0)
+            items.append({
+                "label": str(row.get("tertiary_label") or ""),
+                "l1": REPUTATION_LABEL_ALIAS.get(row.get("primary_label"), row.get("primary_label")),
+                "count": count,
+                "ratio": round(count * 100 / denom, 1) if denom else None,
+            })
+        return items
+
     # ------------------------------------------------------------------ 磁贴④
 
     def _satisfaction(self, reader, model, counts, sources) -> dict[str, Any]:
@@ -1454,7 +1655,7 @@ class AnalysisService:
         return {
             "key": "satisfaction",
             "title": "产品满意度评价",
-            "subtitle": "使用后打分 + 推荐意愿 + 外部口碑；分数均附样本数",
+            "subtitle": "逐竞品卡片：竞品名 + Q5_1 满意度分（标 n）+ 满意点 / 不满意点 + 本品进攻点；16 维与推荐意愿见折叠区",
             "status": status,
             "n": total,
             "sources": sources,
