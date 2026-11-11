@@ -182,6 +182,12 @@ evidence: outputs/competitor-insights/BCI-004/
 - 2026-11-09：`TESTED` 维持（用户拍板**取消修订机制**：重跑直接原地覆盖，revision 不变、字段重建、不留 stale 历史；PG/文件两个后端同步改，单测 125/125，7860 重启生效。存量 R004 的 1 条 stale 行保留未删，已被全部查询排除）。
 - 2026-11-09：`TESTED` 维持（用户拍板**维度名按用户车系参数化**：`{brand}`/`{vehicle}` 占位符 + `server/vehicle_naming.py`（22 车系映射）；RT 组 4 维与老车主再购、品牌印象改挂通用标签转 LLM（llm 10→15、none 8→3）；**转化机会/风险保留本品埃安RT 语义**（用户确认）。单测 131/131，Playwright 8/8，7860 重启生效；存量档案需重生成才有新维度内容）。
 - 2026-11-09：`TESTED` 维持（用户反馈 R002 归档失败：根因为重挂 LLM 维缺标签证据 ID 供给模型。①提示词补标签证据 ID（tag_evidence 按名归集）；②模型给值未绑证据降级为单维缺失，不再整人失败（伪造/跨人仍硬失败）；③失败原因带维度透传到横幅。单测 132/132；**R002 重生成 completed 1/1**，老车主再购/了解渠道/期望均有真实内容且绑证据）。
+- 2026-11-11：`TESTED` 维持（**档案批量生成入口**，业务对接前补交付，仅动档案区）：
+  - 后端：`ArchiveService.cancel()` + `POST /api/bci/archive/cancel`；`generate(force=false)` 跳过任意已有档案（含 partial）；`_execute_run` 统计 done/failed/skipped，`threading.Event` 逐维中断；`BCI_ARCHIVE_MAX_WORKERS`（默认 2）控制并发。
+  - 性能：受访者列表的 `completeness` 原为逐人 `get_archive`（21 人 ≈ 28s），改单条聚合 `ArchiveStore.coverage_map()`，接口 28s → 2.1s；30 份档案新旧算法完整率 0 偏差。
+  - 前端：列表头「全选本页 + 已勾选 x/total」、工具栏「批量生成（已勾选 N 人）」、运行面板进度「已完成 x/总数 · 失败 n」+ 中止 + 关闭，跑完出结果卡（成功/失败/失败原因/跳过人数）并先刷新列表再出卡。
+  - 实测：3 人（R021–R023）224s、成功 3 / 失败 0；中止 45s 生效（skipped=2、未落库）；force=false 全跳过（total=0、skipped=3）；单测 210/210。
+  - 证据：`outputs/competitor-insights/BCI-004/20261111-batch/screenshots/batch-final-3.png`。代码未提交，待授权。
 
 ## 10. 开发阶段步骤（2026-11-06 起）
 

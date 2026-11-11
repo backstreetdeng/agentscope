@@ -198,10 +198,18 @@ class ArchiveGenerator:
         self._model = model
         self.prompt_version = prompt_version
 
-    def generate(self, interview_id: str) -> ArchiveDraft:
+    def generate(
+        self,
+        interview_id: str,
+        should_stop: Callable[[], bool] | None = None,
+    ) -> ArchiveDraft:
         bundle = self._source.load(interview_id)
         fields: list[ArchiveFieldRecord] = []
         for dim in self.source_map.dimensions:
+            # 批量任务中止：每个维度开始前检查一次，已在途的模型请求无法中断，
+            # 但不会再发起新的调用；未生成的草稿整体丢弃、不落库。
+            if should_stop is not None and should_stop():
+                raise GenerationError("cancelled", "运行已被用户中止")
             fields.append(self._build_field(dim, bundle))
 
         required_total = sum(1 for d in self.template["dimensions"] if d.get("required", True))

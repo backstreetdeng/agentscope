@@ -1175,7 +1175,13 @@ def bci_archive_service() -> Any:
             from competitor_insight.server.archive_api import ArchiveService
             from competitor_insight.server.archive_store import PostgresArchiveStore
 
-            BCI_ARCHIVE_SERVICE = ArchiveService(PostgresArchiveStore(bci_db.connect))
+            try:
+                max_workers = max(1, int(os.getenv("BCI_ARCHIVE_MAX_WORKERS", "2") or 2))
+            except ValueError:
+                max_workers = 2
+            BCI_ARCHIVE_SERVICE = ArchiveService(
+                PostgresArchiveStore(bci_db.connect), max_workers=max_workers
+            )
     return BCI_ARCHIVE_SERVICE
 
 
@@ -2723,7 +2729,7 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
         from competitor_insight.server.db import DatabaseUnavailable
 
         operation = parsed.path[len('/api/bci/archive/'):]
-        if operation not in {'generate', 'export'}:
+        if operation not in {'generate', 'export', 'cancel'}:
             self._send_json({'ok': False, 'error': {'code': 'not_found', 'message': '未找到档案接口。'}}, status=404)
             return
         length = int(self.headers.get('Content-Length', '0'))
@@ -2747,6 +2753,9 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
                     bool(payload.get('force')),
                 )
                 self._send_json(result, status=202)
+                return
+            if operation == 'cancel':
+                self._send_json(service.cancel(str(payload.get('run_id') or '')), status=202)
                 return
             bundle = service.export(
                 interview_ids,

@@ -204,6 +204,13 @@ class ArchiveStore(Protocol):
         expected: int | None = None,
     ) -> QueryResult: ...
 
+    def coverage_map(
+        self,
+        template_id: str,
+        template_version: str | None,
+        dimension_ids: list[str],
+    ) -> dict[str, int]: ...
+
     def create_run(self, record: RunRecord) -> None: ...
 
     def update_run(self, run_id: str, **changes: Any) -> None: ...
@@ -458,6 +465,43 @@ class PostgresArchiveStore:
             conn.close()
         return build_query_result(items, expected=expected)
 
+    def coverage_map(
+        self,
+        template_id: str,
+        template_version: str | None,
+        dimension_ids: list[str],
+    ) -> dict[str, int]:
+        """一次查询返回每位受访者必填维度中「有值或已注明无数据」的条数。"""
+        if not dimension_ids:
+            return {}
+        conn = self._new_conn()
+        try:
+            with conn.cursor() as cur:
+                sql = [
+                    "SELECT a.interview_id, count(*)",
+                    "FROM bci.archive a JOIN bci.archive_field f ON f.archive_id = a.archive_id",
+                    "WHERE a.template_id = %s AND f.dimension_id = ANY(%s)",
+                    # 只算最新修订，避免同一受访者多条修订重复累加
+                    "AND a.revision = (SELECT max(b.revision) FROM bci.archive b",
+                    " WHERE b.interview_id = a.interview_id AND b.template_id = a.template_id",
+                    " AND b.template_version = a.template_version)",
+                ]
+                params: list[Any] = [template_id, list(dimension_ids)]
+                if template_version is not None:
+                    sql.append("AND a.template_version = %s")
+                    params.append(template_version)
+                sql.append(
+                    "AND ((f.value_text IS NOT NULL AND f.value_text <> '')"
+                    " OR (f.value_json IS NOT NULL"
+                    " AND f.value_json::text NOT IN ('null', '{}', '[]', '\"\"'))"
+                    " OR f.no_data_reason IS NOT NULL)"
+                    " GROUP BY a.interview_id"
+                )
+                cur.execute(" ".join(sql), tuple(params))
+                return {row[0]: int(row[1]) for row in cur.fetchall()}
+        finally:
+            conn.close()
+
     def create_run(self, record: RunRecord) -> None:
         _validate_run_status(record.status)
         conn = self._new_conn()
@@ -694,6 +738,33 @@ class FileArchiveStore:
                 )
             )
         return build_query_result(items, expected=expected)
+
+    def coverage_map(
+        self,
+        template_id: str,
+        template_version: str | None,
+        dimension_ids: list[str],
+    ) -> dict[str, int]:
+        wanted = set(dimension_ids)
+        if not wanted:
+            return {}
+        counts: dict[str, int] = {}
+        for path in sorted((self.root / template_id).glob("*/*/archive-r*.json")):
+            if template_version is not None and path.parts[-3] != template_version:
+                continue
+            record = self._load_file(path)
+            filled = sum(
+                1
+                for field in record.fields
+                if field.dimension_id in wanted
+                and (
+                    field.value_text not in (None, "")
+                    or field.value_json not in (None, "", [], {})
+                    or field.no_data_reason
+                )
+            )
+            counts[record.interview_id] = max(counts.get(record.interview_id, 0), filled)
+        return counts
 
     def create_run(self, record: RunRecord) -> None:
         _validate_run_status(record.status)

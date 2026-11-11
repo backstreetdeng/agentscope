@@ -36,6 +36,7 @@
     detail: null,
     runId: null,
     runTimer: null,
+    runSkipped: 0,
     bound: false,
   };
 
@@ -188,13 +189,24 @@
     title.textContent = '';
     title.appendChild(document.createTextNode('用户列表 · ' + state.total + ' 人'));
     title.appendChild(el('span', '', ' · 已勾选 ' + state.selected.size));
+    syncSelectAll();
+  }
+
+  function syncSelectAll() {
+    const box = qs('[data-bp-select-all]', state.root);
+    if (!box) return;
+    const ids = state.respondents.map((r) => r.interview_id);
+    const picked = ids.filter((id) => state.selected.has(id)).length;
+    box.checked = ids.length > 0 && picked === ids.length;
+    box.indeterminate = picked > 0 && picked < ids.length;
+    box.disabled = !ids.length || !!state.runId;
+    const label = qs('[data-bp-select-label]', state.root);
+    if (label) label.textContent = '已勾选 ' + state.selected.size + ' / ' + state.total;
   }
 
   function updateSelectionUI() {
     const title = qs('.bp-list__title', state.root);
     if (title && title.childNodes[1]) title.childNodes[1].textContent = ' · 已勾选 ' + state.selected.size;
-    const count = qs('[data-bp-export-count]', state.root);
-    if (count) count.textContent = state.selected.size ? '导出 Excel（已勾选 ' + state.selected.size + ' 人）' : '导出 Excel';
     qsa('.bp-item', state.root).forEach((li) => {
       const cb = qs('input[type="checkbox"]', li);
       li.classList.toggle('is-selected', cb.checked);
@@ -466,7 +478,8 @@
 
   /* ------------------------------------------------ 生成 / 轮询 */
 
-  async function startGenerate(ids, mode) {
+  async function startGenerate(ids, mode, options) {
+    const opts = options || {};
     if (!state.canGenerate) {
       showAlert('本次未选入 2025 年定性解析数据，暂不能生成。');
       return;
@@ -480,17 +493,20 @@
           interview_ids: ids,
           template_id: state.templateId,
           mode: mode,
-          force: true,
+          force: opts.force !== false,
         }),
       });
       state.runId = payload.run_id;
+      state.runSkipped = payload.skipped || 0;
       updateActionState();
-      showRunPanel(payload);
+      showRunPanel(payload, opts);
       pollRun();
     } catch (err) {
       if (err.code === 'run_in_progress') {
         state.runId = err.payload.run_id;
+        state.runSkipped = 0;
         updateActionState();
+        showRunPanel({ total: 0, skipped: 0 }, opts);
         pollRun();
       } else {
         showAlert(err.message, true);
@@ -498,18 +514,31 @@
     }
   }
 
-  function showRunPanel(payload) {
+  function showRunPanel(payload, options) {
+    const opts = options || {};
     const panel = qs('.bp-run', state.root);
     panel.hidden = false;
-    const head = qs('.bp-run__head', panel);
-    head.childNodes[0].textContent = '';
-    head.childNodes[0].appendChild(document.createTextNode('正在归档'));
-    head.childNodes[0].appendChild(el('span', '', '（' + payload.total + ' 人）'));
+    const summary = qs('.bp-run__summary', panel);
+    summary.hidden = true;
+    summary.innerHTML = '';
     const log = qs('.bp-run__log', panel);
     log.innerHTML = '';
-    (payload.skipped ? [{ interview_id: '-', status: 'skipped', error: '已有 ready 档案，跳过 ' + payload.skipped + ' 人' }] : []).forEach((item) => {
-      log.appendChild(logLine(item));
-    });
+    setRunHead(panel, opts.batch ? '正在批量归档' : '正在归档', payload.total, 0, 0);
+    const abort = qs('[data-bp-run-abort]', panel);
+    abort.hidden = false;
+    abort.disabled = false;
+    abort.textContent = '中止';
+    qs('[data-bp-run-close]', panel).hidden = true;
+    if (payload.skipped) {
+      log.appendChild(logLine({
+        interview_id: '-', status: 'skipped', error_text: '已有档案，跳过 ' + payload.skipped + ' 人',
+      }));
+    }
+  }
+
+  function setRunHead(panel, title, total, done, failed) {
+    qs('.bp-run__title', panel).textContent = title + (total ? '（实际 ' + total + ' 人）' : '');
+    qs('.bp-run__counts', panel).textContent = '已完成 ' + done + '/' + (total || 0) + ' · 失败 ' + failed;
   }
 
   function logLine(item) {
@@ -518,8 +547,20 @@
     const code = item.interview_id === '-' ? '系统' : (item.interview_id || '');
     li.appendChild(el('span', '', code));
     const label = { done: '完成', failed: '失败', running: '生成中', skipped: '跳过' }[item.status] || item.status;
-    li.appendChild(el('span', '', label + (item.error ? '：' + item.error : '')));
+    const raw = item.error_text || item.error || '';
+    li.appendChild(el('span', '', label + (raw ? '：' + itemErrorText(raw) : '')));
     return li;
+  }
+
+  function itemErrorText(raw) {
+    if (!raw) return '';
+    const text = String(raw);
+    const sep = text.indexOf(':');
+    const code = sep >= 0 ? text.slice(0, sep) : text;
+    const detail = sep >= 0 ? text.slice(sep + 1).trim() : '';
+    const mapped = ITEM_ERROR_TEXT[code];
+    if (!mapped) return text;
+    return mapped + (detail ? '（' + detail + '）' : '');
   }
 
   function pollRun() {
@@ -529,29 +570,17 @@
         const data = await api('/run?run_id=' + encodeURIComponent(state.runId));
         const panel = qs('.bp-run', state.root);
         panel.hidden = false;
-        const bar = qs('.bp-run__bar i', panel);
-        bar.style.width = data.progress + '%';
-        const head = qs('.bp-run__head', panel);
-        head.childNodes[0].textContent = '';
-        head.childNodes[0].appendChild(document.createTextNode(runTitle(data)));
-        head.childNodes[0].appendChild(el('span', '', '（' + data.done + ' 完成 · ' + data.failed + ' 失败）'));
+        qs('.bp-run__bar i', panel).style.width = data.progress + '%';
+        setRunHead(panel, runTitle(data), data.total, data.done, data.failed);
         const log = qs('.bp-run__log', panel);
         log.innerHTML = '';
         (data.items || []).forEach((item) => log.appendChild(logLine(item)));
-
-        if (data.status === 'completed' || data.status === 'partial' || data.status === 'failed') {
-          state.runId = null;
-          if (state.runTimer) { clearInterval(state.runTimer); state.runTimer = null; }
-          updateActionState();
-          showAlert(runResultMessage(data));
-          await refresh();
-          setTimeout(() => { panel.hidden = true; }, 1500);
-        }
+        if (isTerminal(data.status)) await finishRun(panel, data);
       } catch (err) {
         if (state.runTimer) { clearInterval(state.runTimer); state.runTimer = null; }
         state.runId = null;
         updateActionState();
-        showAlert(err.message, true);
+        showAlert('读取运行状态失败：' + err.message, true);
       }
     };
     if (state.runTimer) clearInterval(state.runTimer);
@@ -559,10 +588,60 @@
     state.runTimer = setInterval(tick, 1500);
   }
 
+  function isTerminal(status) {
+    return status === 'completed' || status === 'partial'
+      || status === 'failed' || status === 'cancelled';
+  }
+
+  async function finishRun(panel, data) {
+    state.runId = null;
+    if (state.runTimer) { clearInterval(state.runTimer); state.runTimer = null; }
+    updateActionState();
+    qs('[data-bp-run-abort]', panel).hidden = true;
+    qs('[data-bp-run-close]', panel).hidden = false;
+    // 先刷新列表再出结果卡，避免「结果已成功、左侧仍显示未生成」的矛盾画面
+    try {
+      await refresh();
+    } catch (err) { /* 刷新失败不阻塞结果展示，用户可手动重新加载 */ }
+    const box = qs('.bp-run__summary', panel);
+    box.innerHTML = '';
+    box.hidden = false;
+    box.classList.toggle('is-error', data.status === 'failed');
+    box.appendChild(el('div', 'bp-run__summary-title', runResultMessage(data)));
+    const failed = (data.items || []).filter((i) => i.status === 'failed');
+    if (failed.length) {
+      const list = el('ul', 'bp-run__failed');
+      failed.forEach((item) => {
+        list.appendChild(el('li', '', (item.interview_id || '?') + '：' +
+          (itemErrorText(item.error_text || '') || '未知原因')));
+      });
+      box.appendChild(list);
+    }
+  }
+
+  async function abortRun() {
+    if (!state.runId) return;
+    const panel = qs('.bp-run', state.root);
+    const btn = qs('[data-bp-run-abort]', panel);
+    btn.disabled = true;
+    btn.textContent = '中止中…';
+    try {
+      await api('/cancel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ run_id: state.runId }),
+      });
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = '中止';
+      showAlert('中止失败：' + err.message, true);
+    }
+  }
+
   function runTitle(data) {
     const map = {
       queued: '排队中', running: '正在归档', completed: '归档完成',
-      partial: '部分完成', failed: '失败', cancelled: '已取消',
+      partial: '部分完成', failed: '失败', cancelled: '已中止',
     };
     return map[data.status] || data.status;
   }
@@ -577,16 +656,20 @@
   };
 
   function runResultMessage(data) {
-    if (data.status === 'completed') return '归档完成：' + data.done + ' 人全部生成。';
-    if (data.status === 'partial') return '部分完成：' + data.done + ' 人成功，' + data.failed + ' 人失败（详情见运行日志）。';
-    const failedItems = (data.items || []).filter((i) => i.status === 'failed');
-    if (failedItems.length) {
-      const detail = failedItems
-        .map((i) => (i.interview_id || '?') + '：' + (ITEM_ERROR_TEXT[i.error_text] || i.error_text || '未知原因'))
-        .join('；');
-      return '归档失败：' + detail + '。';
+    const total = Number(data.total || 0);
+    const done = Number(data.done || 0);
+    const failed = Number(data.failed || 0);
+    const skipped = Number(data.skipped || 0);
+    const extraSkip = state.runSkipped ? '；另有 ' + state.runSkipped + ' 人因已有档案被跳过' : '';
+    const counts = '成功 ' + done + ' 人 · 失败 ' + failed + ' 人'
+      + (skipped ? ' · 中止跳过 ' + skipped + ' 人' : '');
+    if (data.status === 'completed') return '归档完成：共 ' + total + ' 人，' + counts + extraSkip + '。';
+    if (data.status === 'partial') return '部分完成：共 ' + total + ' 人，' + counts + extraSkip + '。失败原因见下方列表。';
+    if (data.status === 'cancelled') {
+      const rest = Math.max(0, total - done - failed - skipped);
+      return '已中止：共 ' + total + ' 人，' + counts + (rest ? ' · 剩余 ' + rest + ' 人未处理' : '') + extraSkip + '。';
     }
-    return '归档失败：' + (data.error_text || '未知原因') + '。';
+    return '归档失败：共 ' + total + ' 人，' + counts + extraSkip + '。';
   }
 
   function showAlert(message, isError) {
@@ -742,28 +825,51 @@
   function updateActionState() {
     const actions = qs('.bp-actions', state.root);
     if (!actions) return;
-    const buttons = qsa('.bp-btn', actions);
+    const button = (name) => qs('[data-bp-action="' + name + '"]', actions);
     const canGenerate = state.canGenerate && !!state.template && !state.runId;
     const noSourceMap = !!state.template && state.template.source_map_ready === false;
     const current = state.respondents.find((r) => r.interview_id === state.currentId) || null;
     const hasArchive = !!(current && current.archive);
-    const genTitle = !state.canGenerate
+    const blockedTitle = !state.canGenerate
       ? '本次未选入 2025 年定性解析数据'
       : noSourceMap
         ? '该模板暂不支持自动生成（缺题项映射），请切换到「用户洞察档案」模板'
-        : hasArchive
-          ? '当前受访者已生成档案；重新生成请用「重新归档当前」'
-          : '';
-    if (buttons[0]) {
-      buttons[0].disabled = !canGenerate || !state.currentId || noSourceMap || hasArchive;
-      buttons[0].title = genTitle;
+        : '';
+
+    const genBtn = button('gen');
+    if (genBtn) {
+      genBtn.disabled = !canGenerate || !state.currentId || noSourceMap || hasArchive;
+      genBtn.title = blockedTitle ||
+        (hasArchive ? '当前受访者已生成档案；重新生成请用「重新归档当前」，或勾选后批量生成' : '');
     }
-    if (buttons[1]) {
-      buttons[1].disabled = !canGenerate || !state.currentId || noSourceMap;
-      buttons[1].title = noSourceMap ? '该模板暂不支持自动生成（缺题项映射）' : '';
+
+    const batchBtn = button('batch');
+    if (batchBtn) {
+      batchBtn.disabled = !canGenerate || !state.selected.size || noSourceMap;
+      batchBtn.textContent = state.selected.size
+        ? '批量生成（已勾选 ' + state.selected.size + ' 人）'
+        : '批量生成';
+      batchBtn.title = blockedTitle ||
+        (state.selected.size ? '为勾选的受访者生成档案；已有档案的人自动跳过' : '先在左侧勾选受访者');
     }
-    if (buttons[2]) buttons[2].disabled = !!state.runId || !state.selected.size;
-    if (buttons[3]) buttons[3].disabled = !!state.runId || !state.currentId;
+
+    const regen = button('regen');
+    if (regen) {
+      regen.disabled = !canGenerate || !state.currentId || noSourceMap;
+      regen.title = noSourceMap ? '该模板暂不支持自动生成（缺题项映射）' : '';
+    }
+
+    const exportBtn = button('export');
+    if (exportBtn) {
+      exportBtn.disabled = !!state.runId || !state.selected.size;
+      exportBtn.textContent = state.selected.size
+        ? '导出 Excel（已勾选 ' + state.selected.size + ' 人）'
+        : '导出 Excel';
+    }
+
+    const mdBtn = button('md');
+    if (mdBtn) mdBtn.disabled = !!state.runId || !state.currentId;
+    syncSelectAll();
   }
 
   /* ------------------------------------------------ 绑定 */
@@ -781,26 +887,52 @@
     toolbar.appendChild(scope);
 
     const actions = el('div', 'bp-actions');
-    actions.appendChild(el('button', 'bp-btn bp-btn--primary', '生成本人档案'));
+    const genBtn = el('button', 'bp-btn bp-btn--primary', '生成本人档案');
+    genBtn.dataset.bpAction = 'gen';
+    const batchBtn = el('button', 'bp-btn', '批量生成');
+    batchBtn.dataset.bpAction = 'batch';
     const regen = el('button', 'bp-btn', '重新归档当前');
-    actions.appendChild(regen);
+    regen.dataset.bpAction = 'regen';
     const exportBtn = el('button', 'bp-btn', '导出 Excel');
-    exportBtn.dataset.bpExportCount = '1';
-    actions.appendChild(exportBtn);
-    actions.appendChild(el('button', 'bp-btn', '下载 MD'));
+    exportBtn.dataset.bpAction = 'export';
+    const mdBtn = el('button', 'bp-btn', '下载 MD');
+    mdBtn.dataset.bpAction = 'md';
+    [genBtn, batchBtn, regen, exportBtn, mdBtn].forEach((btn) => actions.appendChild(btn));
     toolbar.appendChild(actions);
     root.appendChild(toolbar);
 
     const run = el('div', 'bp-run');
     run.hidden = true;
     const runHead = el('div', 'bp-run__head');
-    runHead.appendChild(el('span', '', ''));
+    const runRight = el('div', 'bp-run__right');
+    const abortBtn = el('button', 'bp-btn bp-btn--small', '中止');
+    abortBtn.dataset.bpRunAbort = '1';
+    abortBtn.hidden = true;
+    const closeBtn = el('button', 'bp-btn bp-btn--small', '关闭');
+    closeBtn.dataset.bpRunClose = '1';
+    closeBtn.hidden = true;
+    runRight.appendChild(el('span', 'bp-run__counts', ''));
+    runRight.appendChild(abortBtn);
+    runRight.appendChild(closeBtn);
+    runHead.appendChild(el('span', 'bp-run__title', ''));
+    runHead.appendChild(runRight);
+    const runSummary = el('div', 'bp-run__summary');
+    runSummary.hidden = true;
     const bar = el('div', 'bp-run__bar');
     bar.appendChild(el('i'));
     run.appendChild(runHead);
+    run.appendChild(runSummary);
     run.appendChild(bar);
     run.appendChild(el('ol', 'bp-run__log'));
     root.appendChild(run);
+    abortBtn.addEventListener('click', abortRun);
+    closeBtn.addEventListener('click', () => {
+      run.hidden = true;
+      runSummary.hidden = true;
+      runSummary.innerHTML = '';
+      qs('.bp-run__log', run).innerHTML = '';
+      qsa('.bp-alert', state.root).forEach((node) => node.remove());
+    });
 
     const cols = el('div', 'bp-cols');
     const list = el('aside', 'bp-list');
@@ -809,6 +941,25 @@
     title.appendChild(document.createTextNode(''));
     title.appendChild(el('span', '', ''));
     head.appendChild(title);
+    const selectRow = el('div', 'bp-list__select');
+    const selectLabel = el('label');
+    const selectAll = document.createElement('input');
+    selectAll.type = 'checkbox';
+    selectAll.dataset.bpSelectAll = '1';
+    selectAll.addEventListener('change', () => {
+      const ids = state.respondents.map((row) => row.interview_id);
+      if (selectAll.checked) ids.forEach((id) => state.selected.add(id));
+      else ids.forEach((id) => state.selected.delete(id));
+      renderList();
+      updateSelectionUI();
+    });
+    selectLabel.appendChild(selectAll);
+    selectLabel.appendChild(document.createTextNode('全选本页'));
+    const selectCount = el('span', '', '');
+    selectCount.dataset.bpSelectLabel = '1';
+    selectRow.appendChild(selectLabel);
+    selectRow.appendChild(selectCount);
+    head.appendChild(selectRow);
     const search = el('input', 'bp-search');
     search.placeholder = '搜索编号 / 城市 / 车型';
     search.type = 'search';
@@ -871,20 +1022,29 @@
     }, 250));
 
     qsa('.bp-btn', actions).forEach((btn) => {
-      if (btn === regen) {
+      const action = btn.dataset.bpAction;
+      if (action === 'gen') {
         btn.addEventListener('click', () => {
           if (!state.currentId) { showAlert('请先选择一位受访者。'); return; }
-          startGenerate([state.currentId], 'single');
+          startGenerate([state.currentId], 'single', { force: true });
         });
-      } else if (btn === exportBtn) {
+      } else if (action === 'batch') {
+        btn.addEventListener('click', () => {
+          if (!state.selected.size) {
+            showAlert('请先在左侧勾选受访者，或用「全选本页」。');
+            return;
+          }
+          startGenerate(Array.from(state.selected), 'selected', { force: false, batch: true });
+        });
+      } else if (action === 'regen') {
+        btn.addEventListener('click', () => {
+          if (!state.currentId) { showAlert('请先选择一位受访者。'); return; }
+          startGenerate([state.currentId], 'single', { force: true });
+        });
+      } else if (action === 'export') {
         btn.addEventListener('click', exportXlsx);
-      } else if (btn.textContent === '下载 MD') {
+      } else if (action === 'md') {
         btn.addEventListener('click', exportMd);
-      } else if (btn.textContent === '生成本人档案') {
-        btn.addEventListener('click', () => {
-          if (!state.currentId) { showAlert('请先选择一位受访者。'); return; }
-          startGenerate([state.currentId], 'single');
-        });
       }
     });
     updateActionState();

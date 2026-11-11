@@ -137,7 +137,7 @@ class StubGenerator:
         self.calls: list[str] = []
         self.fail = fail or set()
 
-    def generate(self, interview_id: str) -> ArchiveDraft:
+    def generate(self, interview_id: str, should_stop=None) -> ArchiveDraft:
         self.calls.append(interview_id)
         if interview_id in self.fail:
             raise GenerationError("llm_output_invalid", "模拟模型输出非法")
@@ -150,10 +150,10 @@ class BlockingGenerator(StubGenerator):
         self.started = threading.Event()
         self.release = threading.Event()
 
-    def generate(self, interview_id: str) -> ArchiveDraft:
+    def generate(self, interview_id: str, should_stop=None) -> ArchiveDraft:
         self.started.set()
         self.release.wait(timeout=5)
-        return super().generate(interview_id)
+        return super().generate(interview_id, should_stop=should_stop)
 
 
 class FakeDirectory:
@@ -382,6 +382,41 @@ class GenerateRunTest(ServiceTestBase):
         while service._active_run is not None and time.time() < deadline:
             time.sleep(0.02)
         self.assertIsNone(service._active_run)
+
+    def test_cancel_stops_remaining_targets(self) -> None:
+        generator = BlockingGenerator()
+        service = ArchiveService(
+            self.store,
+            generator=generator,
+            registry=REGISTRY,
+            directory=DIRECTORY,
+            background=True,
+            max_workers=1,
+        )
+        run_id = service.generate(["R001", "R002"], mode="selected", force=True)["data"]["run_id"]
+        self.assertTrue(generator.started.wait(timeout=3))
+
+        result = service.cancel(run_id)["data"]
+        self.assertTrue(result["cancel_requested"])
+
+        generator.release.set()
+        deadline = time.time() + 5
+        while service._active_run is not None and time.time() < deadline:
+            time.sleep(0.02)
+
+        status = service.run_status(run_id)["data"]
+        self.assertEqual(status["status"], "cancelled")
+        self.assertEqual(status["total"], 2)
+        self.assertEqual(status["done"], 1)
+        items = {item["interview_id"]: item for item in status["items"]}
+        self.assertEqual(items["R001"]["status"], "done")
+        self.assertEqual(items["R002"]["status"], "skipped")
+        self.assertEqual(status["skipped"], 1)
+
+    def test_cancel_unknown_run(self) -> None:
+        with self.assertRaises(ApiError) as ctx:
+            self.service.cancel(str(uuid.uuid4()))
+        self.assertEqual(ctx.exception.code, "run_not_found")
 
     def test_missing_and_all_modes(self) -> None:
         self.store.save_archive(build_draft("R001"))

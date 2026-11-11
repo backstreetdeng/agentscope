@@ -186,6 +186,8 @@ class ArchiveService:
         self._quotes = quotes
         self._lock = threading.Lock()
         self._active_run: str | None = None
+        self._cancel_event: threading.Event | None = None
+        self._generator_lock = threading.Lock()
 
     # ------------------------------------------------------------------ 模板
 
@@ -248,11 +250,25 @@ class ArchiveService:
         )
         by_id: dict[str, ArchiveSummary] = {item.interview_id: item for item in summaries.items}
 
+        # 一次聚合查询取必填维度已填数，避免逐人 get_archive 造成 63 次往返（列表曾耗时 28s）
+        required_ids = [
+            dim["id"]
+            for dim in bundle.definition.get("dimensions", [])
+            if dim.get("required", True)
+        ]
+        coverage = self.store.coverage_map(
+            bundle.template_id, bundle.version, required_ids
+        )
+
         items: list[dict[str, Any]] = []
         for row in rows:
             interview_id = row["interview_id"]
             summary = by_id.get(interview_id)
-            archive = self._archive_summary(bundle, summary) if summary else None
+            archive = (
+                self._archive_summary(summary, coverage.get(interview_id, 0), len(required_ids))
+                if summary
+                else None
+            )
             items.append({**row, "archive": archive})
 
         return _ok(
@@ -267,7 +283,7 @@ class ArchiveService:
         )
 
     def _archive_summary(
-        self, bundle: TemplateBundle, summary: ArchiveSummary
+        self, summary: ArchiveSummary, filled: int, required_total: int
     ) -> dict[str, Any]:
         payload: dict[str, Any] = {
             "status": summary.status,
@@ -276,11 +292,8 @@ class ArchiveService:
             "field_count": summary.field_count,
             "generated_at": summary.generated_at,
         }
-        detail = self.store.get_archive(
-            summary.interview_id, bundle.template_id, summary.template_version
-        )
-        if detail.items:
-            payload["completeness"] = completeness(bundle.definition, detail.items[0])
+        if required_total:
+            payload["completeness"] = round(filled / required_total * 100, 2)
         return payload
 
     # ------------------------------------------------------------------ 详情
@@ -422,16 +435,16 @@ class ArchiveService:
             if mode == "all":
                 requested = all_ids
             else:
-                summaries = self._summaries(bundle)
-                ready = {item.interview_id for item in summaries if item.status == "ready"}
-                requested = [iid for iid in all_ids if iid not in ready]
+                existing = {item.interview_id for item in self._summaries(bundle)}
+                requested = [iid for iid in all_ids if iid not in existing]
 
         skipped: list[str] = []
         targets = requested
         if not force:
-            ready = {item.interview_id for item in self._summaries(bundle) if item.status == "ready"}
-            skipped = [iid for iid in requested if iid in ready]
-            targets = [iid for iid in requested if iid not in ready]
+            # 已有档案（含 partial）一律跳过；partial 需刷新请用「重新归档当前」或 force。
+            existing = {item.interview_id for item in self._summaries(bundle)}
+            skipped = [iid for iid in requested if iid in existing]
+            targets = [iid for iid in requested if iid not in existing]
 
         with self._lock:
             if self._active_run:
@@ -443,6 +456,8 @@ class ArchiveService:
                 )
             run_id = str(uuid.uuid4())
             self._active_run = run_id
+            cancel_event = threading.Event()
+            self._cancel_event = cancel_event
 
         try:
             self.store.create_run(
@@ -467,18 +482,20 @@ class ArchiveService:
                 )
                 with self._lock:
                     self._active_run = None
+                    self._cancel_event = None
             elif self.background:
                 threading.Thread(
                     target=self._execute_run,
-                    args=(run_id, list(targets)),
+                    args=(run_id, list(targets), cancel_event),
                     name=f"bci-archive-{run_id[:8]}",
                     daemon=True,
                 ).start()
             else:
-                self._execute_run(run_id, list(targets))
+                self._execute_run(run_id, list(targets), cancel_event)
         except Exception:
             with self._lock:
                 self._active_run = None
+                self._cancel_event = None
             raise
 
         return _ok(
@@ -491,30 +508,42 @@ class ArchiveService:
             }
         )
 
-    def _execute_run(self, run_id: str, targets: list[str]) -> None:
-        done = failed = 0
+    def _execute_run(
+        self,
+        run_id: str,
+        targets: list[str],
+        cancel_event: threading.Event | None = None,
+    ) -> None:
+        done = failed = skipped = 0
+        cancel_event = cancel_event or threading.Event()
         try:
             self.store.update_run(run_id, status="running")
             if self.max_workers > 1 and len(targets) > 1:
                 with ThreadPoolExecutor(max_workers=self.max_workers) as pool:
-                    futures = [pool.submit(self._generate_one, run_id, iid) for iid in targets]
+                    futures = [
+                        pool.submit(self._generate_one, run_id, iid, cancel_event)
+                        for iid in targets
+                    ]
                     for future in as_completed(futures):
-                        if future.result():
-                            done += 1
-                        else:
-                            failed += 1
+                        done, failed, skipped = _tally(future.result(), done, failed, skipped)
             else:
                 for interview_id in targets:
-                    if self._generate_one(run_id, interview_id):
-                        done += 1
-                    else:
-                        failed += 1
-            status = "completed" if failed == 0 else ("partial" if done else "failed")
+                    done, failed, skipped = _tally(
+                        self._generate_one(run_id, interview_id, cancel_event),
+                        done,
+                        failed,
+                        skipped,
+                    )
+            if cancel_event.is_set():
+                status = "cancelled"
+            else:
+                status = "completed" if failed == 0 else ("partial" if done else "failed")
             self.store.update_run(
                 run_id,
                 status=status,
                 done=done,
                 failed=failed,
+                error_text="cancelled_by_user" if cancel_event.is_set() else None,
                 finished_at=_now_iso(),
             )
         except Exception as exc:  # noqa: BLE001
@@ -532,11 +561,24 @@ class ArchiveService:
         finally:
             with self._lock:
                 self._active_run = None
+                self._cancel_event = None
 
-    def _generate_one(self, run_id: str, interview_id: str) -> bool:
+    def _generate_one(
+        self,
+        run_id: str,
+        interview_id: str,
+        cancel_event: threading.Event | None = None,
+    ) -> bool | None:
+        """生成单人档案；返回 True 成功 / False 失败 / None 已中止未处理。"""
+        cancel_event = cancel_event or threading.Event()
         try:
+            if cancel_event.is_set():
+                self.store.update_run_item(run_id, interview_id, "skipped", "已中止，未生成")
+                return None
             self.store.update_run_item(run_id, interview_id, "running")
-            draft = self._generator_obj().generate(interview_id)
+            draft = self._generator_obj().generate(
+                interview_id, should_stop=cancel_event.is_set
+            )
             if draft.run_id != run_id:
                 draft = replace(draft, run_id=run_id)
             self.store.save_archive(draft)
@@ -545,6 +587,11 @@ class ArchiveService:
         except Exception as exc:  # noqa: BLE001
             code = getattr(exc, "code", None) or exc.__class__.__name__
             try:
+                if code == "cancelled" or cancel_event.is_set():
+                    self.store.update_run_item(
+                        run_id, interview_id, "skipped", "已中止，未生成"
+                    )
+                    return None
                 # error_text 带维度与原因，横幅/运行日志可直接读
                 self.store.update_run_item(
                     run_id, interview_id, "failed", f"{code}:{str(exc)[:100]}"
@@ -552,6 +599,24 @@ class ArchiveService:
             except Exception:  # noqa: BLE001
                 pass
             return False
+
+    def cancel(self, run_id: str) -> dict[str, Any]:
+        """请求中止正在运行的归档任务；已开始的人会写完当前维度后停止，未开始的人记跳过。"""
+        if not run_id:
+            raise ApiError("invalid_run", "run_id 不能为空")
+        with self._lock:
+            active = self._active_run
+            event = self._cancel_event
+        if active and active == run_id and event is not None:
+            event.set()
+            return _ok({"run_id": run_id, "cancel_requested": True, "status": "cancelling"})
+
+        result = self.store.get_run(run_id)
+        if not result.items:
+            raise ApiError("run_not_found", f"运行不存在：{run_id}", 404)
+        run = result.items[0]["run"]
+        status = asdict(run).get("status") if is_dataclass(run) else dict(run).get("status")
+        return _ok({"run_id": run_id, "cancel_requested": False, "status": status})
 
     def run_status(self, run_id: str) -> dict[str, Any]:
         if not run_id:
@@ -569,7 +634,9 @@ class ArchiveService:
         run_data["progress"] = (
             round((done + failed) / total * 100, 2) if total else 0.0
         )
-        run_data["items"] = payload["items"]
+        items = payload["items"]
+        run_data["items"] = items
+        run_data["skipped"] = sum(1 for item in items if item.get("status") == "skipped")
         return _ok(run_data)
 
     # ------------------------------------------------------------------ 原话
@@ -693,21 +760,24 @@ class ArchiveService:
         return self._directory
 
     def _generator_obj(self):
-        if self._generator is None:
-            from competitor_insight.server import db as db_module
-            from competitor_insight.server.archive_generator import (
-                ArchiveGenerator,
-                PostgresInterviewSource,
-            )
-            from competitor_insight.server.llm_client import build_deepseek_client
+        if self._generator is not None:
+            return self._generator
+        with self._generator_lock:
+            if self._generator is None:
+                from competitor_insight.server import db as db_module
+                from competitor_insight.server.archive_generator import (
+                    ArchiveGenerator,
+                    PostgresInterviewSource,
+                )
+                from competitor_insight.server.llm_client import build_deepseek_client
 
-            client = build_deepseek_client()
-            self._generator = ArchiveGenerator(
-                PostgresInterviewSource(db_module.connect),
-                registry=self.registry,
-                llm=client,
-                model=getattr(client, "model", None),
-            )
+                client = build_deepseek_client()
+                self._generator = ArchiveGenerator(
+                    PostgresInterviewSource(db_module.connect),
+                    registry=self.registry,
+                    llm=client,
+                    model=getattr(client, "model", None),
+                )
         return self._generator
 
     def _quotes_obj(self):
@@ -716,6 +786,15 @@ class ArchiveService:
 
             self._quotes = QuoteService(db_module.connect)
         return self._quotes
+
+
+def _tally(outcome: bool | None, done: int, failed: int, skipped: int) -> tuple[int, int, int]:
+    """把单人结果计入运行统计：True=成功，False=失败，None=中止跳过。"""
+    if outcome is True:
+        return done + 1, failed, skipped
+    if outcome is False:
+        return done, failed + 1, skipped
+    return done, failed, skipped + 1
 
 
 def _dedupe(values: Iterable[str]) -> list[str]:
