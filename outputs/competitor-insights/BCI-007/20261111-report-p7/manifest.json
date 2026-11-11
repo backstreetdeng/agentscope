@@ -1,0 +1,18 @@
+{
+  "task": "BCI-007",
+  "run_id": "20261111-report-p7",
+  "purpose": "P7 进攻方向接入实测：真实库生成零跑B10报告，验证分析接口 attack-point 的 3 条进攻方向、词条分母与现状核验列，并留存页面截图。",
+  "created_at": "2026-11-11",
+  "source": "bci.report / bci.report_version 实时生成（outline report-outline/2.1.0，renderer report-render-html/1.0.2）",
+  "files": [
+    "report-p7.html：零跑B10 v4.0 报告单文件 HTML（含 P07.ATTACK 块）",
+    "screenshots/P07.png：P7 满意度评价页截图，含进攻方向表与页脚来源"
+  ],
+  "rebuild": "..\\Scripts\\python.exe -B temp\\20261111-report-p7-attack\\verify_p7.py && ..\\Scripts\\python.exe -B temp\\20261111-report-p7-attack\\shots.py",
+  "notes": [
+    "进攻点数据来自 GET /api/bci/analysis/attack-point 同一实现（AnalysisService.attack_point），报告内复用其缓存，不另建池。",
+    "本轮检索未返回可用链接，字段如实标注「未做现状核验」，未用模板句顶替。",
+    "本目录为证据产物，可清理；重建会重新生成报告版本，不覆盖已发布版本。"
+  ],
+  "cleanable": true
+}

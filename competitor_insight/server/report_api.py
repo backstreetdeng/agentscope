@@ -13,8 +13,8 @@ from competitor_insight.server.report_service import SOURCE_REGISTRY, BciReportS
 
 
 class ReportApi:
-    def __init__(self, service: BciReportService | None = None) -> None:
-        self.service = service or BciReportService()
+    def __init__(self, service: BciReportService | None = None, *, attack_llm: Any = None) -> None:
+        self.service = service or BciReportService(attack_llm=attack_llm)
 
     # ---------------------------------------------------------------- 读
 

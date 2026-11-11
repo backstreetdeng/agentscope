@@ -1268,7 +1268,7 @@ def bci_report_api() -> Any:
         if BCI_REPORT_API is None:
             from competitor_insight.server.report_api import ReportApi
 
-            BCI_REPORT_API = ReportApi()
+            BCI_REPORT_API = ReportApi(attack_llm=bci_tile_summary_llm)
     return BCI_REPORT_API
 
 

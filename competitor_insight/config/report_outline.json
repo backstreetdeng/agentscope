@@ -1,5 +1,5 @@
 {
-  "version": "report-outline/2.0.0",
+  "version": "report-outline/2.1.0",
   "updated": "2026-11-11",
   "title_pattern": "{group}组竞品用户洞察报告",
   "scope_note": "本期仅覆盖竞品侧，不含本品（埃安RT）侧；标题序号与主题照原型，冒号后的结论由本车数据实时生成，缺数据时只写主题。定性模块分母为已生成洞察档案人数，只出人数、原话与占建档分数，不出统计比例。",
@@ -122,7 +122,8 @@
         {"id": "P07.DIMENSIONS", "type": "bars", "title": "16 维使用满意度（Q5_2，1–10 分）", "source": "analysis.satisfaction", "required": true},
         {"id": "P07.RECOMMEND", "type": "kv", "title": "推荐意愿（Q5_5，1–10 分）", "source": "analysis.satisfaction", "required": true},
         {"id": "P07.REPUTATION", "type": "table", "title": "外部口碑 正 / 负向 TOP5（非问卷）", "source": "analysis.satisfaction", "required": true},
-        {"id": "P07.POINTS", "type": "quotes", "title": "满意与不满意的具体点（深访）", "source": "archive.satisfaction_points", "required": true}
+        {"id": "P07.POINTS", "type": "quotes", "title": "满意与不满意的具体点（深访）", "source": "archive.satisfaction_points", "required": true},
+        {"id": "P07.ATTACK", "type": "table", "title": "进攻方向：竞品负向口碑点 → 本品可攻击点（联网核验）", "source": "analysis.attack", "required": true}
       ]
     },
     {

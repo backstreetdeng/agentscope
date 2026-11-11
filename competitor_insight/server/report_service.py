@@ -45,6 +45,7 @@ SOURCE_REGISTRY: dict[str, str] = {
     "analysis.attention": "定量问卷 · Q3_13 购车关注 16 维多选",
     "analysis.winloss": "定量问卷 · Q3_23 / Q3_22×Q3_24 + 深访 Q29",
     "analysis.satisfaction": "定量问卷 · Q5_1 / Q5_2 / Q5_5 + 外部口碑",
+    "analysis.attack": "外部口碑 · 竞品负向口碑点 → 进攻方向 + 联网核验",
     "archive.lifestyle": "洞察档案 · 性格兴趣 / 消费观",
     "archive.motivation": "洞察档案 · 购车动机",
     "archive.brand_role": "洞察档案 · 品牌/产品/服务排序",
@@ -62,6 +63,7 @@ SOURCE_FAMILIES: dict[str, tuple[str, ...]] = {
     "analysis.attention": ("quant",),
     "analysis.winloss": ("quant",),
     "analysis.satisfaction": ("quant", "reputation"),
+    "analysis.attack": ("reputation",),
     "archive.lifestyle": ("interview",),
     "archive.motivation": ("interview",),
     "archive.brand_role": ("interview",),
@@ -581,10 +583,12 @@ class BciReportService:
         store: PostgresReportStore | None = None,
         outline_path: Path | None = None,
         narrative: bool | None = None,
+        attack_llm: Any = None,
     ) -> None:
         self.analysis = analysis or AnalysisService()
         self.archive = archive or ArchiveAggregator(connect=lambda: db.connect(db.load_env()))
         self.store = store or PostgresReportStore()
+        self.attack_llm = attack_llm
         self._outline_path = Path(outline_path or OUTLINE_PATH)
         self._outline: dict[str, Any] | None = None
         self.narrative = (
@@ -1691,6 +1695,79 @@ class BciReportService:
             "kind": "quotes",
             "models": models,
             "note": "深访逐人原话，不做比例；同一人可同时有满意点与不满点。",
+            "availability": _availability(model["status"] for model in models),
+        }
+
+    def _build_p07_attack(self, context: dict[str, Any]) -> dict[str, Any]:
+        """P7 进攻方向：竞品负向 L3 → 模型提炼 → 联网核验；失败如实标缺，不阻断报告。"""
+        models = []
+        for key in context["keys"]:
+            row: dict[str, Any] = {
+                "key": key,
+                "label": self._model(key)["label"],
+                "columns": ["进攻方向", "竞品负向口碑点", "命中条数/分母", "现状核验"],
+                "rows": [],
+                "n": None,
+            }
+            if self.attack_llm is None:
+                row.update({"status": "missing", "note": "进攻方向模型通道未注入，本轮未生成。"})
+                models.append(row)
+                continue
+            try:
+                result = self.analysis.attack_point(key, llm=self.attack_llm)
+            except Exception as exc:  # noqa: BLE001 - 联网/模型失败不阻断整份报告
+                row.update(
+                    {
+                        "status": "missing",
+                        "note": f"进攻方向生成失败：{exc.__class__.__name__}；未用模板句顶替。",
+                    }
+                )
+                models.append(row)
+                continue
+
+            verification = result.get("verification") or {}
+            checks = {item.get("direction"): item for item in verification.get("items") or []}
+            rows = []
+            for item in result.get("directions") or []:
+                denominator = int(item.get("denominator") or 0)
+                count = int(item.get("count") or 0)
+                share = f"{count / denominator * 100:.1f}%" if denominator else "—"
+                check = checks.get(item.get("direction")) or {}
+                if check.get("domain"):
+                    state = f"{check.get('text') or ''}（{check.get('domain')}）"
+                elif check.get("verdict") == "inconclusive":
+                    state = check.get("text") or "检索有结果但无法确认"
+                else:
+                    state = "未做现状核验"
+                rows.append(
+                    [
+                        str(item.get("direction") or ""),
+                        str(item.get("competitor") or ""),
+                        f"{count}/{denominator}（{share}）",
+                        state,
+                    ]
+                )
+
+            notes = []
+            if result.get("attack"):
+                notes.append(f"进攻点：{result['attack']}")
+            if result.get("basis"):
+                notes.append(str(result["basis"]))
+            if result.get("error"):
+                notes.append(str(result["error"]))
+            notes.append(verification.get("line") or "竞品口碑现状：未做现状核验")
+            row.update(
+                {
+                    "rows": rows,
+                    "n": int(result.get("loss_n") or 0) or None,
+                    "status": "ok" if rows else "missing",
+                    "note": "；".join(part for part in notes if part),
+                }
+            )
+            models.append(row)
+        return {
+            "kind": "per_model",
+            "models": models,
             "availability": _availability(model["status"] for model in models),
         }
 

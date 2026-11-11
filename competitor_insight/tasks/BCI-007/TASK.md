@@ -10,7 +10,7 @@ frozen_paths: none
 commit_paths: competitor_insight/docs/report-output-design.md, competitor_insight/docs/report-output-business-inputs.md, competitor_insight/tasks/BCI-007, outputs/competitor-insights/BCI-007, competitor_insight/config/report_outline.json, competitor_insight/server/report_service.py, competitor_insight/server/report_archive_aggregate.py, competitor_insight/server/report_render_html.py, competitor_insight/server/report_api.py, competitor_insight/server/llm_client.py, competitor_insight/web/bci-report.js, competitor_insight/web/bci-report.css, competitor_insight/tests/test_report_service.py, competitor_insight/tests/test_report_render_html.py, ops/bci_report_ddl.sql, ops/apply_bci_report_ddl.py
 updated: 2026-11-11
 blocked: no
-next: 用户验收 7860（一车一报告 / 11 页 / 页脚实时 n / 受控改稿 v1.1）；P6 首选率与 P9/P10 本品页待业务补样本或题项
+next: 用户验收 7860（一车一报告 / 11 页 / 页脚实时 n / 受控改稿 v1.1 / P7 进攻方向）；P6 首选率与 P9/P10 本品页待业务补样本或题项
 evidence: outputs/competitor-insights/BCI-007/20261111-report-11p/
 ```
 
@@ -113,6 +113,9 @@ evidence: outputs/competitor-insights/BCI-007/20261111-report-11p/
 | B6 | 确定性改稿 | 仅 `set_title/limit_items/append_refs`；数字子集校验；v1.1→v1.2 成链 | PASS：`20261111-report-v11/` E2E + UI |
 | B7 | 结构化对比 | 按 block.id + 行键并排，不用逐字 diff | PASS：UI 对比面板 `P04.CHART`/`P11.BULLETS` |
 | B8 | legacy 只读 | 旧五车报告 `legacy=true`，`/revise` 拒绝 | PASS：DDL 回填 5 条 legacy |
+| B9 | P7 进攻方向接入 | P07.ATTACK 调 `AnalysisService.attack_point`（与 `GET /api/bci/analysis/attack-point` 同一实现），失败标缺不阻断报告 | PASS：零跑B10 v4.0 出 3 个方向（车内气味 18/195、路面滤震 12/79、实际续航 10/195），n=40；检索无结果时如实写「未做现状核验」 |
 
-证据：`outputs/competitor-insights/BCI-007/20261111-report-11p/`（11 页 HTML、逐页截图、verify.txt）、`20261111-report-footer/`、`20261111-report-v11/`（版本线截图）。
+补充核对：`bci.report` 中 leapmotor-b10 的两条记录里，旧记录（`c882a856…`，标题「5 款车型竞品用户洞察报告」）已是 `legacy=true`，列表查询 `where r.legacy = false` 已过滤，业务侧只看到一条「1 款车型竞品用户洞察报告」。
+
+证据：`outputs/competitor-insights/BCI-007/20261111-report-11p/`（11 页 HTML、逐页截图、verify.txt）、`20261111-report-footer/`、`20261111-report-v11/`（版本线截图）、`20261111-report-p7/`（P7 进攻方向页与截图）。
 

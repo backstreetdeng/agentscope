@@ -29,6 +29,41 @@ class FakeAnalysis:
         self._keys = ["fake-a", "fake-b"]
         self.source_counts = {key: {"quant": 41, "interview": 4, "reputation": 120, "miit": 6} for key in self._keys}
 
+    def attack_point(self, key, llm=None, search=None, cache_dir=None):
+        return {
+            "model": {"key": key, "label": "测试车A"},
+            "directions": [
+                {
+                    "direction": "实际续航",
+                    "competitor": "测试车B",
+                    "count": 8,
+                    "denominator": 60,
+                    "ref": "reputation:negative:测试车B:实际续航",
+                }
+            ],
+            "attack": "以真实续航对位竞品续航争议",
+            "basis": "竞品负向口碑前 3",
+            "source": "llm",
+            "error": "",
+            "verification": {
+                "status": "verified",
+                "fetched_at": "2026-11-11",
+                "items": [
+                    {
+                        "direction": "实际续航",
+                        "verdict": "confirmed",
+                        "text": "仍有车主反馈",
+                        "domain": "autohome.com.cn",
+                        "url": "https://example.invalid/post",
+                        "quote": "高速掉电快",
+                    }
+                ],
+                "line": "竞品口碑现状：实际续航仍有车主反馈（autohome.com.cn）",
+            },
+            "prompt_version": "test",
+            "loss_n": 40,
+        }
+
     def config(self):
         return {
             "version": "test-1",
@@ -313,7 +348,11 @@ class FakeStore:
 
 def make_service() -> BciReportService:
     return BciReportService(
-        analysis=FakeAnalysis(), archive=FakeArchive(), store=FakeStore(), narrative=False
+        analysis=FakeAnalysis(),
+        archive=FakeArchive(),
+        store=FakeStore(),
+        narrative=False,
+        attack_llm=lambda system_prompt, message: "{}",
     )
 
 
@@ -373,6 +412,19 @@ class BuildContentTest(unittest.TestCase):
         )
         self.assertEqual(block["availability"], "missing")
         self.assertTrue(any(gap["block"] == "P04.BRAND_ROLE" for gap in self.content["gaps"]))
+
+    def test_p07_attack_block_uses_attack_points(self):
+        block = next(
+            block
+            for page in self.content["pages"]
+            for block in page["blocks"]
+            if block["id"] == "P07.ATTACK"
+        )
+        model = block["models"][0]
+        self.assertEqual(model["status"], "ok")
+        self.assertEqual(model["n"], 40)
+        self.assertEqual(model["rows"][0][0], "实际续航")
+        self.assertIn("autohome.com.cn", model["rows"][0][3])
 
     def test_labels_come_from_config_not_code(self):
         self.assertIn("测试车A", json.dumps(self.content, ensure_ascii=False))

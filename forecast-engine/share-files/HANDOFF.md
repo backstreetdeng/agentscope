@@ -1,10 +1,11 @@
 # HelloAgent 最近交接 · V2.0
 
-更新：2026-11-06（Asia/Shanghai）。本文件由当前值班 AI 维护，适用于整个 myproject；共同规则见 [AGENTS.md](../../AGENTS.md)，任务索引见 [TASKS.md](TASKS.md)。
+更新：2026-11-11（Asia/Shanghai）。本文件由当前值班 AI 维护，适用于整个 myproject；共同规则见 [AGENTS.md](../../AGENTS.md)，任务索引见 [TASKS.md](TASKS.md)。
 
 ## 当前任务及进度
 
-- 2026-11-11 BCI-007 报告输出第二轮（TRAE）：按原型 11 页重写大纲 `report-outline/2.0.0`（P02/P03 中汽换购、P06 首选率、P09/P10 本品页整页「暂未提供数据」并写缺口，不删页、不用竞品顶替）；标题改为「序号-主题：一句结论」，结论由模型按本车数据生成并过数字白名单与品牌串车校验，缺数据只写主题；页脚按页实际块汇总源族、n 实时取档案数/问卷作答数/口碑条数；确定性改稿 `set_title/limit_items/append_refs`（v1.1→v1.2）+ 按 block.id 行键结构化对比；旧五车报告 `legacy=true` 只读。实测零跑B10 v3.0：P01 页脚 `n=2 + n=41`、P07 追加 `n=206`，逐页截图在 `outputs/competitor-insights/BCI-007/20261111-report-11p/`，页脚与不可用页证据在 `…/20261111-report-footer/`，版本线在 `…/20261111-report-v11/`；单测 32/32。未提交 git（14 个文件待授权）；P7 进攻方向另线在做，本报告未含。
+- 2026-11-11 BCI-007 报告输出第二轮（TRAE）：按原型 11 页重写大纲 `report-outline/2.0.0`（P02/P03 中汽换购、P06 首选率、P09/P10 本品页整页「暂未提供数据」并写缺口，不删页、不用竞品顶替）；标题改为「序号-主题：一句结论」，结论由模型按本车数据生成并过数字白名单与品牌串车校验，缺数据只写主题；页脚按页实际块汇总源族、n 实时取档案数/问卷作答数/口碑条数；确定性改稿 `set_title/limit_items/append_refs`（v1.1→v1.2）+ 按 block.id 行键结构化对比；旧五车报告 `legacy=true` 只读。实测零跑B10 v3.0：P01 页脚 `n=2 + n=41`、P07 追加 `n=206`，逐页截图在 `outputs/competitor-insights/BCI-007/20261111-report-11p/`，页脚与不可用页证据在 `…/20261111-report-footer/`，版本线在 `…/20261111-report-v11/`；单测 32/32；当日已提交推送（见下一条），P7 进攻方向当时未含。
+- 2026-11-11 下午（TRAE）：BCI-007 已提交并推送 `e0a19c4`（只含 007 文件，未夹带 BCI-006）。随后接入 P7 进攻方向：`report_outline.json` 升 `2.1.0`，新增 `P07.ATTACK`，复用 `AnalysisService.attack_point`（与 `GET /api/bci/analysis/attack-point` 同一实现），`app.py` 注入磁贴模型通道，失败标缺不阻断报告。实测零跑B10 v4.0 出 3 个方向（车内气味、路面滤震、实际续航，n=40），检索无结果时如实写「未做现状核验」；证据 `outputs/competitor-insights/BCI-007/20261111-report-p7/`。leapmotor-b10 重复 report 记录中旧的一条已 `legacy=true`，列表已过滤，业务只看到一份。
 
 - 2026-11-09 MKT-002 入口位置修正（TRAE）：用户指出深度调研入口误放废弃页 legacy_workbench（重复迁移错误）；已全部撤除（该文件恢复原状，deep_research 残留 0），入口重做到新平台 #analysis——第三张技能卡「深度调研」+ 页内原生工作台面板（示例/输入/运行/Markdown 渲染/报告下载，home.js 新增 DeepResearch 模块），技能页卡片链接改指 #analysis。验证：面板交互实测通过、API 端到端 82s validation passed（run skill-20261109-153541-e34fdea9）、无 legacy 残留链接。MKT-002 TASK.md 已更新（L02 关闭）。7860 已重启生效；提交见后续修正版 commit。
 
