@@ -7,11 +7,11 @@ stage: TESTED
 owner: TRAE
 port: none
 frozen_paths: none
-commit_paths: competitor_insight/docs/report-output-design.md, competitor_insight/docs/report-output-business-inputs.md, competitor_insight/tasks/BCI-007, outputs/competitor-insights/BCI-007, competitor_insight/config/report_outline.json, competitor_insight/server/report_service.py, competitor_insight/server/report_archive_aggregate.py, competitor_insight/server/report_render_html.py, competitor_insight/server/report_api.py, competitor_insight/web/bci-report.js, competitor_insight/web/bci-report.css, competitor_insight/tests/test_report_service.py, competitor_insight/tests/test_report_render_html.py, ops/bci_report_ddl.sql, ops/apply_bci_report_ddl.py
+commit_paths: competitor_insight/docs/report-output-design.md, competitor_insight/docs/report-output-business-inputs.md, competitor_insight/tasks/BCI-007, outputs/competitor-insights/BCI-007, competitor_insight/config/report_outline.json, competitor_insight/server/report_service.py, competitor_insight/server/report_archive_aggregate.py, competitor_insight/server/report_render_html.py, competitor_insight/server/report_api.py, competitor_insight/server/llm_client.py, competitor_insight/web/bci-report.js, competitor_insight/web/bci-report.css, competitor_insight/tests/test_report_service.py, competitor_insight/tests/test_report_render_html.py, ops/bci_report_ddl.sql, ops/apply_bci_report_ddl.py
 updated: 2026-11-11
 blocked: no
-next: 用户验收 7860 报告输出 tab（需重启服务加载 home.html）；PPT（S5/S6）等业务模板与用户确认后另起阶段
-evidence: outputs/competitor-insights/BCI-007/20261111-report-e2e/
+next: 用户验收 7860（一车一报告 / 11 页 / 页脚实时 n / 受控改稿 v1.1）；P6 首选率与 P9/P10 本品页待业务补样本或题项
+evidence: outputs/competitor-insights/BCI-007/20261111-report-11p/
 ```
 
 ## 1. 目标与边界
@@ -19,9 +19,10 @@ evidence: outputs/competitor-insights/BCI-007/20261111-report-e2e/
 - 目标：第三个 tab「报告输出」——基于洞察档案与即时分析结果，按标准化大纲生成用户洞察报告；先交付单文件 HTML（8 个页面单元），再交付 PPT（标准模板 → 业务模板）。
 - 本轮（HTML v1）：大纲契约、档案聚合、报告服务、HTML 渲染、版本/失效、接口与 tab ④ 接入，全部落地并实测。
 - 边界：
-  - 报告主体为**竞品侧**（五款竞品：零跑B10 / 铂智3X / 奇瑞iCAR V23 / 海狮05 EV / 钛3）；本品（埃安RT）侧无样本，不生成。
-  - 原型 11 页 → 8 页（7 正文 + 1 数据边界附录）；删 P02/P03/P06/P09，P05 改口径。
-  - 不做自由对话改稿；不出现任何假入口；PPT 入口本期不渲染。
+  - 报告主体为**竞品侧**，旧五车合报已转 `legacy` 只读；现固定一车一份，按 `model_key` 生成。
+  - 原型 11 页全部保留（v2 大纲）：P02/P03（中汽换购）、P06（缺排序题口径）、P09/P10（缺本品样本）整页「暂未提供数据」并写缺口；页数不删、不用竞品数据顶替。
+  - 标题照原型「序号-主题：一句结论」，结论由模型按本车数据生成并过数字校验，缺数据降级为只写主题。
+  - 不做自由对话改稿；只开放 `set_title / limit_items / append_refs` 三种确定性改稿；PPT 入口本期不渲染。
   - 不发明库里没有的指标；无数据块显示「缺数据/样本不足」与原因，并进入附录缺口清单。
 - 禁止项（已遵守）：未改 `bci` schema 属主；未改 `.gitignore`；未动其他任务文件；未重启 7860；未夹带其他业务线提交。
 
@@ -99,3 +100,19 @@ evidence: outputs/competitor-insights/BCI-007/20261111-report-e2e/
 | 2026-11-08 | CREATED | 用户要求先出方案与业务清单，不写业务代码 | `docs/report-output-design.md`、`20261108-pptx-probe/` | TRAE |
 | 2026-11-11 | EXECUTING | 用户要求当天实现；评估结论「需改后可行」，6 项 P0 已按改进口径落地 | 本文件 §3 | TRAE |
 | 2026-11-11 | TESTED | 单测 22/22、真实库 API 全链路、Playwright tab ④ 实测通过；本任务文件同批入库 | `20261111-report-e2e/`、`20261111-report-ddl/` | TRAE |
+
+## 8. 第二轮：一车一报告 + 11 页 + 确定性改稿（2026-11-11）
+
+| # | 验收项 | 判定方式 | 结果 |
+|---|---|---|---|
+| B1 | 一车一份 | 多选车型返回 400；同车型同指纹复用 | PASS：`multi_model_not_supported`；重跑 `reused` |
+| B2 | 11 页齐全 | 生成报告 `content.pages` 长度 = 11 | PASS：P01–P11，附录不计入 |
+| B3 | 不可用页 | P02/P03/P06/P09/P10 整页「暂未提供数据」+ 缺口原因，无表格、无「待补」 | PASS：截图 `P02/P06.png` |
+| B4 | 页脚实时 n | 页脚按页实际块汇总源族；n 取档案数/问卷作答数/口碑去重条数 | PASS：P01 `n=2 + n=41`，P07 追加 `n=206` |
+| B5 | 标题结论 | 序号-主题照原型；结论由模型按本车数据生成，数字必须在报告内，缺数据只写主题 | PASS：P05/P06/P09/P10 无结论；P01/P04/P07/P08/P11 结论含本车数字 |
+| B6 | 确定性改稿 | 仅 `set_title/limit_items/append_refs`；数字子集校验；v1.1→v1.2 成链 | PASS：`20261111-report-v11/` E2E + UI |
+| B7 | 结构化对比 | 按 block.id + 行键并排，不用逐字 diff | PASS：UI 对比面板 `P04.CHART`/`P11.BULLETS` |
+| B8 | legacy 只读 | 旧五车报告 `legacy=true`，`/revise` 拒绝 | PASS：DDL 回填 5 条 legacy |
+
+证据：`outputs/competitor-insights/BCI-007/20261111-report-11p/`（11 页 HTML、逐页截图、verify.txt）、`20261111-report-footer/`、`20261111-report-v11/`（版本线截图）。
+

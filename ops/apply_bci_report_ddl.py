@@ -96,24 +96,27 @@ def smoke(cur) -> list[str]:
     lines: list[str] = []
     cur.execute("DELETE FROM bci.report WHERE report_id = %s", (SMOKE_REPORT,))
     cur.execute(
-        "INSERT INTO bci.report (report_id, title, model_keys, sample_scope, created_by) "
-        "VALUES (%s, %s, %s::jsonb, %s::jsonb, 'smoke')",
-        (SMOKE_REPORT, "__smoke_report__", '["smoke"]', '{"quant": "smoke"}'),
+        "INSERT INTO bci.report (report_id, title, model_keys, model_key, sample_scope, created_by) "
+        "VALUES (%s, %s, %s::jsonb, %s, %s::jsonb, 'smoke')",
+        (SMOKE_REPORT, "__smoke_report__", '["smoke"]', "smoke", '{"quant": "smoke"}'),
     )
     cur.execute(
         "INSERT INTO bci.report_version "
-        "(report_version_id, report_id, version_no, content, html, data_fingerprint, source_snapshot) "
-        "VALUES (%s, %s, 1, %s::jsonb, %s, %s, %s::jsonb)",
+        "(report_version_id, report_id, version_no, version_label, content, html, data_fingerprint, source_snapshot) "
+        "VALUES (%s, %s, 1, 'v1.0', %s::jsonb, %s, %s, %s::jsonb)",
         (SMOKE_VERSION, SMOKE_REPORT, '{"pages": []}', "<html></html>", "0" * 64, "{}"),
     )
     cur.execute(
-        "SELECT count(*), max(length(html)) FROM bci.report_version WHERE report_id = %s",
+        "SELECT count(*), max(length(html)), max(version_label), max(revision_kind), "
+        "max(parent_version_id::text) FROM bci.report_version WHERE report_id = %s",
         (SMOKE_REPORT,),
     )
-    rows, html_len = cur.fetchone()
+    rows, html_len, label, kind, parent_id = cur.fetchone()
     if rows != 1 or html_len <= 0:
         raise DdlError(f"冒烟读取异常：{rows}/{html_len}")
-    lines.append(f"select_ok=versions:{rows} html_len:{html_len}")
+    if label != "v1.0" or kind != "generate" or parent_id is not None:
+        raise DdlError(f"子版本字段异常：{label}/{kind}/{parent_id}")
+    lines.append(f"select_ok=versions:{rows} html_len:{html_len} label:{label} kind:{kind}")
     cur.execute(
         "SELECT (SELECT count(*) FROM bci.report_version WHERE report_id = %s)",
         (SMOKE_REPORT,),

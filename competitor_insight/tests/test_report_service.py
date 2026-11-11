@@ -226,37 +226,62 @@ class FakeStore:
         self.saved = 0
         self.stale = []
 
-    def ensure_report(self, title, model_keys, scope, created_by):
-        key = tuple(model_keys)
-        if key not in self.reports:
-            self.reports[key] = f"report-{len(self.reports) + 1}"
-        return self.reports[key]
+    def ensure_report(self, title, model_key, scope, created_by):
+        if model_key not in self.reports:
+            self.reports[model_key] = f"report-{len(self.reports) + 1}"
+        return self.reports[model_key]
 
-    def find_by_fingerprint(self, fingerprint, model_keys):
+    def find_by_fingerprint(self, fingerprint, model_key):
         for row in self.versions:
-            if row["data_fingerprint"] == fingerprint and row["model_keys"] == model_keys and row["status"] == "valid":
+            if (
+                row["data_fingerprint"] == fingerprint
+                and row["model_keys"] == [model_key]
+                and row["status"] == "valid"
+                and row["revision_kind"] == "generate"
+            ):
                 return {
                     "report_version_id": row["report_version_id"],
                     "report_id": row["report_id"],
                     "version_no": row["version_no"],
+                    "version_label": row["version_label"],
                     "generated_at": "2026-11-11T12:00:00+08:00",
                     "title": row["title"],
                 }
         return None
 
-    def save_version(self, report_id, content, html, fingerprint, snapshot):
+    def save_version(
+        self,
+        report_id,
+        content,
+        html,
+        fingerprint,
+        snapshot,
+        *,
+        revision_kind="generate",
+        parent_version_id=None,
+        patch=None,
+        version_label=None,
+    ):
         self.saved += 1
+        label = version_label or ("v1.0" if self.saved == 1 else f"v2.{self.saved - 2}")
         version = {
             "report_version_id": f"version-{self.saved}",
             "report_id": report_id,
             "version_no": self.saved,
+            "version_label": label,
+            "parent_version_id": parent_version_id,
+            "revision_kind": revision_kind,
+            "patch": patch or {},
             "content": content,
             "html": html,
             "data_fingerprint": fingerprint,
             "source_snapshot": snapshot,
             "generated_at": "2026-11-11T12:00:00+08:00",
             "status": "valid",
+            "stale_reason": "",
+            "model_key": content["models"][0]["key"],
             "model_keys": [model["key"] for model in content["models"]],
+            "legacy": False,
             "title": content["title"],
         }
         self.versions.append(version)
@@ -264,11 +289,17 @@ class FakeStore:
             "report_version_id": version["report_version_id"],
             "report_id": report_id,
             "version_no": version["version_no"],
+            "version_label": label,
+            "revision_kind": revision_kind,
             "generated_at": version["generated_at"],
         }
 
-    def list_reports(self, limit=20):
-        return self.versions[:limit]
+    def list_versions(self, model_key=None, limit=50):
+        rows = [row for row in self.versions if model_key is None or row["model_key"] == model_key]
+        return rows[:limit]
+
+    def version_line(self, report_id):
+        return [row for row in self.versions if row["report_id"] == report_id]
 
     def get_version(self, report_version_id):
         for row in self.versions:
@@ -281,7 +312,9 @@ class FakeStore:
 
 
 def make_service() -> BciReportService:
-    return BciReportService(analysis=FakeAnalysis(), archive=FakeArchive(), store=FakeStore())
+    return BciReportService(
+        analysis=FakeAnalysis(), archive=FakeArchive(), store=FakeStore(), narrative=False
+    )
 
 
 class OutlineContractTest(unittest.TestCase):
@@ -322,6 +355,8 @@ class BuildContentTest(unittest.TestCase):
         for page in self.content["pages"]:
             for block in page["blocks"]:
                 if block["type"] not in {"table", "bars", "kv"}:
+                    continue
+                if block.get("data_status") == "unavailable":
                     continue
                 if block.get("kind") == "matrix":
                     self.assertTrue(block["rows"])
@@ -388,7 +423,119 @@ class GenerateIdempotencyTest(unittest.TestCase):
     def test_empty_model_keys_falls_back_to_default(self):
         service = make_service()
         result = service.generate([])
-        self.assertEqual(result["title"].count("1 款"), 1)
+        self.assertEqual(result["title"], "测试车A 竞品用户洞察报告")
+        self.assertEqual(result["version_label"], "v1.0")
+
+    def test_multi_model_is_rejected(self):
+        service = make_service()
+        with self.assertRaises(ReportError) as ctx:
+            service.generate(["fake-a", "fake-b"])
+        self.assertEqual(ctx.exception.code, "multi_model_not_supported")
+
+
+class DeterministicRevisionTest(unittest.TestCase):
+    def setUp(self):
+        self.service = make_service()
+        self.base = self.service.generate(["fake-a"])
+        self.base_row = self.service.store.get_version(self.base["report_version_id"])
+
+    def test_set_title_creates_child_version(self):
+        result = self.service.revise(
+            self.base["report_version_id"],
+            [{"op": "set_title", "target": {"page": "P04"}, "value": "竞品流失去向"}],
+        )
+        self.assertEqual(result["version_label"], "v1.1")
+        self.assertEqual(result["parent_version_id"], self.base["report_version_id"])
+        child = self.service.store.get_version(result["report_version_id"])
+        page = next(page for page in child["content"]["pages"] if page["page"] == "P04")
+        self.assertEqual(page["title"], "竞品流失去向")
+        self.assertEqual(child["revision_kind"], "revise")
+        self.assertEqual(child["data_fingerprint"], self.base_row["data_fingerprint"])
+        # 父版本不被覆盖
+        parent = self.service.store.get_version(self.base["report_version_id"])
+        self.assertNotEqual(
+            next(page["title"] for page in parent["content"]["pages"] if page["page"] == "P04"),
+            "竞品流失去向",
+        )
+
+    def test_limit_items_truncates_bullets(self):
+        result = self.service.revise(
+            self.base["report_version_id"],
+            [{"op": "limit_items", "target": {"block": "P11.BULLETS"}, "count": 2}],
+        )
+        child = self.service.store.get_version(result["report_version_id"])
+        bullets = next(
+            block for page in child["content"]["pages"] for block in page["blocks"] if block["id"] == "P11.BULLETS"
+        )
+        self.assertEqual(len(bullets["items"]), 2)
+
+    def test_append_refs_adds_block_reference(self):
+        result = self.service.revise(
+            self.base["report_version_id"],
+            [{"op": "append_refs", "target": {"block": "P04.CHART"}, "refs": ["P04.TOP5", "P11.BULLETS"]}],
+        )
+        child = self.service.store.get_version(result["report_version_id"])
+        block = next(
+            block for page in child["content"]["pages"] for block in page["blocks"] if block["id"] == "P04.CHART"
+        )
+        self.assertEqual(block["refs"], ["P04.TOP5", "P11.BULLETS"])
+        self.assertIn("来源引用", child["html"])
+
+    def test_unknown_ref_is_rejected(self):
+        with self.assertRaises(ReportError) as ctx:
+            self.service.revise(
+                self.base["report_version_id"],
+                [{"op": "append_refs", "target": {"block": "P04.CHART"}, "refs": ["P99.NOPE"]}],
+            )
+        self.assertEqual(ctx.exception.code, "target_not_found")
+
+    def test_numeric_violation_is_rejected(self):
+        with self.assertRaises(ReportError) as ctx:
+            self.service.revise(
+                self.base["report_version_id"],
+                [{"op": "set_title", "target": {"block": "P04.CHART"}, "value": "续航 99%"}],
+            )
+        self.assertEqual(ctx.exception.code, "numeric_violation")
+
+    def test_free_text_op_is_rejected(self):
+        with self.assertRaises(ReportError) as ctx:
+            self.service.revise(
+                self.base["report_version_id"],
+                [{"op": "rewrite_paragraph", "target": {"page": "P04"}, "value": "随便改"}],
+            )
+        self.assertEqual(ctx.exception.code, "invalid_request")
+
+    def test_branching_same_version_is_rejected(self):
+        self.service.revise(
+            self.base["report_version_id"],
+            [{"op": "set_title", "target": {"page": "P04"}, "value": "第一改"}],
+        )
+        with self.assertRaises(ReportError) as ctx:
+            self.service.revise(
+                self.base["report_version_id"],
+                [{"op": "set_title", "target": {"page": "P04"}, "value": "第二改"}],
+            )
+        self.assertEqual(ctx.exception.code, "revision_conflict")
+
+    def test_compare_marks_changed_block(self):
+        child = self.service.revise(
+            self.base["report_version_id"],
+            [{"op": "set_title", "target": {"page": "P04"}, "value": "竞品流失去向"}],
+        )
+        diff = self.service.compare(self.base["report_version_id"], child["report_version_id"])
+        page = next(item for item in diff["pages"] if item["page"] == "P04")
+        self.assertTrue(page["changed"])
+        self.assertEqual(diff["target"]["version_label"], "v1.1")
+        self.assertGreaterEqual(diff["changed_blocks"], 1)
+
+    def test_legacy_report_is_read_only(self):
+        self.base_row["legacy"] = True
+        with self.assertRaises(ReportError) as ctx:
+            self.service.revise(
+                self.base["report_version_id"],
+                [{"op": "set_title", "target": {"page": "P04"}, "value": "不能改"}],
+            )
+        self.assertEqual(ctx.exception.code, "legacy_readonly")
 
 
 class AggregatorUnitTest(unittest.TestCase):

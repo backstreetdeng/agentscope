@@ -1801,7 +1801,7 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
         if parsed.path.startswith('/api/bci/archive/'):
             self._handle_bci_archive_post(parsed)
             return
-        if parsed.path == '/api/bci/report/generate':
+        if parsed.path.startswith('/api/bci/report/') and parsed.path.endswith(('/generate', '/revise')):
             self._handle_bci_report_post(parsed)
             return
         if self.path not in {"/api/assistant/chat", "/api/chat", "/api/ppt", "/api/audio-tags/run", "/api/quality-gate", "/api/market-skill/validate", "/api/intelligence/export", "/api/projects/update", "/api/macro-ledger", "/api/monthly-report/jobs", "/api/monthly-report/jobs/cancel", "/api/monthly-report/jobs/resume", "/api/macro-report/jobs", "/api/macro-report/jobs/cancel", "/api/macro-report/jobs/resume", "/api/insight/interview/query", "/api/insight/battle/analyze", "/api/insight/quant/stat", "/api/insight/quant/options", "/api/insight/joint/analyze", "/api/insight/segment/clusters", "/api/insight/satisfaction/painpoints", "/api/insight/repurchase/intent", "/api/insight/matrix/match", "/api/insight/compare", "/api/insight/cross/validate", "/api/insight/agent/query", "/api/insight/agent/stream"}:
@@ -2610,7 +2610,11 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
             elif operation == 'outline':
                 payload = api.outline()
             elif operation == 'versions':
-                payload = api.versions(bci_query_int(one('limit'), 20))
+                payload = api.versions(one('model_key') or None, bci_query_int(one('limit'), 50))
+            elif operation == 'version-line':
+                payload = api.version_line(one('report_id'))
+            elif operation == 'compare':
+                payload = api.compare(one('base'), one('target'))
             elif operation == 'detail':
                 payload = api.detail(one('id'))
             elif operation in {'preview', 'export'}:
@@ -2652,7 +2656,7 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
         self._send_json({'ok': True, 'data': payload})
 
     def _handle_bci_report_post(self, parsed: Any) -> None:
-        """POST /api/bci/report/generate：同步生成（5 车约 20–30 秒）。"""
+        """POST /api/bci/report/generate 或 /revise：同步返回新版本。"""
         from competitor_insight.server.db import DatabaseUnavailable
         from competitor_insight.server.report_service import ReportError
 
@@ -2663,7 +2667,8 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
             payload = json.loads(self.rfile.read(length).decode('utf-8'))
             if not isinstance(payload, dict):
                 raise ValueError('报告请求必须为对象。')
-            result = bci_report_api().generate(payload)
+            api = bci_report_api()
+            result = api.revise(payload) if parsed.path.endswith('/revise') else api.generate(payload)
         except ReportError as exc:
             self._send_json({'ok': False, 'error': {'code': exc.code, 'message': str(exc)}}, status=exc.status)
             return

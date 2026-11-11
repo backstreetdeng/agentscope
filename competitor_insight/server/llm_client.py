@@ -26,7 +26,7 @@ class LlmUnavailable(RuntimeError):
     """模型客户端不可用（缺少凭证、网络或响应异常）。"""
 
 
-def build_deepseek_client(model: str | None = None):
+def build_deepseek_client(model: str | None = None, system_prompt: str | None = None):
     """返回 ``Callable[[str], str]``；构造期只校验凭证，不发起网络请求。"""
 
     # 以项目 `.env` 中的 DeepSeek 凭证为准；进程环境变量可能是阿里云 Token Plan
@@ -44,7 +44,7 @@ def build_deepseek_client(model: str | None = None):
         payload = {
             "model": chosen,
             "messages": [
-                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "system", "content": system_prompt or SYSTEM_PROMPT},
                 {"role": "user", "content": prompt},
             ],
             "temperature": 0,

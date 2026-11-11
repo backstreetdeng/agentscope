@@ -11,7 +11,7 @@ from __future__ import annotations
 import html
 from typing import Any
 
-RENDERER_VERSION = "report-render-html/1.0.0"
+RENDERER_VERSION = "report-render-html/1.0.2"
 
 _STATUS_LABELS = {
     "ok": "完整",
@@ -53,10 +53,11 @@ p { margin: 6px 0; }
 table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin: 4px 0 8px; }
 th, td { border: 1px solid #e4e7ec; padding: 5px 8px; text-align: left; vertical-align: top; }
 th { background: #f8fafc; color: #344054; font-weight: 600; white-space: nowrap; }
-td.num, th.num { text-align: right; white-space: nowrap; }
+td.num { text-align: right; }
+th.num { text-align: right; white-space: nowrap; }
 .note { color: #667085; font-size: 12px; margin: 4px 0 0; }
 .bars { margin: 4px 0 2px; }
-.bar-row { display: grid; grid-template-columns: 132px 1fr 92px; gap: 8px; align-items: center;
+.bar-row { display: grid; grid-template-columns: 120px 1fr 168px; gap: 8px; align-items: center;
            font-size: 12.5px; margin: 5px 0; }
 .bar-label { color: #344054; }
 .bar-track { background: #f2f4f7; height: 12px; border-radius: 6px; overflow: hidden; }
@@ -74,6 +75,12 @@ blockquote.suspect { border-left-color: #f79009; }
 ul.bullets { margin: 6px 0; padding-left: 20px; font-size: 13px; }
 ul.bullets li { margin: 6px 0; }
 ul.bullets .who { color: #1f5fbf; font-weight: 600; }
+.refs { margin: 6px 0 0; font-size: 11.5px; color: #1f5fbf; }
+.lead { margin: 2px 0 10px; padding: 8px 12px; border-left: 3px solid #1f5fbf; background: #f2f7ff; color: #24405f; font-size: 13px; }
+.src { margin: 14px 0 0; padding-top: 8px; border-top: 1px solid #e3e9ef; font-size: 11.5px; color: #5b6b7d; }
+.src-note { margin: 3px 0 0; font-size: 11px; color: #8a97a6; }
+.unavailable { margin: 18px 0 6px; padding: 56px 20px; border: 1px dashed #c9d6e5; border-radius: 10px;
+  background: #fbfcfe; text-align: center; color: #8a97a6; font-size: 14px; }
 .foot { margin-top: 36px; padding-top: 12px; border-top: 1px solid #eaecf0; color: #98a2b3; font-size: 11.5px; }
 .toc { columns: 2; font-size: 12.5px; color: #475467; margin: 6px 0 0; padding-left: 18px; }
 @media print {
@@ -240,11 +247,24 @@ _RENDERERS = {"table": None, "bars": _bars, "kv": _kv, "quotes": _quotes, "bulle
 
 
 def _render_block(block: dict[str, Any], sources: dict[str, str]) -> str:
+    if block.get("data_status") == "unavailable":
+        return (
+            '<div class="block">'
+            '<div class="block-head">'
+            f'<span class="block-title">{_e(block.get("title"))}</span>'
+            f'{_badge("missing")}'
+            "</div>"
+            f'<div class="unavailable">{_e(block.get("empty_note") or "暂未提供数据")}</div>'
+            f'<p class="note">{_e(block.get("note"))}</p>'
+            "</div>"
+        )
     if block["type"] == "table":
         body = _matrix(block) if block.get("kind") == "matrix" else _table(block.get("models") or [])
     else:
         body = _RENDERERS[block["type"]](block)
     source = sources.get(block.get("source"), block.get("source"))
+    refs = block.get("refs") or []
+    refs_html = f'<p class="refs">来源引用：{_e("、".join(str(ref) for ref in refs))}</p>' if refs else ""
     return (
         '<div class="block">'
         '<div class="block-head">'
@@ -253,8 +273,25 @@ def _render_block(block: dict[str, Any], sources: dict[str, str]) -> str:
         "</div>"
         f"{body}"
         f'<p class="note">数据来源：{_e(source)}</p>'
+        f"{refs_html}"
         "</div>"
     )
+
+
+def _page_sources(page: dict[str, Any]) -> str:
+    # 不可用页同样保留页脚：数据源与口径说明照常出现，只是正文不出表格。
+    parts = [
+        f'{item.get("name")} n={item.get("n")}' if item.get("n") is not None else str(item.get("name"))
+        for item in page.get("sources") or []
+        if item.get("name")
+    ]
+    if not parts:
+        return ""
+    html = f'<p class="src">数据来源：{_e(" + ".join(parts))}</p>'
+    note = page.get("footer_note") or ""
+    if note:
+        html += f'<p class="src-note">{_e(note)}</p>'
+    return html
 
 
 def render_report_html(content: dict[str, Any]) -> str:
@@ -272,12 +309,20 @@ def render_report_html(content: dict[str, Any]) -> str:
 
     sections: list[str] = []
     for page in content.get("pages") or []:
-        blocks = "".join(_render_block(block, sources) for block in page.get("blocks") or [])
+        lead = f'<p class="lead">{_e(page.get("lead"))}</p>' if page.get("lead") else ""
+        if page.get("data_status") == "unavailable":
+            body = (
+                f'<div class="unavailable"><p>{_e(page.get("empty_note") or "暂未提供数据")}</p>'
+                + (f'<p class="note">{_e(page.get("missing_reason"))}</p>' if page.get("missing_reason") else "")
+                + "</div>"
+            )
+        else:
+            body = "".join(_render_block(block, sources) for block in page.get("blocks") or [])
         sections.append(
             f'<section id="{_e(page.get("page"))}">'
             f'<h2>{_e(page.get("page"))} · {_e(page.get("title"))}</h2>'
             f'<p class="sub">{_e(page.get("subtitle"))}</p>'
-            f"{blocks}</section>"
+            f"{lead}{body}{_page_sources(page)}</section>"
         )
 
     appendix_blocks = "".join(

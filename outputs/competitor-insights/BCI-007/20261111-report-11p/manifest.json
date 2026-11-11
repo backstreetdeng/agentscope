@@ -1,0 +1,10 @@
+{
+  "task_id": "BCI-007",
+  "purpose": "11 页报告实测：模型标题结论、页脚实时 n、五个不可用页与逐页截图",
+  "created_at": "2026-11-11",
+  "source": "competitor_insight/config/report_outline.json (report-outline/2.0.0) + bci.report_version",
+  "rebuild": "..\\Scripts\\python.exe -B temp\\20261111-report-11p\\verify_11p.py && ..\\Scripts\\python.exe -B temp\\20261111-report-11p\\shots.py",
+  "cleanable": true,
+  "restore": "可重跑 rebuild 命令再生；数据库版本为 v3.0（零跑B10）",
+  "files": ["report-11p.html", "verify.txt", "screenshots/"]
+}

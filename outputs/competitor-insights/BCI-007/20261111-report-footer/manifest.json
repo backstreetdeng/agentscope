@@ -1,0 +1,10 @@
+{
+  "task_id": "BCI-007",
+  "purpose": "页脚数据源改造实测：P01 实时 n 页脚与 P02 暂未提供数据页截图",
+  "created_at": "2026-11-11",
+  "source": "competitor_insight/config/report_outline.json + report_render_html.py",
+  "rebuild": "..\\Scripts\\python.exe -B temp\\20261111-report-footer\\verify_footer.py && ..\\Scripts\\python.exe -B temp\\20261111-report-footer\\shots.py",
+  "cleanable": true,
+  "restore": "重跑 rebuild 命令可再生成；截图对应报告版本 v2.0",
+  "files": ["report-footer.html", "footer-p01.png", "unavailable-p02.png", "verify.txt"]
+}

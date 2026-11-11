@@ -1,0 +1,16 @@
+generate 200 label=v2.0 reused=True
+P01 status=ok avail=ok | 用户深访解析数据 n=2 + 用户定量问卷数据 n=41 | 
+P02 status=unavailable avail=missing | 用户深访解析数据 n=2 + 中汽数据换购数据 | 换购口径：2026 年 1–8 月，含跨年
+P03 status=unavailable avail=missing | 用户深访解析数据 n=2 + 中汽数据换购数据 | 换购口径：2026 年 1–8 月，含跨年
+P04 status=ok avail=partial | 用户深访解析数据 n=2 + 用户定量问卷数据 n=41 | 
+P05 status=ok avail=ok | 用户深访解析数据 n=2 + 用户定量问卷数据 n=41 | 
+P07 status=ok avail=ok | 用户深访解析数据 n=2 + 用户定量问卷数据 n=41 + 外部口碑数据 n=206 | 
+P08 status=ok avail=ok | 用户深访解析数据 n=2 | 
+P10 status=ok avail=ok | 用户深访解析数据 n=2 | 
+P11 status=ok avail=ok | 用户深访解析数据 n=2 + 用户定量问卷数据 n=41 + 外部口碑数据 n=206 | 
+APPENDIX status=ok avail=ok | (无页脚) | 
+PASS footer_p01
+PASS footer_note
+PASS unavailable
+PASS no_placeholder
+PASS no_batch_word
