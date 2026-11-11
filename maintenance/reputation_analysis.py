@@ -56,8 +56,20 @@ def strict_patterns(patterns: dict) -> dict:
     return result
 
 
-def compile_patterns(patterns: dict):
-    patterns=strict_patterns(patterns)
+def merge_aliases(patterns: dict, aliases: dict, taxonomy: dict | None = None) -> dict:
+    """把别名短语并到既有 L3；未知 L3 直接报错，避免别名静默失效或被写成平行体系。"""
+    result={k:list(v) for k,v in patterns.items()}
+    for tag,words in (aliases or {}).items():
+        if tag not in result and not (taxonomy and tag in taxonomy):
+            raise ValueError(f'Alias target is not a known L3: {tag}')
+        merged=result.setdefault(tag,[])
+        for word in words:
+            if word not in merged:merged.append(word)
+    return result
+
+
+def compile_patterns(patterns: dict, aliases: dict | None = None):
+    patterns=merge_aliases(strict_patterns(patterns),aliases)
     return {tag:re.compile('|'.join(re.escape(w) for w in words),re.IGNORECASE) for tag,words in patterns.items() if words}
 
 
@@ -66,6 +78,7 @@ def relevant(tag: str, meta: dict, clause: str) -> bool:
     if tag=='整体可靠性感受' and (re.search(r'手续|交接|交付|贷款|保养|停车|停入|窄路',clause) or not re.search(r'整车|用车|车子|车辆|这车|故障|毛病|耐用|可靠',clause)):return False
     if tag in {'保养费用','保险费用','能源费用','综合用车费用'} and not re.search(r'钱|费用|成本|费钱|贵|便宜|元|花费|花销|支出|省钱',clause):return False
     if tag=='转弯灵活性' and not re.search(r'开|驾驶|转弯|转向|掉头|停车|挪车|操控',clause):return False
+    if tag=='车身尺寸与灵活性' and not re.search(r'车身|尺寸|车宽|车长|块头|停车|车位|窄路|会车|挪车',clause):return False
     if tag=='照明效果' and not re.search(r'照明|灯光|灯亮|光照|夜间|夜晚',clause):return False
     if tag=='车门尾门操作' and not re.search(r'开|关|电动|感应|便捷|便利|操作|费劲|省力|沉重',clause):return False
     if tag=='动力系统噪声振动' and not re.search(r'发动机|电机|动力系统|引擎|怠速',clause):return False
@@ -117,7 +130,7 @@ def analyze_review(row: dict, taxonomy: dict, patterns: dict, competitor_pattern
                 assert clause in full,'Evidence must be a verbatim substring'
                 found.setdefault((direction,tag),{'direction':direction,'primary_label':meta['l1'],
                     'secondary_label':meta['l2'],'tertiary_label':tag,'taxonomy_code':meta['code'],
-                    'is_custom':False,'excerpt':clause})
+                    'is_custom':bool(meta.get('custom')),'excerpt':clause})
     return list(found.values())
 
 

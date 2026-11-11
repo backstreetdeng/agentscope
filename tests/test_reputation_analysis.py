@@ -72,4 +72,26 @@ class ReputationAnalysisTests(unittest.TestCase):
         self.assertIsNone(polarity('外观好吗？'))
 
 
-if __name__=='__main__':unittest.main()
+    def test_alias_layer_extends_existing_l3_without_new_label(self):
+        patterns=compile_patterns({'座椅软硬与支撑':['座椅']},{'座椅软硬与支撑':['靠背太直','坐垫偏短']})
+        rows=analyze_review(self.review('后排靠背太直不舒服'),{'座椅软硬与支撑':{'code':'L1','l1':'乘坐舒适性','l2':'座椅体验'}},patterns)
+        self.assertEqual({(r['tertiary_label'],r['direction']) for r in rows},{('座椅软硬与支撑','negative')})
+
+    def test_alias_layer_survives_strict_overrides(self):
+        patterns=compile_patterns({'配置价值':['配置丰富']},{'配置价值':['减配','配置缺失']})
+        rows=analyze_review(self.review('配置缺失很遗憾'),{'配置价值':{'code':'L2','l1':'价格与购买价值','l2':'购买价值'}},patterns)
+        self.assertEqual({(r['tertiary_label'],r['direction']) for r in rows},{('配置价值','negative')})
+
+    def test_alias_to_unknown_l3_is_rejected(self):
+        with self.assertRaises(ValueError):
+            compile_patterns({'整体造型':['外观']},{'不存在的点':['随便']})
+
+    def test_custom_l3_is_marked_and_gated(self):
+        taxonomy={'车身尺寸与灵活性':{'code':'L3','l1':'动力与操控','l2':'驾驶控制','custom':True}}
+        patterns=compile_patterns({'车身尺寸与灵活性':['车身太宽','停车费劲']})
+        rows=analyze_review(self.review('车身太宽，停车费劲'),taxonomy,patterns)
+        self.assertEqual({(r['tertiary_label'],r['direction'],r['is_custom']) for r in rows},
+                         {('车身尺寸与灵活性','negative',True)})
+        self.assertEqual(analyze_review(self.review('车身太宽'),taxonomy,patterns),[])
+
+

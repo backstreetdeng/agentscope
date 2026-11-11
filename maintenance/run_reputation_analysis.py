@@ -71,8 +71,10 @@ def equivalent(left,right):
 def prepare():
     started=time.perf_counter()
     bundle=json.loads((ROOT/'maintenance/reputation-taxonomy.json').read_text(encoding='utf-8'))
+    alias_bundle=json.loads((ROOT/'maintenance/reputation-aliases.json').read_text(encoding='utf-8'))
+    aliases=alias_bundle['aliases']
     taxonomy=bundle['taxonomy']
-    patterns=compile_patterns(bundle['patterns'])
+    patterns=compile_patterns(bundle['patterns'],aliases)
     connection=connect()
     try:
         connection.set_session(readonly=True,isolation_level='REPEATABLE READ')
@@ -93,7 +95,7 @@ def prepare():
     all_names=sorted(set(names)|new_car_names,key=lambda s:(-len(s),s))
     own_names={s for s in all_names if len(s)>=4}
     competitor_pattern=re.compile('|'.join(re.escape(s) for s in sorted(own_names,key=lambda s:(-len(s),s))))
-    engine_hash=digest({'method':METHOD,'bundle':bundle,'engine':hashlib.sha256((ROOT/'maintenance/reputation_analysis.py').read_bytes()).hexdigest(),'known_names':all_names})
+    engine_hash=digest({'method':METHOD,'bundle':bundle,'aliases':alias_bundle,'engine':hashlib.sha256((ROOT/'maintenance/reputation_analysis.py').read_bytes()).hexdigest(),'known_names':all_names})
     version=f'{METHOD}/raw-{revision}/rules-{engine_hash[:16]}'
     batch=datetime.now(timezone(timedelta(hours=8))).strftime('%Y%m%dT%H%M%S')
     run=OUT/batch
@@ -136,6 +138,7 @@ def prepare():
         raise ValueError('Duplicate tag primary key')
     tagged_keys={(r['source'],r['review_key'].split(':',1)[1]) for r in tags}
     report={'status':'prepared','batch':batch,'method':METHOD,'source_version':revision,'taxonomy_version':version,
+            'alias_version':alias_bundle['version'],
             'review_count':len(rows),'source_model_count':len(names),'named_reviews':sum(s['raw'] for s in model_stats.values()),
             'processed_new_or_changed':new_or_changed,'reused_checkpoints':reused,'reviews_with_tags':len(tagged_keys),
             'reviews_without_explicit_tags':len(rows)-len(tagged_keys),'models_with_tags':len({t['model'] for t in tags}),
