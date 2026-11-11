@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import re
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable
@@ -40,6 +41,9 @@ STRIP_NUMBER_PATTERNS = [
     re.compile(r"\bT\d+:[^\s，。；、)）]*"),
     re.compile(r"\b[EWL]\d+\b"),
     re.compile(r"\[E\d+\]"),
+    # 年龄段与价格段是标签不是结论数字，26-30岁、10-15万 不参与数字校验。
+    re.compile(r"\d+\s*[-~至]\s*\d+\s*岁"),
+    re.compile(r"\d+\s*[-~至]\s*\d+\s*万"),
 ]
 BANNED_WORDS = ("全部", "唯一", "仅有", "均为", "都是", "所有")
 SHARE_PHRASES = ("领先竞品", "优于竞品", "领先于竞品", "口碑领先", "领先市场")
@@ -51,6 +55,10 @@ CLARIFY_TEXT = (
     "识别不出你想看哪一类，请换一种问法：① 综合诊断（关注 + 战胜战败 + 满意度 + 画像）；"
     "② 双车对标（当前车型 vs 竞品池）。"
 )
+
+
+def _ms(started: float) -> int:
+    return round((time.perf_counter() - started) * 1000)
 
 
 class AgentAnalysisError(RuntimeError):
@@ -161,7 +169,10 @@ class AgentAnalysisService:
         if len(question) > 300:
             raise AnalysisError("question_too_long", "问题请控制在 300 字以内。", 400)
         target = self.service._model(model_key)
+        timings: dict[str, int] = {}
+        started = time.perf_counter()
         route = self._route(question)
+        timings["route"] = _ms(started)
         template = route["template"]
 
         if template == "unknown":
@@ -173,8 +184,11 @@ class AgentAnalysisService:
         toolbox = Toolbox(self.service, reader, power_form)
         try:
             if template == "W1":
-                return self._run_w1(toolbox, target, question, route)
-            return self._run_w2(toolbox, target, question, route)
+                result = self._run_w1(toolbox, target, question, route, timings)
+            else:
+                result = self._run_w2(toolbox, target, question, route, timings)
+            result["timings"] = {**timings, "total": _ms(started)}
+            return result
         except AnalysisError:
             raise
         finally:
@@ -229,7 +243,9 @@ class AgentAnalysisService:
         target: dict[str, Any],
         question: str,
         route: dict[str, Any],
+        timings: dict[str, int] | None = None,
     ) -> dict[str, Any]:
+        tools_started = time.perf_counter()
         context = toolbox.context(target)
         profile = toolbox.quant_distribution(target, "profile")
         attention = toolbox.quant_distribution(target, "attention")
@@ -253,7 +269,9 @@ class AgentAnalysisService:
             "circulation": circulation["data"],
             "warnings": warnings,
         }
-        answer = self._compose("W1", payload, catalog, [], toolbox)
+        if timings is not None:
+            timings["tools"] = _ms(tools_started)
+        answer = self._compose("W1", payload, catalog, [], toolbox, timings)
         return self._ok(target, question, route, answer, pool, [context, profile, attention, winloss, satisfaction, rep_positive, rep_negative, pool, quotes, circulation], warnings)
 
     def _catalog_w1(
@@ -363,7 +381,9 @@ class AgentAnalysisService:
         target: dict[str, Any],
         question: str,
         route: dict[str, Any],
+        timings: dict[str, int] | None = None,
     ) -> dict[str, Any]:
+        tools_started = time.perf_counter()
         pool = toolbox.competitor_candidates(target, 3)
         if not pool["data"]["pool"]:
             return self._simple(
@@ -441,7 +461,9 @@ class AgentAnalysisService:
             "circulation": circulation["data"],
             "warnings": warnings,
         }
-        answer = self._compose("W2", payload, catalog, compare_rows, toolbox)
+        if timings is not None:
+            timings["tools"] = _ms(tools_started)
+        answer = self._compose("W2", payload, catalog, compare_rows, toolbox, timings)
         result = self._ok(
             target,
             question,
@@ -606,6 +628,7 @@ class AgentAnalysisService:
         catalog: list[dict[str, str]],
         compare_rows: list[dict[str, Any]],
         toolbox: Toolbox,
+        timings: dict[str, int] | None = None,
     ) -> dict[str, Any]:
         if self.llm is None:
             raise AgentAnalysisError("E_MODEL_UNAVAILABLE", "未注入模型通道，无法生成结论。", 503)
@@ -617,21 +640,30 @@ class AgentAnalysisService:
         problems: list[str] = []
         answer: dict[str, Any] | None = None
         attempts = 0
+        compose_ms = 0
+        validate_ms = 0
         for attempt in range(2):
             attempts = attempt + 1
+            llm_started = time.perf_counter()
             try:
                 raw = self.llm(system_prompt, message if not problems else message + "\n【上一次输出不合格】" + "；".join(problems) + "。请修正后重新输出完整 JSON。")
             except Exception as exc:  # noqa: BLE001 - 模型失败如实返回错误码
                 raise AgentAnalysisError("E_MODEL_FAILED", f"模型调用失败：{exc.__class__.__name__}", 503) from exc
+            compose_ms += _ms(llm_started)
             parsed = _parse_json(raw)
             if not parsed:
                 problems = ["输出不是合法 JSON"]
                 continue
             normalized = self._normalize_answer(template, parsed)
+            validate_started = time.perf_counter()
             problems = self._validate(template, normalized, {item["ref"] for item in catalog}, self._numeric_values(toolbox), compare_rows, model_names)
+            validate_ms += _ms(validate_started)
             if not problems:
                 answer = normalized
                 break
+        if timings is not None:
+            timings["compose"] = compose_ms
+            timings["validate"] = validate_ms
         if answer is None:
             code = "E_NUM_UNVERIFIED" if any("数字" in problem for problem in problems) else "E_VALIDATION_FAILED"
             raise AgentAnalysisError(code, "结论未通过校验：" + "；".join(problems[:4]) + "。未渲染结论。", 422)
@@ -709,7 +741,8 @@ class AgentAnalysisService:
         for name, entries in required.items():
             if not entries or not any(entry.get("text") for entry in entries):
                 problems.append(f"{name} 为空")
-        limits = {"W1": 450, "W2": 400}
+        # 提示词仍要求 W1 ≤450 / W2 ≤400 字；硬校验留出模型抖动余量，避免因几十字超限丢掉整份结论。
+        limits = {"W1": 600, "W2": 650}
         total_chars = sum(len(entry.get("text") or "") for entries in blocks for entry in entries)
         if total_chars > limits[template]:
             problems.append(f"正文 {total_chars} 字，超过 {limits[template]} 字上限")

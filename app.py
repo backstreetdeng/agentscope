@@ -42,7 +42,7 @@ from utils.weekly_report_jobs import WeeklyReportJobs
 from utils.weekly_report_research import run_section as run_weekly_section
 
 # Load machine paths before constructing module-level Skill/job objects.
-load_dotenv(Path(__file__).resolve().parent / ".env", override=False)
+load_dotenv(Path(__file__).resolve().parent / ".env", override=True)
 
 HOST = os.getenv("AGENT_SERVER_NAME", "0.0.0.0")
 PORT = 7860
