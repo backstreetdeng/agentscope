@@ -370,6 +370,122 @@
     }).join('');
   }
 
+  const AGENT_SAMPLES = [
+    '综合看用户购车关注、战胜战败和满意度，应该如何对标竞品开展营销',
+    '对比本品和竞品，用户画像、购车关注有何差异',
+  ];
+
+  function agentRefs(refs) {
+    return (refs || []).map(function (ref) {
+      return '<code class="bci-a-agent__ref">' + esc(ref) + '</code>';
+    }).join('');
+  }
+
+  function agentItems(items) {
+    if (!items || !items.length) return '<p class="bci-a-agent__muted">本次没有可展示的条目。</p>';
+    return '<ul class="bci-a-agent__list">' + items.map(function (item) {
+      return '<li><span>' + esc(item.text) + '</span>' +
+        (item.refs && item.refs.length ? '<span class="bci-a-agent__refs">' + agentRefs(item.refs) + '</span>' : '') +
+        '</li>';
+    }).join('') + '</ul>';
+  }
+
+  function agentSection(title, items) {
+    if (!items || !items.length) return '';
+    return '<section class="bci-a-agent__block"><h4>' + esc(title) + '</h4>' + agentItems(items) + '</section>';
+  }
+
+  function renderAgentResult(agent) {
+    if (!agent) return '';
+    if (agent.loading) {
+      return '<div class="bci-a-agent__status"><span class="bci-a-agent__spinner" aria-hidden="true"></span>' +
+        '路由 → 取数 → 合成，通常需要 10–30 秒…</div>';
+    }
+    if (agent.error) {
+      return '<div class="bci-a-empty bci-a-empty--error"><b>分析失败' +
+        (agent.error.code ? '（' + esc(agent.error.code) + '）' : '') + '</b><p>' +
+        esc(agent.error.message) + '</p></div>';
+    }
+    const data = agent.result;
+    if (!data) {
+      return '<p class="bci-a-agent__muted">目标车型取上方当前选中车；竞品由战胜战败数据实时算出。' +
+        '每个数字带 n 与分母，小样本只给人数和原话。</p>';
+    }
+    if (data.status === 'clarify' || data.status === 'unsupported') {
+      return '<div class="bci-a-agent__notice"><b>' +
+        (data.status === 'clarify' ? '需要再明确一点' : '当前版本范围') + '</b><p>' +
+        esc(data.message) + '</p></div>';
+    }
+    if (data.status === 'no_comparison_sample') {
+      const pool = (data.pool || []).map(function (row) {
+        return esc(row.model) + '（' + esc(row.people) + ' 人）';
+      }).join('、');
+      return '<div class="bci-a-agent__notice"><b>该车型与本品无对比样本</b><p>' +
+        esc(data.message || '') + '</p>' +
+        (pool ? '<p class="bci-a-agent__muted">池内候选：' + pool + '</p>' : '') + '</div>';
+    }
+    const answer = data.answer || {};
+    const template = data.template === 'W2' ? 'W2' : 'W1';
+    const title = template === 'W2' ? '双车对标' : '单车型综合诊断';
+    let blocks = '';
+    if (template === 'W2') {
+      blocks += agentSection('本次对标', answer.benchmark && answer.benchmark.text ? [answer.benchmark] : []);
+      blocks += agentSection('关键差异', answer.differences);
+      blocks += agentSection('归因', answer.causes);
+      blocks += agentSection('各自短板', answer.gaps);
+    } else {
+      blocks += agentSection('证据', answer.evidence);
+      blocks += agentSection('归因', answer.causes);
+      blocks += agentSection('动作', answer.actions);
+    }
+    const tools = (data.tools || []).map(function (tool) {
+      const caliber = tool.caliber || {};
+      return '<li><code>' + esc(tool.tool) + '</code><span>n=' + esc(caliber.n == null ? '—' : caliber.n) +
+        ' · 分母=' + esc(caliber.denominator == null ? '—' : caliber.denominator) +
+        (caliber.question ? ' · ' + esc(caliber.question) : '') + '</span><em>' + esc(tool.status) + '</em></li>';
+    }).join('');
+    const warnings = (data.warnings || []).map(function (line) {
+      return '<li>' + esc(line) + '</li>';
+    }).join('');
+    const verification = data.verification || {};
+    return '<div class="bci-a-agent__meta">' +
+        '<span class="bci-a-chip bci-a-chip--ok">' + title + '</span>' +
+        '<b>' + esc(data.model && data.model.label || '') + '</b>' +
+        (data.competitor ? '<span>vs ' + esc(data.competitor.label) + '</span>' : '') +
+        '<em>数字校验通过' + (verification.attempts ? '（第 ' + esc(verification.attempts) + ' 次）' : '') + '</em>' +
+      '</div>' +
+      blocks +
+      (answer.sample_note ? '<p class="bci-a-agent__note">' + esc(answer.sample_note) + '</p>' : '') +
+      (warnings ? '<ul class="bci-a-agent__warnings">' + warnings + '</ul>' : '') +
+      (tools ? '<details class="bci-a-agent__tools"><summary>取数明细（n / 分母）</summary><ul>' + tools + '</ul></details>' : '');
+  }
+
+  function renderAgent(state) {
+    const agent = state.agent || {};
+    const samples = AGENT_SAMPLES.map(function (text) {
+      return '<button type="button" data-bci-agent-sample="' + esc(text) + '">' + esc(text) + '</button>';
+    }).join('');
+    return (
+      '<section class="bci-a-agent" data-bci-agent>' +
+        '<header class="bci-a-agent__head">' +
+          '<div><span class="bci-a-eyebrow">智能化分析 · 独立区域</span>' +
+          '<h3>用一句话下指令，智能体跨四路数据给结论</h3>' +
+          '<p>与上方四个入口互不影响；模型只做意图路由和最终合成，取数与差值由代码完成。</p></div>' +
+          '<span class="bci-a-agent__badge">当前车型：' + esc(state.currentLabel || '未选择') + '</span>' +
+        '</header>' +
+        '<div class="bci-a-agent__query">' +
+          '<textarea data-bci-agent-question rows="2" maxlength="300" placeholder="例如：综合看用户购车关注、战胜战败和满意度，应该如何对标竞品开展营销">' +
+            esc(agent.question || '') + '</textarea>' +
+          '<div class="bci-a-agent__actions"><div class="bci-a-agent__samples">' + samples + '</div>' +
+            '<button type="button" class="btn btn--primary" data-bci-agent-run' +
+              (agent.loading ? ' disabled' : '') + '>' + (agent.loading ? '分析中…' : '开始分析') + '</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="bci-a-agent__result">' + renderAgentResult(agent) + '</div>' +
+      '</section>'
+    );
+  }
+
   function renderShell(state) {
     const models = state.models || [];
     const options = models.map(function (model) {
@@ -387,6 +503,7 @@
           '<button type="button" class="btn btn--ghost" data-bci-analysis-refresh>重新查询</button></div>' +
       '</div>' +
       '<div class="bci-a-sourcebar">' + renderSources(state.data && state.data.sources) + '</div>' +
+      renderAgent(state) +
       '<div data-bci-analysis-body>' + (state.loading ? '<div class="bci-a-loading">正在按真实库计算四类磁贴…</div>' : '') + '</div>'
     );
   }
@@ -450,7 +567,15 @@
   function init(host) {
     if (!host || host.dataset.ready === '1') return;
     host.dataset.ready = '1';
-    const state = { models: [], current: '', data: null, ai: {}, loading: false, expanded: ['profile'] };
+    const state = {
+      models: [], current: '', currentLabel: '', data: null, ai: {}, loading: false, expanded: ['profile'],
+      agent: { question: '', loading: false, result: null, error: null },
+    };
+
+    function syncCurrentLabel() {
+      const hit = (state.models || []).filter(function (model) { return model.key === state.current; })[0];
+      state.currentLabel = hit ? hit.label : '';
+    }
 
     function paint() {
       host.innerHTML = renderShell(state);
@@ -485,6 +610,7 @@
       return getJSON('/api/bci/analysis/models').then(function (data) {
         state.models = data.models || [];
         state.current = state.current || data.default_model || (state.models[0] && state.models[0].key) || '';
+        syncCurrentLabel();
       });
     }
 
@@ -518,10 +644,76 @@
         .catch(fail);
     }
 
+    function runAgent() {
+      const question = (state.agent.question || '').trim();
+      if (!question) {
+        state.agent.error = { code: 'question_required', message: '请先输入要分析的问题。' };
+        paint();
+        return;
+      }
+      if (!state.current || state.agent.loading) return;
+      const model = state.current;
+      state.agent.loading = true;
+      state.agent.error = null;
+      state.agent.result = null;
+      paint();
+      fetch('/api/bci/analysis/agent', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ model: model, question: question }),
+      })
+        .then(function (response) {
+          return response.json().then(function (payload) {
+            if (!response.ok || !payload.ok) {
+              const error = (payload && payload.error) || {};
+              const failure = new Error(error.message || ('HTTP ' + response.status));
+              failure.code = error.code || ('HTTP ' + response.status);
+              throw failure;
+            }
+            return payload.data;
+          });
+        })
+        .then(function (data) {
+          if (model !== state.current) return;
+          state.agent.loading = false;
+          state.agent.result = data;
+          paint();
+        })
+        .catch(function (error) {
+          if (model !== state.current) return;
+          state.agent.loading = false;
+          state.agent.error = {
+            code: error && error.code ? error.code : '',
+            message: error && error.message ? error.message : '接口不可用，请稍后重试。',
+          };
+          paint();
+        });
+    }
+
+    host.addEventListener('input', function (event) {
+      const input = event.target.closest('[data-bci-agent-question]');
+      if (!input) return;
+      state.agent.question = input.value;
+    });
+
+    host.addEventListener('click', function (event) {
+      const sample = event.target.closest('[data-bci-agent-sample]');
+      if (sample) {
+        state.agent.question = sample.getAttribute('data-bci-agent-sample') || '';
+        runAgent();
+        return;
+      }
+      if (event.target.closest('[data-bci-agent-run]')) runAgent();
+    });
+
     host.addEventListener('change', function (event) {
       const select = event.target.closest('[data-bci-analysis-model]');
       if (!select) return;
       state.current = select.value;
+      syncCurrentLabel();
+      state.agent.result = null;
+      state.agent.error = null;
       analyze();
     });
 

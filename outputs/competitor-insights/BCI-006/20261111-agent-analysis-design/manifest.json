@@ -1,0 +1,44 @@
+{
+  "task_id": "BCI-006/20261111-agent-analysis-design",
+  "title": "即时分析「智能化分析」实施方案（v1.0 评估 + v2.1 + v2.2 施工图）",
+  "created_at": "2026-11-11",
+  "updated_at": "2026-11-11",
+  "owner": "TRAE",
+  "status": "delivered",
+  "purpose": "v1.0：评估技术路线、工具清单、口径约束、前端交互与分期工作量，支撑「做不做」。v2.1：按用户定稿范围重写为可直接开工的施工图——固定骨架 + 4 条工作流、竞品池口径（竞品是查出来的）、工具清单、提示词骨架、数据契约、验收用例与排期。v2.2：口碑从旁证升为正式第四路（与定量、深访、流通平权、不可关闭），跨车口碑差值升级为校验器硬门（无同题同答基础），并补齐工作流步骤、运行时不变量、验收用例、工时说明与决策清单。全程只读，未改代码与数据库。",
+  "deliverables": [
+    {
+      "path": "20261111-agent-analysis-plan-v2.2.md",
+      "type": "markdown-plan",
+      "version": "v2.2 (当前生效)",
+      "description": "施工图（四路平权版）：Router + 4 条固定工作流（W1 综合诊断 / W2 双车对标 / W3 单点深挖 / W4 口碑专查）、竞品池＝战胜战败分组（Q3_22_1__1/2/3 筛人 + purchase_model 分组，不设人数门槛、不读配置、不反问）、11 个工具、四路分层（定量比例 / 深访原话 / 流通空态 / 口碑本车分布）、提示词骨架与 few-shot（占位符）、数字白名单与 9 项校验、四级样本降级、7 条验收用例 A1–A7、决策清单（口碑＝第四路已定）、P0 今日 / P1 2–3 人日排期。口碑只出本车分布，不做跨车差值（无同题同答基础），流通仍未接入按空态处理。"
+    },
+    {
+      "path": "20261111-agent-analysis-plan-v2.md",
+      "type": "markdown-plan",
+      "version": "v2.1 (已被取代，仅存历史)",
+      "description": "前一版施工图：把口碑写成「旁证」、W4 可一键关闭、W1 中口碑步骤可摘除。上述三项已由 v2.2 作废，其余结构（固定骨架、竞品池、工具清单、提示词、契约与排期）沿用。"
+    },
+    {
+      "path": "20261111-agent-analysis-plan.md",
+      "type": "markdown-plan",
+      "version": "v1.0 (已被取代，仅存历史)",
+      "description": "初版评估：三路线对比、单车型工具清单、口径规则、前端交互、分期工时、不做清单、证据索引。其中「不做跨车型对比」的结论已作废。"
+    }
+  ],
+  "evidence_sources": [
+    "user_insight.quant_sample / interview / answer / question / tag / tag_evidence",
+    "public.autohome_koubei / dongchedi_koubei / new_car_reputation_review_tag / new_car_reputation_taxonomy_summary",
+    "public.new_car_monthly_sales_by_energy / sales_import / new_car_monthly_sales",
+    "staging.sales_monthly",
+    "competitor_insight/server/analysis_service.py, tile_summary.py",
+    "customer_insight/tool.py, agents/user_insight_agent.py, app.py, assets/home.js"
+  ],
+  "reproduce": [
+    "..\\Scripts\\python.exe -B temp\\20261111-agent-analysis-design\\probe_sources.py",
+    "..\\Scripts\\python.exe -B temp\\20261111-agent-analysis-design\\probe_sources3.py",
+    "..\\Scripts\\python.exe -B temp\\20261111-agent-analysis-design\\probe_sources4.py"
+  ],
+  "cleanup": "可保留；探针脚本位于 temp\\20261111-agent-analysis-design\\，为只读查询，约 1 周后可清理",
+  "side_effects": "none (read-only)"
+}

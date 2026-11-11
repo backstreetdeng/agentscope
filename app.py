@@ -1160,6 +1160,8 @@ BCI_ARCHIVE_SERVICE: Any = None
 BCI_ARCHIVE_SERVICE_LOCK = Lock()
 BCI_ANALYSIS_SERVICE: Any = None
 BCI_ANALYSIS_SERVICE_LOCK = Lock()
+BCI_AGENT_SERVICE: Any = None
+BCI_AGENT_SERVICE_LOCK = Lock()
 
 
 def bci_archive_service() -> Any:
@@ -1219,6 +1221,38 @@ def bci_tile_summary_llm(system_prompt: str, message: str) -> str:
         return strip_thinking(reply.get_text_content())
 
     return AGENT_LOOP_RUNNER.run(run())
+
+
+def bci_agent_llm(system_prompt: str, message: str) -> str:
+    """智能化分析模型通道：路由与最终合成共用，输出受提示词 JSON 约束。"""
+    from agentscope.agent import Agent
+    from agentscope.message import UserMsg
+    from utils.model_factory import build_model
+
+    agent = Agent(
+        name="竞品洞察智能化分析",
+        system_prompt=system_prompt,
+        model=build_model(load_json_config(), max_tokens_override=1200),
+    )
+
+    async def run() -> str:
+        reply = await agent.reply(UserMsg(name="业务用户", content=message))
+        return strip_thinking(reply.get_text_content())
+
+    return AGENT_LOOP_RUNNER.run(run())
+
+
+def bci_agent_service() -> Any:
+    """惰性构造智能化分析服务；靶心由请求给定，模型不选车型。"""
+    global BCI_AGENT_SERVICE
+    if BCI_AGENT_SERVICE is not None:
+        return BCI_AGENT_SERVICE
+    with BCI_AGENT_SERVICE_LOCK:
+        if BCI_AGENT_SERVICE is None:
+            from competitor_insight.server.agent_analysis import AgentAnalysisService
+
+            BCI_AGENT_SERVICE = AgentAnalysisService(llm=bci_agent_llm)
+    return BCI_AGENT_SERVICE
 
 
 HTML = (PROJECT_DIR / 'home.html').read_text(encoding='utf-8')
@@ -1739,6 +1773,9 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
                 self._send_json({'error': str(exc)}, status=400)
             except Exception as exc:
                 self._send_json({'error': type(exc).__name__ + ': ' + str(exc)}, status=500)
+            return
+        if parsed.path == '/api/bci/analysis/agent':
+            self._handle_bci_analysis_agent_post()
             return
         if parsed.path.startswith('/api/bci/archive/'):
             self._handle_bci_archive_post(parsed)
@@ -2486,6 +2523,46 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
             )
             return
         self._send_json({'ok': True, 'data': payload})
+
+    def _handle_bci_analysis_agent_post(self) -> None:
+        """POST /api/bci/analysis/agent：自然语言指令 → 固定骨架 → 结论。"""
+        from competitor_insight.server.agent_analysis import AgentAnalysisError
+        from competitor_insight.server.analysis_service import AnalysisError
+        from competitor_insight.server.db import DatabaseUnavailable
+
+        try:
+            length = int(self.headers.get('Content-Length', '0'))
+            if length <= 0 or length > 4000:
+                raise ValueError('分析请求为空或过大。')
+            payload = json.loads(self.rfile.read(length).decode('utf-8'))
+            if not isinstance(payload, dict):
+                raise ValueError('分析请求必须为对象。')
+            result = bci_agent_service().run(
+                str(payload.get('model') or ''),
+                str(payload.get('question') or ''),
+            )
+        except (AgentAnalysisError, AnalysisError) as exc:
+            self._send_json(exc.to_payload(), status=exc.status)
+            return
+        except DatabaseUnavailable as exc:
+            self._send_json(
+                {'ok': False, 'error': {'code': 'database_unavailable', 'message': str(exc)}},
+                status=503,
+            )
+            return
+        except (ValueError, OSError) as exc:
+            self._send_json(
+                {'ok': False, 'error': {'code': 'invalid_request', 'message': str(exc)}},
+                status=400,
+            )
+            return
+        except Exception as exc:  # noqa: BLE001
+            self._send_json(
+                {'ok': False, 'error': {'code': 'internal_error', 'message': exc.__class__.__name__}},
+                status=500,
+            )
+            return
+        self._send_json({'ok': True, 'data': result})
 
     def _handle_bci_archive_post(self, parsed: Any) -> None:
         """POST /api/bci/archive/*：生成档案（后台任务）与 xlsx / md 导出。"""
