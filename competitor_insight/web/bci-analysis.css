@@ -511,6 +511,11 @@
 .bci-a-agent__meta b { font-size: 14px; color: var(--a-ink); }
 .bci-a-agent__meta em { margin-left: auto; font-style: normal; font-size: 11px; color: var(--a-ok); }
 .bci-a-agent__block { margin-top: 12px; }
+.bci-a-agent__benchmark {
+  margin: 0;
+  font-size: 12px;
+  color: var(--a-muted);
+}
 .bci-a-agent__block h4 {
   margin: 0 0 6px;
   font-size: 12px;

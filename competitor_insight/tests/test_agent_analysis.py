@@ -139,21 +139,29 @@ class StubLLM:
 
 
 W1_OK = {
-    "evidence": [{"text": "购车关注首位是空间", "refs": ["T2:attention.Q3_13__5"]}],
-    "causes": [{"text": "竞品在安全性上赢走用户", "refs": ["T3:loss.铂智3X.reason[0]"]}],
-    "actions": [{"text": "围绕空间与安全性做对比话术", "refs": ["T2:attention.Q3_13__5"]}],
+    "sections": [
+        {"title": "用户购车关注", "text": "购车关注首位是空间", "refs": ["T2:attention.Q3_13__5"]},
+        {"title": "战胜战败原因", "text": "竞品在安全性上赢走用户", "refs": ["T3:loss.铂智3X.reason[0]"]},
+        {"title": "对标打法", "text": "围绕空间与安全性做对比话术", "refs": ["T2:attention.Q3_13__5"]},
+    ],
+    "sample_note": "深访仅 3 人，只出原话；流通数据尚未接入，本次结论不含规模维度。",
+}
+
+W1_FULL = {
+    "sections": [
+        {"title": "用户购车关注", "text": "购车关注首位是空间", "refs": ["T2:attention.Q3_13__5"]},
+        {"title": "战胜战败原因", "text": "竞品在安全性上赢走用户", "refs": ["T3:loss.铂智3X.reason[0]"]},
+        {"title": "满意度评价", "text": "整体满意度 8.1 分，短板不突出", "refs": ["T4:overall"]},
+        {"title": "对标打法", "text": "围绕空间与安全性做对比话术", "refs": ["T2:attention.Q3_13__5"]},
+    ],
     "sample_note": "深访仅 3 人，只出原话；流通数据尚未接入，本次结论不含规模维度。",
 }
 
 W2_OK = {
     "benchmark": {"text": "本次对标海狮05 vs 铂智3X（池内第 1）", "refs": ["T8:pool.0"]},
-    "differences": [
-        {"text": "购车关注差异集中在安全性与操控性", "refs": ["T10:购车关注.Q3_13__1", "T10:购车关注.Q3_13__2"]}
-    ],
-    "causes": [{"text": "对比后转向铂智3X的用户更看重操控", "refs": ["T9:a_to_b"]}],
-    "gaps": [
-        {"text": "本品需要补操控短板", "refs": ["T4:a.overall"]},
-        {"text": "对标车需要守安全性优势", "refs": ["T4:b.overall"]},
+    "sections": [
+        {"title": "用户购车关注", "text": "购车关注差异集中在安全性与操控性", "refs": ["T10:购车关注.Q3_13__1", "T10:购车关注.Q3_13__2"]},
+        {"title": "满意度评价", "text": "本品需要补操控短板，对标车需要守安全性优势", "refs": ["T4:a.overall", "T4:b.overall"]},
     ],
     "sample_note": "流通数据尚未接入，本次结论不含规模维度。",
 }
@@ -193,7 +201,13 @@ class ToolboxTest(unittest.TestCase):
 
 class WorkflowTest(unittest.TestCase):
     def test_w2_uses_pool_top1_without_asking(self):
-        route = {"template": "W2", "metric": "profile", "competitor": None, "confidence": 0.9}
+        route = {
+            "template": "W2",
+            "metric": "profile",
+            "competitor": None,
+            "confidence": 0.9,
+            "questions": ["attention", "satisfaction"],
+        }
         service, _ = build_service(route, [W2_OK])
         result = service.run(TARGET_KEY, "对比本品和竞品，用户画像、购车关注有何差异")
         self.assertEqual(result["status"], "ok")
@@ -213,9 +227,15 @@ class WorkflowTest(unittest.TestCase):
         self.assertEqual(llm.compose_calls, 0)
 
     def test_unverified_number_triggers_one_rewrite(self):
-        route = {"template": "W2", "metric": "profile", "competitor": None, "confidence": 0.9}
+        route = {
+            "template": "W2",
+            "metric": "profile",
+            "competitor": None,
+            "confidence": 0.9,
+            "questions": ["attention", "satisfaction"],
+        }
         bad = json.loads(json.dumps(W2_OK, ensure_ascii=False))
-        bad["differences"] = [{"text": "本品满意度 999 分", "refs": ["T4:a.overall"]}]
+        bad["sections"][1]["text"] = "本品满意度 999 分"
         service, llm = build_service(route, [bad, W2_OK])
         result = service.run(TARGET_KEY, "对比本品和竞品")
         self.assertEqual(result["status"], "ok")
@@ -223,48 +243,102 @@ class WorkflowTest(unittest.TestCase):
         self.assertEqual(llm.compose_calls, 2)
 
     def test_second_validation_failure_returns_error_code(self):
-        route = {"template": "W2", "metric": "profile", "competitor": None, "confidence": 0.9}
+        route = {
+            "template": "W2",
+            "metric": "profile",
+            "competitor": None,
+            "confidence": 0.9,
+            "questions": ["attention", "satisfaction"],
+        }
         bad = json.loads(json.dumps(W2_OK, ensure_ascii=False))
-        bad["differences"] = [{"text": "本品满意度 999 分", "refs": ["T4:a.overall"]}]
+        bad["sections"][1]["text"] = "本品满意度 999 分"
         service, _ = build_service(route, [bad, bad])
         with self.assertRaises(AgentAnalysisError) as context:
             service.run(TARGET_KEY, "对比本品和竞品")
         self.assertEqual(context.exception.code, "E_NUM_UNVERIFIED")
 
     def test_preference_claim_cannot_use_profile_numbers(self):
-        route = {"template": "W2", "metric": "profile", "competitor": None, "confidence": 0.9}
+        route = {
+            "template": "W2",
+            "metric": "profile",
+            "competitor": None,
+            "confidence": 0.9,
+            "questions": ["attention", "satisfaction"],
+        }
         bad = json.loads(json.dumps(W2_OK, ensure_ascii=False))
-        bad["causes"] = [
-            {"text": "铂智3X 用户更看重空间，其首购占比 35.9%（14/39）", "refs": ["T10:用户画像.purchase_type.首购"]}
-        ]
+        bad["sections"][0] = {
+            "title": "用户购车关注",
+            "text": "铂智3X 用户更看重空间，其首购占比 35.9%（14/39）",
+            "refs": ["T10:用户画像.purchase_type.首购"],
+        }
         service, llm = build_service(route, [bad, W2_OK])
         result = service.run(TARGET_KEY, "对比本品和竞品")
         self.assertEqual(result["verification"]["attempts"], 2)
         self.assertEqual(llm.compose_calls, 2)
 
     def test_number_must_come_from_cited_ref(self):
-        route = {"template": "W2", "metric": "profile", "competitor": None, "confidence": 0.9}
+        route = {
+            "template": "W2",
+            "metric": "profile",
+            "competitor": None,
+            "confidence": 0.9,
+            "questions": ["attention", "satisfaction"],
+        }
         bad = json.loads(json.dumps(W2_OK, ensure_ascii=False))
-        bad["gaps"] = [
-            {"text": "本品空间关注 64.5%（20/31）", "refs": ["T4:a.overall"]},
-            W2_OK["gaps"][1],
-        ]
+        bad["sections"][1] = {"title": "满意度评价", "text": "本品空间关注 64.5%（20/31）", "refs": ["T4:a.overall"]}
         service, llm = build_service(route, [bad, W2_OK])
         result = service.run(TARGET_KEY, "对比本品和竞品")
         self.assertEqual(result["verification"]["attempts"], 2)
         self.assertEqual(llm.compose_calls, 2)
 
     def test_pool_out_model_name_is_rejected(self):
-        route = {"template": "W1", "metric": None, "competitor": None, "confidence": 0.9}
+        route = {"template": "W1", "metric": None, "competitor": None, "confidence": 0.9, "questions": ["attention", "winloss", "strategy"]}
         bad = json.loads(json.dumps(W1_OK, ensure_ascii=False))
-        bad["causes"] = [{"text": "深访 3 人提到元PLUS因内饰不好看放弃", "refs": ["T6:E1"]}]
+        bad["sections"][1] = {"title": "战胜战败原因", "text": "深访 3 人提到元PLUS因内饰不好看放弃", "refs": ["T6:E1"]}
         service, llm = build_service(route, [bad, W1_OK])
         result = service.run(TARGET_KEY, "综合看下本品应该如何对标竞品")
         self.assertEqual(result["verification"]["attempts"], 2)
         self.assertEqual(llm.compose_calls, 2)
 
+    def test_each_sub_question_requires_its_own_section(self):
+        """问了几问就要答几问：四问缺一段必须先重写，重写后逐段对上维度名。"""
+        route = {
+            "template": "W1",
+            "metric": None,
+            "competitor": None,
+            "confidence": 0.9,
+            "questions": ["attention", "winloss", "satisfaction", "strategy"],
+        }
+        missing = json.loads(json.dumps(W1_FULL, ensure_ascii=False))
+        missing["sections"] = [missing["sections"][0], missing["sections"][1], missing["sections"][3]]
+        service, llm = build_service(route, [missing, W1_FULL])
+        result = service.run(TARGET_KEY, "综合看用户购车关注、战胜战败原因、满意度评价，应该如何对标竞品开展营销")
+        self.assertEqual(result["verification"]["attempts"], 2)
+        self.assertEqual(llm.compose_calls, 2)
+        self.assertEqual([item["key"] for item in result["answer"]["sections"]], ["attention", "winloss", "satisfaction", "strategy"])
+        self.assertEqual(
+            [item["title"] for item in result["answer"]["sections"]],
+            ["用户购车关注", "战胜战败原因", "满意度评价", "对标打法"],
+        )
+
+    def test_missing_section_after_rewrite_returns_error(self):
+        route = {
+            "template": "W1",
+            "metric": None,
+            "competitor": None,
+            "confidence": 0.9,
+            "questions": ["attention", "winloss", "satisfaction", "strategy"],
+        }
+        missing = json.loads(json.dumps(W1_FULL, ensure_ascii=False))
+        missing["sections"] = missing["sections"][:2] + [missing["sections"][3]]
+        service, llm = build_service(route, [missing, missing])
+        with self.assertRaises(AgentAnalysisError) as context:
+            service.run(TARGET_KEY, "综合看关注、战胜战败、满意度，应该怎么打")
+        self.assertEqual(llm.compose_calls, 2)
+        self.assertIn("缺少子问题段落", str(context.exception))
+
     def test_w1_includes_four_sources_and_circulation_empty_state(self):
-        route = {"template": "W1", "metric": None, "competitor": None, "confidence": 0.9}
+        route = {"template": "W1", "metric": None, "competitor": None, "confidence": 0.9, "questions": ["attention", "winloss", "strategy"]}
         service, _ = build_service(route, [W1_OK])
         result = service.run(TARGET_KEY, "综合看关注、战胜战败、满意度和口碑，应该怎么打")
         self.assertEqual(result["status"], "ok")

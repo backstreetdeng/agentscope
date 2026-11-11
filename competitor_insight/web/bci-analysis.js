@@ -390,11 +390,6 @@
     }).join('') + '</ul>';
   }
 
-  function agentSection(title, items) {
-    if (!items || !items.length) return '';
-    return '<section class="bci-a-agent__block"><h4>' + esc(title) + '</h4>' + agentItems(items) + '</section>';
-  }
-
   function renderAgentResult(agent) {
     if (!agent) return '';
     if (agent.loading) {
@@ -428,16 +423,13 @@
     const template = data.template === 'W2' ? 'W2' : 'W1';
     const title = template === 'W2' ? '双车对标' : '单车型综合诊断';
     let blocks = '';
-    if (template === 'W2') {
-      blocks += agentSection('本次对标', answer.benchmark && answer.benchmark.text ? [answer.benchmark] : []);
-      blocks += agentSection('关键差异', answer.differences);
-      blocks += agentSection('归因', answer.causes);
-      blocks += agentSection('各自短板', answer.gaps);
-    } else {
-      blocks += agentSection('证据', answer.evidence);
-      blocks += agentSection('归因', answer.causes);
-      blocks += agentSection('动作', answer.actions);
+    if (template === 'W2' && answer.benchmark && answer.benchmark.text) {
+      blocks += '<p class="bci-a-agent__benchmark">' + esc(answer.benchmark.text) + '</p>';
     }
+    blocks += (answer.sections || []).map(function (section) {
+      if (!section || !section.text) return '';
+      return '<section class="bci-a-agent__block"><h4>' + esc(section.title || '') + '</h4>' + agentItems([section]) + '</section>';
+    }).join('');
     const tools = (data.tools || []).map(function (tool) {
       const caliber = tool.caliber || {};
       return '<li><code>' + esc(tool.tool) + '</code><span>n=' + esc(caliber.n == null ? '—' : caliber.n) +

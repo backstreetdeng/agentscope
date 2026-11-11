@@ -24,7 +24,7 @@ from competitor_insight.server.analysis_service import (
     _name_key,
 )
 
-PROMPT_VERSION = "2026-11-11.1"
+PROMPT_VERSION = "2026-11-11.2"
 PROMPT_DIR = Path(__file__).resolve().parents[1] / "prompts"
 ROUTER_PROMPT = (PROMPT_DIR / "agent_router.txt").read_text(encoding="utf-8")
 COMPOSE_PROMPTS = {
@@ -56,6 +56,27 @@ SAMPLE_VALUE_SUFFIXES = (".n", ".denominator", ".answered", ".people", ".total_c
 # 车型词典里混有常见词，单独出现时不作为“池外车型”拦截。
 MODEL_NAME_STOPLIST = {"理想"}
 DIMENSION_LABELS = {str(index): label for index, label in DIMENSIONS}
+# 子问题清单：路由把用户问题拆成有序子问题，合成逐条作答，校验按清单查覆盖。
+QUESTION_LABELS = {
+    "attention": "用户购车关注",
+    "winloss": "战胜战败原因",
+    "satisfaction": "满意度评价",
+    "profile": "用户画像",
+    "reputation": "口碑评价",
+    "strategy": "对标打法",
+}
+QUESTION_ALIASES = {
+    "attention": ("购车关注", "关注点", "关注", "看重", "在意"),
+    "winloss": ("战胜战败", "战败", "流失", "放弃"),
+    "satisfaction": ("满意度", "满意", "评分", "推荐度"),
+    "profile": ("用户画像", "画像", "人群", "年龄", "职业"),
+    "reputation": ("口碑", "评论", "吐槽"),
+    "strategy": ("对标打法", "打法", "营销", "怎么打", "如何打", "建议"),
+}
+DEFAULT_QUESTIONS = {
+    "W1": ["attention", "winloss", "satisfaction", "strategy"],
+    "W2": ["attention", "profile", "satisfaction"],
+}
 UNSUPPORTED_TEMPLATES = {
     "W3": "当前版本先支持综合诊断与双车对标。你可以问“综合看下本品应该如何对标竞品”，或“本品和竞品在画像、关注上有什么差异”。",
     "W4": "当前版本先支持综合诊断与双车对标；口碑已作为第四路数据进入综合诊断。你可以问“综合看下本品的关注、战胜战败和满意度”。",
@@ -149,31 +170,110 @@ def _parse_json(text: str) -> dict[str, Any] | None:
     return parsed if isinstance(parsed, dict) else None
 
 
+def question_key_of(value: Any) -> str | None:
+    """把子问题标识（key / 维度名 / 口语说法）归一到 QUESTION_LABELS 的 key。"""
+    text = str(value or "").strip()
+    if not text:
+        return None
+    if text in QUESTION_LABELS:
+        return text
+    for key, label in QUESTION_LABELS.items():
+        if label == text:
+            return key
+    for key, aliases in QUESTION_ALIASES.items():
+        if any(alias in text for alias in aliases):
+            return key
+    return None
+
+
+def questions_from_text(text: str) -> list[str]:
+    """按用户问题里各维度首次出现的先后顺序拆出子问题。"""
+    value = str(text or "")
+    positions: list[tuple[int, str]] = []
+    for key, aliases in QUESTION_ALIASES.items():
+        hits = [value.find(alias) for alias in aliases]
+        hits = [index for index in hits if index >= 0]
+        if hits:
+            positions.append((min(hits), key))
+    keys: list[str] = []
+    for _, key in sorted(positions):
+        if key not in keys:
+            keys.append(key)
+    return keys
+
+
+def normalize_questions(values: Any, question: str, template: str) -> list[str]:
+    keys: list[str] = []
+    for value in values if isinstance(values, list) else []:
+        key = question_key_of(value)
+        if key and key not in keys:
+            keys.append(key)
+    if not keys:
+        keys = questions_from_text(question)
+    if not keys:
+        keys = list(DEFAULT_QUESTIONS.get(template, []))
+    return keys
+
+
+def question_payload(keys: list[str]) -> list[dict[str, str]]:
+    return [{"key": key, "label": QUESTION_LABELS[key]} for key in keys]
+
+
+def _matches_question_label(head: str, key: str) -> bool:
+    label = QUESTION_LABELS.get(key) or ""
+    if label and label in head:
+        return True
+    return any(alias in head for alias in QUESTION_ALIASES.get(key, ()))
+
+
 def fallback_route(question: str) -> dict[str, Any]:
     """模型不可用或返回不可解析时，用固定关键词兜底；不让模型自由发挥。"""
     text = str(question or "")
     # 先判综合诊断：出现“营销/怎么打”时即使带“竞品/对标”也不是双车逐项对比。
     if re.search(r"综合|整体|怎么打|如何打|营销|诊断", text):
-        return {"template": "W1", "metric": None, "competitor": None, "confidence": 0.6, "source": "fallback"}
-    if re.search(r"对比|差异|vs|VS|和.{1,12}比", text):
-        return {"template": "W2", "metric": None, "competitor": None, "confidence": 0.6, "source": "fallback"}
-    if re.search(r"口碑|评论|负面|吐槽", text):
-        return {"template": "W4", "metric": None, "competitor": None, "confidence": 0.6, "source": "fallback"}
-    metric = None
-    if re.search(r"关注|在意|看重", text):
-        metric = "attention"
-    elif re.search(r"没买|战败|为什么买|放弃", text):
-        metric = "winloss"
-    elif re.search(r"满意|评分|推荐", text):
-        metric = "satisfaction"
-    elif re.search(r"画像|人群|年龄|职业|收入", text):
-        metric = "profile"
-    if metric:
-        return {"template": "W3", "metric": metric, "competitor": None, "confidence": 0.55, "source": "fallback"}
-    return {"template": "unknown", "metric": None, "competitor": None, "confidence": 0.4, "source": "fallback"}
+        template = "W1"
+    elif re.search(r"对比|差异|vs|VS|和.{1,12}比", text):
+        template = "W2"
+    elif re.search(r"口碑|评论|负面|吐槽", text):
+        return {
+            "template": "W4",
+            "metric": None,
+            "competitor": None,
+            "confidence": 0.6,
+            "source": "fallback",
+            "questions": questions_from_text(text),
+        }
+    else:
+        metric = None
+        if re.search(r"关注|在意|看重", text):
+            metric = "attention"
+        elif re.search(r"没买|战败|为什么买|放弃", text):
+            metric = "winloss"
+        elif re.search(r"满意|评分|推荐", text):
+            metric = "satisfaction"
+        elif re.search(r"画像|人群|年龄|职业|收入", text):
+            metric = "profile"
+        if metric:
+            return {
+                "template": "W3",
+                "metric": metric,
+                "competitor": None,
+                "confidence": 0.55,
+                "source": "fallback",
+                "questions": [metric],
+            }
+        return {"template": "unknown", "metric": None, "competitor": None, "confidence": 0.4, "source": "fallback", "questions": []}
+    return {
+        "template": template,
+        "metric": None,
+        "competitor": None,
+        "confidence": 0.6,
+        "source": "fallback",
+        "questions": normalize_questions([], text, template),
+    }
 
 
-def _normalize_route(parsed: dict[str, Any], source: str) -> dict[str, Any]:
+def _normalize_route(parsed: dict[str, Any], source: str, question: str = "") -> dict[str, Any]:
     template = str(parsed.get("template") or "").strip()
     if template not in TEMPLATES:
         template = "unknown"
@@ -193,6 +293,7 @@ def _normalize_route(parsed: dict[str, Any], source: str) -> dict[str, Any]:
         "competitor": competitor,
         "confidence": confidence,
         "source": source,
+        "questions": normalize_questions(parsed.get("questions"), question, template),
     }
     if parsed.get("reject_reason"):
         route["reject_reason"] = str(parsed["reject_reason"])
@@ -293,7 +394,7 @@ class AgentAnalysisService:
         parsed = _parse_json(raw)
         if not parsed:
             return fallback_route(question)
-        return _normalize_route(parsed, "model")
+        return _normalize_route(parsed, "model", question)
 
     # ---------------------------------------------------------------- W1
 
@@ -324,6 +425,7 @@ class AgentAnalysisService:
             "template": "W1",
             "target": target["label"],
             "question": question,
+            "questions": question_payload(route["questions"]),
             "evidence_catalog": catalog,
             "pool": pool["data"],
             "circulation": circulation["data"],
@@ -331,7 +433,7 @@ class AgentAnalysisService:
         }
         if timings is not None:
             timings["tools"] = _ms(tools_started)
-        answer = self._compose("W1", payload, catalog, [], toolbox, timings)
+        answer = self._compose("W1", payload, catalog, [], toolbox, route["questions"], timings)
         return self._ok(target, question, route, answer, pool, [context, profile, attention, winloss, satisfaction, rep_positive, rep_negative, pool, quotes, circulation], warnings)
 
     def _catalog_w1(
@@ -521,6 +623,7 @@ class AgentAnalysisService:
             "target": target["label"],
             "competitor": competitor["label"],
             "question": question,
+            "questions": question_payload(route["questions"]),
             "evidence_catalog": catalog,
             "pool": pool["data"],
             "comparison": compare_rows,
@@ -529,7 +632,7 @@ class AgentAnalysisService:
         }
         if timings is not None:
             timings["tools"] = _ms(tools_started)
-        answer = self._compose("W2", payload, catalog, compare_rows, toolbox, timings)
+        answer = self._compose("W2", payload, catalog, compare_rows, toolbox, route["questions"], timings)
         result = self._ok(
             target,
             question,
@@ -703,6 +806,7 @@ class AgentAnalysisService:
         catalog: list[dict[str, str]],
         compare_rows: list[dict[str, Any]],
         toolbox: Toolbox,
+        questions: list[str] | None = None,
         timings: dict[str, int] | None = None,
     ) -> dict[str, Any]:
         if self.llm is None:
@@ -721,11 +825,21 @@ class AgentAnalysisService:
         attempts = 0
         compose_ms = 0
         validate_ms = 0
-        for attempt in range(2):
+        for attempt in range(3):
             attempts = attempt + 1
             llm_started = time.perf_counter()
+            retry = message
+            if problems:
+                retry += "\n【上一次输出不合格】" + "；".join(problems) + "。请修正后重新输出完整 JSON。"
+                hints = self._number_ref_hints(problems, ref_values)
+                if hints:
+                    retry += (
+                        "\n【这些数字对应的可引用证据】"
+                        + json.dumps(hints, ensure_ascii=False)
+                        + "\n把对应 ref 加进该段 refs；无法确定归属的数字直接删掉，不要保留没有 ref 的数字。"
+                    )
             try:
-                raw = self.llm(system_prompt, message if not problems else message + "\n【上一次输出不合格】" + "；".join(problems) + "。请修正后重新输出完整 JSON。")
+                raw = self.llm(system_prompt, retry)
             except Exception as exc:  # noqa: BLE001 - 模型失败如实返回错误码
                 raise AgentAnalysisError("E_MODEL_FAILED", f"模型调用失败：{exc.__class__.__name__}", 503) from exc
             compose_ms += _ms(llm_started)
@@ -745,10 +859,14 @@ class AgentAnalysisService:
                 ref_values=ref_values,
                 label_refs=label_refs,
                 sample_values=sample_values,
+                questions=questions,
             )
             validate_ms += _ms(validate_started)
             if not problems:
                 answer = normalized
+                break
+            # 结构性缺段不再多花一轮：第二次仍缺就报错；数字类问题允许多修一次。
+            if attempt == 1 and any("子问题" in problem for problem in problems):
                 break
         if timings is not None:
             timings["compose"] = compose_ms
@@ -760,42 +878,51 @@ class AgentAnalysisService:
 
     @staticmethod
     def _normalize_answer(template: str, parsed: dict[str, Any]) -> dict[str, Any]:
-        def items(value: Any) -> list[dict[str, Any]]:
-            result = []
-            for entry in value if isinstance(value, list) else []:
-                if isinstance(entry, str):
-                    result.append({"text": entry.strip(), "refs": []})
-                elif isinstance(entry, dict):
-                    refs = entry.get("refs")
-                    result.append(
-                        {
-                            "text": str(entry.get("text") or "").strip(),
-                            "refs": [str(ref) for ref in refs] if isinstance(refs, list) else [],
-                        }
-                    )
-            return result
+        def refs_of(entry: dict[str, Any]) -> list[str]:
+            refs = entry.get("refs")
+            return [str(ref) for ref in refs] if isinstance(refs, list) else []
 
-        if template == "W1":
-            return {
-                "template": "W1",
-                "evidence": items(parsed.get("evidence")),
-                "causes": items(parsed.get("causes")),
-                "actions": items(parsed.get("actions")),
-                "sample_note": str(parsed.get("sample_note") or "").strip(),
-            }
-        benchmark = parsed.get("benchmark")
-        if isinstance(benchmark, str):
-            benchmark = {"text": benchmark.strip(), "refs": []}
-        elif not isinstance(benchmark, dict):
-            benchmark = {"text": "", "refs": []}
-        return {
-            "template": "W2",
-            "benchmark": {"text": str(benchmark.get("text") or "").strip(), "refs": [str(ref) for ref in benchmark.get("refs") or []]},
-            "differences": items(parsed.get("differences")),
-            "causes": items(parsed.get("causes")),
-            "gaps": items(parsed.get("gaps")),
+        sections = []
+        for entry in parsed.get("sections") if isinstance(parsed.get("sections"), list) else []:
+            if not isinstance(entry, dict):
+                continue
+            text = str(entry.get("text") or "").strip()
+            title = str(entry.get("title") or entry.get("name") or "").strip()
+            key = question_key_of(entry.get("key")) or question_key_of(title)
+            if not key and text:
+                key = question_key_of(text[:40])
+            sections.append({"key": key or "", "title": title, "text": text, "refs": refs_of(entry)})
+        answer: dict[str, Any] = {
+            "template": template,
+            "sections": sections,
             "sample_note": str(parsed.get("sample_note") or "").strip(),
         }
+        if template == "W2":
+            benchmark = parsed.get("benchmark")
+            if isinstance(benchmark, str):
+                benchmark = {"text": benchmark.strip(), "refs": []}
+            elif not isinstance(benchmark, dict):
+                benchmark = {"text": "", "refs": []}
+            answer["benchmark"] = {"text": str(benchmark.get("text") or "").strip(), "refs": refs_of(benchmark)}
+        return answer
+
+    @staticmethod
+    def _number_ref_hints(problems: list[str], ref_values: dict[str, set[float]]) -> dict[str, list[str]]:
+        """重写时把被拦截数字回指到登记过它的证据，避免模型反复猜 ref。"""
+        prefix = "数字不在本条引用登记内："
+        hints: dict[str, list[str]] = {}
+        for problem in problems:
+            if not problem.startswith(prefix):
+                continue
+            token = problem[len(prefix):].strip()
+            try:
+                value = round(float(token), 4)
+            except ValueError:
+                continue
+            refs = [ref for ref, values in ref_values.items() if value in values or -value in values]
+            if refs:
+                hints[token] = refs[:4]
+        return hints
 
     @staticmethod
     def _numeric_values(toolbox: Toolbox) -> set[float]:
@@ -863,25 +990,47 @@ class AgentAnalysisService:
         ref_values: dict[str, set[float]] | None = None,
         label_refs: dict[str, set[str]] | None = None,
         sample_values: set[float] | None = None,
+        questions: list[str] | None = None,
     ) -> list[str]:
         problems: list[str] = []
-        if template == "W1":
-            blocks = [answer["evidence"], answer["causes"], answer["actions"]]
-            required = {"evidence": answer["evidence"], "causes": answer["causes"], "actions": answer["actions"]}
-        else:
-            blocks = [[answer["benchmark"]], answer["differences"], answer["causes"], answer["gaps"]]
-            required = {
-                "benchmark": [answer["benchmark"]],
-                "differences": answer["differences"],
-                "causes": answer["causes"],
-                "gaps": answer["gaps"],
-            }
-        for name, entries in required.items():
-            if not entries or not any(entry.get("text") for entry in entries):
-                problems.append(f"{name} 为空")
-        # 提示词仍要求 W1 ≤450 / W2 ≤400 字；硬校验留出模型抖动余量，避免因几十字超限丢掉整份结论。
-        limits = {"W1": 600, "W2": 650}
-        total_chars = sum(len(entry.get("text") or "") for entries in blocks for entry in entries)
+        sections = [section for section in answer.get("sections") or [] if isinstance(section, dict)]
+        expected = list(questions or [])
+        found_keys = [str(section.get("key") or "") for section in sections]
+        if not sections:
+            problems.append("没有按子问题分段")
+        elif expected:
+            # 结构性门：问了几问就要答几段，段序与提问一致，段标题能对上维度名。
+            missing = [QUESTION_LABELS[key] for key in expected if key not in found_keys]
+            if missing:
+                problems.append("缺少子问题段落：" + "、".join(missing))
+            extra = [
+                str(section.get("title") or section.get("key") or "未命名段落")
+                for section in sections
+                if section.get("key") not in expected
+            ]
+            if extra:
+                problems.append("出现提问之外的段落：" + "、".join(extra[:3]))
+            if all(key in expected for key in found_keys) and len(found_keys) == len(set(found_keys)):
+                order = [expected.index(key) for key in found_keys]
+                if order != sorted(order):
+                    problems.append("段落顺序与提问顺序不一致")
+            for section in sections:
+                key = str(section.get("key") or "")
+                title = str(section.get("title") or "").strip()
+                body = str(section.get("text") or "").strip()
+                if key and not title:
+                    problems.append(f"段落缺少标题：{QUESTION_LABELS.get(key, key)}")
+                head = title or re.split(r"[。！？；\n]", body, maxsplit=1)[0][:30]
+                if key and not _matches_question_label(head, key):
+                    problems.append(f"段落标题未对上维度名：{QUESTION_LABELS.get(key, key)}")
+        blocks = [sections]
+        if template == "W2":
+            benchmark = answer.get("benchmark") or {}
+            if str(benchmark.get("text") or "").strip():
+                blocks.append([benchmark])
+        # 提示词要求每段 60–140 字；硬校验留抖动余量，避免因几十字超限丢掉整份结论。
+        limits = {"W1": 760, "W2": 760}
+        total_chars = sum(len(section.get("text") or "") for section in sections)
         if total_chars > limits[template]:
             problems.append(f"正文 {total_chars} 字，超过 {limits[template]} 字上限")
 
@@ -993,6 +1142,7 @@ class AgentAnalysisService:
             "question": question,
             "model": {"key": target["key"], "label": target["label"]},
             "router": route,
+            "questions": question_payload(route["questions"]),
             "answer": composed["answer"],
             "pool": pool["data"],
             "tools": [
