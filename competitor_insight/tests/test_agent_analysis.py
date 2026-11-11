@@ -231,6 +231,38 @@ class WorkflowTest(unittest.TestCase):
             service.run(TARGET_KEY, "对比本品和竞品")
         self.assertEqual(context.exception.code, "E_NUM_UNVERIFIED")
 
+    def test_preference_claim_cannot_use_profile_numbers(self):
+        route = {"template": "W2", "metric": "profile", "competitor": None, "confidence": 0.9}
+        bad = json.loads(json.dumps(W2_OK, ensure_ascii=False))
+        bad["causes"] = [
+            {"text": "铂智3X 用户更看重空间，其首购占比 35.9%（14/39）", "refs": ["T10:用户画像.purchase_type.首购"]}
+        ]
+        service, llm = build_service(route, [bad, W2_OK])
+        result = service.run(TARGET_KEY, "对比本品和竞品")
+        self.assertEqual(result["verification"]["attempts"], 2)
+        self.assertEqual(llm.compose_calls, 2)
+
+    def test_number_must_come_from_cited_ref(self):
+        route = {"template": "W2", "metric": "profile", "competitor": None, "confidence": 0.9}
+        bad = json.loads(json.dumps(W2_OK, ensure_ascii=False))
+        bad["gaps"] = [
+            {"text": "本品空间关注 64.5%（20/31）", "refs": ["T4:a.overall"]},
+            W2_OK["gaps"][1],
+        ]
+        service, llm = build_service(route, [bad, W2_OK])
+        result = service.run(TARGET_KEY, "对比本品和竞品")
+        self.assertEqual(result["verification"]["attempts"], 2)
+        self.assertEqual(llm.compose_calls, 2)
+
+    def test_pool_out_model_name_is_rejected(self):
+        route = {"template": "W1", "metric": None, "competitor": None, "confidence": 0.9}
+        bad = json.loads(json.dumps(W1_OK, ensure_ascii=False))
+        bad["causes"] = [{"text": "深访 3 人提到元PLUS因内饰不好看放弃", "refs": ["T6:E1"]}]
+        service, llm = build_service(route, [bad, W1_OK])
+        result = service.run(TARGET_KEY, "综合看下本品应该如何对标竞品")
+        self.assertEqual(result["verification"]["attempts"], 2)
+        self.assertEqual(llm.compose_calls, 2)
+
     def test_w1_includes_four_sources_and_circulation_empty_state(self):
         route = {"template": "W1", "metric": None, "competitor": None, "confidence": 0.9}
         service, _ = build_service(route, [W1_OK])

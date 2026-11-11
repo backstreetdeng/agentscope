@@ -17,6 +17,7 @@ from typing import Any, Callable
 
 from competitor_insight.server.agent_tools import Toolbox
 from competitor_insight.server.analysis_service import (
+    DIMENSIONS,
     AnalysisError,
     AnalysisService,
     normalize_competitor,
@@ -47,6 +48,14 @@ STRIP_NUMBER_PATTERNS = [
 ]
 BANNED_WORDS = ("全部", "唯一", "仅有", "均为", "都是", "所有")
 SHARE_PHRASES = ("领先竞品", "优于竞品", "领先于竞品", "口碑领先", "领先市场")
+# 偏好类断言（更看重/更关注…）只能由购车关注数字支撑；画像构成（首购/年龄/城市/价格段）不得当偏好证据。
+PREFERENCE_WORDS = ("更看重", "更关注", "更在意", "更重视", "最看重", "关注度最高")
+PREFERENCE_REF_PREFIXES = ("T2:attention.", "T10:购车关注.")
+# 样本量类取值可跨条目复用（如“深访 3 人”“31 人作答”），不算跨指标借数。
+SAMPLE_VALUE_SUFFIXES = (".n", ".denominator", ".answered", ".people", ".total_compared", ".pool_size")
+# 车型词典里混有常见词，单独出现时不作为“池外车型”拦截。
+MODEL_NAME_STOPLIST = {"理想"}
+DIMENSION_LABELS = {str(index): label for index, label in DIMENSIONS}
 UNSUPPORTED_TEMPLATES = {
     "W3": "当前版本先支持综合诊断与双车对标。你可以问“综合看下本品应该如何对标竞品”，或“本品和竞品在画像、关注上有什么差异”。",
     "W4": "当前版本先支持综合诊断与双车对标；口碑已作为第四路数据进入综合诊断。你可以问“综合看下本品的关注、战胜战败和满意度”。",
@@ -59,6 +68,57 @@ CLARIFY_TEXT = (
 
 def _ms(started: float) -> int:
     return round((time.perf_counter() - started) * 1000)
+
+
+_VEHICLE_NAMES: list[str] | None = None
+
+
+def _vehicle_names() -> list[str]:
+    """车型名词典：标准名与库内原始写法，用于识别结论里出现的池外车型。"""
+    global _VEHICLE_NAMES
+    if _VEHICLE_NAMES is None:
+        names: set[str] = set()
+        path = Path(__file__).resolve().parents[1] / "config" / "vehicle_name_map.json"
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            data = {}
+        for item in data.get("mappings") or []:
+            for field in ("standard", "raw"):
+                name = str(item.get(field) or "").strip()
+                if len(_name_key(name)) >= 2 and name not in MODEL_NAME_STOPLIST:
+                    names.add(name)
+        _VEHICLE_NAMES = sorted(names, key=len, reverse=True)
+    return _VEHICLE_NAMES
+
+
+def foreign_model_names(text: str, allowed: list[str]) -> list[str]:
+    """text 中出现、但不属于本次对标车型/竞品池成员的车型名（长名优先，去掉被包含的短名）。"""
+    value = _name_key(text)
+    allowed_keys = {_name_key(name) for name in allowed if name}
+    found: list[str] = []
+    for name in _vehicle_names():
+        key = _name_key(name)
+        if not key or key in allowed_keys or key not in value:
+            continue
+        if any(key != other and (key in other or other in key) for other in allowed_keys):
+            continue
+        if any(key in _name_key(kept) for kept in found):
+            continue
+        found.append(name)
+    return found
+
+
+def _ref_label(ref: str) -> str | None:
+    """从证据 ref 反推指标名，用于“指标名与引用同源”校验。"""
+    if "reason[" in ref:
+        return ref.split("reason[", 1)[1].rstrip("]")
+    match = re.search(r"__(\d+)$", ref)
+    if match:
+        return DIMENSION_LABELS.get(match.group(1))
+    if ref.startswith(("T2:profile.", "T10:用户画像.", "T5:")):
+        return ref.rsplit(".", 1)[-1]
+    return None
 
 
 class AgentAnalysisError(RuntimeError):
@@ -363,8 +423,14 @@ class AgentAnalysisService:
                     + (f"（{row['ratio']}%）" if row.get("ratio") is not None else ""),
                 }
             )
+        allowed_models = [pool["data"]["target"]] + [row["model"] for row in pool["data"]["pool"]]
         for quote in quotes["data"]["quotes"]:
-            catalog.append({"ref": f"T6:{quote['ref']}", "text": f"深访原话（{quotes['data']['people']} 人）「{quote['text']}」"})
+            catalog.append(
+                {
+                    "ref": f"T6:{quote['ref']}",
+                    "text": f"深访原话（{quotes['data']['people']} 人）「{quote['text']}」{self._foreign_note(quote['text'], allowed_models)}",
+                }
+            )
         catalog.append({"ref": "T7:circulation", "text": circulation["data"]["reason"]})
 
         if circulation["status"] == "not_available":
@@ -586,12 +652,13 @@ class AgentAnalysisService:
                     }
                 )
 
+        allowed_models = [pool["data"]["target"], chosen["model"]] + [row["model"] for row in pool["data"]["pool"]]
         for quotes, label in ((quotes_a, "本品"), (quotes_b, "对标车")):
             for quote in quotes["data"]["quotes"]:
                 catalog.append(
                     {
                         "ref": f"T6:{quote['ref']}",
-                        "text": f"{label}深访原话（{quotes['data']['people']} 人）「{quote['text']}」",
+                        "text": f"{label}深访原话（{quotes['data']['people']} 人）「{quote['text']}」{self._foreign_note(quote['text'], allowed_models)}",
                     }
                 )
 
@@ -603,6 +670,14 @@ class AgentAnalysisService:
         if small:
             warnings.append("以下维度样本不足，只给人数与原话：" + "、".join(small[:8]))
         return catalog, warnings, compare_rows
+
+    @staticmethod
+    def _foreign_note(text: str, allowed: list[str]) -> str:
+        """原话里的池外车型就地标注，避免合成阶段把它当成竞品。"""
+        foreign = foreign_model_names(text, allowed)
+        if not foreign:
+            return ""
+        return f"【原话提及池外车型 {'、'.join(foreign)}：只可引用动机，不得当作竞品写进结论】"
 
     @staticmethod
     def _compare_text(metric: str, row: dict[str, Any], a_label: str, b_label: str) -> str:
@@ -637,6 +712,10 @@ class AgentAnalysisService:
         model_names = [payload.get("target"), payload.get("competitor")]
         model_names += [row.get("model") for row in (payload.get("pool") or {}).get("pool", [])]
         model_names = [str(name) for name in model_names if name]
+        numbers = self._numeric_values(toolbox)
+        ref_values = self._ref_value_map(catalog, model_names)
+        label_refs = self._label_ref_map(catalog)
+        sample_values = self._sample_values(toolbox)
         problems: list[str] = []
         answer: dict[str, Any] | None = None
         attempts = 0
@@ -656,7 +735,17 @@ class AgentAnalysisService:
                 continue
             normalized = self._normalize_answer(template, parsed)
             validate_started = time.perf_counter()
-            problems = self._validate(template, normalized, {item["ref"] for item in catalog}, self._numeric_values(toolbox), compare_rows, model_names)
+            problems = self._validate(
+                template,
+                normalized,
+                {item["ref"] for item in catalog},
+                numbers,
+                compare_rows,
+                model_names,
+                ref_values=ref_values,
+                label_refs=label_refs,
+                sample_values=sample_values,
+            )
             validate_ms += _ms(validate_started)
             if not problems:
                 answer = normalized
@@ -717,6 +806,52 @@ class AgentAnalysisService:
             values.add(abs(value))  # 差值可为负，正文常写“差 12.5 个百分点”
         return values
 
+    @staticmethod
+    def _sample_values(toolbox: Toolbox) -> set[float]:
+        """样本量类取值：可跨条目复用，不视为跨指标借数。"""
+        values: set[float] = set()
+        for item in toolbox.index:
+            if str(item["path"]).endswith(SAMPLE_VALUE_SUFFIXES):
+                values.add(round(float(item["value"]), 4))
+        return values
+
+    def _ref_value_map(self, catalog: list[dict[str, str]], model_names: list[str]) -> dict[str, set[float]]:
+        """每条证据自身登记的取值集合，用于“数字必须与所引证据同源”。"""
+        mapping: dict[str, set[float]] = {}
+        for item in catalog:
+            values: set[float] = set()
+            for token in self._numbers_in(item["text"], model_names):
+                value = round(float(token), 4)
+                values.update({value, -value})
+            mapping[item["ref"]] = values
+        return mapping
+
+    @staticmethod
+    def _label_ref_map(catalog: list[dict[str, str]]) -> dict[str, set[str]]:
+        """指标名 → 承载该指标的证据 ref，用于“指标名与引用同源”。"""
+        mapping: dict[str, set[str]] = {}
+        for item in catalog:
+            label = _ref_label(item["ref"])
+            if label and len(label) >= 2 and not label.isdigit():
+                mapping.setdefault(label, set()).add(item["ref"])
+        return mapping
+
+    @staticmethod
+    def _labels_with_numbers(text: str, label_refs: dict[str, set[str]]) -> set[str]:
+        """只取“指标名后面紧跟数字”的用法（如“首购占比 61.0%”“外观 8.19 分”），避免把叙述性提及当成指标绑定。"""
+        labels: set[str] = set()
+        for label in label_refs:
+            start = 0
+            while True:
+                index = text.find(label, start)
+                if index < 0:
+                    break
+                if re.search(r"\d", text[index + len(label) : index + len(label) + 12]):
+                    labels.add(label)
+                    break
+                start = index + len(label)
+        return labels
+
     def _validate(
         self,
         template: str,
@@ -725,6 +860,9 @@ class AgentAnalysisService:
         numbers: set[float],
         compare_rows: list[dict[str, Any]],
         model_names: list[str],
+        ref_values: dict[str, set[float]] | None = None,
+        label_refs: dict[str, set[str]] | None = None,
+        sample_values: set[float] | None = None,
     ) -> list[str]:
         problems: list[str] = []
         if template == "W1":
@@ -776,9 +914,36 @@ class AgentAnalysisService:
                     row = compare_refs.get(ref)
                     if row and row.get("level") != "L0" and re.search(r"高于|优于|领先|落后", text):
                         problems.append(f"小样本维度做了优劣判断：{row['label']}")
-                for token in self._numbers_in(text, model_names):
+                tokens = self._numbers_in(text, model_names)
+                for token in tokens:
                     if not self._number_allowed(token, numbers):
                         problems.append(f"数字未在证据中登记：{token}")
+                if ref_values is not None:
+                    # 本条引用登记的取值 + 样本量；跨指标借数（引用 A 却写 B 的数）在这里拦下。
+                    scoped: set[float] = set(sample_values or set())
+                    for ref in entry_refs:
+                        scoped |= ref_values.get(ref, set())
+                    for token in tokens:
+                        if self._number_allowed(token, numbers) and not self._number_allowed(token, scoped):
+                            problems.append(f"数字不在本条引用登记内：{token}")
+                    # 偏好类表述（更看重/更关注）只能用购车关注数字；画像构成不能当偏好证据。
+                    if any(word in text for word in PREFERENCE_WORDS):
+                        preference_scope: set[float] = set(sample_values or set())
+                        for ref in entry_refs:
+                            if ref.startswith(PREFERENCE_REF_PREFIXES):
+                                preference_scope |= ref_values.get(ref, set())
+                        if any(not self._number_allowed(token, preference_scope) for token in tokens):
+                            problems.append("偏好类表述引用了非购车关注数字")
+                if label_refs:
+                    # 只看“指标名后面紧跟数字”的用法；且本条引用都带指标名时才判（引用里混有不带指标名的原话/战败原因时跳过）。
+                    labeled = {ref for ref in entry_refs if any(ref in owners for owners in label_refs.values())}
+                    if entry_refs and len(labeled) == len(set(entry_refs)):
+                        text_labels = self._labels_with_numbers(text, label_refs)
+                        cited_labels = {label for label in text_labels if set(entry_refs) & label_refs[label]}
+                        if text_labels and not cited_labels:
+                            problems.append("指标名与引用不一致：" + "、".join(sorted(text_labels)[:3]))
+                for name in foreign_model_names(text, model_names):
+                    problems.append(f"结论出现池外车型名：{name}（原话里可提，结论不得当竞品写）")
         note = str(answer.get("sample_note") or "").strip()
         if not note:
             problems.append("sample_note 为空")
