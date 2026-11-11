@@ -346,13 +346,14 @@ class FakeStore:
         self.stale.append((report_version_id, reason))
 
 
-def make_service() -> BciReportService:
+def make_service(revise_llm=None) -> BciReportService:
     return BciReportService(
         analysis=FakeAnalysis(),
         archive=FakeArchive(),
         store=FakeStore(),
         narrative=False,
         attack_llm=lambda system_prompt, message: "{}",
+        revise_llm=revise_llm,
     )
 
 
@@ -578,7 +579,7 @@ class DeterministicRevisionTest(unittest.TestCase):
         page = next(item for item in diff["pages"] if item["page"] == "P04")
         self.assertTrue(page["changed"])
         self.assertEqual(diff["target"]["version_label"], "v1.1")
-        self.assertGreaterEqual(diff["changed_blocks"], 1)
+        self.assertTrue(any(item["field"] == "title" for item in page["field_changes"]))
 
     def test_legacy_report_is_read_only(self):
         self.base_row["legacy"] = True
@@ -588,6 +589,92 @@ class DeterministicRevisionTest(unittest.TestCase):
                 [{"op": "set_title", "target": {"page": "P04"}, "value": "不能改"}],
             )
         self.assertEqual(ctx.exception.code, "legacy_readonly")
+
+
+class FreeformRewriteTest(unittest.TestCase):
+    """自由指令改稿：模型改单页文案，溯源失败重试一次，二次失败拒绝。"""
+
+    @staticmethod
+    def _payload(prompt: str) -> dict:
+        return json.loads(prompt.split("\n上一次输出被拒")[0])
+
+    def test_rewrites_page_copy_and_records_before_after(self):
+        def fake(prompt):
+            data = self._payload(prompt)
+            number = data["allowed_numbers"][0]
+            return json.dumps(
+                {
+                    "lead": f"本页改为收敛写法，沿用 {number} 这一口径。",
+                    "blocks": [{"id": "P04.CHART", "note": "表格说明已按指令收敛。"}],
+                    "refs": ["P04.TOP5"],
+                },
+                ensure_ascii=False,
+            )
+
+        service = make_service(revise_llm=fake)
+        base = service.generate(["fake-a"])
+        instruction = "把导语改得更精炼，表格说明收敛一句"
+        result = service.revise(
+            base["report_version_id"],
+            [{"op": "rewrite_page", "target": {"page": "P04"}, "instruction": instruction}],
+        )
+        self.assertEqual(result["version_label"], "v1.1")
+        child = service.store.get_version(result["report_version_id"])
+        page = next(item for item in child["content"]["pages"] if item["page"] == "P04")
+        self.assertTrue(page["lead"].startswith("本页改为收敛写法"))
+        block = next(item for item in page["blocks"] if item["id"] == "P04.CHART")
+        self.assertEqual(block["note"], "表格说明已按指令收敛。")
+        record = child["patch"]["rewrites"][0]
+        self.assertEqual(record["instruction"], instruction)
+        self.assertEqual(record["refs"], ["P04.TOP5"])
+        self.assertTrue(any(item["field"] == "lead" for item in record["changes"]))
+        self.assertTrue(any(item["block"] == "P04.CHART" and item["field"] == "note" for item in record["changes"]))
+        parent = service.store.get_version(base["report_version_id"])
+        parent_page = next(item for item in parent["content"]["pages"] if item["page"] == "P04")
+        self.assertNotEqual(parent_page["lead"], page["lead"])
+
+    def test_retries_once_when_number_is_not_traceable(self):
+        calls = {"n": 0}
+
+        def flaky(prompt):
+            calls["n"] += 1
+            if calls["n"] == 1:
+                return json.dumps({"lead": "新增 98765% 的结论"}, ensure_ascii=False)
+            return json.dumps({"lead": "收敛后的结论"}, ensure_ascii=False)
+
+        service = make_service(revise_llm=flaky)
+        base = service.generate(["fake-a"])
+        result = service.revise(
+            base["report_version_id"],
+            [{"op": "rewrite_page", "target": {"page": "P04"}, "instruction": "改导语"}],
+        )
+        self.assertEqual(calls["n"], 2)
+        child = service.store.get_version(result["report_version_id"])
+        page = next(item for item in child["content"]["pages"] if item["page"] == "P04")
+        self.assertEqual(page["lead"], "收敛后的结论")
+
+    def test_rejects_version_when_second_attempt_still_untraceable(self):
+        service = make_service(revise_llm=lambda prompt: json.dumps({"lead": "新增 98765% 的结论"}, ensure_ascii=False))
+        base = service.generate(["fake-a"])
+        with self.assertRaises(ReportError) as ctx:
+            service.revise(
+                base["report_version_id"],
+                [{"op": "rewrite_page", "target": {"page": "P04"}, "instruction": "改导语"}],
+            )
+        self.assertEqual(ctx.exception.code, "revision_rejected")
+        self.assertEqual(len(service.store.versions), 1)
+
+    def test_unavailable_page_only_allows_title(self):
+        service = make_service(revise_llm=lambda prompt: json.dumps({"lead": "补写正文"}, ensure_ascii=False))
+        base = service.generate(["fake-a"])
+        content = service.store.get_version(base["report_version_id"])["content"]
+        page = next(item for item in content["pages"] if item.get("data_status") == "unavailable")
+        with self.assertRaises(ReportError) as ctx:
+            service.revise(
+                base["report_version_id"],
+                [{"op": "rewrite_page", "target": {"page": page["page"]}, "instruction": "补写正文"}],
+            )
+        self.assertEqual(ctx.exception.code, "revision_rejected")
 
 
 class AggregatorUnitTest(unittest.TestCase):

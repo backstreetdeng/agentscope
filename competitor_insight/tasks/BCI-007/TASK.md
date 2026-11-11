@@ -88,7 +88,7 @@ evidence: outputs/competitor-insights/BCI-007/20261111-report-11p/
 | BCI-007-L04 | 无未购车/流失样本 | 「竞品为什么赢」不出 | 已由 BCI-006 实测确认 | 业务补访未购车用户 | 用户/业务 | BCI-006-L03 |
 | BCI-007-L05 | 满意度仅 13/63 有明确分 | P07 分数样本偏小 | 页面标注作答分母 | 补访 0–10 分题 | 业务 | BCI-004-L08 |
 | BCI-007-L06 | 2023/2024 定量未入库 | 不做多年趋势 | 报告只出当前年度 | 完成入库并验证题项对齐 | 数据/TRAE | BCI-001-L04 |
-| BCI-007-L07 | 对话改稿未做（原型为 3 条正则假实现） | 无法自然语言改稿 | 页面不出现输入框；结构化改稿方案已写 | 用户确认立项 + 20 份回归样本 + 数字白名单校验 | 用户 | `docs/report-output-design.md` §6 |
+| BCI-007-L07 | 自由指令改稿待补回归样本 | 单次真实改稿已验证，尚无 20 份批量回归 | 已实现 `rewrite_page`（自然语言、溯源重试、数字兜底），UI 有输入框 | 补 20 份固定指令回归样本 | TRAE | 本文件 §9 B11、`20261111-report-freeform/` |
 | BCI-007-L08 | 业务 PPT 模板未提供 | S6 无法开工 | 先做 HTML；PPT 二期 | 业务交付 `.pptx` 模板 | 用户/业务 | 业务清单 B04 |
 | BCI-007-L09 | 五车范围可读档案仅 4 份（全库 14 份，多属其他车系） | 定性模块样本小 | 页面按车显示 `x/y 份档案有值`；不补数不插值 | 用户放开五车相关受访者的档案生成并完成 | 用户 | BCI-004、`preview.html` |
 | BCI-007-L10 | 「学历」无来源 | P01 该行删除 | 定量分段无学历、档案 43 维无学历 | 业务补题或接受不展示 | 业务 | `docs/report-output-design.md` §2.2 |
@@ -100,6 +100,7 @@ evidence: outputs/competitor-insights/BCI-007/20261111-report-11p/
 | 2026-11-08 | CREATED | 用户要求先出方案与业务清单，不写业务代码 | `docs/report-output-design.md`、`20261108-pptx-probe/` | TRAE |
 | 2026-11-11 | EXECUTING | 用户要求当天实现；评估结论「需改后可行」，6 项 P0 已按改进口径落地 | 本文件 §3 | TRAE |
 | 2026-11-11 | TESTED | 单测 22/22、真实库 API 全链路、Playwright tab ④ 实测通过；本任务文件同批入库 | `20261111-report-e2e/`、`20261111-report-ddl/` | TRAE |
+| 2026-11-11 | TESTED | 第三轮：单页视图与自由指令改稿按原型重做并通过浏览器验收，单测 38/38 | 本文件 §9 | TRAE |
 
 ## 8. 第二轮：一车一报告 + 11 页 + 确定性改稿（2026-11-11）
 
@@ -118,4 +119,24 @@ evidence: outputs/competitor-insights/BCI-007/20261111-report-11p/
 补充核对：`bci.report` 中 leapmotor-b10 的两条记录里，旧记录（`c882a856…`，标题「5 款车型竞品用户洞察报告」）已是 `legacy=true`，列表查询 `where r.legacy = false` 已过滤，业务侧只看到一条「1 款车型竞品用户洞察报告」。
 
 证据：`outputs/competitor-insights/BCI-007/20261111-report-11p/`（11 页 HTML、逐页截图、verify.txt）、`20261111-report-footer/`、`20261111-report-v11/`（版本线截图）、`20261111-report-p7/`（P7 进攻方向页与截图）。
+
+## 9. 第三轮：单页视图 + 自由指令改稿 + 评审硬步骤（2026-11-11）
+
+用户否掉上一版缩水实现（右侧整篇 iframe 预览、校核只留三种确定性指令），要求按原型重做。
+
+| # | 验收项 | 判定方式 | 结果 |
+|---|---|---|---|
+| B10 | 单页视图 | 左侧 11 页大纲可点、有选中态、跟随当前车型；右侧只渲染选中页；页码「P04 · 第 4 / 11 页」+ 上一页/下一页；无「预览整篇」入口；导出仍 11 页；刷新停在同页 | PASS：初始 P01，点 P04 后 iframe 仅 1 个 `h2`、不含 P01，页码 `P04 · 第 4 / 11 页`，URL 为 `?report=…&page=P04#bci`，reload 后仍 P04，0 console error；见 `single-page-check.json` |
+| B11 | 自由指令改稿 | 任意页下达自然语言指令，模型真改该页正文（标题/导语/板块文案/表格说明），落子版本 v1.1，旧版不动；数字与引语必须指回本页数据，指不回整页重写一次，二次失败拒绝该版本；记录页/原指令/改前改后/refs | PASS：v5.0 → v5.1 同页 P04 同指令，导语与 `P04.CHART` 说明被改写，`patch.rewrites` 记录 refs=`P04.CHART`、`P04.TOP5`；数字越界重试与二次拒绝另有单测 |
+| B12 | 评审硬步骤 | `competitor_insight/RULES.md` 写入「设计评审前必须先出原型对照表」 | PASS：§6 QA 一条 + §14 展开（逐条列页面/字段/交互、对表打分、无表评审无效） |
+
+证据：`outputs/competitor-insights/BCI-007/20261111-single-page/`（`p4-single-page.png`、`p4-single-grid.png`、`p4-single-page-frame.png`、`single-page-check.json`）、`20261111-report-freeform/`（`p4-before.png`、`p4-after.png`、`p4-revise-record-compare.png`、`revise-before-after.json`）。
+
+实现要点：
+
+- 渲染：`render_report_page_html` 复用整篇渲染器（`report-render-html/1.0.4`），单页 `body.single`；块级 note 统一由 `_render_block` 追加，修复 bars/table 块说明原不渲染。
+- 接口：`GET /api/bci/report/page?id=&page=P04` 返回内联单页 HTML；导出仍走 `export` 的 11 页，两者互不替代。
+- 深链：`?report=<version>&page=P04`（项目 tab 走 `#bci` hash 路由，故页码用 query 传递）。
+- 改稿：`rewrite_page` → `_rewrite_page` 先收集本页允许数字与 refs，模型返回严格 JSON；`_validate_rewrite` 校验不可用页/缺块/数字/refs；失败带反馈重写一次，二次失败 `422 revision_rejected`；`_check_numeric_invariant` 兜底白名单扩为「原文文本数字 ∪ 源 n」，避免误拒页脚 n。
+- 单测：`test_report_service.py`、`test_report_render_html.py` 共 38 项通过；验收版本 `420b4432-9856-4092-b170-6d88b7685e07`（v5.0）→ `82ca358d-4751-400a-924e-726a170577f9`（v5.1）。
 

@@ -98,6 +98,7 @@ TASK.md 第一个代码块必须是状态块，字段如下（`check_board.py` �
 | 6 | 已上线 | `LIVE` | 改动已在用户可访问入口生效（URL + 菜单路径），附实际访问证据；如需重启服务，记录重启时间与影响；遗留项已挂账；用户验收或明确授权上线 |
 
 - 不允许执行者从 `DEV_DONE`/`QA` 直接跳到 `LIVE`。
+- **设计评审前必须先出原型对照表**（用户 2026-11-11）：涉及页面、字段或交互的设计类改动，进入评审前逐条列出原型与现状的对应表，评审对着表打分；只对着方案文档评审无效。细则见 §14。
 - **入库是阶段准入的硬条件（用户 2026-11-06 明确）**：任务到达 `TESTED` 之前必须在本地提交（相关文件集无未提交/未跟踪改动），到达 `LIVE` 之前必须已推送远程。**未入库的任务不得标为完成**；`check_board.py` 的 `TASK-COMMITTED` 约束会对处于 `TESTED`/`LIVE` 的任务按其声明的 `commit_paths` 做 `git status --porcelain` 判定，未入库即 FAIL。
 - "自测通过"不等于"质量验证通过"：后者要求第三方能按同样命令复现。
 - 阶段回退允许且必须留痕：谁、何时、依据什么驳回，写在 TASK.md 的「阶段流转记录」。
@@ -164,3 +165,60 @@ TASK.md 第一个代码块必须是状态块，字段如下（`check_board.py` �
 - 检查器统一输出 `status: success|partial|failed` 与「应查 / 实查 / 命中」计数；`partial` 必须单列未覆盖原因，不得把"未覆盖"显示成 0 条。
 - 需要冻结文件时先运行 `../Scripts/python.exe -B competitor_insight/check_board.py --freeze BCI-NNN`；基线写在 `tasks/BCI-NNN/frozen.sha256`。
 - 文件落点、备份与清理继续按根 AGENTS.md 与 [docs/directory-hygiene.md](../docs/directory-hygiene.md)；`competitor_insight` 已在 [docs/root-files.json](../docs/root-files.json) 登记为正式根目录。
+
+## 13. 浏览器自动化（2026-11-09 用户要求）
+
+**默认手段是 Playwright，不是浏览器插件。** 本项目的自动化浏览器一律 **headless + 独立 profile**，禁止接管用户自己的 Chrome。chrome / chrome-devtools 这类插件只用于人工临时排查，**不得**作为验收脚本、CI 或定期检查的执行手段。
+
+### 13.1 硬性条款
+
+1. 一律 `headless=True`。Playwright 的 `launch()` **默认 `headless=False`（有窗口）**，所以必须显式写 `headless=True`，不能靠默认值。
+2. Profile 必须独立：用 `chromium.launch()`（Playwright 每次新建临时 profile，结束即丢弃）；需要保留登录态以外的状态时，只能落到 `runtime/browser-profiles/<脚本或任务名>/`。**禁止**指向 `%LOCALAPPDATA%\Google\Chrome\User Data`、用户配置目录或项目外路径。
+3. 禁止 `connect_over_cdp` / `connect()` 到用户正在使用的实例（默认 9222 端口、用户 profile、浏览器扩展接管均算），也禁止读取/复制用户的 Cookie、Local Storage、登录态文件。
+4. 需要系统 Chrome 内核时可用 `channel="chrome"` 或 `executable_path=...`，但**仍须** `headless=True` 且 profile 独立——用哪个浏览器二进制与是否弹窗是两件事。
+
+### 13.2 判据（怎么算违反）
+
+满足任一条即违反，`scripts/check_browser_rules.py` 按此机械判定：
+
+| # | 判据 | 脚本里具体看什么 |
+|---|---|---|
+| V1 | 有窗口启动 | `launch(` 所在语句不含 `headless=True`（含 `launch()` 空参数、`headless=False`、由变量传入且默认 False） |
+| V2 | 占用用户 profile | 出现 `launch_persistent_context` 且 `user_data_dir` 不在 `runtime/browser-profiles/` 下，或指向 `User Data` |
+| V3 | 接管已有实例 | 出现 `connect_over_cdp` / `connect(`（例外脚本除外） |
+| V4 | 读取登录态文件 | 脚本内出现 `Cookies`、`Login Data`、`Local Storage` 路径拼接 |
+| V5 | 用插件代替 Playwright | 验收/检查记录里以 chrome 或 chrome-devtools 插件执行，且无 Playwright 脚本与日志 |
+
+**核查命令**（只读，退出码 0 = 无违反；新增/修改任何浏览器脚本后必须跑）：
+
+```
+../Scripts/python.exe -B scripts/check_browser_rules.py
+```
+
+**headless 的现场判定**：脚本运行期间 `Get-Process chrome | Where-Object { $_.MainWindowTitle }` 不得出现本脚本新开的窗口；headless 进程无可见窗口。证据目录的 `manifest.json` 记 `headless: true`。
+
+**运行后检查**：headless 也可能在脚本工作目录留下浏览器/输入法日志（2026-11-09 实测项目根出现 `debug.log`，来源为 Chrome 调用本机输入法）。发现后归位 `logs/`，不留在项目根。
+
+### 13.3 唯一例外：真实登录态访问外部站点
+
+只有「必须用真实登录态访问外部站点」才能例外，且**必须事先经用户确认**。当前已批准的唯一例外族是月报 BI 会话（同一专用 profile 派生）：
+
+| 脚本 | 例外原因 | 边界 |
+|---|---|---|
+| `tools/monthly_report_browser.py` | 需要用户短信登录后的 BI 会话，持久 profile 在 `runtime/monthly-report-browser-profile` | 只用于 BI 页面；不得用于 7860 本地验收；不得读取/导出 Cookie |
+| `scripts/capture_monthly_ppt_grids.py` | 通过 CDP 连接上述已登录会话取 PPT 网格 | 不新开窗口、不改登录态；会话不存在时直接失败，不另起浏览器 |
+| `scripts/check_monthly_browser_lifecycle.py` | 用随机临时 profile 验证上述会话的接管与清理 | 只操作临时 profile 与测试端口；不碰生产 profile、不连接用户日常 Chrome |
+
+- 例外脚本须在文件头写 `# browser-rule-exception: <原因>`，并在本节登记；未登记 = 违反。
+- 例外期间必须说明「会占用/复用用户浏览器窗口」，并遵守根 AGENTS.md 的月报浏览器保护规则（不关闭、不重启、不替换该会话）。
+- 新增例外、扩大例外范围（新站点、新脚本）一律先经用户确认，再更新本节清单；未经确认不得自行破例。
+- 本地页面（`http://127.0.0.1:7860`、`file://`）**永远不属于**例外范围。
+
+## 14. 设计评审：先出原型对照表（硬步骤）
+
+任何模块的设计评审，**先出原型对照表，再评审**。
+
+1. 对照表逐条列出原型的页面、字段、交互，以及我们的现状（已有 / 缺失 / 不一致）和差异说明。
+2. 评审对着表逐项打分，缺项必须写明处理方式与负责人。
+3. 不接受只对着方案文档评审；没有对照表的评审结论无效，不得据此进入开发或上线。
+4. 对照表放任务证据目录或 TASK.md，作为评审记录留档。

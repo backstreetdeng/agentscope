@@ -35,9 +35,10 @@ CONFIG_PATH = PROJECT_ROOT / "competitor_insight/config/analysis_models.json"
 BLOCK_TYPES = {"table", "bars", "kv", "quotes", "bullets"}
 BLOCK_STATUSES = {"ok", "partial", "insufficient", "missing", "empty"}
 
-# 确定性改稿只开放这三种指令，不放开模型自由改写道。
-REVISION_OPS = {"set_title", "limit_items", "append_refs"}
+# 改稿：确定性指令保留，另开放「按自然语言指令重写一页」。
+REVISION_OPS = {"set_title", "limit_items", "append_refs", "rewrite_page"}
 MAX_LIMIT_ITEMS = 20
+MAX_INSTRUCTION = 300
 NUMERIC_KEYS = {"count", "n", "ratio", "mean"}
 
 SOURCE_REGISTRY: dict[str, str] = {
@@ -93,6 +94,23 @@ NARRATIVE_SYSTEM_PROMPT = (
 )
 NARRATIVE_MAX_CONCLUSION = 30
 NARRATIVE_MAX_LEAD = 60
+
+# 自由指令改稿：只改这一页的文案字段，数据与引语编号保持原样。
+REWRITE_SYSTEM_PROMPT = (
+    "你是竞品用户洞察报告的责任编辑。用户会对某一页下达修改指令，你只改这一页的文案。"
+    "可改字段只有 title、subtitle、lead、blocks[].title、blocks[].note，不得改动任何数据行、数字或引语。"
+    '输出严格 JSON：{"title":"","subtitle":"","lead":"","blocks":[{"id":"","title":"","note":""}],"refs":["块 id"]}。'
+    "约束："
+    "1) 数字只能使用用户消息 allowed_numbers 中已有的数字，不得新造、改写成新的数量或比例；没有依据就删掉数字；"
+    "2) 不得编造受访人编号、品牌、车型、事实或引语，引用原话必须保留原编号；"
+    "3) refs 只能填 allowed_refs 中的块 id，表示本次改稿依据了哪些块；"
+    "4) 只输出确有变化的字段，不需要改的字段省略；"
+    "5) 页面 data_status=unavailable 时只允许改 title、subtitle，不得补写正文。"
+)
+REWRITE_MAX_TITLE = 60
+REWRITE_MAX_SUBTITLE = 80
+REWRITE_MAX_LEAD = 200
+REWRITE_MAX_NOTE = 300
 
 
 class ReportError(RuntimeError):
@@ -584,11 +602,13 @@ class BciReportService:
         outline_path: Path | None = None,
         narrative: bool | None = None,
         attack_llm: Any = None,
+        revise_llm: Any = None,
     ) -> None:
         self.analysis = analysis or AnalysisService()
         self.archive = archive or ArchiveAggregator(connect=lambda: db.connect(db.load_env()))
         self.store = store or PostgresReportStore()
         self.attack_llm = attack_llm
+        self.revise_llm = revise_llm
         self._outline_path = Path(outline_path or OUTLINE_PATH)
         self._outline: dict[str, Any] | None = None
         self.narrative = (
@@ -769,6 +789,7 @@ class BciReportService:
             raise ReportError("revision_conflict", f"{label} 已存在，请在该车型最新版本上继续改稿", 409)
 
         html = render_report_html(content)
+        rewrites = [item for item in applied if item.get("op") == "rewrite_page"]
         saved = self.store.save_version(
             parent["report_id"],
             content,
@@ -777,7 +798,12 @@ class BciReportService:
             parent["source_snapshot"],
             revision_kind="revise",
             parent_version_id=report_version_id,
-            patch={"parent_version_id": report_version_id, "parent_version_label": parent["version_label"], "operations": applied},
+            patch={
+                "parent_version_id": report_version_id,
+                "parent_version_label": parent["version_label"],
+                "operations": applied,
+                "rewrites": rewrites,
+            },
             version_label=label,
         )
         return {
@@ -811,6 +837,10 @@ class BciReportService:
             target = spec.get("target") or {}
             page_id = str(target.get("page") or "")
             block_id = str(target.get("block") or "")
+
+            if op == "rewrite_page":
+                applied.append(self._rewrite_page(content, page_id, spec))
+                continue
 
             if op == "set_title":
                 value = str(spec.get("value") or "").strip()
@@ -864,6 +894,220 @@ class BciReportService:
             applied.append({"op": op, "target": {"block": block_id}, "refs": cleaned})
         return applied
 
+    # ---------------------------------------------------------------- 自由指令改稿
+
+    def _rewrite_page(self, content: dict[str, Any], page_id: str, spec: dict[str, Any]) -> dict[str, Any]:
+        """按自然语言指令重写一页文案；溯源失败重试一次，二次失败拒绝该版本。"""
+        pages = list(content.get("pages") or []) + list(content.get("appendices") or [])
+        page = next((item for item in pages if str(item.get("page")) == page_id), None)
+        if page is None:
+            raise ReportError("target_not_found", f"页面不存在：{page_id}", 404)
+        instruction = " ".join(str(spec.get("instruction") or "").split())
+        if not instruction:
+            raise ReportError("invalid_request", "改稿指令不能为空", 400)
+        if len(instruction) > MAX_INSTRUCTION:
+            raise ReportError("invalid_request", f"改稿指令不能超过 {MAX_INSTRUCTION} 字", 400)
+
+        allowed = self._rewrite_allowed_numbers(page)
+        allowed_refs = [
+            str(block["id"])
+            for item in pages
+            for block in item.get("blocks") or []
+        ]
+        payload = {
+            "instruction": instruction,
+            "page": self._rewrite_payload(page),
+            "allowed_numbers": sorted(allowed),
+            "allowed_refs": allowed_refs,
+        }
+        call = self.revise_llm or build_deepseek_client(system_prompt=REWRITE_SYSTEM_PROMPT)
+
+        edit: dict[str, Any] | None = None
+        reason = ""
+        for attempt in (1, 2):
+            prompt = json.dumps(payload, ensure_ascii=False)
+            if attempt == 2:
+                prompt += "\n上一次输出被拒：" + reason + "。请严格按约束修正后重新输出完整 JSON。"
+            try:
+                raw = call(prompt)
+                parsed = json.loads(raw)
+                edit = self._validate_rewrite(page, parsed, allowed, set(allowed_refs))
+                break
+            except (LlmUnavailable, json.JSONDecodeError) as exc:
+                reason = "模型返回不是合法 JSON" if isinstance(exc, json.JSONDecodeError) else str(exc)
+            except ReportError as exc:
+                reason = str(exc)
+            edit = None
+        if edit is None:
+            raise ReportError("revision_rejected", f"改稿两次未通过溯源校验：{reason}", 422)
+
+        changes = self._apply_rewrite(page, edit)
+        if not changes:
+            raise ReportError("revision_rejected", "模型没有对页面做出实质修改", 422)
+        quote_refs = [
+            str(item.get("code"))
+            for block in page.get("blocks") or []
+            if block.get("type") == "quotes"
+            for model in block.get("models") or []
+            for item in model.get("items") or []
+            if item.get("code")
+        ]
+        return {
+            "op": "rewrite_page",
+            "target": {"page": page_id},
+            "instruction": instruction,
+            "refs": edit["refs"],
+            "quote_refs": quote_refs,
+            "changes": changes,
+        }
+
+    def _rewrite_payload(self, page: dict[str, Any]) -> dict[str, Any]:
+        blocks = []
+        for block in page.get("blocks") or []:
+            item = {
+                "id": block.get("id"),
+                "type": block.get("type"),
+                "title": block.get("title"),
+                "note": block.get("note", ""),
+                "availability": block.get("availability"),
+                "data": self._block_digest(block),
+            }
+            if block.get("type") == "quotes":
+                item["quote_codes"] = [
+                    entry.get("code")
+                    for model in block.get("models") or []
+                    for entry in model.get("items") or []
+                    if entry.get("code")
+                ]
+            blocks.append(item)
+        return {
+            "page": page.get("page"),
+            "title": page.get("title"),
+            "subtitle": page.get("subtitle", ""),
+            "lead": page.get("lead", ""),
+            "data_status": page.get("data_status") or "ok",
+            "missing_reason": page.get("missing_reason", ""),
+            "sources": [
+                {"name": item.get("name"), "n": item.get("n")} for item in page.get("sources") or []
+            ],
+            "blocks": blocks,
+        }
+
+    @staticmethod
+    def _rewrite_allowed_numbers(page: dict[str, Any]) -> set[float]:
+        allowed = set(collect_text_numbers(page))
+        for item in page.get("sources") or []:
+            value = item.get("n")
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
+                allowed.add(round(float(value), 4))
+        return allowed
+
+    def _validate_rewrite(
+        self,
+        page: dict[str, Any],
+        parsed: Any,
+        allowed: set[float],
+        allowed_refs: set[str],
+    ) -> dict[str, Any]:
+        if not isinstance(parsed, dict):
+            raise ReportError("revision_invalid", "输出必须是 JSON 对象", 422)
+        unavailable = page.get("data_status") == "unavailable"
+        block_map = {str(block["id"]): block for block in page.get("blocks") or []}
+
+        edit: dict[str, Any] = {
+            "title": self._rewrite_text(parsed.get("title"), REWRITE_MAX_TITLE, "title"),
+            "subtitle": self._rewrite_text(parsed.get("subtitle"), REWRITE_MAX_SUBTITLE, "subtitle"),
+            "lead": "" if unavailable else self._rewrite_text(parsed.get("lead"), REWRITE_MAX_LEAD, "lead"),
+            "blocks": [],
+        }
+        if unavailable and not edit["title"] and not edit["subtitle"]:
+            raise ReportError("revision_invalid", "该页暂未提供数据，只允许调整标题或副标题", 422)
+
+        blocks = parsed.get("blocks")
+        if blocks is not None and not isinstance(blocks, list):
+            raise ReportError("revision_invalid", "blocks 必须是数组", 422)
+        for item in blocks or []:
+            if not isinstance(item, dict):
+                raise ReportError("revision_invalid", "blocks 项必须是对象", 422)
+            block_id = str(item.get("id") or "")
+            block = block_map.get(block_id)
+            if not block:
+                raise ReportError("revision_invalid", f"本页没有块 {block_id}", 422)
+            if unavailable:
+                raise ReportError("revision_invalid", "该页暂未提供数据，不能改板块文案", 422)
+            title = self._rewrite_text(item.get("title"), REWRITE_MAX_TITLE, f"{block_id}.title")
+            note = self._rewrite_text(item.get("note"), REWRITE_MAX_NOTE, f"{block_id}.note")
+            if title or note:
+                edit["blocks"].append({"id": block_id, "title": title, "note": note})
+
+        texts = [edit["title"], edit["subtitle"], edit["lead"]]
+        for item in edit["blocks"]:
+            texts.extend([item["title"], item["note"]])
+        for text in texts:
+            if not text:
+                continue
+            extra = [
+                round(float(token), 4)
+                for token in re.findall(r"\d+(?:\.\d+)?", text)
+                if round(float(token), 4) not in allowed
+            ]
+            if extra:
+                raise ReportError(
+                    "revision_invalid",
+                    f"文案出现数据源里没有的数字：{sorted(set(extra))}；数字必须指回本页数据",
+                    422,
+                )
+
+        refs = parsed.get("refs")
+        if refs is not None and not isinstance(refs, list):
+            raise ReportError("revision_invalid", "refs 必须是数组", 422)
+        cleaned: list[str] = []
+        for ref in refs or []:
+            name = str(ref or "").strip()
+            if name not in allowed_refs:
+                raise ReportError("revision_invalid", f"refs 指向不存在的块：{name}；只能引用报告内已有块", 422)
+            if name not in cleaned:
+                cleaned.append(name)
+        edit["refs"] = cleaned
+        return edit
+
+    @staticmethod
+    def _rewrite_text(value: Any, limit: int, field: str) -> str:
+        if value is None:
+            return ""
+        if not isinstance(value, str):
+            raise ReportError("revision_invalid", f"{field} 必须是字符串", 422)
+        text = " ".join(value.split()).strip()
+        if len(text) > limit:
+            raise ReportError("revision_invalid", f"{field} 超过 {limit} 字", 422)
+        return text
+
+    @staticmethod
+    def _apply_rewrite(page: dict[str, Any], edit: dict[str, Any]) -> list[dict[str, str]]:
+        changes: list[dict[str, str]] = []
+        for field in ("title", "subtitle", "lead"):
+            after = edit.get(field)
+            if after is None or after == "":
+                continue
+            before = str(page.get(field) or "")
+            if after == before:
+                continue
+            changes.append({"field": field, "block": "", "before": before, "after": after})
+            page[field] = after
+        block_map = {str(block["id"]): block for block in page.get("blocks") or []}
+        for item in edit.get("blocks") or []:
+            block = block_map[item["id"]]
+            for field in ("title", "note"):
+                after = item.get(field)
+                if not after:
+                    continue
+                before = str(block.get(field) or "")
+                if after == before:
+                    continue
+                changes.append({"field": field, "block": item["id"], "before": before, "after": after})
+                block[field] = after
+        return changes
+
     @staticmethod
     def _check_numeric_invariant(before: dict[str, Any], after: dict[str, Any]) -> None:
         old = numeric_index(before)
@@ -875,11 +1119,18 @@ class BciReportService:
                     f"{block_id} 出现原报告没有的数字：{sorted(extra.elements())}；确定性改稿只允许删除条目，不能新增或改写数字",
                     422,
                 )
-        extra_text = Counter(collect_text_numbers(after)) - Counter(collect_text_numbers(before))
+        allowed_text = {round(float(value), 4) for value in collect_text_numbers(before)}
+        for row in before.get("sources") or []:
+            value = row.get("n")
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
+                allowed_text.add(round(float(value), 4))
+        extra_text = [
+            value for value in collect_text_numbers(after) if round(float(value), 4) not in allowed_text
+        ]
         if extra_text:
             raise ReportError(
                 "numeric_violation",
-                f"改稿文本新增了原报告没有的数字：{sorted(extra_text.elements())}；确定性改稿不放开自由撰写",
+                f"改稿文本新增了原报告没有的数字：{sorted(set(extra_text))}；数字必须指回报告数据或页脚来源",
                 422,
             )
 
@@ -929,9 +1180,13 @@ class BciReportService:
                         continue
                     change = "added" if before is None else ("removed" if after is None else "changed")
                     row_changes.append({"key": key, "change": change, "before": before, "after": after})
-                title_changed = old_block.get("title") != new_block.get("title") or old_page.get("title") != new_page.get("title")
+                field_changes = [
+                    {"field": field, "before": old_block.get(field, ""), "after": new_block.get(field, "")}
+                    for field in ("title", "note")
+                    if old_block.get(field, "") != new_block.get(field, "")
+                ]
                 refs_changed = (old_block.get("refs") or []) != (new_block.get("refs") or [])
-                changed = bool(row_changes or title_changed or refs_changed or (not old_block) or (not new_block))
+                changed = bool(row_changes or field_changes or refs_changed or (not old_block) or (not new_block))
                 if changed:
                     changed_blocks += 1
                 blocks.append(
@@ -940,14 +1195,21 @@ class BciReportService:
                         "title": new_block.get("title") or old_block.get("title"),
                         "changed": changed,
                         "row_changes": row_changes,
+                        "field_changes": field_changes,
                     }
                 )
-            page_changed = old_page.get("title") != new_page.get("title") or any(block["changed"] for block in blocks)
+            page_field_changes = [
+                {"field": field, "before": old_page.get(field, ""), "after": new_page.get(field, "")}
+                for field in ("title", "subtitle", "lead")
+                if old_page.get(field, "") != new_page.get(field, "")
+            ]
+            page_changed = bool(page_field_changes) or any(block["changed"] for block in blocks)
             pages.append(
                 {
                     "page": page_id,
                     "title": new_page.get("title") or old_page.get("title"),
                     "changed": page_changed,
+                    "field_changes": page_field_changes,
                     "blocks": blocks,
                 }
             )
