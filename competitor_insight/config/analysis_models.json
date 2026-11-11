@@ -56,7 +56,9 @@
         "iCAR V23"
       ],
       "reputation_models": [
-        "iCAR 超级V23"
+        "iCAR 超级V23",
+        "iCAR超级V23",
+        "奇瑞iCAR V23"
       ],
       "miit_models": [
         "iCAR 超级V23"
@@ -80,7 +82,10 @@
       "reputation_models": [
         "海狮05 EV",
         "海狮05 DM-i",
-        "海狮05"
+        "海狮05",
+        "海狮05EV",
+        "海狮05DM",
+        "海狮05DM-i"
       ],
       "miit_models": [
         "海狮05 EV",

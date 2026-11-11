@@ -10,6 +10,7 @@ from pathlib import Path
 import re
 import sqlite3
 import sys
+import time
 
 from dotenv import dotenv_values
 import psycopg2
@@ -68,6 +69,7 @@ def equivalent(left,right):
 
 
 def prepare():
+    started=time.perf_counter()
     bundle=json.loads((ROOT/'maintenance/reputation-taxonomy.json').read_text(encoding='utf-8'))
     taxonomy=bundle['taxonomy']
     patterns=compile_patterns(bundle['patterns'])
@@ -84,6 +86,7 @@ def prepare():
     finally:
         connection.rollback()
         connection.close()
+    read_done=time.perf_counter()
     keys={(r['source'],r['review_key']) for r in rows}
     if len(keys)!=len(rows):raise ValueError('Duplicate raw source+review_key')
     names=sorted({r['model'] for r in rows if r['model']})
@@ -125,7 +128,9 @@ def prepare():
             cache.commit()
             print(encode({'phase':'analysis','read':index,'total':len(rows),'tag_rows':len(tags)}),flush=True)
     cache.commit();cache.close()
+    analysis_done=time.perf_counter()
     summaries,counts=aggregate(rows,tags,taxonomy,batch,version)
+    aggregate_done=time.perf_counter()
     for row in summaries:row['mention_share']=f"{row['mention_share']:.4f}"
     if len({(t['model'],t['direction'],t['source'],t['review_key'],t['tertiary_label']) for t in tags})!=len(tags):
         raise ValueError('Duplicate tag primary key')
@@ -138,16 +143,21 @@ def prepare():
             'raw_tables_modified':False,'schema_changed':False,'before_analysis_hash':digest(before),
             'dictionary_sha256':bundle['dictionary_sha256']}
     payload={'new_car_reputation_taxonomy_summary':summaries,'new_car_reputation_review_tag':tags}
+    write_started=time.perf_counter()
     save(run/'model-coverage.json',list(model_stats.values()))
     save(run/'evidence-sample.json',sample)
     save(run/'before-analysis.json',before)
     save(run/'analysis-payload.json',payload)
+    write_done=time.perf_counter()
+    report['timing_seconds']={'read':round(read_done-started,2),'analyze':round(analysis_done-read_done,2),
+                              'aggregate':round(aggregate_done-analysis_done,2),'write_payload':round(write_done-write_started,2)}
     report['payload_sha256']=hashlib.sha256((run/'analysis-payload.json').read_bytes()).hexdigest()
     save(run/'report.json',report)
     print(encode({'phase':'prepared','run':str(run),**report}),flush=True)
 
 
 def publish(run:Path):
+    publish_started=time.perf_counter()
     run=run.resolve()
     if OUT.resolve() not in run.parents:raise ValueError('Run must be a verified maintenance output directory')
     report=json.loads((run/'report.json').read_text(encoding='utf-8'))
@@ -169,14 +179,20 @@ def publish(run:Path):
                 else:
                     if digest(current)!=report['before_analysis_hash']:raise ValueError('Analysis tables changed since prepare; stop without overwrite')
                     save(run/'publication-backup.json',current)
+                    publish_timing={}
                     for table,columns in TABLES.items():
+                        table_started=time.perf_counter()
                         cursor.execute('DELETE FROM public.'+table)
+                        delete_done=time.perf_counter()
                         values=[tuple(encode(r[c]) if c in {'tertiary_labels','source_mentions'} else r[c] for c in columns) for r in payload[table]]
                         if values:execute_values(cursor,'INSERT INTO public.'+table+' ('+','.join(columns)+') VALUES %s',values,page_size=500)
+                        publish_timing[table]={'delete':round(delete_done-table_started,2),
+                                               'insert':round(time.perf_counter()-delete_done,2),'rows':len(values)}
                     actual=current_analysis(cursor)
                     if not all(equivalent(actual[t],payload[t]) for t in TABLES):raise ValueError('Publication verification failed; rollback')
                     report.update(status='transaction_validated',published_models=report['models_with_tags'],
-                                  published_tag_rows=report['tag_rows'],published_summary_rows=report['summary_rows'])
+                                  published_tag_rows=report['tag_rows'],published_summary_rows=report['summary_rows'],
+                                  publish_timing=publish_timing,publish_seconds=round(time.perf_counter()-publish_started,2))
         if report['status']=='transaction_validated':report['status']='committed'
         save(run/'report.json',report)
         print(encode({'run':str(run),**report}),flush=True)

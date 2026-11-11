@@ -91,10 +91,31 @@ class FakeReader:
         return rows
 
     def reputation(self, model):
-        return [
-            {"direction": "positive", "primary_label": "配置智能", "mention_count": 120},
-            {"direction": "negative", "primary_label": "油耗能耗", "mention_count": 39},
-        ]
+        return {
+            "points": [
+                {"direction": "positive", "primary_label": "外观设计", "tertiary_label": "整体造型", "n": 6},
+                {"direction": "positive", "primary_label": "续航与能耗", "tertiary_label": "实际续航", "n": 3},
+                {"direction": "positive", "primary_label": "价格与购买价值", "tertiary_label": "整体性价比", "n": 3},
+                {"direction": "positive", "primary_label": "动力与操控", "tertiary_label": "起步响应", "n": 3},
+                {"direction": "positive", "primary_label": "空间与实用性", "tertiary_label": "第二排空间", "n": 3},
+                {"direction": "positive", "primary_label": "外观设计", "tertiary_label": "前脸设计", "n": 3},
+                {"direction": "negative", "primary_label": "续航与能耗", "tertiary_label": "实际续航", "n": 11},
+                {"direction": "negative", "primary_label": "乘坐舒适性", "tertiary_label": "异常响声", "n": 4},
+                {"direction": "negative", "primary_label": "乘坐舒适性", "tertiary_label": "路面滤震", "n": 3},
+                {"direction": "negative", "primary_label": "内饰设计与做工", "tertiary_label": "软性材质覆盖", "n": 3},
+                {"direction": "negative", "primary_label": "智能座舱", "tertiary_label": "屏幕显示", "n": 3},
+                {"direction": "negative", "primary_label": "辅助驾驶与泊车", "tertiary_label": "车道保持", "n": 3},
+            ],
+            "rollup": [
+                {"direction": "positive", "primary_label": "外观设计", "n": 9},
+                {"direction": "positive", "primary_label": "续航与能耗", "n": 4},
+                {"direction": "negative", "primary_label": "乘坐舒适性", "n": 8},
+                {"direction": "negative", "primary_label": "续航与能耗", "n": 11},
+            ],
+            "batch": "20261111T093000",
+            "batch_reviews": 96,
+            "denominators": {"positive": 103, "negative": 103, "reviews": 103},
+        }
 
     def interview_reason_answers(self, model, question_ids):
         if 29 in question_ids:
@@ -264,6 +285,28 @@ class AnalyzeTest(unittest.TestCase):
                     self.assertIn("ratio", item)
                     if item["ratio"] is not None:
                         self.assertGreaterEqual(item["n"], 10)
+
+    def test_reputation_l3_top5_uses_autohome_denominator(self):
+        rep = next(
+            item for item in self.data["tiles"]["satisfaction"]["metrics"]
+            if item["key"] == "reputation"
+        )
+        self.assertEqual(rep["denominators"], {"positive": 103, "negative": 103})
+        self.assertEqual(rep["batch"], "20261111T093000")
+        self.assertEqual(rep["model"], "零跑B10")
+        self.assertEqual(
+            [item["label"] for item in rep["positive"]],
+            ["整体造型", "实际续航", "整体性价比", "起步响应", "第二排空间"],
+        )
+        self.assertEqual(rep["positive"][0]["l1"], "外观")
+        self.assertEqual(rep["positive"][0]["ratio"], 5.8)
+        self.assertEqual(rep["negative"][0]["label"], "实际续航")
+        self.assertEqual(rep["negative"][0]["ratio"], 10.7)
+        self.assertEqual(len(rep["negative"]), 5)
+        self.assertEqual(rep["boundary"]["source"], "汽车之家（满意 / 不满意分栏）")
+        self.assertEqual(rep["sample_flag"], "ok")
+        self.assertEqual([item["label"] for item in rep["rollup"]["positive"]], ["外观", "续航与能耗"])
+        self.assertNotIn("n", rep)
 
     def test_unavailable_metrics_are_empty_with_reason(self):
         attention = self.data["tiles"]["attention"]["metrics"]

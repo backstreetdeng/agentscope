@@ -54,6 +54,34 @@ DIMENSIONS: tuple[tuple[int, str], ...] = (
     (16, "电池特性（电池安全/品牌/类型）"),
 )
 
+# 口碑标签与 16 维能对应上的显示名对齐；对不上的保持打标原词。
+REPUTATION_LABEL_ALIAS: dict[str, str] = {
+    "安全表现": "安全性",
+    "乘坐舒适性": "舒适性",
+    "空间与实用性": "空间",
+    "外观设计": "外观",
+    "内饰设计与做工": "内饰",
+    "价格与购买价值": "购车价格",
+    "品牌认知与信任": "品牌",
+    "售后与服务保障": "服务",
+    "辅助驾驶与泊车": "智能驾驶",
+}
+
+# 口径 A（2026-11-11 用户确认）：L3 点 + 汽车之家满意/不满意分栏 + 三道门槛。
+# 服务类 L1 整体偏购车/售后流程，不进产品口碑榜；其中确属产品体验的 L3 单点放行，
+# 后续新增服务类标签默认排除，需要放行时加进 REPUTATION_PRODUCT_L3。
+REPUTATION_SERVICE_L1: tuple[str, ...] = ("购车与交付体验", "售后与服务保障", "品牌认知与信任")
+REPUTATION_PRODUCT_L3: tuple[str, ...] = ("试驾体验",)
+REPUTATION_MIN_POINTS = 3        # 单点去重条数不足不进榜
+REPUTATION_MIN_DENOMINATOR = 50  # 分母不足标「样本不足」
+REPUTATION_TOP_N = 5
+REPUTATION_BOUNDARY: dict[str, str] = {
+    "source": "汽车之家（满意 / 不满意分栏）",
+    "window": "2026-01 至 2026-11-04",
+    "limit": "每车系最多 200 条",
+    "note": "懂车帝无分离字段，未混入；方向按原句情感判定。",
+}
+
 ATTENTION_PREFIX = "Q3_13__"
 WIN_PREFIX = "Q3_23__"
 ABANDON_PREFIX = "Q3_24_1__"
@@ -292,8 +320,8 @@ class PostgresReader:
             (model["interview_models"],),
         )
         reputation = self._fetch(
-            "SELECT coalesce(sum(mention_count), 0) AS n FROM public.new_car_reputation_summary "
-            "WHERE model = ANY(%s)",
+            "SELECT count(*) FILTER (WHERE btrim(coalesce(satisfied, '')) <> '') AS n "
+            "FROM public.autohome_koubei WHERE carname = ANY(%s)",
             (model["reputation_models"],),
             catalog=True,
         )
@@ -517,14 +545,65 @@ class PostgresReader:
             bucket[form] += int(row["n"])
         return bucket
 
-    def reputation(self, model: dict[str, Any]) -> list[dict[str, Any]]:
-        return self._fetch(
-            "SELECT direction, primary_label, mention_count "
-            "FROM public.new_car_reputation_summary WHERE model = ANY(%s) "
-            "ORDER BY direction, mention_count DESC",
-            (model["reputation_models"],),
+    def reputation(self, model: dict[str, Any]) -> dict[str, Any]:
+        """外部口碑：汽车之家满意/不满意分栏，按 L3 点出榜，附 16 类上卷兜底。"""
+        names = model["reputation_models"]
+        meta = self._fetch(
+            "SELECT max(import_batch) AS batch FROM public.new_car_reputation_review_tag "
+            "WHERE source = 'autohome' AND model = ANY(%s)",
+            (names,),
             catalog=True,
         )
+        batch = (meta[0] if meta else {}).get("batch")
+        scope = (
+            "source = 'autohome' AND model = ANY(%s) AND import_batch = %s "
+            "AND (coalesce(primary_label, '') <> ALL(%s) "
+            "OR coalesce(tertiary_label, '') = ANY(%s))"
+        )
+        args = (names, batch, list(REPUTATION_SERVICE_L1), list(REPUTATION_PRODUCT_L3))
+        points = self._fetch(
+            "SELECT direction, primary_label, tertiary_label, count(DISTINCT review_key) AS n "
+            "FROM public.new_car_reputation_review_tag "
+            f"WHERE {scope} AND btrim(coalesce(tertiary_label, '')) <> '' "
+            "GROUP BY 1, 2, 3 HAVING count(DISTINCT review_key) >= %s "
+            "ORDER BY 1, 4 DESC, 3",
+            args + (REPUTATION_MIN_POINTS,),
+            catalog=True,
+        )
+        rollup = self._fetch(
+            "SELECT direction, primary_label, count(DISTINCT review_key) AS n "
+            "FROM public.new_car_reputation_review_tag "
+            f"WHERE {scope} "
+            "GROUP BY 1, 2 ORDER BY 1, 3 DESC, 2",
+            args,
+            catalog=True,
+        )
+        covered = self._fetch(
+            "SELECT count(DISTINCT review_key) AS n FROM public.new_car_reputation_review_tag "
+            "WHERE source = 'autohome' AND model = ANY(%s) AND import_batch = %s",
+            (names, batch),
+            catalog=True,
+        )
+        denominators = self._fetch(
+            "SELECT count(*) FILTER (WHERE btrim(coalesce(satisfied, '')) <> '') AS positive, "
+            "count(*) FILTER (WHERE btrim(coalesce(dissatisfied, '')) <> '') AS negative, "
+            "count(*) AS reviews "
+            "FROM public.autohome_koubei WHERE carname = ANY(%s)",
+            (names,),
+            catalog=True,
+        )
+        denom = denominators[0] if denominators else {}
+        return {
+            "points": points,
+            "rollup": rollup,
+            "batch": batch,
+            "batch_reviews": int((covered[0] if covered else {}).get("n") or 0),
+            "denominators": {
+                "positive": int(denom.get("positive") or 0),
+                "negative": int(denom.get("negative") or 0),
+                "reviews": int(denom.get("reviews") or 0),
+            },
+        }
 
 
 class AnalysisService:
@@ -1142,30 +1221,55 @@ class AnalysisService:
             recommendation["status"] = "empty"
             recommendation["reason"] = "Q5_5 在该车型无有效作答。"
 
-        reputation_rows = reader.reputation(model)
-        positive = [row for row in reputation_rows if row.get("direction") == "positive"]
-        negative = [row for row in reputation_rows if row.get("direction") == "negative"]
+        reputation_data = reader.reputation(model)
+        positive_denom = reputation_data["denominators"]["positive"]
+        negative_denom = reputation_data["denominators"]["negative"]
+
+        def point_items(direction: str, denom: int) -> list[dict[str, Any]]:
+            rows = [row for row in reputation_data["points"] if row.get("direction") == direction]
+            items = []
+            for row in rows[:REPUTATION_TOP_N]:
+                count = int(row["n"] or 0)
+                items.append({
+                    "label": row["tertiary_label"],
+                    "l1": REPUTATION_LABEL_ALIAS.get(row["primary_label"], row["primary_label"]),
+                    "count": count,
+                    "ratio": round(count * 100 / denom, 1) if denom else None,
+                })
+            return items
+
+        def rollup_items(direction: str) -> list[dict[str, Any]]:
+            return [
+                {
+                    "label": REPUTATION_LABEL_ALIAS.get(row["primary_label"], row["primary_label"]),
+                    "count": int(row["n"] or 0),
+                }
+                for row in reputation_data["rollup"] if row.get("direction") == direction
+            ]
+
+        positive = point_items("positive", positive_denom)
+        negative = point_items("negative", negative_denom)
+        insufficient = min(positive_denom, negative_denom) < REPUTATION_MIN_DENOMINATOR
         reputation = {
             "key": "reputation",
-            "label": "外部口碑正/负向标签",
+            "label": "外部口碑（非问卷）· 正 / 负向关注点",
             "kind": "reputation",
-            "positive": [
-                {"label": row["primary_label"], "count": int(row["mention_count"] or 0)}
-                for row in positive[:5]
-            ],
-            "negative": [
-                {"label": row["primary_label"], "count": int(row["mention_count"] or 0)}
-                for row in negative[:5]
-            ],
-            "positive_total": sum(int(row["mention_count"] or 0) for row in positive),
-            "negative_total": sum(int(row["mention_count"] or 0) for row in negative),
-            "note": "外部评论标签，与问卷满意度不同源，不合并成单一分数。",
+            "model": model["label"],
+            "denominators": {"positive": positive_denom, "negative": negative_denom},
+            "positive": positive,
+            "negative": negative,
+            "rollup": {"positive": rollup_items("positive"), "negative": rollup_items("negative")},
+            "batch": reputation_data["batch"],
+            "batch_reviews": reputation_data["batch_reviews"],
+            "boundary": REPUTATION_BOUNDARY,
+            "sample_flag": "insufficient" if insufficient else "ok",
+            "note": "正向/负向按原句情感判，不按字段一刀切；字段仅作先验。",
         }
-        if reputation_rows:
+        if positive or negative:
             reputation["status"] = "ok"
         else:
             reputation["status"] = "empty"
-            reputation["reason"] = "该车型在口碑表无记录。"
+            reputation["reason"] = "该车型在汽车之家当前批次无可用的满意/不满意标签。"
 
         dims = {
             "key": "dimensions",

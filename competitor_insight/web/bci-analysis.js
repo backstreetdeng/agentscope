@@ -200,15 +200,63 @@
   }
 
   function reputationMetric(metric) {
-    function column(title, items, total, tone) {
-      return '<div class="bci-a-rep bci-a-rep--' + tone + '"><h6>' + title + ' <span>共 ' + esc(total) + ' 条</span></h6>' +
-        (items || []).map(function (item) {
-          return '<div class="bci-a-rep__row"><span>' + esc(item.label) + '</span><b>' + esc(item.count) + '</b></div>';
-        }).join('') + '</div>';
+    const dens = metric.denominators || {};
+    const boundary = metric.boundary || {};
+    const rollup = metric.rollup || {};
+    function row(label, count, ratio) {
+      return '<div class="bci-a-rep__row"><span>' + esc(label) + '</span><b>' + esc(count) + ' 条' +
+        (ratio != null ? '<em>' + pct(ratio) + '</em>' : '') + '</b></div>';
     }
-    return '<div class="bci-a-reps">' + column('正向标签', metric.positive, metric.positive_total, 'ok') +
-      column('负向标签', metric.negative, metric.negative_total, 'bad') + '</div>' +
-      (metric.note ? '<p class="bci-a-note">' + esc(metric.note) + '</p>' : '');
+    function column(title, items, denom, tone, fallback) {
+      const rows = (items || []).map(function (item) {
+        return row(item.label, item.count, item.ratio);
+      }).join('');
+      const thin = denom != null && Number(denom) < 50
+        ? '<p class="bci-a-note">样本不足（n=' + esc(denom) + '），以下为实际点，未排名</p>'
+        : '';
+      // 该方向 L3 全部 <3 条时回退到一级类目，并标明粒度。
+      let content = rows;
+      if (!content && (fallback || []).length) {
+        content = '<p class="bci-a-note">粒度：类目（L3 均不足 3 条，回退到一级类目）</p>' +
+          fallback.map(function (item) {
+            return row(item.label, item.count, denom ? Math.round(item.count * 1000 / denom) / 10 : null);
+          }).join('');
+      }
+      return '<div class="bci-a-rep bci-a-rep--' + tone + '"><h6>' + title +
+        ' <span>分母 ' + (denom == null ? '—' : esc(denom)) + ' 条</span></h6>' + thin +
+        (content || '<p class="bci-a-note">无达标点（单点需 ≥3 条）</p>') + '</div>';
+    }
+    function rollupBlock() {
+      const labels = [];
+      const seen = {};
+      [rollup.positive || [], rollup.negative || []].forEach(function (list) {
+        list.forEach(function (item) {
+          if (!seen[item.label]) { seen[item.label] = true; labels.push(item.label); }
+        });
+      });
+      if (!labels.length) return '';
+      function pick(list, label) {
+        const hit = (list || []).filter(function (item) { return item.label === label; })[0];
+        return hit ? hit.count : 0;
+      }
+      const rows = labels.map(function (label) {
+        return '<tr><td>' + esc(label) + '</td><td>' + esc(pick(rollup.positive, label)) +
+          '</td><td>' + esc(pick(rollup.negative, label)) + '</td></tr>';
+      }).join('');
+      return '<details class="bci-a-details"><summary>查看类目上卷（16 类，样本不足时兜底）</summary>' +
+        '<table class="bci-a-table"><thead><tr><th>类目</th><th>正向条数</th><th>负向条数</th></tr></thead>' +
+        '<tbody>' + rows + '</tbody></table></details>';
+    }
+    const model = '当前车型：' + esc(metric.model) + '（n=' + esc(dens.positive == null ? '—' : dens.positive) +
+      '，截至 2026-11-04）· 本车自身口碑分布，非竞品份额';
+    return '<p class="bci-a-note">' + model + '</p>' +
+      '<div class="bci-a-reps">' +
+        column('正向关注 TOP5', metric.positive, dens.positive, 'ok', rollup.positive) +
+        column('负向关注 TOP5', metric.negative, dens.negative, 'bad', rollup.negative) +
+      '</div>' + rollupBlock() +
+      '<p class="bci-a-note">仅' + esc(boundary.source || '汽车之家「满意 / 不满意」分栏') +
+        '（时间 ' + esc(boundary.window || '2026-01 至 2026-11-04') + '，' + esc(boundary.limit || '每车系最多 200 条') +
+        '）；' + esc(boundary.note || '方向按原句情感判定。') + '</p>';
   }
 
   function lossSplit(metric) {
@@ -455,11 +503,13 @@
 
     function analyze() {
       if (!state.current) return;
+      const model = state.current;
       state.loading = true;
       state.ai = {};
       paint();
-      return getJSON('/api/bci/analysis/analyze?model=' + encodeURIComponent(state.current))
+      return getJSON('/api/bci/analysis/analyze?model=' + encodeURIComponent(model))
         .then(function (data) {
+          if (model !== state.current) return;
           state.loading = false;
           state.data = data;
           paint();
