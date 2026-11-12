@@ -1,0 +1,43 @@
+{
+  "model_key": "toyota-bz3x",
+  "generated_version": {
+    "report_version_id": "b52eefa3-0ffe-432c-b5d3-f6364d597a3c",
+    "version_label": "v6.0"
+  },
+  "ui": {
+    "empty": "已无可查看版本，可重新生成。\n删除的版本不再出现在历史版本列表，库内记录保留、可追溯。",
+    "toggle": "历史版本\n暂无版本",
+    "versions": 0,
+    "iframe": 0
+  },
+  "modal_text": "删除 v6.0（2026-11-12 10:57）？\n\n删除后该版本不再出现在历史版本列表，库里记录保留、溯源链不断；同一数据重新生成会新建版本，不会复用这一版。\n\n取消\n确认删除 v6.0",
+  "empty_text": "已无可查看版本，可重新生成。\n删除的版本不再出现在历史版本列表，库内记录保留、可追溯。",
+  "second_delete": {
+    "status": 409,
+    "body": {
+      "ok": false,
+      "error": {
+        "code": "report_version_deleted",
+        "message": "该版本已删除，不能重复删除"
+      }
+    }
+  },
+  "missing_delete": {
+    "status": 404,
+    "body": {
+      "ok": false,
+      "error": {
+        "code": "report_version_not_found",
+        "message": "报告版本不存在"
+      }
+    }
+  },
+  "after_delete": {
+    "deleted_at": "2026-11-12T10:57:42.801966+08:00",
+    "fingerprint": "36ec7de773c98d0f4ea811ff32dee0a3a31dc5dcc8e8970279174ab90f83023c",
+    "outline_version": "report-outline/2.1.0",
+    "renderer": "report-render-html/1.0.4",
+    "fingerprint_reuse_hit": null
+  },
+  "console_errors": []
+}

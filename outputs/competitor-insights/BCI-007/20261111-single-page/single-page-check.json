@@ -1,0 +1,14 @@
+{
+  "active_page_before_click": "P01",
+  "pager_before_click": "P01 · 第 1 / 11 页",
+  "frame_heading": "P04 · 4-购车关注：纯电续航是首要关注点",
+  "frame_contains_P01": false,
+  "frame_contains_only_one_h2": true,
+  "pager_after_click": "P04 · 第 4 / 11 页",
+  "active_page_after_click": "P04",
+  "url_after_click": "http://127.0.0.1:7861/?report=420b4432-9856-4092-b170-6d88b7685e07&page=P04#bci",
+  "pager_after_reload": "P04 · 第 4 / 11 页",
+  "active_page_after_reload": "P04",
+  "frame_heading_after_reload": "P04 · 4-购车关注：纯电续航是首要关注点",
+  "console_errors": []
+}

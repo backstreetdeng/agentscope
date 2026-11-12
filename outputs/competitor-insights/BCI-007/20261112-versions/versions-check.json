@@ -1,0 +1,43 @@
+{
+  "url": "http://127.0.0.1:7861/?report=226f5d30-52d0-48c1-aa21-0e43060f98c0&page=P04#bci",
+  "state": {
+    "active": "4购车关注：纯电续航是零跑B10用户首要关注点",
+    "counter": "P04 · 第 4 / 11 页",
+    "versions": [
+      "v7.0",
+      "v6.2",
+      "v6.1",
+      "v6.0",
+      "v5.1",
+      "v5.0",
+      "v4.0",
+      "v3.1",
+      "v3.0",
+      "v2.0",
+      "v1.2",
+      "v1.1",
+      "v1.0"
+    ],
+    "topPager": 0,
+    "modal": 0,
+    "versionToggle": "历史版本 v7.0有效\n收起",
+    "configToggle": "生成配置 · 零跑B10\n展开"
+  },
+  "modal_text": "删除 v1.0（2026-11-11 17:08）？\n\n删除后该版本不再出现在历史版本列表，库里记录保留、溯源链不断；同一数据重新生成会新建版本，不会复用这一版。\n\n取消\n确认删除 v1.0",
+  "config_toggle_default": "生成配置 · 零跑B10\n展开",
+  "config_models_before_expand": 0,
+  "config_to_revise_gap": 16,
+  "hover": {
+    "generate": {
+      "color": "rgb(255, 255, 255)",
+      "background": "linear-gradient(rgb(58, 114, 236), rgb(39, 95, 201))",
+      "border": "rgb(36, 87, 184)"
+    },
+    "revise": {
+      "color": "rgb(255, 255, 255)",
+      "background": "linear-gradient(rgb(58, 114, 236), rgb(39, 95, 201))",
+      "border": "rgb(36, 87, 184)"
+    }
+  },
+  "console_errors": []
+}

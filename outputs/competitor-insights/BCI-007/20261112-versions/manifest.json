@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "task_id": "BCI-007-versions-20261112",
+  "purpose": "第四轮：指纹 2.0 过期判定修正、版本软删除、版本区收进左侧「历史版本」、生成配置折叠、按钮 hover/active/disabled 可读性；7861 隔离服务 Playwright 实测",
+  "created_by": "TRAE",
+  "status": "completed",
+  "reproduce": "1) ../Scripts/python.exe -B -m unittest competitor_insight.tests.test_report_service competitor_insight.tests.test_report_render_html；2) 在 myproject 根启动 7861 隔离服务；3) ../Scripts/python.exe -B temp/20261112-bci007-versions/shot_versions.py <report_version_id> 生成布局与按钮态截图；4) ../Scripts/python.exe -B temp/20261112-bci007-versions/delete_flow.py 生成/软删 toyota-bz3x 一版并截空态（会在库内留下 deleted_at 记录）",
+  "files": [
+    {
+      "path": "screenshots/01-default.png",
+      "purpose": "默认态：左侧大纲 + 历史版本按钮 + 生成配置（收起）+ 报告校核；右侧全为正文，底部翻页",
+      "source": "Playwright headless 截图（v7.0 / P04）",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "screenshots/02-versions-open.png",
+      "purpose": "展开历史版本列表：按语义版本号倒序、每项版本号/时间/有效或过期/删除按钮，内部滚动",
+      "source": "Playwright headless 截图",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "screenshots/02b-versions-panel.png",
+      "purpose": "版本列表面板特写（左侧栏内，固定高度滚动）",
+      "source": "Playwright headless 截图",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "screenshots/03-delete-confirm.png",
+      "purpose": "删除二次确认弹窗，文案写明删除哪一版及时间",
+      "source": "Playwright headless 截图",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "screenshots/04-pager-bottom.png",
+      "purpose": "报告底部翻页区：上一页 / P04 · 第 4 / 11 页 / 下一页",
+      "source": "Playwright headless 截图",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "screenshots/05-config-collapsed.png",
+      "purpose": "生成配置默认收起态（标题带当前车型）",
+      "source": "Playwright headless 截图",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "screenshots/06-config-expanded.png",
+      "purpose": "生成配置展开态：目标车型单选 + 样本范围 + 生成报告按钮",
+      "source": "Playwright headless 截图",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "screenshots/07-config-revise-adjacent.png",
+      "purpose": "生成配置与报告校核相邻，间距 16px",
+      "source": "Playwright headless 截图",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "screenshots/08-hover-generate.png",
+      "purpose": "「生成报告」hover 态：深蓝底白字可读",
+      "source": "Playwright headless 截图",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "screenshots/09-hover-revise.png",
+      "purpose": "「按指令生成新版本」hover 态：深蓝底白字可读",
+      "source": "Playwright headless 截图",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "screenshots/05-single-version.png",
+      "purpose": "软删演示：铂智3X 仅一版时的报告与历史版本按钮",
+      "source": "Playwright headless 截图（toyota-bz3x）",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "screenshots/06-delete-confirm-only.png",
+      "purpose": "软删演示：删除唯一版本前的二次确认弹窗",
+      "source": "Playwright headless 截图",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "screenshots/07-empty-after-delete.png",
+      "purpose": "软删演示：删除唯一版本后的空态「已无可查看版本，可重新生成」",
+      "source": "Playwright headless 截图",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "versions-check.json",
+      "purpose": "布局/排序/按钮态断言：topPager=0、config_to_revise_gap=16、版本倒序、hover 颜色、console 无 error",
+      "source": "shot_versions.py 实测输出",
+      "rebuildable": true,
+      "retention": "保留"
+    },
+    {
+      "path": "delete-flow-check.json",
+      "purpose": "软删闭环断言：重复删 409、不存在 404、软删后指纹不再命中、空态文案",
+      "source": "delete_flow.py 实测输出",
+      "rebuildable": true,
+      "retention": "保留"
+    }
+  ],
+  "cleanup_conditions": "交付验收完成后保留；截图中含车型与业务聚合数字，不对外分发",
+  "restore": "无需恢复；软删的 toyota-bz3x 版本库内保留 deleted_at，如需复原按 report_version_id 置空 deleted_at"
+}
