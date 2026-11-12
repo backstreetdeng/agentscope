@@ -6,6 +6,13 @@
 - 项目实际根为当前 checkout 的 myproject 仓库根。Codex 桌面项目可将其设为 Primary；从父工作空间启动时按父 AGENTS.md 路由到本文件。文件不可见时明确报告，不能假称已读、已同步或已合并。
 - 旧的 Codex / TRAE 专属文件仅作兼容入口或历史参考；职责、读写及验收以本文件 V2.0 为准，不执行与 V2.0 冲突的旧规则。
 
+## 原型与真实口径（用户2026-11-11、11-12 三次强调）
+
+- 交互原型里的车型、数字、人名一律是**示例**，只用于说明交互与排版；不得写进任何口径、约束、结论、差异分析或"总根因"。
+- 原型示例车（如埃安RT、小鹏M03、深蓝L06、MG07）不得列为"缺失数据""待补样本""须业务确认靶心"；系统靶心一律是页面当前选中的在库车型（零跑B10、铂智3X、iCAR 超级V23、海狮05、钛3）。
+- 报告或页面的空态原因只能写"该车型无样本""该题项未采集""数据源未接入"，不得写成"缺原型那款车"。
+- 对外文档必须提到示例车名时，就地标注"原型示例，非口径"。
+
 ## Development code graph and change verification
 
 - For structural code exploration, use the installed `codebase-memory` skill. The graph project is `market-agent-web`, rooted only at `E:/AI/data/envs/helloagent/myproject`; never index the parent Python environment or migration materials.
