@@ -1,5 +1,13 @@
 # Project execution rules
 
+## 简洁沟通（用户2026-11-05明确要求）
+
+- 中文结论先行，默认最多5个重点，按实际需要灵活增减，不机械凑数；一般300字以内，用户要求详细内容时例外。
+- 多事项优先用“序号｜优先级｜结论/下一步｜负责人”一张短表，不用长串编号、嵌套列表和重复背景。
+- P0当前必须解决、P1本阶段推进、P2可延期；每项写明Codex、用户或WorkBuddy/数据支持。无用户操作则明确告知。
+- 技术分析和修复由执行AI承担，不将其转成用户决策；主目标不被非阻塞资料治理拖住，详细证据放已有TASK文档。
+- 简洁不省略失败和验收边界，不把“读过汇总”写成“核验过全部底表”。简单问题直接回答，不强制套表。
+
 ## 统一规则入口
 
 - 全项目开发规则以本文件为准；Codex 和 TRAE 平等执行 V2.0 轮班接力。开工先看 [任务清单](forecast-engine/share-files/TASKS.md) 和 [交接摘要](forecast-engine/share-files/HANDOFF.md)，只按当前工作需要查看源码及历史证据。
@@ -43,6 +51,8 @@
 
 ## Monthly-report browser session
 
+- 用户2026-11-05明确：网页验收只使用 Codex 内置浏览器，不使用 Computer Use 操作用户的 Chrome、Edge、其他外部浏览器或 Windows 桌面，不抢焦点、不接管用户工作窗口。内置浏览器失败时记录限制并继续可用的接口/离线检查，不擅自切换到用户浏览器；既有月报会话仅按下列保护规则保留。
+
 - Treat the visible Chrome profile at `runtime/monthly-report-browser-profile` as a durable business session after the user completes SMS authentication.
 - Never close, kill, relaunch, or replace that dedicated browser merely to restart the web service, retry a tool call, diagnose a task, or end an agent turn.
 - Before restarting port 7860, check whether the dedicated browser is running. If it is, preserve it and do not restart the owning service unless the user explicitly authorizes losing that live browser session.
@@ -68,6 +78,14 @@
 - 开始单次任务先确定 `task_id` 与输出位置。`outputs/`、`temp/`、`backup/` 的任务目录要写 `README.md` 或 `manifest.json`，记录用途、来源、重建命令、是否可清理和恢复方法；模板见 `docs/artifact-manifest-template.json`。未知用途文件标记待核实，不能靠后缀或日期删除。
 - 新页面放 `pages/` 并接入路由；现有根目录页面按白名单保留，迁移必须同步修改调用方、测试和生成器。业务 Python 仍按现有模块分工，辅助脚本放 `scripts/`，不得将所有 `.py` 按扩展名混放。
 - 每次任务交付前，从项目根目录执行 `../Scripts/python.exe -B scripts/workspace_hygiene.py`。发现新增根目录杂项时先归位；检查器只读，不会清理文件。引用与会话安全规则继续适用。
+
+## 持续执行与结束门禁（轻量 Harness）
+
+- 任务启动、子聊天返回、单项测试通过都不是整体完成。执行者按现有 TASK.md 的验收项持续推进；仍有可自主完成步骤时，不以“后续继续”结束开发回合。
+- 用户授权后台执行时，协调聊天负责在当前活动回合内检查执行聊天的实际状态和结果。发现提前结束且有可执行剩余项，应续接同一聊天；不得只分配、不复核，也不得把 idle/completed 聊天状态当作业务完成。
+- 部分受限只阻塞依赖它的步骤：例如不能安全重启主服务，仍应继续隔离预览、CLI回测、源码修复和隐私验证。记录具体失败证据、已尝试替代方案及真正需要的外部条件，不反复让用户催促。
+- 结束前逐项核对：验收项及对应证据、尚未完成项、实际运行的进程/聊天、下一步及负责人。仅在授权范围完成、真实外部阻塞、用户要求暂停或实际额度/环境限制时结束；未完成须明确原因并保存检查点，不能宣称正在后台运行。
+- 任务进度保存至既有 TASK.md / TASKS.md / HANDOFF.md；不为执行治理新增任务编号或重复管理平台。当前回合结束后不能保证继续监测，不声称有不存在的常驻看护；不创建定时自动化代替一次任务的持续跟进。
 
 ## Codex + TRAE 轮班接力 V2.0
 
