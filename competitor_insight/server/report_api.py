@@ -20,14 +20,17 @@ class ReportApi:
     # ---------------------------------------------------------------- 读
 
     def options(self) -> dict[str, Any]:
-        return self.service.options()
+        payload = self.service.options()
+        payload["fingerprint_rule"] = self.service.fingerprint_rule()
+        return payload
 
     def outline(self) -> dict[str, Any]:
         return {"outline": self.service.outline(), "sources": SOURCE_REGISTRY}
 
     def versions(self, model_key: str | None = None, limit: int = 50) -> dict[str, Any]:
         key = str(model_key or "").strip() or None
-        return {"items": self.service.store.list_versions(model_key=key, limit=limit)}
+        items = self.service.store.list_versions(model_key=key, limit=limit)
+        return {"items": self._evaluate(items)}
 
     def version_line(self, report_id: str) -> dict[str, Any]:
         if not re.fullmatch(r"[0-9a-fA-F-]{36}", str(report_id or "")):
@@ -37,6 +40,7 @@ class ReportApi:
     def detail(self, report_version_id: str) -> dict[str, Any]:
         row = self._version(report_version_id)
         stale, stale_reason = self._stale_state(row)
+        upgrade = self.service.upgrade_state(row["content"])
         return {
             "report_version_id": row["report_version_id"],
             "report_id": row["report_id"],
@@ -53,6 +57,7 @@ class ReportApi:
             "status": row["status"],
             "stale": stale,
             "stale_reason": stale_reason,
+            "upgrade": upgrade,
             "content": row["content"],
         }
 
@@ -94,7 +99,29 @@ class ReportApi:
         }
 
     def compare(self, base_id: str, target_id: str) -> dict[str, Any]:
-        return self.service.compare(self._valid_id(base_id), self._valid_id(target_id))
+        base = self._valid_id(base_id)
+        target = self._valid_id(target_id)
+        self._version(base)
+        self._version(target)
+        return self.service.compare(base, target)
+
+    def delete_version(self, report_version_id: str) -> dict[str, Any]:
+        """软删除：库里保留记录，列表/下拉/详情不再返回。"""
+        rid = self._valid_id(report_version_id)
+        row = self.service.store.get_version(rid)
+        if not row:
+            raise ReportError("report_version_not_found", "报告版本不存在", 404)
+        if row.get("deleted_at"):
+            raise ReportError("report_version_deleted", "该版本已删除，不能重复删除", 409)
+        if not self.service.store.soft_delete_version(rid):
+            raise ReportError("report_version_deleted", "该版本已删除，不能重复删除", 409)
+        return {
+            "deleted": True,
+            "report_version_id": rid,
+            "report_id": row["report_id"],
+            "version_label": row["version_label"],
+            "deleted_at": row.get("generated_at"),
+        }
 
     # ---------------------------------------------------------------- 写
 
@@ -129,24 +156,67 @@ class ReportApi:
     def _version(self, report_version_id: str) -> dict[str, Any]:
         row = self.service.store.get_version(self._valid_id(report_version_id))
         if not row:
-            raise ReportError("report_not_found", "报告版本不存在", 404)
+            raise ReportError("report_version_not_found", "报告版本不存在", 404)
+        if row.get("deleted_at"):
+            raise ReportError("report_version_deleted", "该版本已删除", 409)
         return row
 
+    def _current_fp(self, model_key: str) -> str | None:
+        try:
+            return self.service.fingerprint(self.service.snapshot([model_key]))
+        except Exception:  # noqa: BLE001
+            return None
+
+    def _evaluate(self, items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """按数据指纹即时校正每版状态；大纲/渲染器升级不参与判定。"""
+        cache: dict[str, str | None] = {}
+        for item in items:
+            key = item.get("model_key") or ""
+            if key not in cache:
+                cache[key] = self._current_fp(key)
+            current = cache[key]
+            if current is None:
+                continue
+            if item.get("data_fingerprint") == current:
+                if item.get("status") == "stale":
+                    try:
+                        self.service.store.mark_valid(item["report_version_id"])
+                    except Exception:  # noqa: BLE001
+                        pass
+                item["status"] = "valid"
+                item["stale_reason"] = ""
+            else:
+                reason = "底层数据已变化，当前报告为旧快照"
+                if item.get("status") != "stale":
+                    try:
+                        self.service.store.mark_stale(item["report_version_id"], reason)
+                    except Exception:  # noqa: BLE001
+                        pass
+                item["status"] = "stale"
+                item["stale_reason"] = item.get("stale_reason") or reason
+        return items
+
     def _stale_state(self, row: dict[str, Any]) -> tuple[bool, str]:
+        snapshot = None
         try:
             snapshot = self.service.snapshot([row["model_key"]])
         except Exception as exc:  # noqa: BLE001
             return False, f"无法校验数据版本：{exc.__class__.__name__}"
         current = self.service.fingerprint(snapshot)
         if current == row["data_fingerprint"]:
+            if row.get("status") == "stale":
+                try:
+                    self.service.store.mark_valid(row["report_version_id"])
+                except Exception:  # noqa: BLE001
+                    pass
             return False, ""
-        reason = "底层样本量、档案修订、配置或模板已变化，当前报告为旧快照"
+        reason = self.service.data_reason(row.get("source_snapshot"), snapshot)
         if row.get("status") != "stale":
             try:
                 self.service.store.mark_stale(row["report_version_id"], reason)
             except Exception:  # noqa: BLE001
                 pass
-        return True, row.get("stale_reason") or reason
+        return True, reason
 
     @staticmethod
     def _filename(row: dict[str, Any]) -> str:

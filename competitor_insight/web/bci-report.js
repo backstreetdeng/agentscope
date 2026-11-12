@@ -19,6 +19,10 @@
     status: null,
     page: "",
     revise: { page: "", instruction: "" },
+    versionsOpen: false,
+    configOpen: false,
+    pendingDelete: null,
+    emptiedByDelete: false,
   };
 
   function esc(value) {
@@ -178,28 +182,40 @@
   function configHtml() {
     const item = model();
     const archive = (state.options && state.options.archive) || {};
+    const outlineVersion = (state.options && state.options.outline && state.options.outline.version) || "";
+    const toggle =
+      "<button type='button' class='bci-r-config__toggle" +
+      (state.configOpen ? " is-open" : "") +
+      "' data-action='toggle-config'><span><b>生成配置 · " +
+      esc(item ? item.label : "未选择车型") +
+      "</b></span><i>" +
+      (state.configOpen ? "收起" : "展开") +
+      "</i></button>";
+    const body = state.configOpen
+      ? "<p class='bci-r-hint'>一个目标车型一份报告，只覆盖竞品侧；定性部分按档案人数展示，不出比例。</p>" +
+        "<h4 style='font-size:12.5px;margin:4px 0 6px'>目标车型<small>" +
+        esc(outlineVersion) +
+        "</small></h4>" +
+        modelsHtml() +
+        "<div class='bci-r-scope'>" +
+        "<div><span>定量样本</span><b>" +
+        esc(item ? num((item.sources || {}).quant) : 0) +
+        "</b></div>" +
+        "<div><span>深访访谈</span><b>" +
+        esc(item ? num((item.archive || {}).interview_total) : 0) +
+        "</b></div>" +
+        "<div><span>已生成档案</span><b>" +
+        esc(item ? num((item.archive || {}).archived) : 0) +
+        "</b></div>" +
+        "<div><span>档案模板</span><b>" +
+        esc(archive.template_version || "—") +
+        "</b></div>" +
+        "</div>"
+      : "";
     return (
-      "<div class='bci-r-card'>" +
-      "<h4>生成配置<small>" +
-      esc((state.options && state.options.outline && state.options.outline.version) || "") +
-      "</small></h4>" +
-      "<p class='bci-r-hint'>一个目标车型一份报告，只覆盖竞品侧；定性部分按档案人数展示，不出比例。</p>" +
-      "<h4 style='font-size:12.5px;margin-top:4px'>目标车型</h4>" +
-      modelsHtml() +
-      "<div class='bci-r-scope'>" +
-      "<div><span>定量样本</span><b>" +
-      esc(item ? num((item.sources || {}).quant) : 0) +
-      "</b></div>" +
-      "<div><span>深访访谈</span><b>" +
-      esc(item ? num((item.archive || {}).interview_total) : 0) +
-      "</b></div>" +
-      "<div><span>已生成档案</span><b>" +
-      esc(item ? num((item.archive || {}).archived) : 0) +
-      "</b></div>" +
-      "<div><span>档案模板</span><b>" +
-      esc(archive.template_version || "—") +
-      "</b></div>" +
-      "</div>" +
+      "<div class='bci-r-card bci-r-config'>" +
+      toggle +
+      body +
       "<div class='bci-r-actions'>" +
       "<button type='button' class='bci-r-btn bci-r-btn--primary' data-action='generate'" +
       (state.busy || !state.selected ? " disabled" : "") +
@@ -248,45 +264,130 @@
     );
   }
 
+  // 版本号是「主版本.次版本」语义号，按语义号排序，不按库内自增序号：
+  // 改稿可能给旧主版本打补丁（如 v3.1 在 v4.0 之后生成），序号与版本号会不一致。
+  function versionRank(label) {
+    const match = /^v(\d+)(?:\.(\d+))?/i.exec(String(label || ""));
+    return match ? Number(match[1]) * 1000 + Number(match[2] || 0) : -1;
+  }
+
+  function sortedVersions() {
+    return state.versions.slice().sort(function (a, b) {
+      const diff = versionRank(b.version_label) - versionRank(a.version_label);
+      if (diff) return diff;
+      return String(b.generated_at || "").localeCompare(String(a.generated_at || ""));
+    });
+  }
+
   function versionsHtml() {
-    if (!state.versions.length) {
-      return "<p class='bci-r-hint'>该车型还没有报告版本。点击「生成报告」创建 v1.0。</p>";
+    const list = sortedVersions();
+    const current =
+      list.find(function (item) {
+        return item.report_version_id === state.current;
+      }) || null;
+    const buttonLabel = current ? "历史版本 " + current.version_label : "历史版本";
+    const buttonStatus = current
+      ? "<em class='" + (current.status === "stale" ? "is-stale" : "is-ok") + "'>" +
+        (current.status === "stale" ? "已过期" : "有效") + "</em>"
+      : "";
+    const toggle =
+      "<button type='button' class='bci-r-versions__toggle" +
+      (state.versionsOpen ? " is-open" : "") +
+      "' data-action='toggle-versions'" +
+      (list.length ? "" : " disabled") +
+      "><span><b>" +
+      esc(buttonLabel) +
+      "</b>" +
+      buttonStatus +
+      "</span><i>" +
+      (list.length ? (state.versionsOpen ? "收起" : "展开") : "暂无版本") +
+      "</i></button>";
+    if (!list.length) {
+      return (
+        "<div class='bci-r-card bci-r-versions'>" +
+        toggle +
+        "<p class='bci-r-hint'>该车型还没有报告版本。点击「生成报告」创建 v1.0。</p></div>"
+      );
     }
+    const panel = state.versionsOpen
+      ? "<div class='bci-r-vlist'>" +
+        list
+          .map(function (item) {
+            const active = state.current === item.report_version_id;
+            const stale = item.status === "stale";
+            return (
+              "<div class='bci-r-vitem" +
+              (active ? " is-active" : "") +
+              "'>" +
+              "<button type='button' class='bci-r-vitem__main' data-version='" +
+              esc(item.report_version_id) +
+              "'>" +
+              "<b>" +
+              esc(item.version_label) +
+              "</b>" +
+              (item.revision_kind === "revise" ? "<span class='bci-r-tag'>改稿</span>" : "") +
+              "<span class='bci-r-vitem__time'>" +
+              esc(when(item.generated_at)) +
+              "</span>" +
+              "<em class='" +
+              (stale ? "is-stale" : "is-ok") +
+              "'>" +
+              (stale ? "已过期" : "有效") +
+              "</em></button>" +
+              "<button type='button' class='bci-r-vitem__del' data-delete-version='" +
+              esc(item.report_version_id) +
+              "' title='删除 " +
+              esc(item.version_label) +
+              "'>删除</button>" +
+              "</div>"
+            );
+          })
+          .join("") +
+        "</div>"
+      : "";
     return (
-      "<div class='bci-r-versions'>" +
-      state.versions
-        .map(function (item) {
-          const active = state.current === item.report_version_id;
-          const stale = item.status === "stale";
-          const revised = item.revision_kind === "revise";
-          return (
-            "<button type='button' class='bci-r-version" +
-            (active ? " is-active" : "") +
-            "' data-version='" +
-            esc(item.report_version_id) +
-            "'>" +
-            "<b>" +
-            esc(item.version_label) +
-            "</b>" +
-            (revised ? "<span class='bci-r-tag'>改稿</span>" : "") +
-            "<span>" +
-            esc(when(item.generated_at)) +
-            "</span>" +
-            "<span class='" +
-            (stale ? "is-stale" : "is-ok") +
-            "'>" +
-            (stale ? "已过期" : "有效") +
-            "</span></button>"
-          );
-        })
-        .join("") +
+      "<div class='bci-r-card bci-r-versions'>" +
+      toggle +
+      "<p class='bci-r-hint'>共 " +
+      esc(list.length) +
+      " 个版本，按版本号倒序；删除为软删除，库内记录保留。</p>" +
+      panel +
       "</div>"
+    );
+  }
+
+  function confirmHtml() {
+    const item = state.pendingDelete;
+    if (!item) return "";
+    return (
+      "<div class='bci-r-modal' data-modal>" +
+      "<div class='bci-r-modal__box'>" +
+      "<h4>删除 " +
+      esc(item.version_label) +
+      "（" +
+      esc(when(item.generated_at)) +
+      "）？</h4>" +
+      "<p>删除后该版本不再出现在历史版本列表，库里记录保留、溯源链不断；同一数据重新生成会新建版本，不会复用这一版。</p>" +
+      "<div class='bci-r-modal__actions'>" +
+      "<button type='button' class='bci-r-btn' data-action='cancel-delete'>取消</button>" +
+      "<button type='button' class='bci-r-btn bci-r-btn--danger' data-action='confirm-delete'>确认删除 " +
+      esc(item.version_label) +
+      "</button>" +
+      "</div></div></div>"
     );
   }
 
   function viewHtml() {
     if (!state.current) {
-      return "<div class='bci-r-empty'>选择目标车型生成报告，或从上方版本线打开历史版本。<br>生成的报告为静态 HTML，可下载留档。</div>";
+      if (state.emptiedByDelete) {
+        return (
+          "<div class='bci-r-empty'>已无可查看版本，可重新生成。<br>删除的版本不再出现在历史版本列表，库内记录保留、可追溯。</div>"
+        );
+      }
+      if (state.versions.length) {
+        return "<div class='bci-r-empty'>请从左侧「历史版本」选择要查看的版本。</div>";
+      }
+      return "<div class='bci-r-empty'>该车型还没有报告版本：选择车型后点击「生成报告」。<br>已无可查看版本时，可随时重新生成。</div>";
     }
     if (!state.detail) {
       return "<div class='bci-r-empty'>正在加载报告…</div>";
@@ -295,24 +396,35 @@
     const list = pages();
     const pageId = ensurePage();
     const index = pageIndex(pageId);
+    const statusText = detail.stale ? "已过期" : "有效";
     const meta =
       esc(detail.version_label) +
       " · " +
       esc(when(detail.generated_at)) +
       " · " +
       (detail.revision_kind === "revise" ? "改稿" : "生成") +
+      " · " +
+      statusText +
       " · 指纹 " +
       esc(String((detail.content && detail.content.data_fingerprint) || "").slice(0, 12));
     const banner = detail.stale
-      ? "<div class='bci-r-banner'>该版本已过期：" + esc(detail.stale_reason || "底层数据已变化") + "。请重新生成。</div>"
+      ? "<div class='bci-r-banner'>该版本已过期：" +
+        esc(detail.stale_reason || "底层数据已变化") +
+        "。可重新生成覆盖新数据。</div>"
       : "";
+    const upgrade =
+      detail.upgrade && detail.upgrade.available
+        ? "<div class='bci-r-banner bci-r-banner--info'>" +
+          esc(detail.upgrade.text) +
+          "。本版仍可正常查看与导出。</div>"
+        : "";
     const compareBtn = detail.parent_version_id
       ? "<button type='button' class='bci-r-btn' data-action='compare'>与上一版对比</button>"
       : "";
     return (
       "<div class='bci-r-view'>" +
       "<div class='bci-r-view__head'>" +
-      "<div class='bci-r-view__meta'><b>报告单页</b><br>" +
+      "<div class='bci-r-view__meta'><b>报告正文</b><br>" +
       meta +
       "</div>" +
       "<div class='bci-r-view__actions'>" +
@@ -323,7 +435,13 @@
       ">重新生成</button>" +
       "</div></div>" +
       banner +
-      "<div class='bci-r-pager'>" +
+      upgrade +
+      "<iframe class='bci-r-frame' referrerpolicy='no-referrer' src='" +
+      esc(pageSrc(pageId)) +
+      "' title='" +
+      esc(pageId + " " + pageTitleText(pageId)) +
+      "'></iframe>" +
+      "<div class='bci-r-pager bci-r-pager--bottom'>" +
       "<button type='button' class='bci-r-pager__btn' data-action='prev-page'" +
       (index <= 0 ? " disabled" : "") +
       ">上一页</button>" +
@@ -334,12 +452,9 @@
       (index >= list.length - 1 ? " disabled" : "") +
       ">下一页</button>" +
       "</div>" +
-      "<iframe class='bci-r-frame' referrerpolicy='no-referrer' src='" +
-      esc(pageSrc(pageId)) +
-      "' title='" +
-      esc(pageId + " " + pageTitleText(pageId)) +
-      "'></iframe>" +
-      "<p class='bci-r-footnote'>当前只渲染这一页；导出 HTML 仍是完整 " + esc(list.length) + " 页。</p>" +
+      "<p class='bci-r-footnote'>当前只渲染这一页；导出 HTML 仍是完整 " +
+      esc(list.length) +
+      " 页。</p>" +
       "</div>"
     );
   }
@@ -539,20 +654,55 @@
       "<div class='bci-r-grid'>" +
       "<div class='bci-r-stack'>" +
       outlineHtml() +
+      "<div data-versions-slot>" +
+      versionsHtml() +
+      "</div>" +
+      "<div data-config-slot>" +
       configHtml() +
       "</div>" +
-      "<div class='bci-r-card'><h4>版本线<small>" +
-      esc(state.versions.length) +
-      " 个版本</small></h4>" +
-      versionsHtml() +
-      "<div style='height:12px'></div>" +
+      reviseHtml() +
+      "</div>" +
+      "<div class='bci-r-card bci-r-reportcard'>" +
       viewHtml() +
       "</div>" +
       "</div>" +
-      "<div class='bci-r-grid'>" +
-      reviseHtml() +
+      "<div class='bci-r-compare-full'>" +
       compareHtml() +
+      "</div>" +
+      "<div data-modal-slot>" +
+      confirmHtml() +
       "</div>";
+  }
+
+  // 只刷新版本卡/生成配置与弹窗，避免展开收起时重建 iframe 造成闪白。
+  function renderVersionsSlot() {
+    if (!state.host) return;
+    const slot = state.host.querySelector("[data-versions-slot]");
+    if (!slot) {
+      render();
+      return;
+    }
+    slot.innerHTML = versionsHtml();
+  }
+
+  function renderConfigSlot() {
+    if (!state.host) return;
+    const slot = state.host.querySelector("[data-config-slot]");
+    if (!slot) {
+      render();
+      return;
+    }
+    slot.innerHTML = configHtml();
+  }
+
+  function renderModalSlot() {
+    if (!state.host) return;
+    const slot = state.host.querySelector("[data-modal-slot]");
+    if (!slot) {
+      render();
+      return;
+    }
+    slot.innerHTML = confirmHtml();
   }
 
   // ------------------------------------------------------------ 数据加载
@@ -575,6 +725,7 @@
     }
     const data = await api("/api/bci/report/versions?limit=50&model_key=" + encodeURIComponent(state.selected));
     state.versions = data.items || [];
+    if (state.versions.length) state.emptiedByDelete = false;
   }
 
   async function openVersion(id, pageId) {
@@ -595,6 +746,19 @@
       render();
     } catch (err) {
       state.status = { kind: "error", text: err.message };
+      state.current = null;
+      state.detail = null;
+      try {
+        await loadVersions();
+        const rest = sortedVersions();
+        if (rest.length) {
+          state.busy = false;
+          await openVersion(rest[0].report_version_id);
+          return;
+        }
+      } catch (refreshErr) {
+        /* 保留原始错误 */
+      }
       render();
     }
   }
@@ -632,6 +796,7 @@
   async function generate() {
     if (state.busy || !state.selected) return;
     state.busy = true;
+    state.configOpen = false;
     state.status = { kind: "", text: "生成中：正在取数与渲染，预计 20–30 秒。" };
     render();
     const started = Date.now();
@@ -717,6 +882,51 @@
     window.location.href = "/api/bci/report/export?id=" + encodeURIComponent(state.current);
   }
 
+  function requestDelete(id) {
+    const item = state.versions.find(function (row) {
+      return row.report_version_id === id;
+    });
+    if (!item) return;
+    state.pendingDelete = item;
+    renderModalSlot();
+  }
+
+  async function confirmDelete() {
+    const item = state.pendingDelete;
+    if (!item || state.busy) return;
+    state.pendingDelete = null;
+    state.busy = true;
+    state.status = { kind: "", text: "正在删除 " + item.version_label + "…" };
+    render();
+    try {
+      await api("/api/bci/report/version/delete", {
+        method: "POST",
+        body: JSON.stringify({ report_version_id: item.report_version_id }),
+      });
+      await loadVersions();
+      state.busy = false;
+      state.status = { kind: "ok", text: "已删除 " + item.version_label + "（软删除，库内记录保留）。" };
+      state.emptiedByDelete = sortedVersions().length === 0;
+      if (state.current === item.report_version_id) {
+        state.current = null;
+        state.detail = null;
+        state.compare = null;
+        const rest = sortedVersions();
+        if (rest.length) {
+          await openVersion(rest[0].report_version_id);
+        } else {
+          render();
+        }
+      } else {
+        render();
+      }
+    } catch (err) {
+      state.busy = false;
+      state.status = { kind: "error", text: err.message };
+      render();
+    }
+  }
+
   function bind() {
     if (state.host.dataset.bound === "1") return;
     state.host.dataset.bound = "1";
@@ -750,9 +960,13 @@
         state.status = null;
         state.page = "";
         state.revise.page = "";
+        state.versionsOpen = false;
+        state.emptiedByDelete = false;
+        state.pendingDelete = null;
         loadVersions()
           .then(function () {
-            return state.versions.length ? openVersion(state.versions[0].report_version_id) : render();
+            const list = sortedVersions();
+            return list.length ? openVersion(list[0].report_version_id) : render();
           })
           .catch(function (err) {
             setStatus("error", err.message);
@@ -775,6 +989,24 @@
         if (name === "compare") runCompare();
         if (name === "prev-page") stepPage(-1);
         if (name === "next-page") stepPage(1);
+        if (name === "toggle-versions") {
+          state.versionsOpen = !state.versionsOpen;
+          renderVersionsSlot();
+        }
+        if (name === "toggle-config") {
+          state.configOpen = !state.configOpen;
+          renderConfigSlot();
+        }
+        if (name === "cancel-delete") {
+          state.pendingDelete = null;
+          renderModalSlot();
+        }
+        if (name === "confirm-delete") confirmDelete();
+        return;
+      }
+      const remove = ev.target.closest("[data-delete-version]");
+      if (remove) {
+        requestDelete(remove.getAttribute("data-delete-version"));
         return;
       }
       const page = ev.target.closest("[data-page]");
@@ -783,7 +1015,10 @@
         return;
       }
       const version = ev.target.closest("[data-version]");
-      if (version) openVersion(version.getAttribute("data-version"));
+      if (version) {
+        state.versionsOpen = false;
+        openVersion(version.getAttribute("data-version"));
+      }
     });
   }
 
@@ -797,10 +1032,15 @@
       await loadOptions();
       await loadVersions();
       bind();
+      const list = sortedVersions();
+      const newest =
+        list.find(function (item) {
+          return item.status !== "stale";
+        }) || list[0];
       if (deep && deep.version) {
         await openVersion(deep.version, deep.page);
-      } else if (state.versions.length) {
-        await openVersion(state.versions[0].report_version_id);
+      } else if (newest) {
+        await openVersion(newest.report_version_id);
       } else {
         render();
       }

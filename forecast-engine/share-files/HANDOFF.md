@@ -1,8 +1,10 @@
 # HelloAgent 最近交接 · V2.0
 
-更新：2026-11-11（Asia/Shanghai）。本文件由当前值班 AI 维护，适用于整个 myproject；共同规则见 [AGENTS.md](../../AGENTS.md)，任务索引见 [TASKS.md](TASKS.md)。
+更新：2026-11-12（Asia/Shanghai）。本文件由当前值班 AI 维护，适用于整个 myproject；共同规则见 [AGENTS.md](../../AGENTS.md)，任务索引见 [TASKS.md](TASKS.md)。
 
 ## 当前任务及进度
+
+- 2026-11-12 BCI-007 第四轮（TRAE）：①过期判定修正——旧指纹把大纲与渲染器一起 hash，导致大纲 2.0.0→2.1.0、渲染器升版后所有历史版（含最新）被判 stale；改为 `report-fingerprint/2.0` 只对数据取指纹（分析配置、档案模板、各源样本量、档案 id/revision/updated_at），大纲与渲染器不进指纹，只出「可重新生成/可重新导出」提示；提示词版本从不进指纹。批次 `20261111T113525` 不进指纹、未造成过期；真正失效原因是 11-11 21:43 新增档案 R017（archive_id=86、coverage 81.58%）。`ops/bci_report_fingerprint_v2.py --apply` 已加 `deleted_at` 并按新规则重算 9 版状态；重新生成 v7.0（`226f5d30-52d0-48c1-aa21-0e43060f98c0`）为当前唯一 valid。②版本软删除：`deleted_at` 时间戳，列表/下拉/详情/导出/对比/改稿/去重全部过滤，重复删 409 `report_version_deleted`、不存在 404 `report_version_not_found`；删当前版自动回退到排序后最新一版，删空显示「已无可查看版本，可重新生成」；软删版本不复用，同参数重新生成是新建。③版式：版本收进左栏「历史版本 v7.0」按钮（展开内部滚动、语义版本号倒序、每项带时间/有效或过期/删除），右侧只放正文，翻页移到底部；生成配置默认收起（标题带当前车型），与「报告校核」间距 16px；修复主按钮 hover 浅底白字不可见（`:hover` 覆盖了 primary 背景），补齐 active/disabled 对比度。单测 41/41，7861 浏览器实测 `versions-check.json`、`delete-flow-check.json`；截图 `outputs/competitor-insights/BCI-007/20261112-versions/screenshots/`。7860 未重启，需重启后生效。演示用的 toyota-bz3x 版本已软删（库内保留 deleted_at），未物理删除其他业务版本。
 
 - 2026-11-11 晚 BCI-007 第三轮（TRAE）：用户否掉上一版缩水实现，按原型重做两项。①单页视图：左侧「标准化报告大纲」列 11 页、可点、`.is-active` 选中态、跟随车型；右侧只渲染当前页（`GET /api/bci/report/page?id=&page=P04`，复用整篇渲染器 `report-render-html/1.0.4`），带「P04 · 第 4 / 11 页」与上一页/下一页；无「预览整篇」入口，导出仍为完整 11 页；深链 `?report=<version>&page=P04#bci` 刷新停同页（hash 用于 tab 路由，页码走 query）。②校核助手放开：新增 `rewrite_page` 支持任意页自然语言指令（标题/导语/板块文案/表格说明），模型返回严格 JSON 改写正文，落子版本、旧版不动；先收集本页允许数字与 refs，改写后引语须指回受访人编号、数字须指回数据源，不通过则整页重写一次，二次失败 `422 revision_rejected` 拒绝该版本；`_check_numeric_invariant` 仅兜底，白名单扩为「原文文本数字 ∪ 源 n」避免误拒页脚 n；`patch.rewrites` 记录页/原指令/改前改后/refs。实测零跑B10 v5.0→v5.1 同页 P04 同指令改写导语与 `P04.CHART` 说明，refs=`P04.CHART`、`P04.TOP5`。③`competitor_insight/RULES.md` 写入硬步骤「设计评审前必须先出原型对照表」（§6 一行 + §14）。证据 `outputs/competitor-insights/BCI-007/20261111-single-page/`、`…/20261111-report-freeform/`；单测 38/38；7860 未重启，验证用 7861 隔离服务。
 

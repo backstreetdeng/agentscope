@@ -266,13 +266,15 @@ class FakeStore:
             self.reports[model_key] = f"report-{len(self.reports) + 1}"
         return self.reports[model_key]
 
-    def find_by_fingerprint(self, fingerprint, model_key):
+    def find_by_fingerprint(self, fingerprint, model_key, outline_version="", renderer=""):
         for row in self.versions:
             if (
                 row["data_fingerprint"] == fingerprint
                 and row["model_keys"] == [model_key]
                 and row["status"] == "valid"
                 and row["revision_kind"] == "generate"
+                and (row.get("content") or {}).get("outline_version") == outline_version
+                and (row.get("content") or {}).get("renderer") == renderer
             ):
                 return {
                     "report_version_id": row["report_version_id"],
@@ -344,6 +346,19 @@ class FakeStore:
 
     def mark_stale(self, report_version_id, reason):
         self.stale.append((report_version_id, reason))
+
+    def mark_valid(self, report_version_id):
+        for row in self.versions:
+            if row["report_version_id"] == report_version_id:
+                row["status"] = "valid"
+                row["stale_reason"] = ""
+
+    def soft_delete_version(self, report_version_id):
+        for row in self.versions:
+            if row["report_version_id"] == report_version_id and not row.get("deleted_at"):
+                row["deleted_at"] = "2026-11-12T09:00:00+08:00"
+                return True
+        return False
 
 
 def make_service(revise_llm=None) -> BciReportService:
@@ -454,6 +469,33 @@ class BuildContentTest(unittest.TestCase):
         self.service.analysis.source_counts["fake-a"]["quant"] = 42
         content, _ = self.service.build(["fake-a"])
         self.assertNotEqual(content["data_fingerprint"], baseline)
+
+
+class FingerprintScopeTest(unittest.TestCase):
+    def test_outline_and_renderer_upgrade_do_not_change_fingerprint(self):
+        service = make_service()
+        content, snapshot = service.build(["fake-a"])
+        baseline = service.fingerprint(snapshot)
+        upgraded = dict(snapshot)
+        upgraded["outline"] = {"version": "report-outline/9.9.9"}
+        upgraded["renderer"] = "report-render-html/9.9.9"
+        self.assertEqual(service.fingerprint(upgraded), baseline)
+
+    def test_upgrade_state_points_outline_and_renderer(self):
+        service = make_service()
+        state = service.upgrade_state(
+            {"outline_version": "report-outline/2.0.0", "renderer": "report-render-html/1.0.0"}
+        )
+        self.assertTrue(state["available"])
+        kinds = [item["kind"] for item in state["items"]]
+        self.assertEqual(kinds, ["outline", "renderer"])
+        self.assertIn("可重新生成", state["text"])
+
+    def test_fingerprint_rule_declares_exclusions(self):
+        rule = BciReportService.fingerprint_rule()
+        self.assertEqual(rule["scheme"], "report-fingerprint/2.0")
+        self.assertTrue(any("outline" in item for item in rule["excluded"]))
+        self.assertTrue(any("renderer" in item for item in rule["excluded"]))
 
 
 class GenerateIdempotencyTest(unittest.TestCase):

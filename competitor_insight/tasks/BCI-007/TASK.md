@@ -7,11 +7,11 @@ stage: TESTED
 owner: TRAE
 port: none
 frozen_paths: none
-commit_paths: competitor_insight/docs/report-output-design.md, competitor_insight/docs/report-output-business-inputs.md, competitor_insight/tasks/BCI-007, outputs/competitor-insights/BCI-007, competitor_insight/config/report_outline.json, competitor_insight/server/report_service.py, competitor_insight/server/report_archive_aggregate.py, competitor_insight/server/report_render_html.py, competitor_insight/server/report_api.py, competitor_insight/server/llm_client.py, competitor_insight/web/bci-report.js, competitor_insight/web/bci-report.css, competitor_insight/tests/test_report_service.py, competitor_insight/tests/test_report_render_html.py, ops/bci_report_ddl.sql, ops/apply_bci_report_ddl.py
-updated: 2026-11-11
+commit_paths: competitor_insight/docs/report-output-design.md, competitor_insight/docs/report-output-business-inputs.md, competitor_insight/tasks/BCI-007, outputs/competitor-insights/BCI-007, competitor_insight/config/report_outline.json, competitor_insight/server/report_service.py, competitor_insight/server/report_archive_aggregate.py, competitor_insight/server/report_render_html.py, competitor_insight/server/report_api.py, competitor_insight/server/llm_client.py, competitor_insight/web/bci-report.js, competitor_insight/web/bci-report.css, competitor_insight/tests/test_report_service.py, competitor_insight/tests/test_report_render_html.py, ops/bci_report_ddl.sql, ops/apply_bci_report_ddl.py, ops/bci_report_fingerprint_v2.py
+updated: 2026-11-12
 blocked: no
-next: 用户验收 7860（一车一报告 / 11 页 / 页脚实时 n / 受控改稿 v1.1 / P7 进攻方向）；P6 首选率与 P9/P10 本品页待业务补样本或题项
-evidence: outputs/competitor-insights/BCI-007/20261111-report-11p/
+next: 重启 7860 后用真实数据复核 v7.0 与左侧「历史版本 / 生成配置」；旧版 stale 属 R017 真实数据变化，需要带新数据的版本须重新生成
+evidence: outputs/competitor-insights/BCI-007/20261112-versions/
 ```
 
 ## 1. 目标与边界
@@ -101,6 +101,7 @@ evidence: outputs/competitor-insights/BCI-007/20261111-report-11p/
 | 2026-11-11 | EXECUTING | 用户要求当天实现；评估结论「需改后可行」，6 项 P0 已按改进口径落地 | 本文件 §3 | TRAE |
 | 2026-11-11 | TESTED | 单测 22/22、真实库 API 全链路、Playwright tab ④ 实测通过；本任务文件同批入库 | `20261111-report-e2e/`、`20261111-report-ddl/` | TRAE |
 | 2026-11-11 | TESTED | 第三轮：单页视图与自由指令改稿按原型重做并通过浏览器验收，单测 38/38 | 本文件 §9 | TRAE |
+| 2026-11-12 | TESTED | 第四轮：指纹 2.0（大纲/渲染器移出指纹）、版本软删除、版本区收进左栏、生成配置折叠与按钮态修复；单测 41/41、7861 浏览器实测 | 本文件 §10、`20261112-versions/` | TRAE |
 
 ## 8. 第二轮：一车一报告 + 11 页 + 确定性改稿（2026-11-11）
 
@@ -139,4 +140,54 @@ evidence: outputs/competitor-insights/BCI-007/20261111-report-11p/
 - 深链：`?report=<version>&page=P04`（项目 tab 走 `#bci` hash 路由，故页码用 query 传递）。
 - 改稿：`rewrite_page` → `_rewrite_page` 先收集本页允许数字与 refs，模型返回严格 JSON；`_validate_rewrite` 校验不可用页/缺块/数字/refs；失败带反馈重写一次，二次失败 `422 revision_rejected`；`_check_numeric_invariant` 兜底白名单扩为「原文文本数字 ∪ 源 n」，避免误拒页脚 n。
 - 单测：`test_report_service.py`、`test_report_render_html.py` 共 38 项通过；验收版本 `420b4432-9856-4092-b170-6d88b7685e07`（v5.0）→ `82ca358d-4751-400a-924e-726a170577f9`（v5.1）。
+
+## 10. 第四轮：过期判定修正 + 版本软删除 + 布局收口（2026-11-12）
+
+用户反馈「v2.0 之后全部标已过期，连最新一版也过期」，并要求版本改下拉、加软删除，最后按截图把版本区收进左侧栏。
+
+### 10.1 过期判定（指纹 2.0）
+
+| 输入 | 是否进指纹 | 说明 |
+|---|---|---|
+| 分析配置 `analysis_config.version/updated` | 进 | 口径改了就是数据变了 |
+| 档案模板 `template_id/template_version` | 进 | 模板换版会改变可读字段 |
+| 各源样本量 `models[].sources` | 进 | 定量/深访/口碑/中汽分母变化 |
+| 已生成档案 `models[].archives[]`（id/revision/template/updated_at） | 进 | 新增/改档直接改变定性内容 |
+| 大纲 `outline_version` | 不进 | 只提示「可重新生成获取新版式」，不判死旧报告 |
+| 渲染器 `renderer` | 不进 | 只提示「可重新导出」，历史 HTML 仍可下载 |
+| 提示词版本 | 从不进 | 提示词改动不改变已生成内容的事实边界 |
+
+- 旧指纹（`report-fingerprint/1.x`）把 outline + renderer 一起 hash，导致大纲 1.0.0→2.1.0、渲染器 1.0.3→1.0.4 后所有历史版全部 stale，连最新版也不成立。
+- 批次 `20261111T113525`（口碑重打标）不进指纹：`models.sources` 41/4/103/6 未变、既有档案未变，因此该批次本身**没有**造成过期。
+- 真正让最新版失效的是 2026-11-11 21:43 新增档案 **R017**（archive_id=86、revision=1、status=partial、coverage 81.58%）：所有历史快照都只有 3 份档案，属真实数据变化。
+- 结论：现只有 **v7.0**（`226f5d30-52d0-48c1-aa21-0e43060f98c0`，outline 2.1.0 / renderer 1.0.4）有效；v6.2/v6.1/v6.0/v5.1/v5.0/v4.0/v3.1/v3.0/v2.0/v1.2/v1.1/v1.0 均为 stale，需重新生成才能带上 R017。旧版仍可查看/下载，只是不再代表最新数据。
+- 迁移：`ops/bci_report_fingerprint_v2.py --apply` 新增 `deleted_at` 列，用各版 `source_snapshot` 按 2.0 规则重算 `data_fingerprint` 与 `status/stale_reason`（9 版判 stale，原因统一「数据已变化：新增档案 R017」）。
+- 自愈：`/versions` 与 `/detail` 都按当前数据比指纹，一致则把 stale 复原为 valid，不一致则写回具体原因，避免状态漂移。
+
+### 10.2 版本软删除
+
+| # | 验收项 | 结果 |
+|---|---|---|
+| B13 | 软删除不物理删 | PASS：`deleted_at timestamptz`；`update … set deleted_at=now() … where deleted_at is null returning …` |
+| B14 | 列表/下拉/详情/导出/对比/改稿/去重复用全部过滤 | PASS：`list_versions`、`version_line`、`find_by_fingerprint`、`revise`、`compare` 均带 `deleted_at is null` |
+| B15 | 后端拦截 | PASS：重复删 409 `report_version_deleted`；不存在/越权 404 `report_version_not_found`（实测见 `delete-flow-check.json`） |
+| B16 | 二次确认与文案 | PASS：弹窗写「删除 v6.0（2026-11-12 10:52）？」，说明软删保留记录 |
+| B17 | 删当前版回退 | PASS：删当前版后自动打开排序后最新一版；删到空则显示「已无可查看版本，可重新生成。」 |
+| B18 | 软删与去重 | PASS：软删版本不再命中 `find_by_fingerprint`；同参数重新生成是**新建**（版本号继续递增），不复用已删版本 |
+
+### 10.3 版本区与配置区版式
+
+| # | 验收项 | 结果 |
+|---|---|---|
+| B19 | 版本收进左栏「历史版本」按钮，带当前版本号 | PASS：「历史版本 v7.0 有效 展开」，点开内部滚动、按语义版本号倒序（v7.0→v6.2→…→v1.0），选完自动收起 |
+| B20 | 右侧只放正文 | PASS：报告卡独占右栏；顶部无翻页控件（`topPager=0`） |
+| B21 | 翻页移到底部 | PASS：`P04 · 第 4 / 11 页` 与上一页/下一页在正文底部 |
+| B22 | 生成配置可折叠 | PASS：默认收起，标题「生成配置 · 零跑B10」；点开展示目标车型与样本范围，生成按钮常驻可点 |
+| B23 | 去掉配置与校核之间空白 | PASS：两卡间距 16px（`config_to_revise_gap=16`） |
+| B24 | 按钮 hover/active/disabled 可读 | PASS：主按钮 hover 深蓝底白字（此前 `:hover` 的浅底覆盖了 primary 背景导致白字不可见），禁用态改为浅灰底深灰字 |
+
+证据：`outputs/competitor-insights/BCI-007/20261112-versions/`（`screenshots/01-default.png`、`02-versions-open.png`、`02b-versions-panel.png`、`03-delete-confirm.png`、`04-pager-bottom.png`、`05-config-collapsed.png`、`06-config-expanded.png`、`07-config-revise-adjacent.png`、`08-hover-generate.png`、`09-hover-revise.png`、`05-single-version.png`、`06-delete-confirm-only.png`、`07-empty-after-delete.png`）、`versions-check.json`、`delete-flow-check.json`。
+
+- 单测：`..\Scripts\python.exe -B -m unittest competitor_insight.tests.test_report_service competitor_insight.tests.test_report_render_html` → 41 项通过；新增 `FingerprintScopeTest`（大纲/渲染器升级不改指纹、`upgrade_state` 提示、`fingerprint_rule` 声明）。
+- 7860 常驻服务未重启（月报浏览器保护规则），本批验收全部走 7861 隔离服务；7860 需重启后才生效。
 

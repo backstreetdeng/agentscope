@@ -4,7 +4,8 @@
 - 报告是「组竞品」报告，只覆盖竞品侧，不含本品对标；
 - 契约以 `config/report_outline.json` 为唯一来源：每页每块先声明 type/source/required，服务端逐块落内容并校验；
 - 所有数字来自即时分析取数或档案聚合，正文不写字面数字，样式与措辞不隐藏分母；
-- 报告固定一车一份，版本按 `data_fingerprint` 幂等：同指纹直接复用最新有效版本；
+- 报告固定一车一份，版本按 `data_fingerprint` 幂等：同数据指纹且同大纲/渲染器才复用最新有效版本；
+- 指纹只覆盖数据本身（分析配置、档案模板、样本量、档案代次）；大纲与渲染器版本单独记录，升级只提示可重新生成，不把旧版判死；
 - 页面标题结论与导语由模型按本车数据撰写，数字必须来自报告自身，失败或越界降级为只写主题。
 """
 
@@ -34,6 +35,10 @@ CONFIG_PATH = PROJECT_ROOT / "competitor_insight/config/analysis_models.json"
 
 BLOCK_TYPES = {"table", "bars", "kv", "quotes", "bullets"}
 BLOCK_STATUSES = {"ok", "partial", "insufficient", "missing", "empty"}
+
+# 指纹只回答「数据是否变了」；版式契约（大纲）与渲染器升级不算数据过期。
+FINGERPRINT_SCHEME = "report-fingerprint/2.0"
+FINGERPRINT_EXCLUDED = ("outline", "renderer")
 
 # 改稿：确定性指令保留，另开放「按自然语言指令重写一页」。
 REVISION_OPS = {"set_title", "limit_items", "append_refs", "rewrite_page"}
@@ -397,7 +402,9 @@ class PostgresReportStore:
         )
         return report_id
 
-    def find_by_fingerprint(self, fingerprint: str, model_key: str) -> dict[str, Any] | None:
+    def find_by_fingerprint(
+        self, fingerprint: str, model_key: str, outline_version: str = "", renderer: str = ""
+    ) -> dict[str, Any] | None:
         rows = self._run(
             """
             select v.report_version_id, v.report_id, v.version_no, v.version_label, v.generated_at, r.title
@@ -405,9 +412,12 @@ class PostgresReportStore:
             join bci.report r using (report_id)
             where r.model_key = %s and r.legacy = false and v.data_fingerprint = %s
               and v.status = 'valid' and v.revision_kind = 'generate'
+              and v.deleted_at is null
+              and coalesce(v.content->>'outline_version', '') = %s
+              and coalesce(v.content->>'renderer', '') = %s
             order by v.generated_at desc limit 1
             """,
-            (model_key, fingerprint),
+            (model_key, fingerprint, outline_version, renderer),
         )
         if not rows:
             return None
@@ -493,10 +503,12 @@ class PostgresReportStore:
             """
             select v.report_version_id, v.report_id, r.title, r.model_keys, r.model_key, r.legacy,
                    v.version_no, v.version_label, v.parent_version_id, v.revision_kind,
-                   v.generated_at, v.status, v.stale_reason, v.data_fingerprint
+                   v.generated_at, v.status, v.stale_reason, v.data_fingerprint,
+                   coalesce(v.content->>'outline_version', ''), coalesce(v.content->>'renderer', '')
             from bci.report_version v
             join bci.report r using (report_id)
             where (%s::text is null or r.model_key = %s::text) and r.legacy = false
+              and v.deleted_at is null
             order by v.generated_at desc
             limit %s
             """,
@@ -518,6 +530,8 @@ class PostgresReportStore:
                 "status": row[11],
                 "stale_reason": row[12] or "",
                 "data_fingerprint": row[13],
+                "outline_version": row[14] or "",
+                "renderer": row[15] or "",
             }
             for row in rows
         ]
@@ -527,7 +541,7 @@ class PostgresReportStore:
             """
             select report_version_id, version_no, version_label, parent_version_id, revision_kind,
                    generated_at, status, stale_reason
-            from bci.report_version where report_id = %s order by version_no
+            from bci.report_version where report_id = %s and deleted_at is null order by version_no
             """,
             (report_id,),
         )
@@ -551,7 +565,7 @@ class PostgresReportStore:
             select v.report_version_id, v.report_id, r.title, r.model_keys, r.model_key, r.legacy,
                    v.version_no, v.version_label, v.parent_version_id, v.revision_kind, v.patch,
                    v.content, v.html, v.data_fingerprint, v.source_snapshot, v.generated_at,
-                   v.status, v.stale_reason
+                   v.status, v.stale_reason, v.deleted_at
             from bci.report_version v
             join bci.report r using (report_id)
             where v.report_version_id = %s
@@ -580,6 +594,7 @@ class PostgresReportStore:
             "generated_at": row[15].isoformat() if hasattr(row[15], "isoformat") else str(row[15]),
             "status": row[16],
             "stale_reason": row[17] or "",
+            "deleted_at": row[18].isoformat() if row[18] and hasattr(row[18], "isoformat") else (str(row[18]) if row[18] else ""),
         }
 
     def mark_stale(self, report_version_id: str, reason: str) -> None:
@@ -588,6 +603,22 @@ class PostgresReportStore:
             (reason, report_version_id),
             fetch=False,
         )
+
+    def mark_valid(self, report_version_id: str) -> None:
+        self._run(
+            "update bci.report_version set status = 'valid', stale_reason = '' "
+            "where report_version_id = %s and status = 'stale'",
+            (report_version_id,),
+            fetch=False,
+        )
+
+    def soft_delete_version(self, report_version_id: str) -> bool:
+        rows = self._run(
+            "update bci.report_version set deleted_at = now() "
+            "where report_version_id = %s and deleted_at is null returning report_version_id",
+            (report_version_id,),
+        )
+        return bool(rows)
 
 
 # ---------------------------------------------------------------------- 服务
@@ -717,22 +748,97 @@ class BciReportService:
 
     @staticmethod
     def fingerprint(snapshot: dict[str, Any]) -> str:
-        payload = json.dumps(snapshot, ensure_ascii=False, sort_keys=True)
+        """数据指纹：排除 outline / renderer，只对数据身份取 SHA-256。"""
+        payload_snapshot = {
+            key: value for key, value in snapshot.items() if key not in FINGERPRINT_EXCLUDED
+        }
+        payload = json.dumps(payload_snapshot, ensure_ascii=False, sort_keys=True)
         return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+    @staticmethod
+    def fingerprint_rule() -> dict[str, Any]:
+        return {
+            "scheme": FINGERPRINT_SCHEME,
+            "included": [
+                "analysis_config.version / updated",
+                "archive_template.template_id / template_version",
+                "models[].sources（各数据源样本量）",
+                "models[].archives[].interview_id / revision / template_version / updated_at",
+            ],
+            "excluded": [
+                "outline（大纲版本升级只提示可重新生成）",
+                "renderer（渲染器升级只提示可重新导出）",
+                "prompt_version（提示词不进报告内容身份）",
+            ],
+        }
+
+    def upgrade_state(self, content: dict[str, Any] | None) -> dict[str, Any]:
+        """数据没变、但大纲或渲染器已升级时，给出可重新生成的提示。"""
+        content = content or {}
+        outline_now = self.outline()["version"]
+        items: list[dict[str, str]] = []
+        old_outline = str(content.get("outline_version") or "")
+        if old_outline and old_outline != outline_now:
+            items.append(
+                {"kind": "outline", "from": old_outline, "to": outline_now,
+                 "hint": f"大纲已升级 {old_outline} → {outline_now}，可重新生成获取新版式"}
+            )
+        old_renderer = str(content.get("renderer") or "")
+        if old_renderer and old_renderer != RENDERER_VERSION:
+            items.append(
+                {"kind": "renderer", "from": old_renderer, "to": RENDERER_VERSION,
+                 "hint": f"渲染器已升级 {old_renderer} → {RENDERER_VERSION}，可重新导出"}
+            )
+        return {
+            "available": bool(items),
+            "items": items,
+            "text": "；".join(item["hint"] for item in items),
+        }
+
+    def data_reason(self, stored: dict[str, Any] | None, current: dict[str, Any]) -> str:
+        """数据指纹不一致时，说清到底哪一项变了。"""
+        stored = stored or {}
+        parts: list[str] = []
+        if stored.get("analysis_config") != current.get("analysis_config"):
+            parts.append("分析配置版本变化")
+        if stored.get("archive_template") != current.get("archive_template"):
+            parts.append("档案模板版本变化")
+        old = (stored.get("models") or [{}])[0]
+        new = (current.get("models") or [{}])[0]
+        if old.get("sources") != new.get("sources"):
+            parts.append("样本量变化")
+        old_archives = {item["interview_id"]: item for item in old.get("archives") or []}
+        new_archives = {item["interview_id"]: item for item in new.get("archives") or []}
+        added = sorted(set(new_archives) - set(old_archives))
+        removed = sorted(set(old_archives) - set(new_archives))
+        changed = sorted(
+            key for key in set(old_archives) & set(new_archives)
+            if old_archives[key] != new_archives[key]
+        )
+        if added:
+            parts.append("新增档案 " + "、".join(added))
+        if removed:
+            parts.append("移除档案 " + "、".join(removed))
+        if changed:
+            parts.append("档案更新 " + "、".join(changed))
+        if not parts:
+            parts.append("底层数据已变化")
+        return "数据已变化：" + "；".join(parts)
 
     # ---------------------------------------------------------------- 生成
 
     def generate(self, model_keys: Iterable[str] | str, created_by: str = "web") -> dict[str, Any]:
         model_key = self._normalize_key(model_keys)
+        outline_version = self.outline()["version"]
         # 先用轻量快照判定是否已有同版本，命中直接复用，不为重复点击重跑完整取数。
         fingerprint = self.fingerprint(self.snapshot([model_key]))
-        existing = self.store.find_by_fingerprint(fingerprint, model_key)
+        existing = self.store.find_by_fingerprint(fingerprint, model_key, outline_version, RENDERER_VERSION)
         if existing:
             return self._reuse_payload(existing)
 
         content, snapshot = self.build([model_key])
         fingerprint = self.fingerprint(snapshot)
-        existing = self.store.find_by_fingerprint(fingerprint, model_key)
+        existing = self.store.find_by_fingerprint(fingerprint, model_key, outline_version, RENDERER_VERSION)
         if existing:
             return self._reuse_payload(existing)
 
@@ -772,6 +878,8 @@ class BciReportService:
         parent = self.store.get_version(report_version_id)
         if not parent:
             raise ReportError("report_not_found", "报告版本不存在", 404)
+        if parent.get("deleted_at"):
+            raise ReportError("report_version_deleted", "该版本已删除，不能再改稿", 409)
         if parent.get("legacy"):
             raise ReportError("legacy_readonly", "历史多车型报告已转只读，不能改稿", 409)
         if not isinstance(operations, list) or not operations:
@@ -1306,6 +1414,7 @@ class BciReportService:
 
         content = {
             "outline_version": outline["version"],
+            "renderer": RENDERER_VERSION,
             "title": f"{labels[0]} 竞品用户洞察报告" if len(labels) == 1 else f"{len(model_keys)} 款车型竞品用户洞察报告",
             "subtitle": "竞品侧用户洞察 · 定量 + 深访 + 口碑",
             "scope_note": outline.get("scope_note", ""),

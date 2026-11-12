@@ -1807,7 +1807,7 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
         if parsed.path.startswith('/api/bci/archive/'):
             self._handle_bci_archive_post(parsed)
             return
-        if parsed.path.startswith('/api/bci/report/') and parsed.path.endswith(('/generate', '/revise')):
+        if parsed.path.startswith('/api/bci/report/') and parsed.path.endswith(('/generate', '/revise', '/version/delete')):
             self._handle_bci_report_post(parsed)
             return
         if self.path not in {"/api/assistant/chat", "/api/chat", "/api/ppt", "/api/audio-tags/run", "/api/quality-gate", "/api/market-skill/validate", "/api/intelligence/export", "/api/projects/update", "/api/macro-ledger", "/api/monthly-report/jobs", "/api/monthly-report/jobs/cancel", "/api/monthly-report/jobs/resume", "/api/macro-report/jobs", "/api/macro-report/jobs/cancel", "/api/macro-report/jobs/resume", "/api/insight/interview/query", "/api/insight/battle/analyze", "/api/insight/quant/stat", "/api/insight/quant/options", "/api/insight/joint/analyze", "/api/insight/segment/clusters", "/api/insight/satisfaction/painpoints", "/api/insight/repurchase/intent", "/api/insight/matrix/match", "/api/insight/compare", "/api/insight/cross/validate", "/api/insight/agent/query", "/api/insight/agent/stream"}:
@@ -2687,7 +2687,12 @@ class AgentDemoHandler(BaseHTTPRequestHandler):
             if not isinstance(payload, dict):
                 raise ValueError('报告请求必须为对象。')
             api = bci_report_api()
-            result = api.revise(payload) if parsed.path.endswith('/revise') else api.generate(payload)
+            if parsed.path.endswith('/version/delete'):
+                result = api.delete_version(str(payload.get('report_version_id') or ''))
+            elif parsed.path.endswith('/revise'):
+                result = api.revise(payload)
+            else:
+                result = api.generate(payload)
         except ReportError as exc:
             self._send_json({'ok': False, 'error': {'code': exc.code, 'message': str(exc)}}, status=exc.status)
             return
